@@ -533,10 +533,7 @@ public class Runner extends AbstractTestNGCucumberTests {
 
 				if (parts.length == 2) {
 					String bugId = parts[0].trim();
-					String scenarioName = normalizeScenarioName(parts[1]);
-					if (scenarioName.regionMatches(true, 0, "Scenario:", 0, "Scenario:".length())) {
-						scenarioName = normalizeScenarioName(scenarioName.substring("Scenario:".length()));
-					}
+					String scenarioName = parts[1].trim().replaceAll("\\s+", " ");
 
 					knownIssues.put(scenarioName, bugId);
 				}
@@ -547,44 +544,5 @@ public class Runner extends AbstractTestNGCucumberTests {
 		} catch (Exception e) {
 			LOGGER.warning("Error reading Known_Issues.txt: " + e.getMessage());
 		}
-	}
-
-	public static String getKnownIssueBugId(String scenarioName) {
-		if (scenarioName == null) {
-			return null;
-		}
-		return knownIssues.get(normalizeScenarioName(scenarioName));
-	}
-
-	public static boolean isKnownIssue(String scenarioName) {
-		return getKnownIssueBugId(scenarioName) != null;
-	}
-
-	public static String formatBugDisplayId(String bugId) {
-		if (bugId == null || bugId.isBlank()) {
-			return "";
-		}
-		if (bugId.startsWith("http://") || bugId.startsWith("https://")) {
-			int lastSlash = bugId.lastIndexOf('/');
-			return lastSlash >= 0 && lastSlash < bugId.length() - 1 ? "#" + bugId.substring(lastSlash + 1) : bugId;
-		}
-		return bugId.matches("\\d+") ? "#" + bugId : bugId;
-	}
-
-	public static String getKnownIssueUrl(String bugId) {
-		if (bugId == null || bugId.isBlank()) {
-			return "";
-		}
-		if (bugId.startsWith("http://") || bugId.startsWith("https://")) {
-			return bugId;
-		}
-		if (bugId.matches("\\d+")) {
-			return "https://github.com/mosip/esignet/issues/" + bugId;
-		}
-		return "https://mosip.atlassian.net/browse/" + bugId;
-	}
-
-	private static String normalizeScenarioName(String name) {
-		return name == null ? "" : name.trim().replaceAll("\\s+", " ");
 	}
 }

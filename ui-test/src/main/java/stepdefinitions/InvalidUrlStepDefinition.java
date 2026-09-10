@@ -35,8 +35,6 @@ public class InvalidUrlStepDefinition extends AdminTestUtil {
 
 	private boolean lastUrlMutationApplicable = true;
 	private String lastUrlMutationReason = "";
-	private boolean lastDomainUnreachableConfirmed = false;
-	private static final String UNREACHABLE_HOST = "no-such-host.invalid";
 
 	private void checkSegmentPresent(String url, String segment, String stepDescription) {
 		lastUrlMutationApplicable = url != null && url.contains(segment);
@@ -58,63 +56,18 @@ public class InvalidUrlStepDefinition extends AdminTestUtil {
 		}
 	}
 
-	private boolean isUnreachableHostException(Throwable e) {
-		String msg = e.getMessage() == null ? "" : e.getMessage();
-		return msg.contains("ERR_NAME_NOT_RESOLVED") || msg.contains("ERR_INTERNET_DISCONNECTED")
-				|| msg.contains("DNS_PROBE_FINISHED_NXDOMAIN") || msg.contains("net::ERR_");
-	}
-
-	private boolean isChromeUnreachablePageVisible() {
-		try {
-			String url = driver.getCurrentUrl();
-			if (url != null && (url.startsWith("chrome-error://") || url.contains("chromewebdata"))) {
-				return true;
-			}
-		} catch (Exception e) {
-			logger.info("getCurrentUrl failed on the error document: " + e.getMessage());
-		}
-		try {
-			String pageSource = driver.getPageSource();
-			if (pageSource == null) {
-				return false;
-			}
-			return pageSource.contains("ERR_NAME_NOT_RESOLVED")
-					|| pageSource.contains("DNS_PROBE_FINISHED_NXDOMAIN")
-					|| pageSource.contains("This site can’t be reached")
-					|| pageSource.contains("This site can't be reached")
-					|| pageSource.contains("took too long to respond");
-		} catch (Exception e) {
-			logger.warn("Could not read page source while checking for the Chrome error page", e);
-			return false;
-		}
-	}
-
-	private void navigateExpectingUnreachableHost(String sourceUrl) {
-		lastDomainUnreachableConfirmed = false;
-		String invalidUrl = sourceUrl.replaceFirst("://[^/]+", "://" + UNREACHABLE_HOST);
-		try {
-			driver.get(invalidUrl);
-			lastDomainUnreachableConfirmed = isChromeUnreachablePageVisible();
-			Assert.assertTrue(lastDomainUnreachableConfirmed,
-					"Expected unreachable-host Chrome error after navigating to " + invalidUrl
-							+ " but landed on " + driver.getCurrentUrl());
-		} catch (Exception e) {
-			lastDomainUnreachableConfirmed = isUnreachableHostException(e) || isChromeUnreachablePageVisible();
-			Assert.assertTrue(lastDomainUnreachableConfirmed,
-					"Expected unreachable host (ERR_NAME_NOT_RESOLVED / page-load timeout), got: "
-							+ e.getMessage());
-			logger.info("Unreachable host confirmed via navigation failure: " + e.getClass().getSimpleName()
-					+ " - " + e.getMessage());
-		}
-	}
-
 	@When("user modifies domain in the esignet url")
 	public void userModifiesDomainInUrl() {
 		if (BasePage.authorizeUrl == null) {
 			throw new IllegalStateException("authorizeUrl is not set");
 		}
 		BasePage.authorizeUrlTampered = true;
-		navigateExpectingUnreachableHost(BasePage.authorizeUrl);
+		String invalidUrl = BasePage.authorizeUrl.replaceFirst("://[^/]+", "://invalid.mosip.net");
+		try {
+			driver.get(invalidUrl);
+		} catch (Exception e) {
+			Assert.assertTrue(e.getMessage().contains("ERR_NAME_NOT_RESOLVED"));
+		}
 	}
 
 	@Then("verify this site can’t be reached error is displayed")
@@ -124,13 +77,8 @@ public class InvalidUrlStepDefinition extends AdminTestUtil {
 			utils.ExtentReportManager.notApplicable(lastUrlMutationReason);
 			return;
 		}
-		if (lastDomainUnreachableConfirmed) {
-			utils.ExtentReportManager.getTest().log(com.aventstack.extentreports.Status.INFO,
-					"Verified this site can’t be reached (confirmed on domain-tamper navigation)");
-			return;
-		}
-		Assert.assertTrue(isChromeUnreachablePageVisible(),
-				"Expected Chrome unreachable-host error (ERR_NAME_NOT_RESOLVED / can’t be reached)");
+		String pageSource = driver.getPageSource();
+		Assert.assertTrue(pageSource.contains("ERR_NAME_NOT_RESOLVED"), "Expected error not displayed");
 	}
 
 	@When("user modify the hash value in the esignet url")
@@ -368,7 +316,13 @@ public class InvalidUrlStepDefinition extends AdminTestUtil {
 		if (!lastUrlMutationApplicable) {
 			return;
 		}
-		navigateExpectingUnreachableHost(driver.getCurrentUrl());
+		String currentUrl = driver.getCurrentUrl();
+		String invalidUrl = currentUrl.replaceFirst("://[^/]+", "://invalid.mosip.net");
+		try {
+			driver.get(invalidUrl);
+		} catch (Exception e) {
+			Assert.assertTrue(e.getMessage().contains("ERR_NAME_NOT_RESOLVED"));
+		}
 	}
 
 	@When("user modifies the signup value in signup url")

@@ -22,7 +22,7 @@ public class ClaimsUtil {
 	public static void parseFromUrl(String url) {
 		try {
 			if (url == null || !url.contains("#")) {
-				logger.info("No encoded part found in URL");
+				logger.info("No encoded part found in URL: " + url);
 				root = null;
 				return;
 			}
@@ -38,9 +38,9 @@ public class ClaimsUtil {
 			String jsonString = new String(decoded, StandardCharsets.UTF_8);
 			root = new JSONObject(jsonString);
 
-			logger.info("Decoded URL JSON successfully");
+			logger.info("Decoded URL JSON: " + root.toString());
 		} catch (Exception e) {
-			logger.info("Failed to decode URL: " + e.getClass().getSimpleName());
+			logger.info("Failed to decode URL: " + e.getMessage());
 			root = null;
 		}
 	}
@@ -123,9 +123,6 @@ public class ClaimsUtil {
 
 		if (factors.isEmpty() && !driver.findElements(By.id("username_input")).isEmpty()) {
 			factors.add("SINGLE_FACTOR");
-		}
-		if (factors.isEmpty() && EsignetUtil.isKbiOnlyLogin()) {
-			factors.add("KBI");
 		}
 		return factors;
 	}

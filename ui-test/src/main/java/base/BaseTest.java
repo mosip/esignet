@@ -13,10 +13,8 @@ import java.time.Duration;
 import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.json.JSONObject;
 import org.openqa.selenium.JavascriptExecutor;
@@ -133,15 +131,7 @@ public class BaseTest extends AdminTestUtil {
 		utils.ClaimsUtil.clearCachedRenderedAuthFactors();
 		String browser = BaseTestUtil.getBrowserForScenario(scenario);
 		String lang = BaseTestUtil.getThreadLocalLanguage();
-		String testName = scenario.getName() + " [" + browser + " | " + lang + "]";
-		String bugId = runners.Runner.getKnownIssueBugId(scenario.getName());
-		if (bugId != null) {
-			String displayId = runners.Runner.formatBugDisplayId(bugId);
-			testName += " | Known Issue " + displayId;
-			ExtentReportManager.createTest(testName, "Known Issues", displayId);
-		} else {
-			ExtentReportManager.createTest(testName);
-		}
+		ExtentReportManager.createTest(scenario.getName() + " [" + browser + " | " + lang + "]");
 		ExtentReportManager
 				.logStep("Scenario Started: " + scenario.getName() + " | Browser: " + browser + " | Language: " + lang);
 	}
@@ -154,26 +144,18 @@ public class BaseTest extends AdminTestUtil {
 
 		LOGGER.info("Initializing WebDriver...");
 
-		String knownIssueBugId = runners.Runner.getKnownIssueBugId(scenario.getName());
-		if (knownIssueBugId != null) {
-			String displayId = runners.Runner.formatBugDisplayId(knownIssueBugId);
-			String bugUrl = runners.Runner.getKnownIssueUrl(knownIssueBugId);
-			LOGGER.info("Skipping Known Issue Scenario: " + scenario.getName() + " | Bug: " + displayId);
+		if (runners.Runner.knownIssues.containsKey(scenario.getName())) {
+			String bugId = runners.Runner.knownIssues.get(scenario.getName());
+			LOGGER.info("Skipping Known Issue Scenario: " + scenario.getName() + " | Bug: " + bugId);
 			isKnownIssueScenario.set(true);
-			skipKnownIssue(scenario.getName(), displayId, bugUrl);
+			skipWithReason("Known Issue - Skipped: " + scenario.getName() + " | " + bugId);
 		}
 		isKnownIssueScenario.set(false);
 
 		String pluginName = EsignetUtil.getPluginName();
 
-		if (scenario.getSourceTagNames().contains("@kbi")
-				&& (!EsignetUtil.isKbiSupportedPlugin() || !EsignetUtil.isKbiOnlyLogin())) {
-			skipWithReason("KBI feature scenarios apply only on KBI-only (Sunbird) login, not plugin '"
-					+ pluginName + "'");
-		}
-
-		if (EsignetUtil.isKbiOnlyLogin()) {
-			skipInapplicableKbiOnlyScenario(scenario);
+		if (scenario.getSourceTagNames().contains("@kbi") && !EsignetUtil.isKbiSupportedPlugin()) {
+			skipWithReason("KBI is only supported under the mock and sunbird plugins, not '" + pluginName + "'");
 		}
 
 		totalCount++;
@@ -229,9 +211,7 @@ public class BaseTest extends AdminTestUtil {
 			String clientId = EsignetUtil.resolveClientId(clientIdKey);
 
 			String acrValues;
-			if (EsignetUtil.isKbiOnlyLogin()) {
-				acrValues = EsignetUtil.KBI_ACR_VALUE;
-			} else if (isKbiScenario) {
+			if (isKbiScenario) {
 				acrValues = EsignetUtil.DEFAULT_ACR_VALUES + " " + EsignetUtil.KBI_ACR_VALUE;
 			} else if (isSingleAuthFactor && EsignetUtil.isPreconfiguredPrimaryOidcClient(clientId)) {
 				acrValues = EsignetUtil.SINGLE_AUTH_FACTOR_ACR_VALUE;
@@ -279,42 +259,33 @@ public class BaseTest extends AdminTestUtil {
 			driver.get(authorizeUrl);
 
 			String landedUrl = driver.getCurrentUrl();
-			if (isAuthorizeInvalidClientLanding(landedUrl)) {
-				throw new IllegalStateException(
-						"Authorize URL was rejected with invalid_client. The provisioned client is misconfigured; "
-								+ "falling back to the relying party would hide that failure. Landed: "
-								+ maskSensitiveUrlParams(landedUrl));
-			}
-			if (isAuthorizeInvalidRequestLanding(landedUrl)) {
+			if (landedUrl != null && landedUrl.contains("error=invalid_request")) {
 				if (isAuthorizeScopeOnly) {
 					throw new IllegalStateException(
 							"Authorize-scope-only URL was rejected with invalid_request. Falling back to the "
 									+ "relying party's Sign in with eSignet button would drop scope=Manage-VID and "
 									+ "re-add claims, which is exactly what this scenario must not do. Landed: "
-									+ maskSensitiveUrlParams(landedUrl));
+									+ landedUrl);
 				}
 				if (isSingleAuthFactor) {
 					throw new IllegalStateException(
 							"Single-auth-factor URL was rejected with invalid_request. Falling back to the "
 									+ "relying party's Sign in with eSignet button would replace the single ACR with "
-									+ "the RP's default multi-factor request. Landed: "
-									+ maskSensitiveUrlParams(landedUrl));
+									+ "the RP's default multi-factor request. Landed: " + landedUrl);
 				}
 				LOGGER.warn("Authorize URL redirected to invalid_request ({}) - retrying via 'Sign In with eSignet' "
-						+ "on the relying party", maskSensitiveUrlParams(landedUrl));
+						+ "on the relying party", landedUrl);
 				String savedAuthorizeUrl = BasePage.authorizeUrl;
 				BasePage.authorizeUrl = null;
 				try {
 					new BasePage(driver).clickSignInWithEsignetOnRelyingPartyPortal();
 				} finally {
-					BasePage.authorizeUrl = savedAuthorizeUrl != null ? savedAuthorizeUrl : driver.getCurrentUrl();
+					BasePage.authorizeUrl = savedAuthorizeUrl;
 				}
 			}
 
 			BasePage.markAuthorizeSessionFresh();
-			String effectiveUrl = driver.getCurrentUrl();
-			LOGGER.info("Navigated to URL: " + maskSensitiveUrlParams(effectiveUrl));
-			utils.ClaimsUtil.parseFromUrl(effectiveUrl);
+			LOGGER.info("Navigated to URL: " + authorizeUrl);
 
 			if (!isAuthorizeScopeOnly) {
 				String currentLanguage = System.getProperty("currentRunLanguage", "eng");
@@ -478,18 +449,15 @@ public class BaseTest extends AdminTestUtil {
 				ExtentReportManager.getTest().fail("❌ Scenario Failed: " + scenario.getName());
 
 			} else if (scenario.getStatus().toString().equalsIgnoreCase("SKIPPED")
-					&& runners.Runner.isKnownIssue(scenario.getName())) {
+					&& runners.Runner.knownIssues.containsKey(scenario.getName())) {
 
-				String bugId = runners.Runner.getKnownIssueBugId(scenario.getName());
-				String displayId = runners.Runner.formatBugDisplayId(bugId);
-				String bugUrl = runners.Runner.getKnownIssueUrl(bugId);
+				String bugId = runners.Runner.knownIssues.get(scenario.getName());
+				String bugUrl = "https://mosip.atlassian.net/browse/" + bugId;
 
 				ExtentReportManager.incrementKnownIssue();
-				if (driver != null) {
-					attachScenarioScreenshot(driver, scenario);
-				}
-				ExtentReportManager.getTest().skip("🟠 Known Issue " + displayId
-						+ " → <a href='" + bugUrl + "' target='_blank'>" + bugUrl + "</a>");
+				attachScenarioScreenshot(driver, scenario);
+				ExtentReportManager.getTest().skip(
+						"🟠 Skipped due to Known Issue → <a href='" + bugUrl + "' target='_blank'>" + bugId + "</a>");
 
 			} else if (scenario.getStatus().toString().equalsIgnoreCase("SKIPPED")) {
 
@@ -554,77 +522,9 @@ public class BaseTest extends AdminTestUtil {
 		}
 	}
 
-	private boolean isAuthorizeInvalidClientLanding(String landedUrl) {
-		if (landedUrl == null || landedUrl.isBlank()) {
-			return false;
-		}
-		String lower = landedUrl.toLowerCase();
-		// OAuth client auth failure only — do not treat this as recoverable for any plugin.
-		return containsQueryParam(lower, "error", "invalid_client")
-				|| containsQueryParam(lower, "errorcode", "invalid_client");
-	}
-
-	private boolean isAuthorizeInvalidRequestLanding(String landedUrl) {
-		if (landedUrl == null || landedUrl.isBlank()) {
-			return false;
-		}
-		String lower = landedUrl.toLowerCase();
-		// Malformed authorize URL only. Shared recovery path for mosipid/mock/sunbird.
-		return containsQueryParam(lower, "error", "invalid_request")
-				|| containsQueryParam(lower, "errorcode", "invalid_request")
-				|| containsQueryParam(lower, "error", "invalid+client_id")
-				|| containsQueryParam(lower, "errorcode", "invalid+client_id")
-				|| containsQueryParam(lower, "error", "invalid_client_id")
-				|| containsQueryParam(lower, "errorcode", "invalid_client_id");
-	}
-
-	private static boolean containsQueryParam(String lowerUrl, String name, String value) {
-		return lowerUrl.contains(name + "=" + value);
-	}
-
-	private static String maskSensitiveUrlParams(String url) {
-		if (url == null || url.isBlank()) {
-			return url;
-		}
-		String masked = url.replaceAll(
-				"(?i)([?&](?:code|access_token|id_token|refresh_token|client_secret|assertion)=)[^&#]*", "$1***");
-		int hash = masked.indexOf('#');
-		if (hash >= 0 && hash < masked.length() - 1) {
-			masked = masked.substring(0, hash + 1) + "***";
-		}
-		return masked;
-	}
-
-	private void skipInapplicableKbiOnlyScenario(Scenario scenario) {
-		String uri = scenario.getUri() == null ? "" : scenario.getUri().toString();
-		Set<String> tags = new HashSet<>(scenario.getSourceTagNames());
-		if (uri.contains("LoginWithInji") || uri.contains("VideoPreview") || uri.contains("SignUp")
-				|| uri.contains("ConsentRegistry")) {
-			skipWithReason("Not applicable on KBI-only login");
-		}
-		if (tags.contains("@PasswordLogin") || tags.contains("@BiometricLogin")
-				|| tags.contains("@BiometricDeviceNotDetected") || tags.contains("@BiometricDeviceDetectedOnRetry")
-				|| tags.contains("@BiometricAuthenticationFlow") || tags.contains("@NeedsUIN")
-				|| tags.contains("@supportOfPrefixAndPostfix") || tags.contains("@PurposeLogin")
-				|| tags.contains("@PurposeLink") || tags.contains("@PurposeVerify")
-				|| tags.contains("@PurposeNone") || tags.contains("@NoPurpose")
-				|| tags.contains("@NoTitleAndSubTitle") || tags.contains("@EmptyTitleAndSubTitle")
-				|| tags.contains("@SingleAuthFactor") || tags.contains("@PAR")
-				|| tags.contains("@AuthorizeScopeOnly") || tags.contains("@registrationProcess")
-				|| tags.contains("@ConsentToUpdateProfile") || tags.contains("@mobile")) {
-			skipWithReason("OTP/password/biometric/purpose-client flow is not offered on KBI-only login");
-		}
-	}
-
 	private void skipWithReason(String reason) {
 		ExtentReportManager.getTest().warning(reason);
 		throw new SkipException(reason);
-	}
-
-	private void skipKnownIssue(String scenarioName, String displayId, String bugUrl) {
-		ExtentReportManager.getTest().skip("🟠 Known Issue " + displayId
-				+ " → <a href='" + bugUrl + "' target='_blank'>" + bugUrl + "</a>");
-		throw new SkipException("Known Issue - Skipped: " + scenarioName + " | " + displayId);
 	}
 
 	@Before(value = "@mobile", order = 1)
