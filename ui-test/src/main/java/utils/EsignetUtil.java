@@ -2455,7 +2455,252 @@ public class EsignetUtil extends AdminTestUtil {
 	}
 
 	public static String generateDynamicMockIdentityRequest(String schemaStr, String testCaseName) {
-		return AdminTestUtil.generateDynamicRequestFromSchema(schemaStr, testCaseName, MOCK_IDENTITY_VALUE_MAP);
+		return buildMockIdentityRequestFromSchema(schemaStr, testCaseName, MOCK_IDENTITY_VALUE_MAP);
+	}
+
+	/**
+	 * Local copy of apitest-commons 1.7+ schema-driven request generation so ui-test can stay
+	 * on apitest-commons 1.6.0 (which does not expose this API).
+	 */
+	private static String buildMockIdentityRequestFromSchema(String schemaStr, String testCaseName,
+			Properties valueMap) {
+		try {
+			JSONObject fullSchema = new JSONObject(schemaStr);
+			JSONObject schemaRoot = fullSchema.has(GlobalConstants.RESPONSE)
+					? fullSchema.getJSONObject(GlobalConstants.RESPONSE)
+					: fullSchema;
+
+			JSONObject identity = (JSONObject) processMockIdentitySchema(schemaRoot, fullSchema, GlobalConstants.REQUEST,
+					null, true, testCaseName, valueMap);
+
+			return new JSONObject().put(GlobalConstants.REQUEST, identity).put("requestTime", GlobalConstants.TIMESTAMP)
+					.toString();
+		} catch (Exception e) {
+			throw new RuntimeException("Failed to generate dynamic request from schema", e);
+		}
+	}
+
+	private static Object processMockIdentitySchema(JSONObject schema, JSONObject root, String field, String parentField,
+			boolean required, String testCaseName, Properties valueMap) {
+
+		schema = resolveMockIdentitySchema(schema, root);
+
+		String type = schema.optString("type", "string");
+
+		if (schema.has("type") && schema.get("type") instanceof JSONArray) {
+			JSONArray types = schema.getJSONArray("type");
+			for (int i = 0; i < types.length(); i++) {
+				String candidate = types.getString(i);
+				if ("array".equals(candidate) || "object".equals(candidate)) {
+					type = candidate;
+					break;
+				}
+			}
+		}
+
+		switch (type) {
+
+		case "object":
+			JSONObject obj = new JSONObject();
+			JSONObject props = schema.optJSONObject("properties");
+			JSONArray req = schema.optJSONArray("required");
+
+			if (props != null) {
+				for (String key : props.keySet()) {
+					boolean isReq = req != null && req.toList().contains(key);
+					obj.put(key, processMockIdentitySchema(props.getJSONObject(key), root, key, key, isReq, testCaseName,
+							valueMap));
+				}
+			}
+			return obj;
+
+		case "array":
+			JSONArray arr = new JSONArray();
+			JSONObject items = schema.optJSONObject("items");
+
+			if (items == null && schema.has("allOf")) {
+				JSONArray allOf = schema.getJSONArray("allOf");
+				for (int i = 0; i < allOf.length(); i++) {
+					JSONObject part = resolveMockIdentitySchema(allOf.getJSONObject(i), root);
+					if (part.has("items")) {
+						items = part.getJSONObject("items");
+						break;
+					}
+				}
+				if (items == null) {
+					items = allOf.getJSONObject(allOf.length() - 1);
+				}
+			}
+
+			if (items == null)
+				return arr;
+
+			items = resolveMockIdentitySchema(items, root);
+			JSONObject propsArr = items.optJSONObject("properties");
+
+			if (propsArr != null && propsArr.has("language") && propsArr.has("value")) {
+
+				JSONArray langArr = new JSONArray();
+				JSONObject row = new JSONObject();
+				row.put("language", "eng");
+
+				String keyToUse = resolveMockIdentitySchemaKey(field, parentField);
+
+				String propValue = null;
+				if (!"phone".equalsIgnoreCase(keyToUse) && !"individualId".equalsIgnoreCase(keyToUse)) {
+					propValue = valueMap.getProperty(keyToUse);
+					if (propValue == null) {
+						propValue = valueMap.getProperty(keyToUse.toLowerCase());
+					}
+				}
+
+				Object val;
+				if (propValue != null && !propValue.trim().isEmpty()) {
+					if ("fullname".equalsIgnoreCase(keyToUse) || "givenname".equalsIgnoreCase(keyToUse)
+							|| "familyname".equalsIgnoreCase(keyToUse)) {
+						propValue = propValue.replaceAll("[^a-zA-Z\\s]", "");
+					}
+					val = propValue;
+				} else {
+					val = generateMockIdentitySchemaValue(propsArr.getJSONObject("value"), keyToUse, testCaseName,
+							valueMap);
+				}
+
+				row.put("value", val);
+				langArr.put(row);
+				return langArr;
+			}
+
+			arr.put(processMockIdentitySchema(items, root, field, parentField, true, testCaseName, valueMap));
+			return arr;
+
+		default:
+
+			String keyToUse = resolveMockIdentitySchemaKey(field, parentField);
+
+			String propValue = null;
+			if (!"phone".equalsIgnoreCase(keyToUse) && !"individualId".equalsIgnoreCase(keyToUse)) {
+				propValue = valueMap.getProperty(keyToUse);
+				if (propValue == null) {
+					propValue = valueMap.getProperty(keyToUse.toLowerCase());
+				}
+			}
+
+			if (propValue != null && !propValue.trim().isEmpty()) {
+				return propValue;
+			}
+
+			Object override = getMockIdentitySchemaOverrideValue(keyToUse, testCaseName);
+			if (override != null) {
+				return override;
+			}
+
+			return generateMockIdentitySchemaValue(schema, keyToUse, testCaseName, valueMap);
+		}
+	}
+
+	private static Object generateMockIdentitySchemaValue(JSONObject schema, String field, String testCaseName,
+			Properties valueMap) {
+
+		if ("email".equalsIgnoreCase(field)) {
+			return testCaseName + "@mosip.net";
+		}
+
+		if (!"phone".equalsIgnoreCase(field) && !"individualId".equalsIgnoreCase(field)) {
+			String propValue = valueMap.getProperty(field);
+			if (propValue == null) {
+				propValue = valueMap.getProperty(field.toLowerCase());
+			}
+			if (propValue != null && !propValue.trim().isEmpty()) {
+				if ("fullname".equalsIgnoreCase(field) || "givenname".equalsIgnoreCase(field)
+						|| "familyname".equalsIgnoreCase(field)) {
+					propValue = propValue.replaceAll("[^a-zA-Z\\s]", "");
+				}
+				return propValue;
+			}
+		}
+
+		if (schema.has("pattern")) {
+			try {
+				String originalPattern = schema.getString("pattern");
+				String strippedPattern = originalPattern.replaceAll("\\(\\?=.*?\\)", "");
+				Pattern compiledOriginal = Pattern.compile(originalPattern);
+
+				String candidate = null;
+				for (int attempt = 0; attempt < 10; attempt++) {
+					candidate = genStringAsperRegex(strippedPattern);
+					if (compiledOriginal.matcher(candidate).matches()) {
+						return candidate;
+					}
+				}
+				logger.warn("Could not generate a value satisfying pattern '" + originalPattern
+						+ "' after stripping lookaheads; falling back.");
+			} catch (Exception ignored) {
+			}
+		}
+
+		if (schema.has("enum")) {
+			JSONArray arr = schema.getJSONArray("enum");
+			return arr.get(0);
+		}
+
+		return "Test_" + field;
+	}
+
+	private static JSONObject resolveMockIdentitySchema(JSONObject schema, JSONObject root) {
+
+		JSONObject result = new JSONObject();
+		JSONObject effectiveRoot = root.has(GlobalConstants.RESPONSE) ? root.getJSONObject(GlobalConstants.RESPONSE)
+				: root;
+
+		if (schema.has("$ref")) {
+			String ref = schema.getString("$ref");
+			Object current = effectiveRoot;
+			for (String part : ref.substring(2).split("/")) {
+				current = ((JSONObject) current).get(part);
+			}
+			result = mergeMockIdentitySchema(result, (JSONObject) current);
+		}
+
+		if (schema.has("allOf")) {
+			JSONArray arr = schema.getJSONArray("allOf");
+			for (int i = 0; i < arr.length(); i++) {
+				result = mergeMockIdentitySchema(result, resolveMockIdentitySchema(arr.getJSONObject(i), effectiveRoot));
+			}
+		}
+
+		JSONObject copy = new JSONObject(schema.toString());
+		copy.remove("$ref");
+		copy.remove("allOf");
+
+		return mergeMockIdentitySchema(result, copy);
+	}
+
+	private static JSONObject mergeMockIdentitySchema(JSONObject base, JSONObject override) {
+		JSONObject result = new JSONObject(base.toString());
+		for (String key : override.keySet()) {
+			Object val = override.get(key);
+			if (result.has(key) && result.get(key) instanceof JSONObject && val instanceof JSONObject) {
+				result.put(key, mergeMockIdentitySchema(result.getJSONObject(key), (JSONObject) val));
+			} else {
+				result.put(key, val);
+			}
+		}
+		return result;
+	}
+
+	private static Object getMockIdentitySchemaOverrideValue(String field, String testCaseName) {
+		if ("email".equalsIgnoreCase(field)) {
+			return testCaseName + "@mosip.net";
+		}
+		return null;
+	}
+
+	private static String resolveMockIdentitySchemaKey(String field, String parentField) {
+		if ("value".equalsIgnoreCase(field) || "items".equalsIgnoreCase(field) || "request".equalsIgnoreCase(field)) {
+			return parentField != null ? parentField : field;
+		}
+		return field;
 	}
 
 	public void extractAndStoreMockIdentityDetails(String testCaseName, String requestBody) {
