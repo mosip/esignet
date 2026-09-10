@@ -101,7 +101,9 @@ The plugin is **auto-detected** from the eSignet server's actuator (`EsignetUtil
 
 Prerequisites specific to one plugin are skipped for the others automatically (`EsignetUtil.isTestCaseValidForExecution`), so the same `esignetPrerequisiteSuite.xml` runs unmodified regardless of which plugin the server turns out to be.
 
-Mock MDS biometric login uses the tracked Mock SBI fixture `certs/device-dsk-partner.p12` (copied at runtime to `device-dsk-partner.p12` because Mock SBI expects that filename). For mosipid, supply a deployment-specific keystore outside git via `mdsP12Path` or a local `certs/device-dsk-partner-mosipid.p12`; otherwise the same fixture is used.
+Mock MDS biometric login uses the tracked Mock SBI fixture `certs/device-dsk-partner.p12` (copied at runtime to `device-dsk-partner.p12` because Mock SBI expects that filename). For `pluginToExecute=mosipid`, the suite prefers `certs/device-dsk-partner-mosipid.p12` (also tracked and packaged into the JAR/Docker image) so Rancher biometric runs verify against the mosipid IDA trust chain; override with `mdsP12Path` when a deployment needs a different keystore. `MockMdsManager` rewrites Mock SBI `keyalias` to match the selected p12 (`keyalias` for mock, `device` for mosipid) and seeds `Biometric Devices/*/Keys/mosip-ida.cer` from `certs/ida-fir-released.cer` when those files are missing.
+
+Rancher/Docker can override baked `config.properties` defaults with JVM `-D` / `JAVA_EXTRA_OPTS` for at least: `pluginToExecute`, `sunbirdAuthenticatorActive`, `esignetActuatorEnabled`, `useMockMds`, `mdsP12Path`, `idaFirCertificate`, `runDocker`, `headless`, `runOnBrowserStack`.
 
 ## 🪪 Login identity sourcing
 
