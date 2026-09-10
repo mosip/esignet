@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.json.JSONObject;
+import org.openqa.selenium.Dimension;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.remote.RemoteWebDriver;
@@ -196,7 +197,11 @@ public class BaseTest extends AdminTestUtil {
 			jseThreadLocal.set((JavascriptExecutor) driver);
 			BaseTestUtil.applyLocaleOverrideViaCdp(driver);
 
-			driver.manage().window().maximize();
+			if (Boolean.parseBoolean(EsignetConfigManager.getproperty("headless"))) {
+				driver.manage().window().setSize(new Dimension(1920, 1080));
+			} else {
+				driver.manage().window().maximize();
+			}
 			driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(30));
 
 			String baseUrl = EsignetConfigManager.getproperty("eSignetbaseurl");
