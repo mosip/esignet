@@ -121,7 +121,7 @@ type CertificateData struct {
 }
 ```
 
-`identifiers` and `credentials` are `map[string]interface{}` arguments — `Authenticate` receives both; `SendOTP` receives only `identifiers` (plus `metadata`, in both cases). They split the login form's inputs, but not strictly by "sensitive vs. not" — the actual split, per the flow executor that builds these maps, is: a UIN/username lands in `identifiers`; OTP and password land in `credentials` (they arrive as sensitive `OTP_INPUT`/`PASSWORD_INPUT` flow inputs); PIN and biometric payloads land in `identifiers`, not `credentials`; and an arbitrary KBI challenge (no fixed field set) is read from whatever remains in `credentials`. See [`internal/engine/mock/authenticator.go`](../esignet-service/internal/engine/mock/authenticator.go)'s `setChallenge` function for the exact per-factor mapping.
+`identifiers` and `credentials` are `map[string]interface{}` arguments — `Authenticate` receives both; `SendOTP` receives only `identifiers` (plus `metadata`, in both cases). They split the login form's inputs, but not strictly by "sensitive vs. not" — the actual split, per the flow executor that builds these maps, is: a UIN/username lands in `identifiers`; OTP and password land in `credentials` (they arrive as sensitive `OTP_INPUT`/`PASSWORD_INPUT` flow inputs); PIN and biometric payloads land in both `identifiers` and `credentials` (the mock provider reads them from `identifiers`); and an arbitrary KBI challenge (no fixed field set) is read from whatever remains in `credentials`. See [`internal/engine/mock/authenticator.go`](../esignet-service/internal/engine/mock/authenticator.go)'s `setChallenge` function for the exact per-factor mapping.
 
 ### Errors
 
