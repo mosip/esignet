@@ -152,7 +152,7 @@ override**, so a container needing to change those must mount the config file it
 | `KBI_FULL_NAME` / `KBI_DOB` | `esignet.knowledge.*` | | `API_TLS_VERIFY` | `api.tls_verify` |
 | `OTP_SOURCE` / `TEST_OTP` | `esignet.otp.*` | | `E2E_SPEC` | `e2e.spec` |
 | `OTP_WS_URL` / `OTP_RECIPIENT_EMAIL` | `esignet.otp.*` | | `E2E_AUTH_FACTORS` | `e2e.auth_factors` |
-| `PMS_BASE_URL` / `AUTH_PARTNER_ID` / `AUTH_POLICY_ID` | `esignet.pms.*` | | `E2E_INCLUDE` / `E2E_EXCLUDE` | `e2e.*` |
+| `PMS_BASE_URL` / `AUTH_PARTNER_ID` / `AUTH_POLICY_ID` / `PMS_CLIENT_API` | `esignet.pms.*` | | `E2E_INCLUDE` / `E2E_EXCLUDE` | `e2e.*` |
 
 > **`MOSIP_ESIGNET_BASE_URL` and `MOSIP_ESIGNET_AUTHN_PROVIDER` are deliberately the same names
 > eSignet itself reads** (`server.public_url` and the provider selector — see

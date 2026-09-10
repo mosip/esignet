@@ -100,6 +100,7 @@ func exports(c *config.Config) string {
 	kv("PMS_BASE_URL", c.Esignet.PMS.BaseURL)
 	kv("AUTH_PARTNER_ID", c.Esignet.PMS.AuthPartnerID)
 	kv("AUTH_POLICY_ID", c.Esignet.PMS.PolicyID)
+	kv("PMS_CLIENT_API", c.Esignet.PMS.ClientAPI)
 
 	kv("KEYCLOAK_TOKEN_URL", c.Keycloak.TokenURL)
 	kv("KEYCLOAK_CLIENT_ID", c.Keycloak.ClientID)

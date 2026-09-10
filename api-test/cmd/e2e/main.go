@@ -134,6 +134,7 @@ func main() {
 		PMSBaseURL:         es.PMS.BaseURL,
 		AuthPartnerID:      es.PMS.AuthPartnerID,
 		PolicyID:           es.PMS.PolicyID,
+		PMSClientAPI:       es.PMS.ClientAPI,
 	}
 
 	rows := runner.Run(ctx, spec)
