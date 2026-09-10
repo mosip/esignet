@@ -80,7 +80,7 @@ func (ts *AuthenticatorTestSuite) TestAuthenticate() {
 
 	t.Run("empty individual id", func(t *testing.T) {
 		p := newTestProvider("http://unused", "http://unused")
-		identifiers := map[string]interface{}{sunbirdIndividualIDKey: ""}
+		identifiers := map[string]interface{}{"username": ""}
 		result, svcErr := p.Authenticate(context.Background(), identifiers, map[string]interface{}{}, nil)
 		require.Nil(t, result)
 		require.Same(t, shared.InvalidIndividualIDError, svcErr)
@@ -88,7 +88,7 @@ func (ts *AuthenticatorTestSuite) TestAuthenticate() {
 
 	t.Run("missing credential field", func(t *testing.T) {
 		p := newTestProvider("http://unused", "http://unused")
-		identifiers := map[string]interface{}{sunbirdIndividualIDKey: "POL123"}
+		identifiers := map[string]interface{}{"username": "POL123"}
 		credentials := map[string]interface{}{"fullName": "Jane Doe"}
 		result, svcErr := p.Authenticate(context.Background(), identifiers, credentials, nil)
 		require.Nil(t, result)
@@ -97,7 +97,7 @@ func (ts *AuthenticatorTestSuite) TestAuthenticate() {
 
 	t.Run("empty credential value", func(t *testing.T) {
 		p := newTestProvider("http://unused", "http://unused")
-		identifiers := map[string]interface{}{sunbirdIndividualIDKey: "POL123"}
+		identifiers := map[string]interface{}{"username": "POL123"}
 		credentials := map[string]interface{}{"fullName": "Jane Doe", "dob": ""}
 		result, svcErr := p.Authenticate(context.Background(), identifiers, credentials, nil)
 		require.Nil(t, result)
@@ -119,7 +119,7 @@ func (ts *AuthenticatorTestSuite) TestAuthenticate() {
 		defer server.Close()
 
 		p := newTestProvider(server.URL, "http://unused")
-		identifiers := map[string]interface{}{sunbirdIndividualIDKey: "POL123"}
+		identifiers := map[string]interface{}{"username": "POL123"}
 		credentials := map[string]interface{}{"fullName": "Jane Doe", "dob": "01/01/1990"}
 		result, svcErr := p.Authenticate(context.Background(), identifiers, credentials, &providers.AuthnMetadata{})
 		require.Nil(t, svcErr)
@@ -136,7 +136,7 @@ func (ts *AuthenticatorTestSuite) TestAuthenticate() {
 		defer server.Close()
 
 		p := newTestProvider(server.URL, "http://unused")
-		identifiers := map[string]interface{}{sunbirdIndividualIDKey: "POL123"}
+		identifiers := map[string]interface{}{"username": "POL123"}
 		credentials := map[string]interface{}{"fullName": "Jane Doe", "dob": "01/01/1990"}
 		result, svcErr := p.Authenticate(context.Background(), identifiers, credentials, nil)
 		require.Nil(t, result)
@@ -153,7 +153,7 @@ func (ts *AuthenticatorTestSuite) TestAuthenticate() {
 		defer server.Close()
 
 		p := newTestProvider(server.URL, "http://unused")
-		identifiers := map[string]interface{}{sunbirdIndividualIDKey: "POL123"}
+		identifiers := map[string]interface{}{"username": "POL123"}
 		credentials := map[string]interface{}{"fullName": "Jane Doe", "dob": "01/01/1990"}
 		result, svcErr := p.Authenticate(context.Background(), identifiers, credentials, nil)
 		require.Nil(t, result)
@@ -167,7 +167,7 @@ func (ts *AuthenticatorTestSuite) TestAuthenticate() {
 		defer server.Close()
 
 		p := newTestProvider(server.URL, "http://unused")
-		identifiers := map[string]interface{}{sunbirdIndividualIDKey: "POL123"}
+		identifiers := map[string]interface{}{"username": "POL123"}
 		credentials := map[string]interface{}{"fullName": "Jane Doe", "dob": "01/01/1990"}
 		result, svcErr := p.Authenticate(context.Background(), identifiers, credentials, nil)
 		require.Nil(t, result)
@@ -179,7 +179,7 @@ func (ts *AuthenticatorTestSuite) TestAuthenticate() {
 		server.Close()
 
 		p := newTestProvider(server.URL, "http://unused")
-		identifiers := map[string]interface{}{sunbirdIndividualIDKey: "POL123"}
+		identifiers := map[string]interface{}{"username": "POL123"}
 		credentials := map[string]interface{}{"fullName": "Jane Doe", "dob": "01/01/1990"}
 		result, svcErr := p.Authenticate(context.Background(), identifiers, credentials, nil)
 		require.Nil(t, result)
@@ -194,7 +194,7 @@ func (ts *AuthenticatorTestSuite) TestAuthenticate() {
 		defer server.Close()
 
 		p := newTestProvider(server.URL, "http://unused")
-		identifiers := map[string]interface{}{sunbirdIndividualIDKey: "POL123"}
+		identifiers := map[string]interface{}{"username": "POL123"}
 		credentials := map[string]interface{}{"fullName": "Jane Doe", "dob": "01/01/1990"}
 		result, svcErr := p.Authenticate(context.Background(), identifiers, credentials, nil)
 		require.Nil(t, result)
@@ -209,7 +209,7 @@ func (ts *AuthenticatorTestSuite) TestAuthenticate() {
 		defer server.Close()
 
 		p := newTestProvider(server.URL, "http://unused")
-		identifiers := map[string]interface{}{sunbirdIndividualIDKey: "POL123"}
+		identifiers := map[string]interface{}{"username": "POL123"}
 		credentials := map[string]interface{}{"fullName": "Jane Doe", "dob": "01/01/1990"}
 		result, svcErr := p.Authenticate(context.Background(), identifiers, credentials, nil)
 		require.Nil(t, result)
@@ -224,7 +224,7 @@ func (ts *AuthenticatorTestSuite) TestAuthenticate() {
 		defer server.Close()
 
 		p := newTestProvider(server.URL, "http://unused")
-		identifiers := map[string]interface{}{sunbirdIndividualIDKey: "POL123"}
+		identifiers := map[string]interface{}{"username": "POL123"}
 		credentials := map[string]interface{}{"fullName": "Jane Doe", "dob": "01/01/1990"}
 		result, svcErr := p.Authenticate(context.Background(), identifiers, credentials, nil)
 		require.Nil(t, result)

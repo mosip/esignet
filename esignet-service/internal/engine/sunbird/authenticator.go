@@ -21,8 +21,6 @@ import (
 	applog "github.com/mosip/esignet/internal/log"
 )
 
-const sunbirdIndividualIDKey = "username"
-
 // errSunbirdKBIAuthFailed signals a registry lookup that did not match exactly one
 // entity, i.e. an authentication failure (as opposed to a transport/server error).
 var errSunbirdKBIAuthFailed = errors.New("authentication failed")
@@ -83,8 +81,8 @@ func NewSunbirdAuthnProvider(httpClient *http.Client) (shared.ConsolidatedAuthnP
 func (p *sunbirdAuthnProvider) Authenticate(ctx context.Context, identifiers, credentials map[string]interface{},
 	_ *providers.AuthnMetadata) (*providers.AuthnResult, *common.ServiceError) {
 
-	individualID, ok := identifiers[sunbirdIndividualIDKey].(string)
-	if !ok || individualID == "" {
+	individualID, _, ok := shared.ResolveIndividualID(identifiers)
+	if !ok {
 		return nil, shared.InvalidIndividualIDError
 	}
 

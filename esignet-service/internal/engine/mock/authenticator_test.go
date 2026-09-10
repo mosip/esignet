@@ -117,7 +117,7 @@ func (ts *AuthenticatorTestSuite) TestAuthenticate() {
 
 	t.Run("empty individual id", func(t *testing.T) {
 		p := newTestProvider(t, "http://unused", "http://unused", "http://unused")
-		identifiers := map[string]interface{}{identifierKeyIndividualID: ""}
+		identifiers := map[string]interface{}{"username": ""}
 		result, svcErr := p.Authenticate(context.Background(), identifiers, map[string]interface{}{}, metadataWithClientID("client-1"))
 		require.Nil(t, result)
 		require.Same(t, shared.InvalidIndividualIDError, svcErr)
@@ -125,7 +125,7 @@ func (ts *AuthenticatorTestSuite) TestAuthenticate() {
 
 	t.Run("no supported challenge", func(t *testing.T) {
 		p := newTestProvider(t, "http://unused", "http://unused", "http://unused")
-		identifiers := map[string]interface{}{identifierKeyIndividualID: "ind-1"}
+		identifiers := map[string]interface{}{"username": "ind-1"}
 		result, svcErr := p.Authenticate(context.Background(), identifiers, map[string]interface{}{}, metadataWithClientID("client-1"))
 		require.Nil(t, result)
 		require.Same(t, shared.InvalidRequestError, svcErr)
@@ -141,7 +141,7 @@ func (ts *AuthenticatorTestSuite) TestAuthenticate() {
 		defer server.Close()
 
 		p := newTestProvider(t, server.URL, "http://unused", "http://unused")
-		identifiers := map[string]interface{}{identifierKeyIndividualID: "ind-1"}
+		identifiers := map[string]interface{}{"username": "ind-1"}
 		credentials := map[string]interface{}{credentialOtp: "111111"}
 		result, svcErr := p.Authenticate(context.Background(), identifiers, credentials, metadataWithClientID("client-1"))
 		require.Nil(t, svcErr)
@@ -158,7 +158,7 @@ func (ts *AuthenticatorTestSuite) TestAuthenticate() {
 		defer server.Close()
 
 		p := newTestProvider(t, server.URL, "http://unused", "http://unused")
-		identifiers := map[string]interface{}{identifierKeyIndividualID: "ind-1"}
+		identifiers := map[string]interface{}{"username": "ind-1"}
 		credentials := map[string]interface{}{credentialPassword: "secret"}
 		result, svcErr := p.Authenticate(context.Background(), identifiers, credentials, metadataWithClientID("client-1"))
 		require.Nil(t, svcErr)
@@ -173,7 +173,7 @@ func (ts *AuthenticatorTestSuite) TestAuthenticate() {
 		defer server.Close()
 
 		p := newTestProvider(t, server.URL, "http://unused", "http://unused")
-		identifiers := map[string]interface{}{identifierKeyIndividualID: "ind-1"}
+		identifiers := map[string]interface{}{"username": "ind-1"}
 		credentials := map[string]interface{}{credentialOtp: "111111"}
 		result, svcErr := p.Authenticate(context.Background(), identifiers, credentials, metadataWithClientID("client-1"))
 		require.Nil(t, result)
@@ -187,7 +187,7 @@ func (ts *AuthenticatorTestSuite) TestAuthenticate() {
 		defer server.Close()
 
 		p := newTestProvider(t, server.URL, "http://unused", "http://unused")
-		identifiers := map[string]interface{}{identifierKeyIndividualID: "ind-1"}
+		identifiers := map[string]interface{}{"username": "ind-1"}
 		credentials := map[string]interface{}{credentialOtp: "111111"}
 		result, svcErr := p.Authenticate(context.Background(), identifiers, credentials, metadataWithClientID("client-1"))
 		require.Nil(t, result)
@@ -199,7 +199,7 @@ func (ts *AuthenticatorTestSuite) TestAuthenticate() {
 		server.Close()
 
 		p := newTestProvider(t, server.URL, "http://unused", "http://unused")
-		identifiers := map[string]interface{}{identifierKeyIndividualID: "ind-1"}
+		identifiers := map[string]interface{}{"username": "ind-1"}
 		credentials := map[string]interface{}{credentialOtp: "111111"}
 		result, svcErr := p.Authenticate(context.Background(), identifiers, credentials, metadataWithClientID("client-1"))
 		require.Nil(t, result)
@@ -368,7 +368,7 @@ func (ts *AuthenticatorTestSuite) TestSendOTP() {
 
 	t.Run("unknown client", func(t *testing.T) {
 		p := newTestProvider(t, "http://unused", "http://unused", "http://unused")
-		result, svcErr := p.SendOTP(context.Background(), map[string]any{identifierKeyIndividualID: "ind-1"}, metadataWithClientID("no-such-client"))
+		result, svcErr := p.SendOTP(context.Background(), map[string]any{"username": "ind-1"}, metadataWithClientID("no-such-client"))
 		require.Nil(t, result)
 		require.Same(t, shared.ClientNotFoundError, svcErr)
 	})
@@ -389,7 +389,7 @@ func (ts *AuthenticatorTestSuite) TestSendOTP() {
 		defer server.Close()
 
 		p := newTestProvider(t, "http://unused", "http://unused", server.URL)
-		result, svcErr := p.SendOTP(context.Background(), map[string]any{identifierKeyIndividualID: "ind-1"}, metadataWithClientID("client-1"))
+		result, svcErr := p.SendOTP(context.Background(), map[string]any{"username": "ind-1"}, metadataWithClientID("client-1"))
 		require.Nil(t, svcErr)
 		require.NotNil(t, result)
 		require.Equal(t, "j***@example.com", result.MaskedEmail)
@@ -404,7 +404,7 @@ func (ts *AuthenticatorTestSuite) TestSendOTP() {
 		defer server.Close()
 
 		p := newTestProvider(t, "http://unused", "http://unused", server.URL)
-		result, svcErr := p.SendOTP(context.Background(), map[string]any{identifierKeyIndividualID: "ind-1"}, metadataWithClientID("client-1"))
+		result, svcErr := p.SendOTP(context.Background(), map[string]any{"username": "ind-1"}, metadataWithClientID("client-1"))
 		require.Nil(t, result)
 		require.Same(t, shared.SendOTPFailedError, svcErr)
 	})
@@ -419,7 +419,7 @@ func (ts *AuthenticatorTestSuite) TestSendOTP() {
 		defer server.Close()
 
 		p := newTestProvider(t, "http://unused", "http://unused", server.URL)
-		result, svcErr := p.SendOTP(context.Background(), map[string]any{identifierKeyIndividualID: "ind-1"}, metadataWithClientID("client-1"))
+		result, svcErr := p.SendOTP(context.Background(), map[string]any{"username": "ind-1"}, metadataWithClientID("client-1"))
 		require.Nil(t, result)
 		require.NotNil(t, svcErr)
 		require.Equal(t, "invalid_individual_id", svcErr.Code)
@@ -434,7 +434,7 @@ func (ts *AuthenticatorTestSuite) TestSendOTP() {
 		defer server.Close()
 
 		p := newTestProvider(t, "http://unused", "http://unused", server.URL)
-		result, svcErr := p.SendOTP(context.Background(), map[string]any{identifierKeyIndividualID: "ind-1"}, metadataWithClientID("client-1"))
+		result, svcErr := p.SendOTP(context.Background(), map[string]any{"username": "ind-1"}, metadataWithClientID("client-1"))
 		require.Nil(t, result)
 		require.Same(t, shared.SendOTPFailedError, svcErr)
 	})
@@ -447,7 +447,7 @@ func (ts *AuthenticatorTestSuite) TestSendOTP() {
 		defer server.Close()
 
 		p := newTestProvider(t, "http://unused", "http://unused", server.URL)
-		result, svcErr := p.SendOTP(context.Background(), map[string]any{identifierKeyIndividualID: "ind-1"}, metadataWithClientID("client-1"))
+		result, svcErr := p.SendOTP(context.Background(), map[string]any{"username": "ind-1"}, metadataWithClientID("client-1"))
 		require.Nil(t, result)
 		require.NotNil(t, svcErr)
 		require.Equal(t, "invalid_individual_id", svcErr.Code)

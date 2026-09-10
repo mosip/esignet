@@ -39,9 +39,6 @@ const (
 	credentialPin      = "pin"
 	credentialBio      = "biometrics"
 
-	// identifierKeyIndividualID is the identifiers-map key that carries the individual ID.
-	identifierKeyIndividualID = "username"
-
 	// signingCertsCacheTTL is how long a fetched signing-certificate list is
 	// served from cache before GetSigningCertificates fetches a fresh one.
 	// Unlike the mosip provider, mock's certificate endpoint isn't gated by
@@ -83,8 +80,8 @@ func (p *mockAuthnProvider) Authenticate(ctx context.Context, identifiers, crede
 		return nil, shared.ClientNotFoundError
 	}
 
-	individualID, ok := identifiers[identifierKeyIndividualID].(string)
-	if !ok || individualID == "" {
+	individualID, _, ok := shared.ResolveIndividualID(identifiers)
+	if !ok {
 		return nil, shared.InvalidIndividualIDError
 	}
 
@@ -196,8 +193,8 @@ func (p *mockAuthnProvider) SendOTP(ctx context.Context, identifiers map[string]
 		return nil, shared.ClientNotFoundError
 	}
 
-	individualID, ok := identifiers[identifierKeyIndividualID].(string)
-	if !ok || individualID == "" {
+	individualID, _, ok := shared.ResolveIndividualID(identifiers)
+	if !ok {
 		return nil, shared.InvalidIndividualIDError
 	}
 
