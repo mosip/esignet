@@ -52,9 +52,6 @@ import org.jose4j.jwk.PublicJsonWebKey;
 import org.jose4j.jwk.RsaJsonWebKey;
 import org.jose4j.keys.X509Util;
 import org.jose4j.lang.JoseException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
@@ -69,7 +66,6 @@ import io.mosip.esignet.core.constants.Constants;
 import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.validator.RedirectURLValidator;
-import jakarta.annotation.PostConstruct;
 import jakarta.xml.bind.DatatypeConverter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -77,35 +73,25 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class IdentityProviderUtil {
 
-    @Value("#{${mosip.esignet.public-key-hash.fields}}")
-    private Map<String, List<String>> publicKeyHashFields;
-
-    @Autowired
-    private RedirectURLValidator springManagedUrlValidator;
-
-    private static final Logger logger = LoggerFactory.getLogger(IdentityProviderUtil.class);
     public static final String ALGO_SHA3_256 = "SHA3-256";
     public static final String ALGO_SHA_256 = "SHA-256";
     public static final String ALGO_SHA_1 = "SHA-1";
     public static final String ALGO_MD5 = "MD5";
     public static final String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
-    private static Base64.Encoder urlSafeEncoder;
-    private static Base64.Decoder urlSafeDecoder;
-    private static PathMatcher pathMatcher;
-    private static RedirectURLValidator urlValidator;
+    private static final Base64.Encoder urlSafeEncoder = Base64.getUrlEncoder().withoutPadding();
+    private static final Base64.Decoder urlSafeDecoder = Base64.getUrlDecoder();
+    private static final PathMatcher pathMatcher = new AntPathMatcher();
     private static final ObjectMapper objectMapper = JsonMapper.builder().addModule(new JavaTimeModule()).build();
 
-    static {
-        urlSafeEncoder = Base64.getUrlEncoder().withoutPadding();
-        urlSafeDecoder = Base64.getUrlDecoder();
-        pathMatcher = new AntPathMatcher();
-        urlValidator = new RedirectURLValidator(new String[0]); // safe default; @PostConstruct replaces with configured bean
-    }
+    private final RedirectURLValidator urlValidator;
+    private final Map<String, List<String>> publicKeyHashFields;
 
-    @PostConstruct
-    private void initStaticUrlValidator() {
-        urlValidator = this.springManagedUrlValidator;
+    public IdentityProviderUtil(
+            RedirectURLValidator urlValidator,
+            @Value("#{${mosip.esignet.public-key-hash.fields}}") Map<String, List<String>> publicKeyHashFields) {
+        this.urlValidator = urlValidator;
+        this.publicKeyHashFields = publicKeyHashFields;
     }
 
     /**
@@ -143,7 +129,7 @@ public class IdentityProviderUtil {
             byte[] hash = digest.digest(value.getBytes(StandardCharsets.UTF_8));
             return Hex.encodeHexString(hash);
         } catch (NoSuchAlgorithmException ex) {
-            logger.error("Invalid algorithm : {}", algorithm, ex);
+            log.error("Invalid algorithm : {}", algorithm, ex);
             throw new EsignetException(ErrorConstants.INVALID_ALGORITHM);
         }
     }
@@ -154,7 +140,7 @@ public class IdentityProviderUtil {
             byte[] hash = digest.digest(value.getBytes(StandardCharsets.UTF_8));
             return urlSafeEncoder.encodeToString(hash);
         } catch (NoSuchAlgorithmException ex) {
-            logger.error("Invalid algorithm : {}", algorithm, ex);
+            log.error("Invalid algorithm : {}", algorithm, ex);
             throw new EsignetException(ErrorConstants.INVALID_ALGORITHM);
         }
     }
@@ -165,7 +151,7 @@ public class IdentityProviderUtil {
             byte[] hash = digest.digest(bytes);
             return urlSafeEncoder.encodeToString(hash);
         } catch (NoSuchAlgorithmException ex) {
-            logger.error("Invalid algorithm : {}", algorithm, ex);
+            log.error("Invalid algorithm : {}", algorithm, ex);
             throw new EsignetException(ErrorConstants.INVALID_ALGORITHM);
         }
     }
@@ -206,7 +192,7 @@ public class IdentityProviderUtil {
         return ZonedDateTime.now(ZoneOffset.UTC).toEpochSecond();
     }
 
-    public static void validateRedirectURI(List<String> registeredRedirectUris, String requestedRedirectUri) throws EsignetException {
+    public void validateRedirectURI(List<String> registeredRedirectUris, String requestedRedirectUri) throws EsignetException {
         if(registeredRedirectUris.stream().anyMatch(uri -> matchUri(uri, requestedRedirectUri)))
             return;
 
@@ -237,17 +223,17 @@ public class IdentityProviderUtil {
         return builder.toString();
     }
 
-    private static boolean matchUri(String registeredUri, String requestedUri) {
+    private boolean matchUri(String registeredUri, String requestedUri) {
         return (urlValidator.isValid(registeredUri, null) && urlValidator.isValid(requestedUri, null))
                 && pathMatcher.match(registeredUri, requestedUri);
     }
-    
-	public static byte[] generateSalt(int bytes) {
-		SecureRandom random = new SecureRandom();
-		byte[] randomBytes = new byte[bytes];
-		random.nextBytes(randomBytes);
-		return randomBytes;
-	}
+
+    public static byte[] generateSalt(int bytes) {
+        SecureRandom random = new SecureRandom();
+        byte[] randomBytes = new byte[bytes];
+        random.nextBytes(randomBytes);
+        return randomBytes;
+    }
 
     /**
      * get JWK string from JWK map

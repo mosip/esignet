@@ -29,6 +29,7 @@ import io.mosip.esignet.core.exception.DpopNonceMissingException;
 import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.spi.ClientManagementService;
 import io.mosip.esignet.core.spi.TokenService;
+import io.mosip.esignet.core.util.IdentityProviderUtil;
 import io.mosip.esignet.core.util.SecurityHelperService;
 import io.mosip.kernel.keymanagerservice.dto.AllCertificatesDataResponseDto;
 import io.mosip.kernel.keymanagerservice.dto.CertificateDataResponseDto;
@@ -49,9 +50,9 @@ import static io.mosip.esignet.api.util.ErrorConstants.DATA_EXCHANGE_FAILED;
 import static io.mosip.esignet.core.constants.Constants.BEARER;
 import static io.mosip.esignet.core.constants.ErrorConstants.*;
 import static io.mosip.esignet.core.spi.OAuthService.JWT_BEARER_TYPE;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
-import static org.mockito.ArgumentMatchers.any;
 import static io.mosip.esignet.core.constants.ErrorConstants.INVALID_DPOP_PROOF;
 
 @ExtendWith(MockitoExtension.class)
@@ -83,6 +84,9 @@ public class OAuthServiceTest {
 
     @Mock
     private SecurityHelperService securityHelperService;
+
+    @Mock
+    private IdentityProviderUtil identityProviderUtil;
 
     private ObjectMapper objectMapper = new ObjectMapper();
 
