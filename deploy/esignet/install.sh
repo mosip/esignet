@@ -371,6 +371,8 @@ function installing_esignet() {
     extra_env_vars_additional+="      secretKeyRef:"$'\n'
     extra_env_vars_additional+="        name: esignet-captcha"$'\n'
     extra_env_vars_additional+="        key: esignet-captcha-site-key"$'\n'
+    extra_env_vars_additional+="  \"MOSIP_ESIGNET_CAPTCHA_SITE_PROVIDER\": \"google-recaptcha\""$'\n'
+    extra_env_vars_additional+="  \"MOSIP_ESIGNET_CAPTCHA_VALIDATOR_URL\": \"http://captcha.captcha/v1/captcha/validatecaptcha\""$'\n'
   else
     extra_env_vars_additional+="  \"MOSIP_ESIGNET_CAPTCHA_SITE_KEY\": \"\""$'\n'
   fi
