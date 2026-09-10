@@ -224,9 +224,22 @@ public class BasePage {
 		if (url != null && (url.contains("authorize") || (url.contains("/login") && url.contains("esignet")))) {
 			return true;
 		}
-		return !webDriver.findElements(By.cssSelector("[id^='acr_']")).isEmpty()
+		boolean landed = !webDriver.findElements(By.cssSelector("[id^='acr_']")).isEmpty()
 				|| !webDriver.findElements(By.id("login_id_uin")).isEmpty()
 				|| !webDriver.findElements(By.id("login_id_mobile")).isEmpty();
+		if (landed) {
+			return true;
+		}
+		// Sunbird KBI-only: bare /signin is not enough — require a KBI form landmark.
+		// mosipid/mock never enter this branch (isKbiOnlyLogin() is false for them).
+		if (!EsignetUtil.isKbiOnlyLogin()) {
+			return false;
+		}
+		By kbiFieldSelector = By.cssSelector(
+				"#policyNumber, #fullName, #dob, [name='policyNumber'], [name='fullName'], [name='dob']");
+		return (url != null && url.contains("/signin") && !webDriver.findElements(kbiFieldSelector).isEmpty())
+				|| !webDriver.findElements(By.id("form-submit-button")).isEmpty()
+				|| !webDriver.findElements(kbiFieldSelector).isEmpty();
 	}
 
 	protected boolean waitForEsignetLoginLanding(int timeoutSeconds) {
@@ -709,6 +722,11 @@ public class BasePage {
 		NotificationListener.markRequestStart();
 	}
 
+	/** Clear the SMTP OTP watermark after {@link #getOtp()} finishes (success or failure). */
+	public static void markOtpRequestRemove() {
+		NotificationListener.markRequestRemove();
+	}
+
 	/**
 	 * Under {@code pluginToExecute=mock} (or actuator-detected mock), always
 	 * {@value #MOCK_PLUGIN_OTP} — independent of {@code usePreConfiguredOtp} /
@@ -746,7 +764,7 @@ public class BasePage {
 			}
 			return otp;
 		} finally {
-			NotificationListener.markRequestRemove();
+			markOtpRequestRemove();
 		}
 	}
 
