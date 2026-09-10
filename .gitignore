@@ -27,6 +27,7 @@ target/
 .idea/
 *.p12
 !ui-test/certs/device-dsk-partner.p12
+!ui-test/certs/device-dsk-partner-mosipid.p12
 *.iml
 .settings/
 .setting/

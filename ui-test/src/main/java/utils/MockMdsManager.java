@@ -433,7 +433,7 @@ public final class MockMdsManager {
 	private static Path findBundledDevicePartnerP12() {
 		List<String> fileNames = new ArrayList<>();
 		if ("mosipid".equalsIgnoreCase(EsignetUtil.getPluginName())) {
-			// Optional local/secret-store overlay; not tracked in git.
+			// Prefer mosipid-trusted keystore (bundled for Rancher/Docker mosipid runs).
 			fileNames.add("device-dsk-partner-mosipid.p12");
 		}
 		fileNames.add("device-dsk-partner.p12");

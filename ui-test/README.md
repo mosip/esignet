@@ -101,7 +101,7 @@ The plugin is **auto-detected** from the eSignet server's actuator (`EsignetUtil
 
 Prerequisites specific to one plugin are skipped for the others automatically (`EsignetUtil.isTestCaseValidForExecution`), so the same `esignetPrerequisiteSuite.xml` runs unmodified regardless of which plugin the server turns out to be.
 
-Mock MDS biometric login uses the tracked Mock SBI fixture `certs/device-dsk-partner.p12` (copied at runtime to `device-dsk-partner.p12` because Mock SBI expects that filename). For mosipid, supply a deployment-specific keystore outside git via `mdsP12Path` or a local `certs/device-dsk-partner-mosipid.p12`; otherwise the same fixture is used.
+Mock MDS biometric login uses the tracked Mock SBI fixture `certs/device-dsk-partner.p12` (copied at runtime to `device-dsk-partner.p12` because Mock SBI expects that filename). For `pluginToExecute=mosipid`, the suite prefers `certs/device-dsk-partner-mosipid.p12` (also tracked and packaged into the JAR/Docker image) so Rancher biometric runs verify against the mosipid IDA trust chain; override with `mdsP12Path` when a deployment needs a different keystore.
 
 ## 🪪 Login identity sourcing
 
