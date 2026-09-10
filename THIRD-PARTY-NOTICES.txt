@@ -6435,8 +6435,8 @@ Homepage: https://www.apache.org/licenses/LICENSE-2.0
 
 Package: github.com/google/jsonschema-go
 Version: v0.4.3
-License: Apache-2.0
-Homepage: https://www.apache.org/licenses/LICENSE-2.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
 
 Package: github.com/google/pprof
 Version: v0.0.0-20250317173921-a4b03ec1a45e
@@ -6485,8 +6485,8 @@ Homepage: https://opensource.org/licenses/MIT
 
 Package: github.com/klauspost/compress
 Version: v1.19.1
-License: Apache-2.0
-Homepage: https://www.apache.org/licenses/LICENSE-2.0
+License: BSD-3-Clause AND Apache-2.0 AND MIT
+Homepage: https://opensource.org/licenses/BSD-3-Clause
 
 Package: github.com/klauspost/cpuid/v2
 Version: v2.0.9
@@ -6530,8 +6530,8 @@ Homepage: https://opensource.org/licenses/BSD-3-Clause
 
 Package: github.com/modelcontextprotocol/go-sdk
 Version: v1.6.1
-License: MIT
-Homepage: https://opensource.org/licenses/MIT
+License: Apache-2.0 AND MIT
+Homepage: https://www.apache.org/licenses/LICENSE-2.0
 
 Package: github.com/munnerz/goautoneg
 Version: v0.0.0-20191010083416-a7dc8b61c822
@@ -6635,8 +6635,8 @@ Homepage: https://opensource.org/licenses/MIT
 
 Package: go.mozilla.org/pkcs7
 Version: v0.9.0
-License: Apache-2.0
-Homepage: https://www.apache.org/licenses/LICENSE-2.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
 
 Package: go.opentelemetry.io/auto/sdk
 Version: v1.2.1
@@ -6845,8 +6845,8 @@ Homepage: https://opensource.org/licenses/BSD-3-Clause
 
 Package: software.sslmate.com/src/go-pkcs12
 Version: v0.7.3
-License: ISC
-Homepage: https://opensource.org/licenses/ISC
+License: BSD-3-Clause
+Homepage: https://opensource.org/licenses/BSD-3-Clause
 
 
 Full license texts and additional details for each of the above packages are available at the homepage URL listed for each package, or at the package's source repository. Please refer to the original source of each package for complete legal terms and conditions.
