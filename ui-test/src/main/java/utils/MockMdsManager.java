@@ -365,10 +365,6 @@ public final class MockMdsManager {
 		return null;
 	}
 
-	/**
-	 * Mock SBI encrypts captures with IDA FIR cert files under Biometric Devices/*/Keys.
-	 * Materialize them from the classpath/certs copy when the Docker tree has empty Keys dirs.
-	 */
 	private static void ensureIdaEncryptionCertificatesAvailable() {
 		Path source = findBundledIdaFirCertificate();
 		if (source == null) {
