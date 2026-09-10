@@ -141,7 +141,7 @@
     "credentials": { "username": "", "password": "", "biometric": "" },
     "knowledge": { "full_name": "", "dob": "" },
     "otp": { "source": "static", "value": "111111", "ws_url": "", "recipient_email": "" },
-    "pms": { "base_url": "", "auth_partner_id": "", "policy_id": "" }
+    "pms": { "base_url": "", "auth_partner_id": "", "policy_id": "", "client_api": "oidc-clients" }
   },
 
   "api": {

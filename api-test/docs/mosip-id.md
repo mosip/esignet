@@ -62,8 +62,26 @@ so no additional credentials are needed.
 
 Or as environment variables: `PMS_BASE_URL`, `AUTH_PARTNER_ID`, `AUTH_POLICY_ID`.
 
-> Note the asymmetry: the config field is `policy_id`, but its environment override is
-> `AUTH_POLICY_ID`.
+### Which PMS registration endpoint is used
+
+PMS deployments differ in where OIDC clients are registered. Builds from **1.2.2.x serve only
+`{base}/oauth/client`** and answer **404** for `{base}/oidc-clients`; current builds serve both.
+`client_api` selects which one the harness posts to — `oidc-clients` (the default) or
+`oauth-client`.
+
+**Both endpoints take the identical request body**, so the setting changes the path and nothing
+else. That was verified live against both a 1.2.2.3 and a current PMS: `/oidc-clients` validates the
+wrapper `id` and rejects a wrong one with `PMS_REQUEST_ERROR_002`, while `/oauth/client` registers
+the client regardless — it ignores the `id`/`version`/`metadata` members entirely.
+
+Leave it at the default on any deployment that serves `/oidc-clients`. A client registered there is
+the one IDA is known to authenticate, whereas `/oauth/client` registrations have been seen refused
+at login — which only a full login reveals, so no create-and-read-back test catches it. Set
+`oauth-client` when the deployment is old enough not to serve `/oidc-clients` at all; registration
+then fails with an HTTP 404 that names this setting.
+
+> Note this is **not** auto-detected. A deployment whose PMS is upgraded or replaced needs this
+> setting revisited, or e2e registration fails with that 404.
 
 Leave `pms.base_url` unset and the PMS-backed scenarios report as not-run rather than failing, so a
 partial setup is visible in the report instead of looking like a test failure.
@@ -119,6 +137,7 @@ change when extraction stops finding a code. It is off by default and never set 
 | `esignet.pms.base_url` | `PMS_BASE_URL` | partner-management-service base URL |
 | `esignet.pms.auth_partner_id` | `AUTH_PARTNER_ID` | Onboarded partner id |
 | `esignet.pms.policy_id` | `AUTH_POLICY_ID` | Published policy id |
+| `esignet.pms.client_api` | `PMS_CLIENT_API` | `oidc-clients` (default) \| `oauth-client` — which registration endpoint PMS serves |
 | `esignet.otp.source` | `OTP_SOURCE` | `static` or `dynamic` |
 | `esignet.otp.value` | `TEST_OTP` | The OTP, when `source: static` |
 | `esignet.otp.ws_url` | `OTP_WS_URL` | Mock SMTP WebSocket URL, when `source: dynamic` |
