@@ -77,3 +77,7 @@ encryption JWK (`encPublicKey.alg`).
 SunbirdRC (KBI): `MOSIP_ESIGNET_AUTHENTICATOR_SUNBIRD_RC_IDENTITY_OPENID_CLAIMS_MAPPING` (JSON),
 default `{"name":"fullName","email":"email","phone_number":"mobile","gender":"gender","birthdate":"dob"}`
 — empty/malformed means no claims released for that provider.
+
+
+> **Planned change (next release):** claims validation will be driven by the list of claims defined in
+> `config/app.go`, and the values currently hardcoded in `clientmgmt/validate.go` will be removed.

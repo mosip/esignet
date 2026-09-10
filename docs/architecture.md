@@ -2,7 +2,7 @@
 
 eSignet is MOSIP's OpenID Connect (OIDC) / OAuth2 identity provider (IDP). It lets a relying party (RP) — a government or private-sector application — authenticate an end user against a national or foundational identity system (e.g. MOSIP IDA, Sunbird Registered Claims, or a mock provider for testing) and receive standard OIDC tokens and claims, without the RP ever handling the user's raw identity credentials.
 
-This document describes the architecture of the two components that were reviewed in the connected repository:
+This document describes the architecture of the two components in this repository:
 
 - **esignet-service** – the Go backend that implements client management, consent management, and the MOSIP-specific pieces of the OIDC engine (identity-provider plugins, authentication flows, screens, security).
 - **oidc-ui** – the React/TypeScript single-page application that renders the login, OTP/biometric/KBI, and consent screens the end user interacts with.
@@ -11,7 +11,7 @@ Both components are built on top of ThunderID, a generic external OIDC/OAuth eng
 
 ### 1.1 System Context
 
-The diagram below shows how a relying party, the end user's browser, the two components under review, their datastores, and the pluggable identity backend fit together.
+The diagram below shows how a relying party, the end user's browser, the two components, their datastores, and the pluggable identity backend fit together.
 
 ![System context](diagrams/system-context.png)
 
@@ -24,14 +24,16 @@ _Figure 1 – System context_
 | esignet-service  | Go 1.26, ThunderID engine                    | OIDC/OAuth protocol endpoints (via engine), client & consent management APIs, MOSIP-specific auth-flow providers, identity-backend plugins |
 | oidc-ui          | React 19, TypeScript, Vite, @thunderid/react | Login/OTP/biometric/KBI/consent screens, theming, CAPTCHA, error/offline handling                                                          |
 | PostgreSQL       | RDBMS                                        | OAuth client registry, consent records/history, key material tables                                                                        |
-| Redis            | In-memory store                              | Shared runtime store: transient flow/session state, client cache, flow-definition cache                                                    |
+| Redis            | In-memory store                              | Shared runtime store: transient flow/OIDC transaction state, client cache, flow-definition cache                                                    |
 | Identity backend | MOSIP IDA / Sunbird RC / Mock                | Actual identity verification: OTP dispatch, KYC-auth, biometric/KBI matching                                                               |
 
 ---
 
 ## 2. esignet-service (Backend)
 
-esignet-service is a Go module (`github.com/mosip/esignet`, Go 1.26). Its entry point, `cmd/esignet/main.go`, is a composition root: it opens the Postgres and (optionally) Redis connections, builds the client-management HTTP handler, constructs an identity-backend provider via a factory, and then calls `thunderidengine.New(mux, ...)` with roughly twenty functional-option providers that plug MOSIP-specific behaviour into the generic ThunderID engine. The engine registers its own OIDC/OAuth endpoints (authorize, token, well-known discovery, JWKS, etc.) on the same `*http.ServeMux`; that route-registration code lives in the external module and is outside this repository.
+esignet-service is a Go module (`github.com/mosip/esignet`, Go 1.26). Its entry point, `cmd/esignet/main.go`, is a composition root: it opens the Postgres (via `pgx`) and (optionally) Redis connections, provisions its own cryptographic key hierarchy (see §2.4), builds the client-management and key-management HTTP handlers, constructs an identity-backend provider via a factory, and then calls `thunderidengine.New(mux, ...)` with over two dozen functional-option providers that plug MOSIP-specific behaviour into the generic ThunderID engine. The engine registers its own OIDC/OAuth endpoints (authorize, token, well-known discovery, JWKS, etc.) on the same `*http.ServeMux`; that route-registration code lives in the external module and is outside this repository.
+
+The HTTP server runs with explicit read-header/read/write/idle timeouts and shuts down gracefully on `SIGINT`/`SIGTERM` (a 10s window to drain in-flight requests before forcing closed). Alongside it, a private, unauthenticated `GET /metrics` listener (Prometheus, Postgres/Redis pool stats) runs on its own port, and an optional loopback-only (`127.0.0.1`) pprof debug server can be enabled for profiling.
 
 ### 2.1 Module Breakdown
 
@@ -44,10 +46,12 @@ _Figure 2 – esignet-service component composition_
 | `cmd/esignet`                                | Composition root: config load, DB/Redis setup, HTTP mux, wiring of all engine options                                                                                   |
 | `internal/clientmgmt`                        | OAuth/OIDC relying-party client registration, update, patch, lookup (REST API + Postgres)                                                                               |
 | `internal/consentmgmt`                       | User consent capture, decision hashing, history (Postgres)                                                                                                              |
-| `internal/engine`                            | MOSIP implementations of the ThunderID engine's provider interfaces (actor, authorization, consent bridge, flow, design, i18n, OU, resource, attestation, captcha, IDP) |
-| `internal/engine/executors`                  | Custom flow-step executors: eSignet OTP executor, clear-inputs executor                                                                                                 |
+| `internal/engine`                            | MOSIP implementations of the ThunderID engine's provider interfaces (actor, authorization, consent bridge, flow, design, i18n, OU, resource, attestation, captcha, IDP, runtime crypto) |
+| `internal/engine/executors`                  | Custom flow-step executors: eSignet OTP executor (with per-node max-attempt lockout), authorization executor (resource-server + client scope enforcement), clear-inputs executor |
 | `internal/engine/mosip` · `mock` · `sunbird` | Pluggable identity-verification backends selected at startup                                                                                                            |
 | `internal/engine/runtimestores`              | In-memory or Redis-backed shared runtime store (flow state, caches)                                                                                                     |
+| `internal/keymanager` (+ `cryptomanager`, `keystore`, `signature`) | Native Go port of MOSIP's Keymanager: key hierarchy, PKCS#11 (HSM) / PKCS#12 keystores, signing & envelope-encryption services, its own HTTP key-management API (Postgres) |
+| `internal/metrics`                           | Prometheus metrics (Postgres/Redis connection-pool stats), served on a private port                                                                                    |
 | `internal/security`                          | JWT bearer-token scope enforcement middleware, JWKS cache, request-time validation                                                                                      |
 | `internal/httpmiddleware`                    | Access logging, correlation-ID propagation                                                                                                                              |
 | `internal/config`                            | Environment/YAML-driven application configuration                                                                                                                       |
@@ -61,9 +65,11 @@ A flow is a state machine of nodes:
 
 - **START / END** – flow entry and exit points.
 - **PROMPT** – renders a UI screen, described as a tree of components (blocks, text, text/OTP inputs, consent widgets, custom elements) with i18n keys resolved by the i18n provider.
-- **TASK_EXECUTION** – invokes a named executor (built into the engine, e.g. `CredentialsAuthExecutor`, `AuthAssertExecutor`, `ConsentExecutor`, `AuthorizationExecutor`; or MOSIP-specific, e.g. `eSignetOtpExecutor`) and branches on `onSuccess` / `onIncomplete`.
+- **TASK_EXECUTION** – invokes a named executor (built into the engine, e.g. `CredentialsAuthExecutor`, `AuthAssertExecutor`, `ConsentExecutor`; or MOSIP-specific, e.g. `eSignetOtpExecutor`, `eSignetAuthorizationExecutor`) and branches on `onSuccess` / `onIncomplete`.
 
-`flow-esignet.yaml` implements a multi-ACR login: a mode selector branches into OTP, password, biometric, or KBI sub-flows (each collecting a UIN/mobile/email/NRC identifier plus a CAPTCHA), converging on `authorization_check` → `consent_check` (looping back to the consent screen if incomplete) → `auth_assert` → `end`. A CAPTCHA interceptor is applied selectively to OTP-send and credential/KBI-auth nodes.
+`flow-esignet.yaml` implements a multi-ACR login: a mode selector branches into OTP, password, biometric, or KBI sub-flows (each collecting a UIN/mobile/email/NRC identifier plus a CAPTCHA; OTP-send nodes are capped at 3 attempts before the step fails), converging on `authorization_check` → `consent_check` (looping back to the consent screen if incomplete) → `auth_assert` → `end`. A CAPTCHA interceptor is applied selectively to OTP-send and credential/KBI-auth nodes.
+
+`authorization_check` now runs the custom `eSignetAuthorizationExecutor` (RFC 8707 resource-indicator support) rather than a built-in engine executor: it resolves the resource server bound to the request (via a `resource_server_identifier` seeded by the OAuth layer, falling back to the deployment's default resource server), drops any requested permission scope that resource server doesn't define, and intersects what's left against the requesting client's `allowed_authorization_scopes` — writing the result as `authorized_permissions` for the consent step to prompt on.
 
 ### 2.3 Pluggable Identity-System Providers
 
@@ -71,15 +77,32 @@ A flow is a state machine of nodes:
 
 | Provider  | Backend                                        | Notes                                                                                                                                                                                                         |
 | --------- | ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `mosip`   | MOSIP IDA (KYC-auth / KYC-exchange / send-OTP) | Requests encrypted with AES-256-GCM, key wrapped with RSA-OAEP against the IDA partner certificate, payload signed as a JWT (x5c) using a key loaded from a PKCS#12 file. Supports OTP, password, biometrics. |
+| `mosip`   | MOSIP IDA (KYC-auth / KYC-exchange / send-OTP) | Requests encrypted with AES-256-GCM, key wrapped with RSA-OAEP against the IDA partner certificate, payload signed as a JWT (x5c) using the `OIDC_PARTNER` key resolved from `internal/keymanager` (see §2.4) rather than a local PKCS#12 file. Supports OTP, password, biometrics; the KYC-exchange response is now passed through as an already-signed JWT rather than parsed into individual claims. |
 | `sunbird` | Sunbird Registered Claims registry             | KBI-only (no OTP). Exact-match search against configured KBI fields; requires exactly one match; claims released only via an explicit field mapping (fail closed on unmapped fields).                         |
 | `mock`    | In-house mock identity service                 | For development/testing; supports OTP, password, PIN, biometrics, or arbitrary KBI challenges; no MOSIP cryptographic envelope.                                                                               |
 
-### 2.4 Client Management
+### 2.4 Key Management
+
+`internal/keymanager` is a native Go port of MOSIP's Java `KeymanagerService`: cryptographic key lifecycle management (generation, certificate/CSR issuance, upload, revocation, and lazy expiry-driven rotation) backed by Postgres and a pluggable keystore — PKCS#11 (HSM/SoftHSM2; built only under `CGO_ENABLED=1`, falling back to an error stub otherwise) or a PKCS#12 file. Engine's new `engine.NewRuntimeCryptoProvider` (wired via `thunderidengine.WithRuntimeCryptoProvider`) resolves signing and encryption operations through this package.
+
+Keys are organised in a hierarchy: a self-signed `ROOT`, under which each `ApplicationID` gets a Component Master Key (RSA-2048, signed by ROOT) plus an EC sign key and/or Component Encryption Keys (signed by the Master Key). On every startup, `main.go`'s `provisionKeyHierarchy` idempotently provisions `ROOT`; `OIDC_SERVICE` (esignet itself — its RSA master key, an `EC_SECP256R1_SIGN` JWT-signing key, and a `CACHE_ENCRYPT` symmetric key the runtime-crypto provider uses for cache encryption); and `OIDC_PARTNER` (the RSA key esignet uses to sign outbound MOSIP IDA requests — see §2.3). The service's JWKS well-known output is also extended to publish the active identity backend's own signing certificates (`GetSigningCertificates`) alongside these keys.
+
+`keymanager.Handler` exposes its own small HTTP API, registered on the same mux and behind the same security middleware as client management:
+
+| Method & Path | Purpose |
+| --- | --- |
+| `GET /system-info/certificate` | Fetch the current certificate/CSR for an `applicationId` (+ optional `referenceId`) |
+| `POST /system-info/uploadCertificate` | Replace the certificate for an `applicationId`/`referenceId` |
+
+The package owns the `key_alias`, `key_policy_def`, and `key_store` tables directly (see §2.9); `public_key_registry`, `ca_cert_store`, and `server_profile` remain used by the ThunderID engine itself rather than by esignet-service's own Go code.
+
+### 2.5 Client Management
 
 `internal/clientmgmt` models one underlying OAuth/OIDC client entity exposed through three API "profiles" (oidc-client, oauth-client, generic client) sharing the same Postgres table, `client_detail`. A client record carries its client ID/name, relying-party ID, redirect URIs, allowed claims and ACR values, signing/encryption JWKs, grant types and token-auth methods, plus a free-form `additional_config` JSON for PAR/DPoP/PKCE flags and consent expiry.
 
 The service supports create, full update, and partial patch (with optimistic concurrency via an updated-timestamp check, and a tri-state "omitted / null / value" marker for the encryption key so callers can distinguish "leave alone" from "clear"). `GetClient` is cache-through: reads hit the shared runtime store first, and every write invalidates the cache.
+
+`additional_config` is now validated against an explicit allow-list of known keys (unknown keys are rejected), and a registered `EncPublicKey`'s declared `alg` must be one of the deployment's `SupportedEncAlgorithms` (`MOSIP_ESIGNET_OAUTH_SUPPORTED_ENCRYPTION_ALGORITHMS`, default `RSA-OAEP` / `RSA-OAEP-256`). Duplicate-client-ID and duplicate-public-key conflicts are now detected via the Postgres driver's structured error code (`pgconn.PgError.Code == "23505"`) rather than a brittle string match, fixing a case that previously fell through as an unhandled HTTP 500.
 
 **Endpoints**
 
@@ -93,38 +116,43 @@ The service supports create, full update, and partial patch (with optimistic con
 | `PATCH /client-mgmt/client/{client_id}`                            | Partial update of selected fields        |
 | `GET /client-mgmt/client/{client_id}`                              | Fetch a client (cache-through)           |
 
-### 2.5 Consent Management
+### 2.6 Consent Management
 
 `internal/consentmgmt` ports the decision logic of the original Java eSignet consent service. A `ConsentRecord` holds the client/user pair, requested claims and authorization scopes, a deterministic hash of that request, the accepted claims/permitted scopes, and an optional expiry (null = never expires).
 
-On each authorization request, the engine's consent provider compares a hash of the newly requested claims/scopes against the last stored consent for that (client, user) pair to decide whether to re-prompt the user (CAPTURE) or reuse the prior decision (NOCAPTURE). `SaveRecord` writes both an append-only audit row (`consent_history`) and an upserted current row (`consent_detail`) inside a single database transaction; `DeleteRecord` removes only the current row, leaving history intact.
+On each authorization request, the engine's consent provider compares a hash of the newly requested claims/scopes against the last stored consent for that (client, user) pair to decide whether to re-prompt the user (CAPTURE) or reuse the prior decision (NOCAPTURE). It now resolves the client (`clientSvc.GetActiveClient`) and filters against that client's own registered `Claims` rather than the deployment's global scope-claims config alone, and any submitted consent decision is filtered to only the claims/scopes actually requested — a user (or a malicious client) can't grant more than was asked for. `SaveRecord` writes both an append-only audit row (`consent_history`) and an upserted current row (`consent_detail`) inside a single database transaction; `DeleteRecord` removes only the current row, leaving history intact.
 
-### 2.6 Security
+### 2.7 Security
 
-Two independent, composable HTTP middlewares protect the client-management API surface:
+Two independent, composable HTTP middlewares protect the client-management and key-management API surfaces:
 
 - **Scope enforcement** – `ScopeMiddleware` activates only when both an issuer URL and a JWKS URL are configured. It validates the Bearer JWT (RS/ES/PS 256/384/512, pinned issuer, mandatory expiry) against a key resolved from a polling `JWKSCache` (keyed by `kid`, with a forced refresh on a cache miss to tolerate key rotation), then checks the token's scope claim against a per-route scope mapping. Requests to a route with no configured mapping are rejected (fail closed).
 - **Request-time validation** – a configurable leeway window (default 300s) rejects requests whose declared request time has drifted too far from server time, mitigating replay of captured requests.
 
-The OIDC/OAuth protocol surface itself (token issuance, PKCE, DPoP, client authentication via `private_key_jwt`) is enforced inside the ThunderID engine and configured, not re-implemented, by esignet-service.
+The OIDC/OAuth protocol surface itself (token issuance, PKCE, DPoP, client authentication via `private_key_jwt`) is enforced inside the ThunderID engine and configured, not re-implemented, by esignet-service. A configurable CORS allow-list (`MOSIP_ESIGNET_CORS_ALLOWED_ORIGIN_REGEX`, matched against a regex) is passed to the engine as an `OriginConfig`; unset, no cross-origin requests are allowed. Clients can also opt into encrypted responses: when a client's `additional_config` requests `"JWE"`, the userinfo and ID-token responses are sign-then-encrypt (nested JWT, `A256GCM`) using that client's registered encryption key instead of plain signed JWTs.
 
-### 2.7 Configuration & Runtime Store
+### 2.8 Configuration, Observability & Runtime Store
 
-Application configuration is loaded from `data/deployment.yaml` with environment-variable interpolation, then defaulted/overridden by explicit env vars. Notable settings include the listening port, issuer host, data directory, selected authentication provider, active flow/layout/theme IDs, the runtime-store backend, cache TTLs for clients/flows/design assets, and nested engine configuration for OAuth grant/response types, JWT signing, ACR→AMR mapping, CAPTCHA validation, and outbound HTTP client tuning.
+Application configuration is loaded from `data/deployment.yaml` with environment-variable interpolation, then defaulted/overridden by explicit env vars. Notable settings include the listening port, issuer host, data directory, selected authentication provider, active flow/layout/theme IDs, the runtime-store backend, cache TTLs for clients/flows/design assets, CORS origin regex, supported client encryption algorithms, inbound HTTP server timeouts, and nested engine configuration for OAuth grant/response types, JWT signing, ACR→AMR mapping, CAPTCHA validation, and outbound HTTP client tuning. `internal/keymanager` and `internal/keymanager/cryptomanager` load their own `KEYMANAGER_`-prefixed config separately (keystore type/path, key policy defaults, DB schema — see §2.4).
 
-The runtime store abstracts transient state behind one interface with two implementations: an in-memory store (single instance, development/testing only — explicitly logged as not shared across replicas) and a Redis-backed store used in production for horizontal scalability. It is shared by three consumers: the engine's own flow/session state, the client-management cache, and the flow-definition cache.
+The runtime store abstracts transient state behind one interface with two implementations: an in-memory store (single instance, development/testing only — explicitly logged as not shared across replicas) and a Redis-backed store used in production for horizontal scalability. It is shared by three consumers: the engine's own flow state, the client-management cache, and the flow-definition cache.
 
-### 2.8 Data Model
+Observability runs on two side channels, both separate from the public API mux: a private `GET /metrics` listener (Prometheus, `internal/metrics` — Postgres and Redis connection-pool gauges/counters) on its own port, and an optional `127.0.0.1`-only pprof debug server (`/debug/pprof/*`) gated by a config flag, for profiling without exposing it publicly.
 
-The service owns three tables directly (via generated, type-safe SQL access):
+### 2.9 Data Model
 
-| Table             | Purpose                                                                                                                                |
-| ----------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| `client_detail`   | OAuth/OIDC client registry: identifiers, redirect URIs, claims, ACR values, JWKs, grant types, auth methods, status, additional config |
-| `consent_detail`  | Current consent decision per (client_id, user token): accepted claims, permitted scopes, expiry                                        |
-| `consent_history` | Append-only audit trail of every consent decision                                                                                      |
+The service owns six tables directly (via generated, type-safe SQL access):
 
-A shared `mosip_esignet` schema also defines `key_store`, `public_key_registry`, `key_alias`, `key_policy_def`, and `ca_cert_store` tables used by the esignet-service's own key manager for cryptographic operations.
+| Table               | Purpose                                                                                                                                | Owning package        |
+| ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------| ---------------------- |
+| `client_detail`     | OAuth/OIDC client registry: identifiers, redirect URIs, claims, ACR values, JWKs, grant types, auth methods, status, additional config | `internal/clientmgmt`  |
+| `consent_detail`    | Current consent decision per (client_id, user token): accepted claims, permitted scopes, expiry                                       | `internal/consentmgmt` |
+| `consent_history`   | Append-only audit trail of every consent decision                                                                                      | `internal/consentmgmt` |
+| `key_alias`         | Key hierarchy metadata (application/reference IDs, certificate thumbprints, expiry)                                                    | `internal/keymanager`  |
+| `key_policy_def`    | Per-`ApplicationID` key policy (validity periods, allowed key types) that must exist before a key can be generated for that app        | `internal/keymanager`  |
+| `key_store`         | Encrypted private keys and certificates                                                                                                | `internal/keymanager`  |
+
+The `key_alias`/`key_policy_def`/`key_store` schema is configurable (`KEYMANAGER_DB_SCHEMA`, default `keymgr` to match the Java service) — the reference `docker-compose` deployment points it at the same `esignet` Postgres schema as `client_detail`/`consent_detail`. A shared schema also defines `public_key_registry`, `ca_cert_store`, and `server_profile` tables used by the ThunderID engine itself rather than by esignet-service's own Go code.
 
 ---
 
@@ -141,7 +169,7 @@ oidc-ui is a React 19 / TypeScript single-page application built with Vite. Rath
 | Routing            | react-router-dom v7                                                              |
 | Data/query caching | @tanstack/react-query v5                                                         |
 | Styling            | Tailwind CSS v4 (CSS-based config) + PostCSS/Autoprefixer                        |
-| Core domain SDK    | @thunderid/react v0.11.0 – SignIn/flow renderer, ThunderIDProvider, I18nProvider |
+| Core domain SDK    | @thunderid/react v1.0.6 – SignIn/flow renderer, ThunderIDProvider, I18nProvider (data-router APIs; major-version bump from v0.11.0) |
 | CAPTCHA            | Google reCAPTCHA, Cloudflare Turnstile, hCaptcha (selectable)                    |
 | Biometrics         | @mosip/secure-biometric-interface-integrator                                     |
 | Testing            | Vitest + Testing Library, jsdom, 80% coverage threshold                          |
@@ -175,6 +203,8 @@ _Figure 3 – oidc-ui component composition_
 
 There is no separate app route per screen (OTP entry, consent review, biometric capture, etc.) — those are step types rendered inside the single SDK flow component, matching the backend's PROMPT-node model described in section 2.2. The app customises specific step renderers (e.g. the CAPTCHA box, the biometric-capture widget, the resend-OTP and back-button controls) by injecting overrides into the SDK.
 
+Routing was migrated from `<BrowserRouter>` to `createBrowserRouter`/`<RouterProvider>` (a single catch-all route rendering an `AppLayout` wrapper around `NavHeader` + `AppRouter` + `Footer`), which is required to use react-router's `useBlocker` hook. `AppRouter` uses that hook to intercept browser back/forward navigation (`historyAction === "POP"`) and show a confirmation prompt before letting it proceed, and separately registers a `beforeunload` warning once the user has started interacting with the `/signin` screen — both guard against accidentally abandoning an in-progress login session.
+
 ### 3.4 Backend Integration
 
 `api.service.ts` wraps axios with credentials enabled and a base URL derived from `VITE_API_URL` (`/v1/esignet` in production). A request interceptor fetches and caches a CSRF token from `GET {base}/csrf/token`, attaching it as an `X-XSRF-TOKEN` header on state-changing requests; a response interceptor redirects to `/something-went-wrong` on any 4xx/5xx. The SDK's `ThunderIDProvider` is initialised with the same base URL and the `applicationId` query parameter, and internally issues the actual flow/OTP/consent/token calls against esignet-service.
@@ -184,6 +214,8 @@ In production, nginx proxies `/v1/esignet/*` to the esignet-service backend, alo
 ### 3.5 Configuration & Theming
 
 Per-deployment configuration is injected at container start rather than baked into the build: `public/env-config.js` sets `window._env_` (default language, well-known URL, theme, favicon, title, ID-provider display name), generated by `configure_start.sh` from Docker build arguments. The same script downloads and unzips externally hosted i18n, theme, and image bundles into the served static tree — the frontend analogue of the backend's `data/i18n` and `data/themes` YAML assets, delivered as static files rather than fetched live from an API. A runtime `theme/config.json` (fetched by `config.service.ts`) carries boolean UI feature flags (e.g. OTP/biometrics info icons, background logo, footer, outline toggle), and CSS custom properties are injected for logo and background image URLs.
+
+The initial UI language now follows the standard OIDC `ui_locales` query parameter when the relying party supplies one (first of the space-separated, preference-ordered list), falling back to `window._env_.DEFAULT_LANG`; the resolved language is passed into `ThunderIDProvider` as `preferences.i18n.language`. `ThunderIDProvider` is also given a `namespace={applicationId}` prop, fixing localized client-name resolution. The language switcher in `NavHeader` was redesigned to show each language's native-script name (e.g. हिन्दी, العربية) instead of its raw locale display name, via a `LANGUAGE_NATIVE_NAMES` map.
 
 ### 3.6 Build & Deployment
 
@@ -195,8 +227,9 @@ A multi-stage Dockerfile builds the Vite bundle in a `node:20-slim` stage and se
 - CSRF protection via a fetched token attached to state-changing requests.
 - OAuth state/PKCE handling performed inside the SDK, not re-implemented in this repository.
 - Centralised error handling: HTTP errors redirect to a dedicated error page carrying the status code; offline detection redirects to a network-error page.
-- Right-to-left layout support and language switching for internationalisation.
-- Biometric capture bridged to the MOSIP Secure Biometric Interface device SDK, auto-submitting the form on a successful scan.
+- Right-to-left layout support and language switching (native-script labels) for internationalisation.
+- Biometric capture bridged to the MOSIP Secure Biometric Interface device SDK, auto-submitting the form on a successful scan; the SBI widget's own language is kept in sync with the app's active (SBI-supported) language.
+- Back/forward-navigation guard: a router `useBlocker` intercepts browser back/forward during a session with a confirmation prompt, and a `beforeunload` warning guards accidental tab close/reload once the user has started the login screen.
 
 ---
 
@@ -215,8 +248,10 @@ _Figure 4 – End-to-end login and consent sequence_
 - **Engine-and-plugin separation** – protocol mechanics (token issuance, JWKS, PKCE/DPoP/PAR, flow execution runtime, UI-rendering surface) live in the shared, external ThunderID engine/SDK; esignet-service and oidc-ui contribute only MOSIP-specific providers, screen theming, and identity-backend integrations. This keeps the MOSIP-specific codebase small and lets the protocol core be upgraded independently.
 - **Flow-as-configuration** – authentication and consent journeys are declarative YAML (backend) rendered generically by a single SDK component (frontend), so new login methods or screen orders can be introduced without new app routes or backend endpoints, only new flow nodes and, where needed, new executors.
 - **Swappable identity backend** – MOSIP IDA, Sunbird RC, and a mock provider all satisfy one authenticator interface, selected by a single environment variable, enabling the same UI/flow layer to run against production identity systems or a local mock for testing.
-- **Defence in depth on the API surface** – client-management APIs are protected independently by scope-checked bearer tokens and request-time/replay validation, in addition to the OIDC/OAuth security enforced by the engine on the protocol endpoints.
+- **Defence in depth on the API surface** – client-management and key-management APIs are protected independently by scope-checked bearer tokens, request-time/replay validation, and a configurable CORS allow-list, in addition to the OIDC/OAuth security enforced by the engine on the protocol endpoints.
 - **Cache-through shared runtime store** – a single Redis-or-in-memory store backs client lookups, flow-definition caching, and the engine's own session/flow state, with Redis required for any multi-replica deployment.
+- **Self-contained, HSM-capable key management** – a native Go port of MOSIP's Keymanager service (§2.4) provisions and rotates esignet's own signing/encryption key hierarchy against Postgres and a pluggable keystore (PKCS#11 HSM/SoftHSM2, or a PKCS#12 file for local development), replacing the previous static, file-based signing key and giving the deployment a standalone HTTP key-management API rather than depending on an external Keymanager service.
+- **Resource-scoped authorization** – requested OAuth permission scopes are checked against both a resolved resource server's configured scopes and the client's own `allowed_authorization_scopes` before consent is prompted, so a client can never receive (or a user be asked to approve) a scope it isn't entitled to.
 - **Externalised, per-deployment theming** – language packs, themes, layouts, and images are treated as deployable configuration (YAML on the backend, downloaded static bundles plus a runtime `env-config.js` on the frontend) rather than being compiled into either artifact, allowing one build to serve multiple branded deployments.
 
 ---
@@ -231,6 +266,9 @@ _Figure 4 – End-to-end login and consent sequence_
 | `POST` / `PUT /client-mgmt/oidc-client[/{client_id}]`              | Scope-checked bearer token (if configured) |
 | `POST` / `PUT /client-mgmt/oauth-client[/{client_id}]`             | Scope-checked bearer token (if configured) |
 | `POST` / `PUT` / `PATCH` / `GET /client-mgmt/client[/{client_id}]` | Scope-checked bearer token (if configured) |
+| `GET /system-info/certificate`                                     | Scope-checked bearer token (if configured) |
+| `POST /system-info/uploadCertificate`                              | Scope-checked bearer token (if configured) |
+| `GET /metrics`                                                     | None — served on a separate private port, not the public mux |
 
 Standard OIDC/OAuth endpoints (`/authorize`, `/token`, `/.well-known/openid-configuration`, JWKS publishing, PAR, revocation, logout) are registered by the external ThunderID engine on the same mux and are outside this repository's own route-registration code.
 
@@ -244,6 +282,10 @@ Standard OIDC/OAuth endpoints (`/authorize`, `/token`, `/.well-known/openid-conf
 | `MOSIP_ESIGNET_AUTH_FLOW_ID`                        | Selects the active flow YAML under `data/flows/`             |
 | `MOSIP_ESIGNET_LAYOUT_ID`, `MOSIP_ESIGNET_THEME_ID` | Selects the active layout/theme YAML under `data/`           |
 | `RuntimeDBType` (config)                            | Selects Redis vs. in-memory runtime store                    |
-| `CRYPTO_ENCRYPTION_KEY`                             | Required; service fails to start if unset                    |
 | `ISSUER_URL`, `JWKS_URL` (security_config)          | Enable scope-enforcement middleware when both are set        |
+| `MOSIP_ESIGNET_CORS_ALLOWED_ORIGIN_REGEX`           | CORS allow-list regex; unset means no cross-origin requests are allowed |
+| `MOSIP_ESIGNET_OAUTH_SUPPORTED_ENCRYPTION_ALGORITHMS` | Restricts which `alg` a client's registered `EncPublicKey` may declare (default `RSA-OAEP`, `RSA-OAEP-256`) |
+| `METRICS_PORT`                                      | Private Prometheus `/metrics` listener port (default 9090)   |
+| `MOSIP_ESIGNET_PPROF_ENABLED`, `MOSIP_ESIGNET_PPROF_PORT` | Enable/port the loopback-only pprof debug server        |
+| `KEYMANAGER_DB_SCHEMA`, `KEYMANAGER_KEYSTORE_TYPE`  | Key-manager Postgres schema (default `keymgr`) and keystore backend (`PKCS11` default, or `PKCS12`) |
 | `VITE_API_URL` (oidc-ui build)                      | Backend base path, e.g. `/v1/esignet`                        |
