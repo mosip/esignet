@@ -230,3 +230,20 @@ func convertFields(fields []Field) []any {
 	}
 	return attrs
 }
+
+// NewLogger constructs a Logger from an arbitrary slog.Handler. Useful in
+// tests to inject a custom handler (e.g. a counting or buffered handler).
+func NewLogger(h slog.Handler) *Logger {
+	return &Logger{internal: slog.New(h)}
+}
+
+// ReplaceLogger swaps the package-level singleton for l and returns a function
+// that restores the original. It ensures the singleton has been initialised
+// first so the restore function always has a valid logger to reinstate.
+// Intended for tests.
+func ReplaceLogger(l *Logger) (restore func()) {
+	_ = GetLogger() // ensure once.Do has fired before we swap
+	prev := logger
+	logger = l
+	return func() { logger = prev }
+}
