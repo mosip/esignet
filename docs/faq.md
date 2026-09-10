@@ -28,9 +28,8 @@ eSignet provides multiple authentication methods, as listed below:
 
 - OTP Authentication
 - Biometric Authentication
-- Wallet-based Authentication
 - Password-based Authentication
-- Knowledge Based Identification (KBI)
+- Knowledge-Based Identification (KBI)
 
 For a full list of supported authentication methods, refer to the [eSignet documentation](https://docs.esignet.io).
 
@@ -48,7 +47,9 @@ The intended users of eSignet include:
 
 **How scalable is eSignet? Can it handle a significant increase in user volume?**
 
-eSignet is simple, lightweight, and powerful. The Go-based implementation compiles to a single binary with a minimal memory footprint, making horizontal scaling straightforward. It uses [Redis](https://redis.io/) as a shared session/flow state store, enabling stateless multi-instance deployments behind a load balancer. It can scale effortlessly to handle large user volumes while acting as a middle layer for identity verification.
+eSignet is simple, lightweight, and powerful. The Go-based implementation compiles to a single binary with a minimal memory footprint, making horizontal scaling straightforward. It uses [Redis](https://redis.io/) as a shared OIDC transaction and flow state store, enabling stateless multi-instance deployments behind a load balancer. It can scale effortlessly to handle large user volumes while acting as a middle layer for identity verification.
+
+For capacity planning, refer to the [performance test module](https://github.com/mosip/esignet/tree/develop-go/performance-test) in the repository. It ships JMeter scripts and a TPS thread-setting calculator (`MOSIP_TPS_Thread_setting_calculator-ESignet.xlsx`, based on Little's law) to estimate the required threads and sustainable throughput for a target TPS. Published benchmark reports are available in the [MOSIP documentation](https://docs.mosip.io).
 
 ---
 
@@ -77,7 +78,7 @@ eSignet is an open-source, flexible solution that follows standard protocols ([O
 - **Standards-based security:** [OAuth 2.1](https://oauth.net/2.1/), [OpenID Connect](https://openid.net/specs/openid-connect-core-1_0.html), [FAPI 2.0](https://openid.net/specs/fapi-security-profile-2_0.html) (PAR + DPoP + `private_key_jwt`), PKCE, JWE-encrypted responses.
 - **Declarative authentication flows:** Authentication logic is defined as YAML flow graphs (`data/flows/*.yaml`) and interpreted at runtime — no code changes required to modify the login flow.
 - **Multiple pluggable identity backends:** MOSIP IDA (OTP + KYC), [SunbirdRC](https://github.com/Sunbird-RC/sunbird-rc-core) KBI, and a mock backend for development/testing.
-- **Embedded key manager:** Automatic key hierarchy provisioning (`ROOT`, `OIDC_SERVICE`, `OIDC_PARTNER`) with support for PKCS#11 HSMs and PKCS#12 file keystores.
+- **Embedded key manager:** Automatic two-level key hierarchy provisioning (`OIDC_SERVICE`, `OIDC_PARTNER`) with support for PKCS#11 HSMs and PKCS#12 file keystores.
 - **User centricity:** Single identity credential access across services, mandatory user consent, and multiple authentication methods.
 - **Flexible CAPTCHA support:** [Google reCAPTCHA](https://www.google.com/recaptcha/), [Cloudflare Turnstile](https://www.cloudflare.com/products/turnstile/), and [hCaptcha](https://www.hcaptcha.com/) are all supported.
 
@@ -132,14 +133,14 @@ Yes. Per-client JWE ([RFC 7516](https://www.rfc-editor.org/rfc/rfc7516)) encrypt
 
 1. **Set the response type** in the `additionalConfig` object when registering via `POST /client-mgmt/client`:
 
-```json
-{
-  "additionalConfig": {
-    "userinfo_response_type": "JWE",
-    "id_token_response_type": "JWE"
-  }
-}
-```
+   ```json
+   {
+     "additionalConfig": {
+       "userinfo_response_type": "JWE",
+       "id_token_response_type": "JWE"
+     }
+   }
+   ```
 
 2. **Register the encryption public key** via `PATCH /client-mgmt/client/{client_id}` using the `encPublicKey` field. Both RSA (`RSA-OAEP-256`, `RSA-OAEP`) and EC (`ECDH-ES`, `ECDH-ES+A128KW`, etc.) keys are supported. Setting `encPublicKey` to `null` clears the key. The signing public key (`publicKey`) set at registration cannot be changed; if it is compromised, create a new client.
 
@@ -168,7 +169,7 @@ The [ThunderID](https://github.com/thunder-id/thunderid) engine is embedded as a
 | Authentication flow | Hard-coded Java controllers | Declarative YAML flow graphs |
 | Database access | Spring Data JPA / Hibernate | Raw SQL via `pgx/v5` + `sqlc` |
 | Metrics | Spring Actuator / Micrometer | [Prometheus](https://prometheus.io/) endpoint |
-| Session store | Redis or in-memory | Redis or in-memory |
+| Transaction store | Redis or in-memory | Redis or in-memory |
 
 ---
 
@@ -192,7 +193,7 @@ Certificate upload/download is available at `/system-info/certificate` and `/sys
 
 Authentication logic is expressed as declarative YAML flow graphs stored in `data/flows/`. The main flow file is `flow-esignet.yaml`. Each flow is a directed graph of named nodes; each node calls a registered executor.
 
-eSignet registers three custom executors in addition to the 30+ built-in [ThunderID](https://github.com/thunder-id/thunderid) executors:
+eSignet registers two custom executors in addition to the 30+ built-in [ThunderID](https://github.com/thunder-id/thunderid) executors:
 
 | Executor | Purpose |
 |---|---|
@@ -257,88 +258,74 @@ Environment variable overrides apply only to values declared with `${ENV_VAR_NAM
 
 **How to configure password authentication in the Go version?**
 
-Password authentication is enabled by including the ACR value `mosip:idp:acr:password` in the `authContextRefs` array when creating or updating a client via the `/client-mgmt/client` API.
+Two conditions must be satisfied:
 
-In `deployment.yaml`, ensure the `password` authentication mode is listed in the flow definition and that the MOSIP IDA (or mock) backend is configured to accept password credentials. No separate ACR-AMR mapping file is required — the mapping is handled within the YAML flow graph (`flow-esignet.yaml`). Refer to the [eSignet API documentation](https://docs.esignet.io) for the full client registration payload schema.
+1. **Register the password ACR on the client:** include the ACR value `mosip:idp:acr:password` in the `authContextRefs` array when creating or updating a client via the `/client-mgmt/client` API.
+2. **The integrated ID system must support password-based authentication:** the configured identity backend (MOSIP IDA, SunbirdRC, or mock) must be able to verify the resident's password credential.
+
+No separate ACR-AMR mapping file is required — the mapping is handled within the YAML flow graph (`flow-esignet.yaml`). Refer to the [eSignet API documentation](https://docs.esignet.io) for the full client registration payload schema.
 
 ---
 
 **How to add a new language in eSignet?**
 
-The React-based `oidc-ui` uses [ISO 639-1](https://www.iso.org/iso-639-language-codes.html) language codes for localization. To add a new language:
+Localization strings live in the eSignet service data directory at [`esignet-service/data/i18n/`](https://github.com/mosip/esignet/tree/develop-go/esignet-service/data/i18n), with one YAML file per language named using its [ISO 639-1](https://www.iso.org/iso-639-language-codes.html) code (e.g. `en.yaml`, `fr.yaml`). The service auto-discovers the available languages by scanning this folder, so there is no separate registration file. To add a new language:
 
-1. Go to `oidc-ui/public/locales/`.
-2. Copy `en.json` and rename it with the ISO 639-1 language code (e.g. `fr.json` for French).
-3. Translate the values in the new file.
-4. Update `default.json` to register the new language:
-
-```json
-{
-  "languages_2Letters": {
-    "en": "English",
-    "fr": "Français"
-  },
-  "rtlLanguages": ["ar"],
-  "langCodeMapping": {
-    "eng": "en",
-    "fra": "fr"
-  }
-}
-```
-
-If the language is RTL, add its ISO 639-1 code to the `rtlLanguages` array.
-
-For production, update the same files in your i18n bundle artifact and redeploy the `oidc-ui` container.
+1. Go to `esignet-service/data/i18n/` (the folder resolved from `DATA_DIR`).
+2. Copy `en.yaml` and rename it with the ISO 639-1 language code (e.g. `fr.yaml` for French).
+3. Translate the values in the new file, keeping the top-level namespace keys unchanged.
+4. Restart or redeploy the eSignet service so the new file is picked up. Requests then resolve via BCP47 matching (for example, `fr-FR` falls back to `fr`), with `en` as the final fallback.
 
 ---
 
 **How to remove a language from the eSignet default setup?**
 
-1. Delete the language's JSON file (e.g. `fr.json`) from `oidc-ui/public/locales/`.
-2. Remove its entry from `default.json`.
-
-Rebuild and redeploy the `oidc-ui` container for the change to take effect in production.
+1. Delete the language's YAML file (e.g. `fr.yaml`) from `esignet-service/data/i18n/`.
+2. Restart or redeploy the eSignet service so the language is no longer listed.
 
 ---
 
 **How to configure the expected quality score, timeouts, and number of biometric attributes?**
 
-These are React `oidc-ui` build-time environment variables. Set them in `oidc-ui/.env` or pass them as container environment variables:
+These SBI capture parameters are passed to the [`@mosip/secure-biometric-interface-integrator`](https://www.npmjs.com/package/@mosip/secure-biometric-interface-integrator) widget by the `oidc-ui` React app. They are currently defined as the `DEFAULT_SBI_ENV` defaults in [`oidc-ui/src/components/SbiComponent/SbiComponent.tsx`](https://github.com/mosip/esignet/blob/develop-go/oidc-ui/src/components/SbiComponent/SbiComponent.tsx) and are **not** overridable via environment variables:
 
-```dotenv
-# Quality score thresholds (0–100)
-VITE_SBI_FACE_CAPTURE_SCORE=70
-VITE_SBI_FINGER_CAPTURE_SCORE=70
-VITE_SBI_IRIS_CAPTURE_SCORE=70
-
-# Number of biometric subtypes to capture
-VITE_SBI_FACE_CAPTURE_COUNT=1
-VITE_SBI_FINGER_CAPTURE_COUNT=1
-VITE_SBI_IRIS_CAPTURE_COUNT=1
-
-# Timeouts in seconds
-VITE_SBI_CAPTURE_TIMEOUT=30
-VITE_SBI_DINFO_TIMEOUT=30
-VITE_SBI_DISC_TIMEOUT=30
+```ts
+const DEFAULT_SBI_ENV = {
+  env: "Staging",
+  captureTimeout: 30,
+  faceCaptureCount: 1,
+  faceCaptureScore: 80,
+  fingerCaptureCount: 1,
+  fingerCaptureScore: 80,
+  irisCaptureCount: 1,
+  irisCaptureScore: 80,
+  portRange: "4501-4600",
+  discTimeout: 15,
+  dinfoTimeout: 30,
+  // ...
+};
 ```
 
-Note: Variable names use the `VITE_` prefix ([Vite](https://vite.dev/)) instead of the `REACT_APP_` prefix used in the previous CRA-based UI.
+To change the quality-score thresholds (0–100), capture counts, or timeouts (in seconds), edit this object and rebuild/redeploy the `oidc-ui` container.
 
 ---
 
 **How to enable or disable CAPTCHA in eSignet UI?**
 
-CAPTCHA configuration in the Go version is set in `deployment.yaml`. Three providers are supported:
+CAPTCHA is wired into the authentication flow, not `deployment.yaml`. The `captcha` block lives in the flow definition [`esignet-service/data/flows/flow-esignet.yaml`](https://github.com/mosip/esignet/blob/develop-go/esignet-service/data/flows/flow-esignet.yaml), and its values are supplied through environment variables (see [`.env.example`](https://github.com/mosip/esignet/blob/develop-go/esignet-service/.env.example)):
 
-```yaml
-captcha:
-  required: true
-  provider: "recaptcha"   # Options: recaptcha | turnstile | hcaptcha
-  siteKey: "${CAPTCHA_SITE_KEY}"
-  secretKey: "${CAPTCHA_SECRET_KEY}"
+```dotenv
+# Provider shown by the UI and its public site key
+MOSIP_ESIGNET_CAPTCHA_SITE_PROVIDER=hcaptcha   # e.g. recaptcha | turnstile | hcaptcha
+MOSIP_ESIGNET_CAPTCHA_SITE_KEY=<public-site-key>
+
+# Server-side token validation (skipped when the URL is unset)
+MOSIP_ESIGNET_CAPTCHA_VALIDATOR_URL=http://<captcha-service-host>/v1/captcha/validatecaptcha
+MOSIP_ESIGNET_CAPTCHA_MODULE_NAME=esignet
+MOSIP_ESIGNET_CAPTCHA_TIMEOUT_SECS=10
 ```
 
-Set `required: false` to disable CAPTCHA entirely. The supported providers are:
+To disable CAPTCHA, remove the `CAPTCHA_BOX` reference from the relevant flow nodes in `flow-esignet.yaml` (or leave the validator URL unset so tokens are accepted unverified). The providers selectable via `MOSIP_ESIGNET_CAPTCHA_SITE_PROVIDER` are:
 
 - **`recaptcha`** — [Google reCAPTCHA](https://www.google.com/recaptcha/)
 - **`turnstile`** — [Cloudflare Turnstile](https://www.cloudflare.com/products/turnstile/)
@@ -346,9 +333,9 @@ Set `required: false` to disable CAPTCHA entirely. The supported providers are:
 
 ---
 
-**How to configure Redis for session storage?**
+**How to configure Redis for OIDC transaction storage?**
 
-[Redis](https://redis.io/) is used as the shared flow/session state store and is required for multi-instance deployments. Configure it in `deployment.yaml`:
+[Redis](https://redis.io/) is used as the shared OIDC transaction and flow state store and is required for multi-instance deployments. Configure it in `deployment.yaml`:
 
 ```yaml
 redis:
@@ -359,37 +346,35 @@ redis:
   tls: true   # set to false only for isolated local development; always true for production
 ```
 
-For single-instance development setups, Redis can be replaced with the in-memory runtime store by setting `runtimeStore.type: memory` in `deployment.yaml`. This setting is not suitable for production as state is lost on restart.
+Redis is selected by setting `MOSIP_ESIGNET_CACHE_TYPE=redis`. For single-instance development setups, use the in-memory runtime store instead by setting `MOSIP_ESIGNET_CACHE_TYPE=inmemory` (any value other than `redis` selects the in-memory store). This is not suitable for production as state is lost on restart.
 
 ---
 
 **How to configure PKCS#11 / HSM key storage?**
 
-To use a hardware HSM or [SoftHSM2](https://www.opendnssec.org/softhsm/) in production:
+Keystore selection is a **runtime** setting driven by `KEYMANAGER_*` environment variables (read by the keymanager at startup), not a `deployment.yaml` block. The PKCS#11 backend additionally requires a CGO-enabled binary, since it links a native PKCS#11 module.
 
-1. Build the binary with the `pkcs11` build tag: `go build -tags pkcs11 ./cmd/esignet`.
-2. Configure the PKCS#11 provider in `deployment.yaml`:
+To use a hardware HSM or [SoftHSM2](https://www.opendnssec.org/softhsm/) in production, build with CGO enabled (see `make.sh`) and set:
 
-```yaml
-keymanager:
-  backend: pkcs11
-  pkcs11:
-    library: "/usr/lib/softhsm/libsofthsm2.so"
-    tokenLabel: "esignet"
-    pin: "${HSM_PIN}"
+```dotenv
+# PKCS#11 requires a CGO_ENABLED=1 build
+KEYMANAGER_KEYSTORE_TYPE=PKCS11
+KEYMANAGER_PKCS11_MODULE_PATH=/usr/lib/softhsm/libsofthsm2.so
+KEYMANAGER_PKCS11_TOKEN_LABEL=esignet
+KEYMANAGER_PKCS11_SLOT_ID=<slot-id>
+KEYMANAGER_PKCS11_PIN=${HSM_PIN}
 ```
 
-For development without HSM, use the default PKCS#12 (file-based) backend:
+For development without an HSM, use the file-based PKCS#12 backend (the only backend available in the default `CGO_ENABLED=0` build):
 
-```yaml
-keymanager:
-  backend: pkcs12
-  pkcs12:
-    path: "/etc/esignet/keystore.p12"
-    password: "${KEYSTORE_PASSWORD}"
+```dotenv
+KEYMANAGER_KEYSTORE_TYPE=PKCS12
+KEYMANAGER_PKCS12_FILE_PATH=/opt/mosip/keystore.p12
+KEYMANAGER_PKCS12_PASSWORD=${KEYSTORE_PASSWORD}
+KEYMANAGER_PKCS12_ALLOW_INSECURE_SOFTWARE_KEYSTORE=true
 ```
 
-On first startup, the key hierarchy (`OIDC_SERVICE`, `OIDC_PARTNER`) is provisioned automatically.
+On first startup, the two-level key hierarchy (`OIDC_SERVICE`, `OIDC_PARTNER`) is provisioned automatically.
 
 ---
 
@@ -423,51 +408,43 @@ For MOSIP-integrated environments, relying parties are Auth partners and must co
 
 Relying parties are considered Auth partners in MOSIP and must complete [authentication partner onboarding](https://docs.mosip.io) before registering a client:
 
-- **Self Onboarding:** Partners register directly on the [MOSIP PMS portal](https://docs.mosip.io).
-- **Assisted Onboarding:** Partners fill out the onboarding form; credentials are sent via email.
+- **Self-service onboarding:** Partners self-register on the [MOSIP PMS portal](https://docs.mosip.io).
+- **Onboarder script:** Partners are provisioned using the [partner-onboarder](https://github.com/mosip/esignet/tree/develop-go/partner-onboarder) script bundled in the repository.
 
-Once onboarded, partners call the `/client-mgmt/client` API (or the profile-specific `/client-mgmt/oidc-client` for backward compatibility) with a bearer token scoped to `client_mgmt_write` to register a client.
+When onboarding through MOSIP PMS, PMS invokes the `/client-mgmt/client` endpoint directly as part of the partner and policy configuration — partners do not call it themselves. In standalone (non-MOSIP) deployments, the client is registered by calling the `/client-mgmt/client` API (or the profile-specific `/client-mgmt/oidc-client` for backward compatibility) with a bearer token scoped to `client_mgmt_write`.
 
 ---
 
-**How to configure Knowledge Based Identification (KBI) with SunbirdRC?**
+**How to configure Knowledge-Based Identification (KBI) with SunbirdRC?**
 
 The [SunbirdRC](https://github.com/Sunbird-RC/sunbird-rc-core) KBI authenticator (`internal/engine/sunbird/`) identifies users by matching fields from the KBI form against records in a SunbirdRC registry. The fields displayed in the KBI form are driven by the registry schema. If more than one registry entry matches the provided details, authentication is denied.
 
-Configure the SunbirdRC backend in `deployment.yaml`:
+Configure the SunbirdRC backend through environment variables (see [`.env.example`](https://github.com/mosip/esignet/blob/develop-go/esignet-service/.env.example)):
 
-```yaml
-authnProvider:
-  type: sunbird
-  sunbird:
-    registryUrl: "${SUNBIRD_REGISTRY_URL}"
-    entity: "InsuranceMember"
-    kbiFields: ["fullName", "dob", "policyNumber"]
+```dotenv
+MOSIP_ESIGNET_AUTHN_PROVIDER=sunbird
+MOSIP_ESIGNET_AUTHENTICATOR_SUNBIRD_RC_AUTH_FACTOR_KBI_REGISTRY_SEARCH_URL=https://registry.example.net/api/v1/Insurance/search
+MOSIP_ESIGNET_AUTHENTICATOR_SUNBIRD_RC_REGISTRY_GET_URL=https://registry.example.net/api/v1/Insurance/
+MOSIP_ESIGNET_AUTHENTICATOR_SUNBIRD_RC_AUTH_FACTOR_KBI_INDIVIDUAL_ID_FIELD=policyNumber
+MOSIP_ESIGNET_AUTHENTICATOR_SUNBIRD_RC_KBI_ENTITY_ID_FIELD=osid
+MOSIP_ESIGNET_AUTHENTICATOR_SUNBIRD_RC_AUTH_FACTOR_KBI_FIELD_DETAILS=[{"id":"policyNumber","type":"text","format":""},{"id":"fullName","type":"text","format":""},{"id":"dob","type":"date","format":"dd/mm/yyyy"}]
 ```
+
+The `KBI_FIELD_DETAILS` entries define the fields shown on the KBI form; the `individual-id-field` entry is the identifier and every other entry is a required credential.
 
 The current compatible SunbirdRC version is [v2.0.0-rc3](https://github.com/Sunbird-RC/sunbird-rc-core/releases).
 
 ---
 
-**How to configure a VC issuer in eSignet?**
-
-Verifiable Credential issuance ([OpenID4VCI](https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html)) is implemented in the [ThunderID](https://github.com/thunder-id/thunderid) engine that eSignet embeds, but is not wired into eSignet's current provider configuration by default. For production VC issuance, refer to **[Inji Certify](https://docs.inji.io)**, which provides a dedicated OpenID4VCI-compliant issuer service.
-
-To enable VC issuance directly through the ThunderID engine in a custom deployment, configure a credential definition under `vc.credentials` in `deployment.yaml` and implement the `VCIssuerProvider` interface.
-
-Note: Verifiable Credentials Issuance (VCI) in production environments is now recommended via [Inji Certify](https://docs.inji.io).
-
----
-
 **Where can I find Prometheus metrics for eSignet?**
 
-The Go binary exposes a [Prometheus](https://prometheus.io/)-compatible metrics endpoint. By default it is available at:
+The Go binary exposes a [Prometheus](https://prometheus.io/)-compatible metrics endpoint on a **separate private listener** — not the main application port and not routed through the public gateway/ingress. It is only reachable within the cluster (for example, by Prometheus). The listener defaults to port `9090` and is configurable via the `METRICS_PORT` environment variable (or `metrics_port` in `deployment.yaml`):
 
 ```http
-GET /metrics
+GET http://<host>:9090/metrics
 ```
 
-Key metrics include active flow sessions, token issuance counts, authentication attempt counts by method and outcome, and key manager operation latencies. Configure scraping in your Prometheus `prometheus.yml` or via a Kubernetes `ServiceMonitor`. For a reference Kubernetes setup, see the [Helm charts](https://github.com/mosip/esignet/tree/main/helm) in the repository.
+Key metrics include active OIDC transactions, token issuance counts, authentication attempt counts by method and outcome, and key manager operation latencies. Configure scraping in your Prometheus `prometheus.yml` or via a Kubernetes `ServiceMonitor`. For a reference Kubernetes setup, see the [Helm charts](https://github.com/mosip/esignet/tree/develop-go/helm) in the repository.
 
 ---
 
