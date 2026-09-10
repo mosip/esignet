@@ -37,6 +37,8 @@ data:
 
         location /v1/esignet/ {
           proxy_pass         http://{{ .Values.oidc_ui.oidc_service_host }}/;
+          proxy_http_version 1.1;
+          proxy_set_header   Connection "";
           proxy_redirect     off;
           proxy_set_header   Host $host;
           proxy_set_header   X-Real-IP $remote_addr;
@@ -48,6 +50,8 @@ data:
     
         location /v1/esignet/actuator/ {
           proxy_pass         http://{{ .Values.oidc_ui.oidc_service_host }}/;
+          proxy_http_version 1.1;
+          proxy_set_header   Connection "";
           proxy_redirect     off;
           proxy_set_header   Host $host;
           proxy_set_header   X-Real-IP $remote_addr;
@@ -59,6 +63,8 @@ data:
     
         location /.well-known/jwks.json {
           proxy_pass         http://{{ .Values.oidc_ui.oidc_service_host }}/oauth2/jwks;
+          proxy_http_version 1.1;
+          proxy_set_header   Connection "";
           proxy_redirect     off;
           proxy_set_header   Host $host;
           proxy_set_header   X-Real-IP $remote_addr;
@@ -73,6 +79,8 @@ data:
         
         location /.well-known/openid-configuration {
           proxy_pass         http://{{ .Values.oidc_ui.oidc_service_host }}/.well-known/openid-configuration;
+          proxy_http_version 1.1;
+          proxy_set_header   Connection "";
           proxy_redirect     off;
           proxy_set_header   Host $host;
           proxy_set_header   X-Real-IP $remote_addr;
@@ -87,6 +95,8 @@ data:
     
         location /.well-known/oauth-authorization-server {
           proxy_pass         http://{{ .Values.oidc_ui.oidc_service_host }}/.well-known/oauth-authorization-server;
+          proxy_http_version 1.1;
+          proxy_set_header   Connection "";
           proxy_redirect     off;
           proxy_set_header   Host $host;
           proxy_set_header   X-Real-IP $remote_addr;
