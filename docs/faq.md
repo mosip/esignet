@@ -59,7 +59,7 @@ eSignet applies several data-minimization and data-protection controls to limit 
 
 - **Data minimization:** eSignet issues access tokens tied to user identifiers and releases only the claims explicitly requested and consented to by the user. Authentication inputs (OTP, biometric, KBI fields) are processed in-flight and are not persisted by eSignet.
 - **Consent:** The login process occurs exclusively on the eSignet platform. A built-in consent flow requires users to explicitly grant or withhold access to each requested claim before any information is shared with a relying party. Consent decisions are recorded with an expiry and can be withdrawn.
-- **Protected data flow:** The Go implementation enforces JWE-encrypted ID tokens and userinfo responses (configured per client), DPoP-bound access tokens (preventing token replay by a different client), and JTI replay prevention on incoming signed assertions. All signing and encryption keys are managed by the MOSIP keymanager with optional HSM (PKCS#11) backing.
+- **Protected data flow:** The Go implementation enforces JWE-encrypted ID tokens and userinfo responses (configured per client), DPoP-bound access tokens (preventing token replay by a different client), and JTI replay prevention on incoming signed assertions. All signing and encryption keys are managed by the embedded Go keymanager, configured via `KEYMANAGER_*` environment variables, with optional HSM (PKCS#11) backing.
 
 ---
 
@@ -168,7 +168,7 @@ The [ThunderID](https://github.com/thunder-id/thunderid) engine is embedded as a
 |---|---|---|
 | Language / runtime | Java 11 / Spring Boot | Go 1.26, single binary |
 | Protocol logic | Internal Java services | Delegated to [ThunderID](https://github.com/thunder-id/thunderid) engine |
-| Key management | MOSIP keymanager (Java microservice) | Same MOSIP keymanager (Java microservice) |
+| Key management | MOSIP keymanager (Java microservice) | Embedded Go keymanager (`KEYMANAGER_*` env vars) |
 | Configuration | `application.properties` / Spring Config | `data/deployment.yaml` + environment variables |
 | Authentication flow | Hard-coded Java controllers | Declarative YAML flow graphs |
 | Database access | Spring Data JPA / Hibernate | Raw SQL via `pgx/v5` + `sqlc` |
@@ -179,15 +179,15 @@ The [ThunderID](https://github.com/thunder-id/thunderid) engine is embedded as a
 
 **How does key management work in the Go version?**
 
-eSignet uses the MOSIP keymanager (Java microservice) and automatically provisions a two-level key hierarchy on first startup:
+The Go version ships an **embedded Go keymanager** — no separate Java microservice is required. It is configured exclusively via `KEYMANAGER_*` environment variables and automatically provisions a two-level key hierarchy on first startup:
 
 - `OIDC_SERVICE` — the signing key for ID tokens and JWKS
 - `OIDC_PARTNER` — per-partner signing/encryption keys
 
-Two backends are supported, selected at runtime:
+Two backends are supported, selected at runtime via `KEYMANAGER_KEYSTORE_TYPE`:
 
-- **PKCS#11** (default production build): uses a hardware HSM or [SoftHSM2](https://www.opendnssec.org/softhsm/). Requires CGO and the PKCS#11 shared library.
-- **PKCS#12** (default dev build): keys are stored in an encrypted `.p12` file on disk. No native dependencies required.
+- **PKCS#11** (production builds with CGO enabled): uses a hardware HSM or [SoftHSM2](https://www.opendnssec.org/softhsm/). Requires a CGO-enabled binary and the PKCS#11 shared library.
+- **PKCS#12** (default dev builds, CGO disabled): keys are stored in an encrypted `.p12` file on disk. No native dependencies required.
 
 Certificate upload/download is available at `/system-info/certificate` and `/system-info/uploadCertificate`.
 
@@ -230,7 +230,15 @@ Yes. A `docker-compose/` directory is provided with a `docker-compose.yaml` that
 
 **How is eSignet configured in the Go version?**
 
-All runtime configuration is in `esignet-service/data/deployment.yaml`. Environment variables are expanded inline using `${ENV_VAR_NAME}` syntax. Key configuration sections include:
+Runtime configuration spans several sources:
+
+- **`esignet-service/data/deployment.yaml`** — core server, database, Redis, OAuth, and issuer settings. Environment variables are expanded inline using `${ENV_VAR_NAME}` syntax.
+- **`data/flows/*.yaml`** — declarative authentication flow graphs (e.g. `flow-esignet.yaml`), which define login logic and executor sequences.
+- **`KEYMANAGER_*` environment variables** — keystore backend selection (`KEYMANAGER_KEYSTORE_TYPE`), PKCS#11 module path/PIN, or PKCS#12 file path/password.
+- **CAPTCHA variables** (e.g. `MOSIP_ESIGNET_CAPTCHA_VALIDATOR_URL`) — endpoint and credentials for server-side CAPTCHA token validation.
+- **`oidc-ui` configuration** — frontend environment variables with the `VITE_` prefix, set during the `oidc-ui` build or via its deployment configuration.
+
+Key sections in `deployment.yaml` include:
 
 ```yaml
 server:
