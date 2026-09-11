@@ -49,7 +49,7 @@ The intended users of eSignet include:
 
 eSignet is simple, lightweight, and powerful. The Go-based implementation compiles to a single binary with a minimal memory footprint, making horizontal scaling straightforward. It uses [Redis](https://redis.io/) as a shared OIDC transaction and flow state store, enabling stateless multi-instance deployments behind a load balancer. It can scale effortlessly to handle large user volumes while acting as a middle layer for identity verification.
 
-For capacity planning, refer to the [performance test module](https://github.com/mosip/esignet/tree/develop-go/performance-test) in the repository. It ships JMeter scripts and a TPS thread-setting calculator (`MOSIP_TPS_Thread_setting_calculator-ESignet.xlsx`, based on Little's law) to estimate the required threads and sustainable throughput for a target TPS. Published benchmark reports are available in the [MOSIP documentation](https://docs.mosip.io).
+For capacity planning, refer to the [performance test module](https://github.com/mosip/esignet/tree/develop-go/performance-test) in the repository. It ships JMeter scripts and a TPS thread-setting calculator (`MOSIP_TPS_Thread_setting_calculator-ESignet.xlsx`, based on Little's law) to estimate the required threads and sustainable throughput for a target TPS. Published benchmark reports and the resource calculator are available in the [eSignet performance reports folder](https://drive.google.com/drive/folders/141-IzCY7WDOJkhO5UmXjiF_pjMF_vj2f).
 
 ---
 
