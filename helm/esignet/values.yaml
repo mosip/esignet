@@ -254,7 +254,6 @@ extraEnvVars:
       configMapKeyRef:
         name: keycloak-host
         key: keycloak-external-url
-  MOSIP_ESIGNET_AUTHN_PROVIDER: mosip
   MOSIP_API_INTERNAL_HOST:
     valueFrom:
       configMapKeyRef:
