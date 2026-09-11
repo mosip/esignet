@@ -602,6 +602,10 @@ nodes:
         - identifier: username
           type: TEXT_INPUT
           required: true
+        - ref: CAPTCHA_BOX
+          identifier: captcha_token
+          type: CUSTOM
+          required: true
     onSuccess: prompt_uin_otp
 
   - id: basic_auth
