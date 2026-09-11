@@ -18,8 +18,8 @@ import base.BaseTest;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import io.mosip.testrig.apirig.utils.NotificationListener;
 import pages.ConsentPage;
+import pages.KbiPage;
 import pages.LoginOptionsPage;
 import pages.SignUpPage;
 import pages.SignupFormDynamicFiller;
@@ -39,6 +39,8 @@ public class ConsentStepDefinition {
 	SignUpPage signUpPage;
 	SignupFormDynamicFiller formFiller;
 	ConsentPage consentPage;
+	KbiPage kbiPage;
+	private boolean kbiLoginCompleted;
 
 	public ConsentStepDefinition(BaseTest baseTest) {
 		this.driver = baseTest.getDriver();
@@ -46,6 +48,7 @@ public class ConsentStepDefinition {
 		signUpPage = new SignUpPage(driver);
 		formFiller = new SignupFormDynamicFiller(driver);
 		consentPage = new ConsentPage(driver);
+		kbiPage = new KbiPage(driver);
 	}
 
 	private boolean reLoginPageUnreachableUnderMockPlugin;
@@ -126,18 +129,7 @@ public class ConsentStepDefinition {
 
 	@When("user enters the OTP")
 	public void userEnterOtp() {
-		String mobile = RegisteredDetails.getMobileNumber();
-		signUpPage.enterOtp(NotificationListener.getOtp(mobile));
-	}
-
-	@Then("mark otp request timestamp")
-	public void markOtpRequestTimestamp() {
-		NotificationListener.markRequestStart();
-	}
-
-	@Then("remove otp request timestamp")
-	public void removeOtpRequestTimestamp() {
-		NotificationListener.markRequestRemove();
+		signUpPage.enterOtp(BasePage.getOtp(RegisteredDetails.getMobileNumber()));
 	}
 
 	@Then("user clicks on the Verify OTP button")
@@ -169,8 +161,31 @@ public class ConsentStepDefinition {
 
 	private String expectedDefaultLang;
 
+	private boolean skipOtpLoginStepsWhenKbiOnly(String description) {
+		if (!EsignetUtil.isKbiOnlyLogin()) {
+			return false;
+		}
+		logger.info("Skipping OTP step on KBI-only login: " + description);
+		ExtentReportManager.notApplicable(description + " is not used on KBI-only login");
+		return true;
+	}
+
+	private void loginWithKbiIfNeeded() {
+		if (kbiLoginCompleted || consentPage.isOnAttentionScreen()) {
+			kbiLoginCompleted = true;
+			return;
+		}
+		kbiPage.loginWithConfiguredIdentity();
+		consentPage.isOnAttentionScreen(30);
+		kbiLoginCompleted = true;
+	}
+
 	@Then("user click on Login with Otp")
 	public void clickOnLoginWithOtp() {
+		if (EsignetUtil.isKbiOnlyLogin()) {
+			loginWithKbiIfNeeded();
+			return;
+		}
 		if (notApplicableForReLoginUnderMockPlugin()) {
 			return;
 		}
@@ -202,6 +217,9 @@ public class ConsentStepDefinition {
 
 	@Then("user enters Registered mobile number into the mobile number field")
 	public void userEntersRegisteredMobileNumber() {
+		if (skipOtpLoginStepsWhenKbiOnly("entering registered mobile number")) {
+			return;
+		}
 		if (notApplicableForReLoginUnderMockPlugin()) {
 			return;
 		}
@@ -247,6 +265,9 @@ public class ConsentStepDefinition {
 
 	@Then("user click on get otp button")
 	public void userClickOnGetOtpBtn() {
+		if (skipOtpLoginStepsWhenKbiOnly("clicking get OTP")) {
+			return;
+		}
 		if (notApplicableForReLoginUnderMockPlugin()) {
 			return;
 		}
@@ -255,6 +276,9 @@ public class ConsentStepDefinition {
 
 	@Then("user enters the correct otp")
 	public void userEnterCorrectOtp() {
+		if (skipOtpLoginStepsWhenKbiOnly("entering OTP")) {
+			return;
+		}
 		if (notApplicableForReLoginUnderMockPlugin()) {
 			return;
 		}
@@ -263,6 +287,9 @@ public class ConsentStepDefinition {
 
 	@Then("click on verify Otp button")
 	public void userClickOnVerifyOtpBtn() {
+		if (skipOtpLoginStepsWhenKbiOnly("verifying OTP")) {
+			return;
+		}
 		if (notApplicableForReLoginUnderMockPlugin()) {
 			return;
 		}
@@ -818,11 +845,27 @@ public class ConsentStepDefinition {
 
 	@When("user clicks on allow button in consent screen")
 	public void userClicksAllowButtonInConsentScreen() {
+		if (BasePage.authorizeScopeOnlyScenario) {
+			// Hand-built no-claims/Manage-VID URL: RP will show session_expired after callback because
+			// it did not start this OAuth session. Confirm eSignet issued code= instead.
+			consentPage.clickAllowAndConfirmAuthorizeScopeOnlyAuthCode();
+			return;
+		}
 		consentPage.clickOnAllowBtnInConsentScreen();
 	}
 
 	@Then("verify user is navigated to user profile page")
-	public void verifyUserIsNavigatedToUserProfilePage() {
+	public void verifyUserIsNavigatedToUserProfilePage() throws Exception {
+		if (BasePage.authorizeScopeOnlyScenario) {
+			Assert.assertTrue(consentPage.wasAuthorizeScopeOnlyAuthCodeDelivered(),
+					"Authorize-scope-only Allow did not deliver an authorization code to the RP callback "
+							+ "(userprofile?code=...). RP session_expired alone is expected for this hand-built URL "
+							+ "and is not sufficient.");
+			ExtentReportManager.logStep(
+					"TC_06 verified: auth code delivered for no-claims/Manage-VID authorize URL "
+							+ "(RP may still show session_expired for foreign OAuth state/PKCE)");
+			return;
+		}
 		consentPage.waitUntilUserProfilePage();
 		Assert.assertTrue(consentPage.isUserProfilePageDisplayed(),
 				"User was not redirected to the Health Service user profile page with an authorization code");
@@ -886,9 +929,14 @@ public class ConsentStepDefinition {
 		consentPage.clickOnVerifyButton();
 	}
 
-	private boolean isOAuthSessionExpiredError(IllegalStateException e) {
-		String message = e.getMessage();
-		return message != null && message.contains("session_expired");
+	private boolean isOAuthSessionExpiredError(Throwable e) {
+		for (Throwable t = e; t != null; t = t.getCause()) {
+			String message = t.getMessage();
+			if (message != null && message.contains("session_expired")) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	@Then("verify consent is not requested after authentication")
@@ -909,6 +957,11 @@ public class ConsentStepDefinition {
 	@Then("verify consent is stored in consent table with psu token and json consent")
 	public void verifyConsentIsStoredInConsentTableWithPsuTokenAndJsonConsent() {
 		ConsentDbUtil.assertConsentStoredWithPsuToken(ConsentDbUtil.PRIMARY_CLIENT_ID_KEY);
+	}
+
+	@Then("verify accepted claims contain no optional claims in consent table")
+	public void verifyAcceptedClaimsContainNoOptionalClaimsInConsentTable() {
+		ConsentDbUtil.assertAcceptedClaimsEmpty(ConsentDbUtil.PRIMARY_CLIENT_ID_KEY);
 	}
 
 	@When("user relaunches esignet authorize url for secondary portal")
@@ -989,11 +1042,6 @@ public class ConsentStepDefinition {
 				"Consent was not requested for the second client - attention/consent screen missing");
 
 		consentPage.completeConsentFlowThroughEkyc();
-	}
-
-	@Then("verify consent table has empty accepted claims for current client")
-	public void verifyConsentTableHasEmptyAcceptedClaimsForCurrentClient() {
-		ConsentDbUtil.assertAcceptedClaimsEmpty(ConsentDbUtil.PRIMARY_CLIENT_ID_KEY);
 	}
 
 	private void skipWithReason(String reason) {

@@ -62,9 +62,17 @@ public class LoginOptionsStepDefinition {
 	@Given("user captures the authorize url")
 	public void userCapturesAuhtorizeUrl() throws Exception {
 
-		new WebDriverWait(driver, Duration.ofSeconds(25)).until(ExpectedConditions.or(
-				ExpectedConditions.presenceOfElementLocated(org.openqa.selenium.By.cssSelector("[id^='acr_']")),
-				ExpectedConditions.presenceOfElementLocated(org.openqa.selenium.By.id("username_input"))));
+		// Keep mosipid/mock readiness on ACR / username; KBI landmarks are sunbird-only.
+		if (EsignetUtil.isKbiOnlyLogin()) {
+			new WebDriverWait(driver, Duration.ofSeconds(25)).until(ExpectedConditions.or(
+					ExpectedConditions.presenceOfElementLocated(org.openqa.selenium.By.id("form-submit-button")),
+					ExpectedConditions.presenceOfElementLocated(org.openqa.selenium.By.cssSelector(
+							"#policyNumber, #fullName, #dob, [name='policyNumber'], [name='fullName'], [name='dob']"))));
+		} else {
+			new WebDriverWait(driver, Duration.ofSeconds(25)).until(ExpectedConditions.or(
+					ExpectedConditions.presenceOfElementLocated(org.openqa.selenium.By.cssSelector("[id^='acr_']")),
+					ExpectedConditions.presenceOfElementLocated(org.openqa.selenium.By.id("username_input"))));
+		}
 
 		ClaimsUtil.captureRenderedAuthFactors(driver);
 		String currentUrl = driver.getCurrentUrl();
@@ -84,12 +92,22 @@ public class LoginOptionsStepDefinition {
 
 	@Then("verify multiple options for login is available")
 	public void verifyMultipleLoginOptions() {
+		if (EsignetUtil.isKbiOnlyLogin()) {
+			ExtentReportManager.notApplicable(
+					"multiple login options are not offered on KBI-only login");
+			return;
+		}
 		List<String> authFactors = ClaimsUtil.getRenderedAuthFactors(driver);
 		Assert.assertTrue(authFactors.size() > 1, "Expected multiple login options, but found: " + authFactors.size());
 	}
 
 	@Then("verify more ways to signIn option is available")
 	public void verifyMoreWaysToSignInOption() {
+		if (EsignetUtil.isKbiOnlyLogin()) {
+			ExtentReportManager.notApplicable(
+					"more ways to sign in is not offered on KBI-only login");
+			return;
+		}
 		List<String> authFactors = ClaimsUtil.getRenderedAuthFactors(driver);
 		Assert.assertFalse(authFactors.isEmpty(), "No auth factors were rendered on the login page");
 		boolean isMoreOptionsDisplayed = loginOptionsPage.isMoreWaysToSignInOptionDisplayed();
@@ -115,6 +133,11 @@ public class LoginOptionsStepDefinition {
 
 	@Then("authentication screen should show login options based on acr_values from url")
 	public void authenticationScreenShouldShowLoginOptionsBasedOnAuthFactorsFromUrl() throws Exception {
+		if (EsignetUtil.isKbiOnlyLogin()) {
+			ExtentReportManager.notApplicable(
+					"login-option ACR buttons are not offered on KBI-only login");
+			return;
+		}
 		List<String> authFactors = ClaimsUtil.getRenderedAuthFactors(driver);
 		Map<String, WebElement> factorMap = loginOptionsPage.getAcrToElementMap();
 
@@ -489,9 +512,14 @@ public class LoginOptionsStepDefinition {
 	@When("mock mds is started for biometric device scan")
 	public void mockMdsIsStartedForBiometricDeviceScan() throws Exception {
 		if (!MockMdsManager.isEnabled()) {
-			throw new SkipException("useMockMds=false in config.properties - enable useMockMds for biometric scan tests");
+			ExtentReportManager.getTest().warning(
+					"useMockMds=false in config.properties - enable useMockMds for biometric scan tests");
+			throw new SkipException(
+					"useMockMds=false in config.properties - enable useMockMds for biometric scan tests");
 		}
 		if (Boolean.parseBoolean(EsignetConfigManager.getproperty("runOnBrowserStack"))) {
+			ExtentReportManager.getTest().warning(
+					"Mock MDS requires local browser (localhost SBI ports 4501-4510)");
 			throw new SkipException("Mock MDS requires local browser (localhost SBI ports 4501-4510)");
 		}
 		MockMdsManager.ensureDevicePartnerP12Available();

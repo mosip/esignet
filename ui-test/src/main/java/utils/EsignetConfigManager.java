@@ -40,11 +40,34 @@ public class EsignetConfigManager extends io.mosip.testrig.apirig.utils.ConfigMa
 			for (String key : configProps.stringPropertyNames()) {
 				moduleSpecificPropertiesMap.put(key, configProps.getProperty(key));
 			}
+
+			// JVM -D from Docker entrypoint / IDE / Rancher JAVA_EXTRA_OPTS wins over classpath defaults.
+			overlaySystemProperty(moduleSpecificPropertiesMap, "useMockMds");
+			overlaySystemProperty(moduleSpecificPropertiesMap, "runOnBrowserStack");
+			overlaySystemProperty(moduleSpecificPropertiesMap, "headless");
+			overlaySystemProperty(moduleSpecificPropertiesMap, "runDocker");
+			overlaySystemProperty(moduleSpecificPropertiesMap, "pluginToExecute");
+			overlaySystemProperty(moduleSpecificPropertiesMap, "sunbirdAuthenticatorActive");
+			overlaySystemProperty(moduleSpecificPropertiesMap, "esignetActuatorEnabled");
+			overlaySystemProperty(moduleSpecificPropertiesMap, "mdsP12Path");
+			overlaySystemProperty(moduleSpecificPropertiesMap, "idaFirCertificate");
 		} catch (Exception e) {
 			LOGGER.error(e.getMessage());
 		}
 
+		if (System.getProperty("env.endpoint") == null) {
+			System.setProperty("env.endpoint", "");
+		}
+
 		init(moduleSpecificPropertiesMap);
+	}
+
+	private static void overlaySystemProperty(Map<String, Object> target, String key) {
+		String fromSys = System.getProperty(key);
+		if (fromSys != null && !fromSys.isBlank()) {
+			target.put(key, fromSys.trim());
+			LOGGER.info("Using -D" + key + "=" + fromSys.trim() + " (overrides config.properties)");
+		}
 	}
 
 	public static String getProperty(String key, String defaultValue) {
@@ -65,16 +88,28 @@ public class EsignetConfigManager extends io.mosip.testrig.apirig.utils.ConfigMa
 		return getProperty("signupUrl", "");
 	}
 
+	/**
+	 * Runtime {@code -DrunDocker} / {@code RUN_DOCKER} wins over config.properties.
+	 * Testriq images bake {@code runDocker=no} for local IDE runs; if that value is
+	 * preferred over the container env, WebDriverManager fetches a ChromeDriver that
+	 * does not match the image browser and every scenario dies at session start.
+	 */
 	public static String getDocker() {
-		String fromConfig = getProperty("runDocker", "");
-		if (!fromConfig.isBlank()) {
-			return fromConfig;
-		}
 		String fromSys = System.getProperty("runDocker", "");
 		if (fromSys != null && !fromSys.isBlank()) {
 			return fromSys;
 		}
 		String fromEnv = System.getenv("RUN_DOCKER");
-		return fromEnv == null ? "" : fromEnv;
+		if (fromEnv != null && !fromEnv.isBlank()) {
+			return fromEnv;
+		}
+		return getProperty("runDocker", "");
+	}
+
+	public static boolean isDockerRuntime() {
+		if ("yes".equalsIgnoreCase(getDocker())) {
+			return true;
+		}
+		return new java.io.File("/.dockerenv").exists();
 	}
 }

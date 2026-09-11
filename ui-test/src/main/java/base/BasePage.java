@@ -31,14 +31,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.aventstack.extentreports.Status;
+
+import io.mosip.testrig.apirig.utils.AdminTestUtil;
+import io.mosip.testrig.apirig.utils.NotificationListener;
 import utils.ClaimsUtil;
 import utils.EsignetConfigManager;
+import utils.EsignetUtil;
 import utils.ExtentReportManager;
 import utils.WaitUtil;
 
 public class BasePage {
 	protected WebDriver driver;
 	private static final Logger LOGGER = LoggerFactory.getLogger(BasePage.class);
+	/** Mock-identity-system always issues this OTP; not configurable. */
+	private static final String MOCK_PLUGIN_OTP = "111111";
 
 	public BasePage(WebDriver driver) {
 		this.driver = driver;
@@ -218,9 +224,22 @@ public class BasePage {
 		if (url != null && (url.contains("authorize") || (url.contains("/login") && url.contains("esignet")))) {
 			return true;
 		}
-		return !webDriver.findElements(By.cssSelector("[id^='acr_']")).isEmpty()
+		boolean landed = !webDriver.findElements(By.cssSelector("[id^='acr_']")).isEmpty()
 				|| !webDriver.findElements(By.id("login_id_uin")).isEmpty()
 				|| !webDriver.findElements(By.id("login_id_mobile")).isEmpty();
+		if (landed) {
+			return true;
+		}
+		// Sunbird KBI-only: bare /signin is not enough — require a KBI form landmark.
+		// mosipid/mock never enter this branch (isKbiOnlyLogin() is false for them).
+		if (!EsignetUtil.isKbiOnlyLogin()) {
+			return false;
+		}
+		By kbiFieldSelector = By.cssSelector(
+				"#policyNumber, #fullName, #dob, [name='policyNumber'], [name='fullName'], [name='dob']");
+		return (url != null && url.contains("/signin") && !webDriver.findElements(kbiFieldSelector).isEmpty())
+				|| !webDriver.findElements(By.id("form-submit-button")).isEmpty()
+				|| !webDriver.findElements(kbiFieldSelector).isEmpty();
 	}
 
 	protected boolean waitForEsignetLoginLanding(int timeoutSeconds) {
@@ -628,7 +647,7 @@ public class BasePage {
 
 	public List<String> getClaims(String type) {
 		if (authorizeUrl == null) {
-			System.out.println("Authorize URL not set.");
+			LOGGER.warn("Authorize URL not set.");
 			return Collections.emptyList();
 		}
 
@@ -698,9 +717,84 @@ public class BasePage {
 		}
 	}
 
+	/** Watermark SMTP messages from this moment so {@link #getOtp()} ignores older OTPs. */
+	public static void markOtpRequestStart() {
+		NotificationListener.markRequestStart();
+	}
+
+	/** Clear the SMTP OTP watermark after {@link #getOtp()} finishes (success or failure). */
+	public static void markOtpRequestRemove() {
+		NotificationListener.markRequestRemove();
+	}
+
+	/**
+	 * Under {@code pluginToExecute=mock} (or actuator-detected mock), always
+	 * {@value #MOCK_PLUGIN_OTP} — independent of {@code usePreConfiguredOtp} /
+	 * {@code preconfiguredOtp}. Otherwise OTP is taken from mock SMTP
+	 * ({@code smtpURL}), keyed by {@link EsignetUtil#getOtpNotificationAddress()}.
+	 */
 	public static String getOtp() {
-		String otp = "111111";
-		return otp;
+		if (EsignetUtil.isMockPlugin()) {
+			return mockPluginOtp();
+		}
+		return getOtp(EsignetUtil.getOtpNotificationAddress());
+	}
+
+	public static String getOtp(String address) {
+		if (EsignetUtil.isMockPlugin()) {
+			return mockPluginOtp();
+		}
+		ensureSmtpOtpPollTimeout();
+		if (address == null || address.isBlank()) {
+			throw new IllegalStateException(
+					"Cannot fetch OTP from SMTP: set emailLoginId or uinPhoneNumber in config.properties");
+		}
+		String recipientType = address.contains("@") ? "email" : "phone";
+		try {
+			LOGGER.info("Fetching OTP from SMTP for recipient type {}", recipientType);
+			try {
+				ExtentReportManager.getTest().log(Status.INFO,
+						"Fetching OTP from SMTP for recipient type " + recipientType);
+			} catch (Exception e) {
+				LOGGER.debug("Could not write OTP message to the Extent report", e);
+			}
+			String otp = NotificationListener.getOtp(address);
+			if (otp == null || otp.isBlank()) {
+				throw new IllegalStateException("No OTP received from SMTP for recipient type " + recipientType);
+			}
+			return otp;
+		} finally {
+			markOtpRequestRemove();
+		}
+	}
+
+	private static String mockPluginOtp() {
+		LOGGER.info("Using hardcoded mock-plugin OTP {}", MOCK_PLUGIN_OTP);
+		try {
+			ExtentReportManager.getTest().log(Status.INFO, "Using hardcoded mock-plugin OTP " + MOCK_PLUGIN_OTP);
+		} catch (Exception e) {
+			LOGGER.debug("Could not write OTP message to the Extent report", e);
+		}
+		return MOCK_PLUGIN_OTP;
+	}
+
+	/**
+	 * {@code NotificationListener} waits {@link AdminTestUtil#getOtpExpTimeFromActuator()}
+	 * seconds, which {@code Integer.parseInt}s an empty string when IDA actuator is
+	 * down (Thunder). Seed the timeout from {@code otpExpirySeconds} first.
+	 */
+	private static void ensureSmtpOtpPollTimeout() {
+		String configured = EsignetConfigManager.getProperty("otpExpirySeconds", "120");
+		try {
+			java.lang.reflect.Field field = AdminTestUtil.class.getDeclaredField("otpExpTime");
+			field.setAccessible(true);
+			Object current = field.get(null);
+			if (current == null || current.toString().isBlank()) {
+				field.set(null, configured);
+			}
+		} catch (ReflectiveOperationException e) {
+			LOGGER.warn("Could not seed SMTP OTP poll timeout: {}", e.getMessage());
+		}
 	}
 
 }

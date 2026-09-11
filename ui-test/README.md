@@ -95,11 +95,15 @@ The plugin is **auto-detected** from the eSignet server's actuator (`EsignetUtil
 
 | Mode | Identity source | Client creation |
 |------|------------------|------------------|
-| `mosipid` | Real ID Repository identity, created by the `AddIdentity` prerequisite | Real partner/policy chain: `CreatePolicyGroup → DefinePolicy → PublishPolicy → CreatePartner → UploadCACertificate → UploadPartnerCertificate → RequestAPIKeyForAuthPartner → ApproveAPIKey → OIDCClient` (`/v1/partnermanager/oidc/client`) |
+| `mosipid` | Real ID Repository identity, created by the `AddIdentity` prerequisite | Default client: partner/policy chain ending in `OIDCClient` (`/v1/partnermanager/oidc/client`). Purpose-type/PAR clients: same `OIDCClientV3MOCK` `/v1/esignet/client-mgmt/client` path as mock |
 | `mock` | MOSIP mock-identity-system, created by `AddIdentityMock` | `OIDCClientV3MOCK`, `/v1/esignet/client-mgmt/client` |
 | `mock` + Sunbird RC-backed | Same as `mock` | `/v1/esignet/client-mgmt/oauth-client` (V3 500s against Sunbird) + `CreatePolicySunBirdR`, a registry policy used as KBI credentials |
 
 Prerequisites specific to one plugin are skipped for the others automatically (`EsignetUtil.isTestCaseValidForExecution`), so the same `esignetPrerequisiteSuite.xml` runs unmodified regardless of which plugin the server turns out to be.
+
+Mock MDS biometric login uses the tracked Mock SBI fixture `certs/device-dsk-partner.p12` (copied at runtime to `device-dsk-partner.p12` because Mock SBI expects that filename). For `pluginToExecute=mosipid`, the suite prefers `certs/device-dsk-partner-mosipid.p12` (also tracked and packaged into the JAR/Docker image) so Rancher biometric runs verify against the mosipid IDA trust chain; override with `mdsP12Path` when a deployment needs a different keystore. `MockMdsManager` rewrites Mock SBI `keyalias` to match the selected p12 (`keyalias` for mock, `device` for mosipid) and seeds `Biometric Devices/*/Keys/mosip-ida.cer` from `certs/ida-fir-released.cer` when those files are missing.
+
+Rancher/Docker can override baked `config.properties` defaults with JVM `-D` / `JAVA_EXTRA_OPTS` for at least: `pluginToExecute`, `sunbirdAuthenticatorActive`, `esignetActuatorEnabled`, `useMockMds`, `mdsP12Path`, `idaFirCertificate`, `runDocker`, `headless`, `runOnBrowserStack`.
 
 ## 🪪 Login identity sourcing
 
@@ -302,7 +306,7 @@ Tags that change how a scenario is set up (rather than just selecting it):
 | Tag | Effect |
 |-----|--------|
 | `@PAR` | Runs the scenario through the PAR flow using the PAR-mandated client. Skipped when the environment does not support PAR. See [PAR & DPoP](#-par--dpop). |
-| `@PurposeLogin`, `@PurposeLink`, `@PurposeVerify`, `@PurposeNone`, `@NoPurpose`, `@NoTitleAndSubTitle`, `@EmptyTitleAndSubTitle`, `@SingleAuthFactor` | Use a purpose-type-specific OIDC client instead of the default one. Skipped when running with the `mosipid` plugin, since these clients are only created under `mock` (`/v1/esignet/client-mgmt/client`). |
+| `@PurposeLogin`, `@PurposeLink`, `@PurposeVerify`, `@PurposeNone`, `@NoPurpose`, `@NoTitleAndSubTitle`, `@EmptyTitleAndSubTitle`, `@SingleAuthFactor` | Use a purpose-type-specific OIDC client instead of the default one. Those clients are created via `/v1/esignet/client-mgmt/client` for both `mock` and `mosipid` (self-skipped only on a Sunbird RC-backed server, which has no V3 counterpart). |
 | `@registrationProcess` | Marks the one real signup-through-the-UI scenario. Skipped automatically if the signup service isn't reachable in this environment. See [Login identity sourcing](#-login-identity-sourcing). |
 
 ---

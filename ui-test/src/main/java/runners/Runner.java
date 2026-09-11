@@ -76,7 +76,6 @@ public class Runner extends AbstractTestNGCucumberTests {
 	public Object[][] scenarios() {
 		int threadCount = Integer.parseInt(EsignetConfigManager.getproperty("threadCount"));
 
-		System.out.println("Executing with thread count: " + threadCount);
 		LOGGER.info("Executing DataProvider with thread count: " + threadCount);
 
 		System.setProperty("dataproviderthreadcount", String.valueOf(threadCount));
@@ -246,27 +245,36 @@ public class Runner extends AbstractTestNGCucumberTests {
 
 			EsignetUtil.getSupportedLanguage();
 
-			if (EsignetUtil.getPluginName().equals("mosipid")) {
-				try {
-					KeycloakUserManager.removeUser();
-					KeycloakUserManager.createUsers();
-					KeycloakUserManager.closeKeycloakInstance();
-					AdminTestUtil.getRequiredField();
+			boolean runPrerequisiteSuite = Boolean
+					.parseBoolean(EsignetConfigManager.getProperty("runPrerequisiteSuite", "true"));
 
-					PartnerRegistration.deleteCertificates();
-					AdminTestUtil.createAndPublishPolicy();
-					AdminTestUtil.createEditAndPublishPolicy();
+			if (EsignetUtil.getPluginName().equals("mosipid")) {
+				if (!runPrerequisiteSuite) {
+					LOGGER.info("Skipping Keycloak/PMS provisioning because runPrerequisiteSuite=false");
+				} else {
 					try {
-						PartnerRegistration.deviceGeneration();
-					} catch (Exception e) {
-						LOGGER.warning("Device partner registration skipped (may already exist): " + e.getMessage());
+						KeycloakUserManager.removeUser();
+						KeycloakUserManager.createUsers();
+						KeycloakUserManager.closeKeycloakInstance();
+						AdminTestUtil.getRequiredField();
+
+						PartnerRegistration.deleteCertificates();
+						AdminTestUtil.createAndPublishPolicy();
+						AdminTestUtil.createEditAndPublishPolicy();
+						try {
+							PartnerRegistration.deviceGeneration();
+						} catch (Exception e) {
+							LOGGER.warning(
+									"Device partner registration skipped (may already exist): " + e.getMessage());
+						}
+					} catch (Exception keycloakOrPmsSetupEx) {
+						if (!EsignetUtil.canRunMosipidUiWithPreconfiguredIdentity()) {
+							throw keycloakOrPmsSetupEx;
+						}
+						LOGGER.warning(
+								"Keycloak/PMS setup failed; continuing with preconfigured uin/vid/phone from "
+										+ "config.properties: " + keycloakOrPmsSetupEx.getMessage());
 					}
-				} catch (Exception keycloakOrPmsSetupEx) {
-					if (!EsignetUtil.canRunMosipidUiWithPreconfiguredIdentity()) {
-						throw keycloakOrPmsSetupEx;
-					}
-					LOGGER.warning("Keycloak/PMS setup failed; continuing with preconfigured uin/vid/phone from "
-							+ "config.properties: " + keycloakOrPmsSetupEx.getMessage());
 				}
 				utils.MockMdsManager.ensureDevicePartnerP12Available();
 
@@ -315,7 +323,9 @@ public class Runner extends AbstractTestNGCucumberTests {
 		} finally {
 			otpListener.bTerminate = true;
 			try {
-				if (EsignetUtil.getPluginName().equals("mosipid")) {
+				boolean runPrerequisiteSuite = Boolean
+						.parseBoolean(EsignetConfigManager.getProperty("runPrerequisiteSuite", "true"));
+				if (runPrerequisiteSuite && EsignetUtil.getPluginName().equals("mosipid")) {
 					KeycloakUserManager.removeUser();
 				}
 			} catch (Exception cleanupEx) {
@@ -346,45 +356,68 @@ public class Runner extends AbstractTestNGCucumberTests {
 
 		boolean runPrerequisiteSuite = Boolean
 				.parseBoolean(EsignetConfigManager.getProperty("runPrerequisiteSuite", "true"));
-		String targetSuiteFragment = runPrerequisiteSuite ? "mastertestsuite" : "testng";
 
-		File[] files = homeDir.listFiles();
-		if (files != null) {
-			for (File file : files) {
-				TestNG runner = new TestNG();
-				List<String> suitefiles = new ArrayList<>();
-				if (file.getName().toLowerCase().contains(targetSuiteFragment)) {
-					BaseTestCase.setReportName("esignet");
-					suitefiles.add(file.getAbsolutePath());
-
-					runner.setTestSuites(suitefiles);
-					runner.setOutputDirectory("testng-report");
-					System.getProperties().setProperty("testng.output.dir", "testng-report");
-
-					LOGGER.info("Running suite: " + file.getName());
-
-					try (InputStream input = Thread.currentThread().getContextClassLoader()
-							.getResourceAsStream("extent.properties")) {
-						Properties prop = new Properties();
-						if (input != null) {
-							prop.load(input);
-							for (String name : prop.stringPropertyNames()) {
-								System.setProperty(name, prop.getProperty(name));
-							}
-						} else {
-							LOGGER.severe("extent.properties not found in classpath.");
-						}
-					} catch (IOException ex) {
-						LOGGER.log(Level.SEVERE, "Error loading extent.properties", ex);
-					}
-					ExtentService.getInstance();
-
-					runner.run();
-				}
-			}
+		List<File> suitesToRun = new ArrayList<>();
+		if (runPrerequisiteSuite) {
+			addSuiteFile(suitesToRun, homeDir, "mastertestsuite");
 		} else {
-			LOGGER.severe("No files found in directory: " + homeDir);
+			addSuiteFile(suitesToRun, homeDir, "esignetoidcclientv3suite");
+			addSuiteFile(suitesToRun, homeDir, "testng.xml");
 		}
+
+		if (suitesToRun.isEmpty()) {
+			LOGGER.severe("No TestNG suite files found in directory: " + homeDir);
+			throw new IllegalStateException("No TestNG suite files found in directory: " + homeDir);
+		}
+
+		for (File file : suitesToRun) {
+			runTestNgSuite(file);
+		}
+	}
+
+	private static void addSuiteFile(List<File> suitesToRun, File homeDir, String nameFragment) {
+		File[] files = homeDir.listFiles();
+		if (files == null) {
+			return;
+		}
+		for (File file : files) {
+			if (file.getName().toLowerCase().contains(nameFragment)) {
+				suitesToRun.add(file);
+				return;
+			}
+		}
+		LOGGER.warning("No TestNG suite matching '" + nameFragment + "' in " + homeDir);
+	}
+
+	private static void runTestNgSuite(File suiteFile) {
+		TestNG runner = new TestNG();
+		List<String> suitefiles = new ArrayList<>();
+		BaseTestCase.setReportName("esignet");
+		suitefiles.add(suiteFile.getAbsolutePath());
+
+		runner.setTestSuites(suitefiles);
+		runner.setOutputDirectory("testng-report");
+		System.getProperties().setProperty("testng.output.dir", "testng-report");
+
+		LOGGER.info("Running suite: " + suiteFile.getName());
+
+		try (InputStream input = Thread.currentThread().getContextClassLoader()
+				.getResourceAsStream("extent.properties")) {
+			Properties prop = new Properties();
+			if (input != null) {
+				prop.load(input);
+				for (String name : prop.stringPropertyNames()) {
+					System.setProperty(name, prop.getProperty(name));
+				}
+			} else {
+				LOGGER.severe("extent.properties not found in classpath.");
+			}
+		} catch (IOException ex) {
+			LOGGER.log(Level.SEVERE, "Error loading extent.properties", ex);
+		}
+		ExtentService.getInstance();
+
+		runner.run();
 	}
 
 	public static String getRunType() {

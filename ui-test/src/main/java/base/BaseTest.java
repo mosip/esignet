@@ -166,20 +166,14 @@ public class BaseTest extends AdminTestUtil {
 
 		String pluginName = EsignetUtil.getPluginName();
 
-		if (scenario.getSourceTagNames().contains("@kbi") && !EsignetUtil.isKbiSupportedPlugin()) {
-			skipWithReason("KBI is only supported under the mock and sunbird plugins, not '" + pluginName + "'");
+		if (scenario.getSourceTagNames().contains("@kbi")
+				&& (!EsignetUtil.isKbiSupportedPlugin() || !EsignetUtil.isKbiOnlyLogin())) {
+			skipWithReason("KBI feature scenarios apply only on KBI-only (Sunbird) login, not plugin '"
+					+ pluginName + "'");
 		}
 
-		if ("mosipid".equalsIgnoreCase(pluginName)) {
-			Set<String> skipTags = new HashSet<>(CLIENT_CONFIG_MAP.keySet());
-
-			for (String tag : scenario.getSourceTagNames()) {
-				if (skipTags.contains(tag)) {
-
-					skipWithReason("Skipped for mosipid: scenario is tagged " + tag
-							+ ", which requires a mock-identity client not created under the mosipid plugin");
-				}
-			}
+		if (EsignetUtil.isKbiOnlyLogin()) {
+			skipInapplicableKbiOnlyScenario(scenario);
 		}
 
 		totalCount++;
@@ -216,16 +210,12 @@ public class BaseTest extends AdminTestUtil {
 			String clientAssertion = "$CLIENT_ASSERTION_PAR_JWT$";
 			boolean isParScenario = scenario.getSourceTagNames().contains(PAR_TAG);
 			boolean isAuthorizeScopeOnly = scenario.getSourceTagNames().contains(AUTHORIZE_SCOPE_ONLY_TAG);
-			String preconfiguredClientId = EsignetUtil.getPreconfiguredPrimaryOidcClientId();
 
 			for (String tag : scenario.getSourceTagNames()) {
 				if (CLIENT_CONFIG_MAP.containsKey(tag)) {
-
-					if (preconfiguredClientId == null || PAR_TAG.equals(tag)) {
-						String[] values = CLIENT_CONFIG_MAP.get(tag);
-						clientIdKey = values[0];
-						clientAssertion = values[1];
-					}
+					String[] values = CLIENT_CONFIG_MAP.get(tag);
+					clientIdKey = values[0];
+					clientAssertion = values[1];
 					break;
 				}
 			}
@@ -239,7 +229,9 @@ public class BaseTest extends AdminTestUtil {
 			String clientId = EsignetUtil.resolveClientId(clientIdKey);
 
 			String acrValues;
-			if (isKbiScenario) {
+			if (EsignetUtil.isKbiOnlyLogin()) {
+				acrValues = EsignetUtil.KBI_ACR_VALUE;
+			} else if (isKbiScenario) {
 				acrValues = EsignetUtil.DEFAULT_ACR_VALUES + " " + EsignetUtil.KBI_ACR_VALUE;
 			} else if (isSingleAuthFactor && EsignetUtil.isPreconfiguredPrimaryOidcClient(clientId)) {
 				acrValues = EsignetUtil.SINGLE_AUTH_FACTOR_ACR_VALUE;
@@ -287,33 +279,42 @@ public class BaseTest extends AdminTestUtil {
 			driver.get(authorizeUrl);
 
 			String landedUrl = driver.getCurrentUrl();
-			if (landedUrl != null && landedUrl.contains("error=invalid_request")) {
+			if (isAuthorizeInvalidClientLanding(landedUrl)) {
+				throw new IllegalStateException(
+						"Authorize URL was rejected with invalid_client. The provisioned client is misconfigured; "
+								+ "falling back to the relying party would hide that failure. Landed: "
+								+ maskSensitiveUrlParams(landedUrl));
+			}
+			if (isAuthorizeInvalidRequestLanding(landedUrl)) {
 				if (isAuthorizeScopeOnly) {
 					throw new IllegalStateException(
 							"Authorize-scope-only URL was rejected with invalid_request. Falling back to the "
 									+ "relying party's Sign in with eSignet button would drop scope=Manage-VID and "
 									+ "re-add claims, which is exactly what this scenario must not do. Landed: "
-									+ landedUrl);
+									+ maskSensitiveUrlParams(landedUrl));
 				}
 				if (isSingleAuthFactor) {
 					throw new IllegalStateException(
 							"Single-auth-factor URL was rejected with invalid_request. Falling back to the "
 									+ "relying party's Sign in with eSignet button would replace the single ACR with "
-									+ "the RP's default multi-factor request. Landed: " + landedUrl);
+									+ "the RP's default multi-factor request. Landed: "
+									+ maskSensitiveUrlParams(landedUrl));
 				}
 				LOGGER.warn("Authorize URL redirected to invalid_request ({}) - retrying via 'Sign In with eSignet' "
-						+ "on the relying party", landedUrl);
+						+ "on the relying party", maskSensitiveUrlParams(landedUrl));
 				String savedAuthorizeUrl = BasePage.authorizeUrl;
 				BasePage.authorizeUrl = null;
 				try {
 					new BasePage(driver).clickSignInWithEsignetOnRelyingPartyPortal();
 				} finally {
-					BasePage.authorizeUrl = savedAuthorizeUrl;
+					BasePage.authorizeUrl = savedAuthorizeUrl != null ? savedAuthorizeUrl : driver.getCurrentUrl();
 				}
 			}
 
 			BasePage.markAuthorizeSessionFresh();
-			LOGGER.info("Navigated to URL: " + authorizeUrl);
+			String effectiveUrl = driver.getCurrentUrl();
+			LOGGER.info("Navigated to URL: " + maskSensitiveUrlParams(effectiveUrl));
+			utils.ClaimsUtil.parseFromUrl(effectiveUrl);
 
 			if (!isAuthorizeScopeOnly) {
 				String currentLanguage = System.getProperty("currentRunLanguage", "eng");
@@ -330,8 +331,9 @@ public class BaseTest extends AdminTestUtil {
 
 			throw e;
 		} catch (Exception e) {
-			LOGGER.error("Failed to initialize WebDriver: " + e.getMessage());
-			ExtentReportManager.getTest().fail("❌ WebDriver setup failed: " + e.getMessage());
+			String detail = describeException(e);
+			LOGGER.error("Failed to initialize WebDriver: " + detail);
+			ExtentReportManager.getTest().fail("❌ WebDriver setup failed: " + detail);
 			ExtentReportManager.flushReport();
 			throw new RuntimeException(e);
 		}
@@ -355,15 +357,15 @@ public class BaseTest extends AdminTestUtil {
 	@Before(order = 20, value = "@BiometricLogin")
 	public void startMockMdsForBiometricLogin(Scenario scenario) throws Exception {
 		if (!MockMdsManager.isEnabled()) {
-			throw new SkipException("useMockMds=false - enable useMockMds for @BiometricLogin scenarios");
+			skipWithReason("useMockMds=false - enable useMockMds for @BiometricLogin scenarios");
 		}
 		if (Boolean.parseBoolean(EsignetConfigManager.getproperty("runOnBrowserStack"))) {
-			throw new SkipException("Mock MDS requires local browser (localhost SBI ports)");
+			skipWithReason("Mock MDS requires local browser (localhost SBI ports)");
 		}
 		MockMdsManager.ensureDevicePartnerP12Available();
 		MockMdsManager.startForBiometricScan();
 		if (!MockMdsManager.verifyDeviceDiscoveryOnLocalhost()) {
-			throw new SkipException("Mock MDS localhost L1/Auth/Ready probe failed");
+			skipWithReason("Mock MDS localhost L1/Auth/Ready probe failed");
 		}
 	}
 
@@ -381,10 +383,10 @@ public class BaseTest extends AdminTestUtil {
 	@Before("@RequiresMockMds")
 	public void startMockMds(Scenario scenario) throws Exception {
 		if (!MockMdsManager.isEnabled()) {
-			throw new SkipException("useMockMds is not enabled in config.properties");
+			skipWithReason("useMockMds is not enabled in config.properties");
 		}
 		if (Boolean.parseBoolean(EsignetConfigManager.getproperty("runOnBrowserStack"))) {
-			throw new SkipException("Mock MDS requires a local browser that can reach localhost SBI ports");
+			skipWithReason("Mock MDS requires a local browser that can reach localhost SBI ports");
 		}
 		MockMdsManager.startForAuth();
 	}
@@ -552,6 +554,68 @@ public class BaseTest extends AdminTestUtil {
 		}
 	}
 
+	private boolean isAuthorizeInvalidClientLanding(String landedUrl) {
+		if (landedUrl == null || landedUrl.isBlank()) {
+			return false;
+		}
+		String lower = landedUrl.toLowerCase();
+		// OAuth client auth failure only — do not treat this as recoverable for any plugin.
+		return containsQueryParam(lower, "error", "invalid_client")
+				|| containsQueryParam(lower, "errorcode", "invalid_client");
+	}
+
+	private boolean isAuthorizeInvalidRequestLanding(String landedUrl) {
+		if (landedUrl == null || landedUrl.isBlank()) {
+			return false;
+		}
+		String lower = landedUrl.toLowerCase();
+		// Malformed authorize URL only. Shared recovery path for mosipid/mock/sunbird.
+		return containsQueryParam(lower, "error", "invalid_request")
+				|| containsQueryParam(lower, "errorcode", "invalid_request")
+				|| containsQueryParam(lower, "error", "invalid+client_id")
+				|| containsQueryParam(lower, "errorcode", "invalid+client_id")
+				|| containsQueryParam(lower, "error", "invalid_client_id")
+				|| containsQueryParam(lower, "errorcode", "invalid_client_id");
+	}
+
+	private static boolean containsQueryParam(String lowerUrl, String name, String value) {
+		return lowerUrl.contains(name + "=" + value);
+	}
+
+	private static String maskSensitiveUrlParams(String url) {
+		if (url == null || url.isBlank()) {
+			return url;
+		}
+		String masked = url.replaceAll(
+				"(?i)([?&](?:code|access_token|id_token|refresh_token|client_secret|assertion)=)[^&#]*", "$1***");
+		int hash = masked.indexOf('#');
+		if (hash >= 0 && hash < masked.length() - 1) {
+			masked = masked.substring(0, hash + 1) + "***";
+		}
+		return masked;
+	}
+
+	private void skipInapplicableKbiOnlyScenario(Scenario scenario) {
+		String uri = scenario.getUri() == null ? "" : scenario.getUri().toString();
+		Set<String> tags = new HashSet<>(scenario.getSourceTagNames());
+		if (uri.contains("LoginWithInji") || uri.contains("VideoPreview") || uri.contains("SignUp")
+				|| uri.contains("ConsentRegistry")) {
+			skipWithReason("Not applicable on KBI-only login");
+		}
+		if (tags.contains("@PasswordLogin") || tags.contains("@BiometricLogin")
+				|| tags.contains("@BiometricDeviceNotDetected") || tags.contains("@BiometricDeviceDetectedOnRetry")
+				|| tags.contains("@BiometricAuthenticationFlow") || tags.contains("@NeedsUIN")
+				|| tags.contains("@supportOfPrefixAndPostfix") || tags.contains("@PurposeLogin")
+				|| tags.contains("@PurposeLink") || tags.contains("@PurposeVerify")
+				|| tags.contains("@PurposeNone") || tags.contains("@NoPurpose")
+				|| tags.contains("@NoTitleAndSubTitle") || tags.contains("@EmptyTitleAndSubTitle")
+				|| tags.contains("@SingleAuthFactor") || tags.contains("@PAR")
+				|| tags.contains("@AuthorizeScopeOnly") || tags.contains("@registrationProcess")
+				|| tags.contains("@ConsentToUpdateProfile") || tags.contains("@mobile")) {
+			skipWithReason("OTP/password/biometric/purpose-client flow is not offered on KBI-only login");
+		}
+	}
+
 	private void skipWithReason(String reason) {
 		ExtentReportManager.getTest().warning(reason);
 		throw new SkipException(reason);
@@ -679,6 +743,22 @@ public class BaseTest extends AdminTestUtil {
 
 	public String getVid() {
 		return getVidDetails() != null ? getVidDetails().getVid() : null;
+	}
+
+	private static String describeException(Throwable error) {
+		StringBuilder detail = new StringBuilder();
+		Throwable current = error;
+		while (current != null) {
+			if (detail.length() > 0) {
+				detail.append(" | caused by: ");
+			}
+			detail.append(current.getClass().getSimpleName());
+			if (current.getMessage() != null && !current.getMessage().isBlank()) {
+				detail.append(": ").append(current.getMessage());
+			}
+			current = current.getCause();
+		}
+		return detail.toString();
 	}
 
 }
