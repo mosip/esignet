@@ -812,6 +812,12 @@ public class ConsentPage extends BasePage {
 
 		clickOnProceedButtonInAttentionPage();
 		if (waitForRelyingPartyRedirectQuietly()) {
+			String currentUrl = driver.getCurrentUrl();
+			if (currentUrl != null && currentUrl.contains("error=session_expired")) {
+				throw new IllegalStateException(
+						"OAuth session expired before redirect to user profile; relaunch authorize URL and retry. URL: "
+								+ currentUrl);
+			}
 			return;
 		}
 		clickOnProceedButton();
@@ -835,6 +841,12 @@ public class ConsentPage extends BasePage {
 		clickOnProceedButton();
 
 		if (isAlreadyOnRelyingParty()) {
+			String currentUrl = driver.getCurrentUrl();
+			if (currentUrl != null && currentUrl.contains("error=session_expired")) {
+				throw new IllegalStateException(
+						"OAuth session expired before redirect to user profile; relaunch authorize URL and retry. URL: "
+								+ currentUrl);
+			}
 			LOGGER.info("Not declining claims - login completed directly to the relying party (consent "
 					+ "already granted from an earlier scenario reusing this identity/client).");
 			return;
