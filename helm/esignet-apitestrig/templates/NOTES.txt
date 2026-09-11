@@ -1,0 +1,27 @@
+eSignet api-test rig ({{ .Values.triggerKind }}) has been deployed.
+
+Config in use : {{ include "apitestrig.configPath" . }}
+{{- if .Values.apitestrig.surfaces }}
+Surfaces      : {{ .Values.apitestrig.surfaces }}
+{{- else }}
+Surfaces      : (from the selected config file's run.surfaces)
+{{- end }}
+Reports       : {{ .Values.reports.mountPath }}
+{{- if .Values.reports.persistence.enabled }}
+                PVC: {{ include "apitestrig.reportsClaimName" . }}
+{{- end }}
+
+{{- if eq .Values.triggerKind "cronjob" }}
+
+Scheduled: {{ .Values.crontime }}
+To trigger a run right now:
+  kubectl create job --from=cronjob/{{ include "common.names.fullname" . }} \
+    -n {{ .Release.Namespace }} {{ include "common.names.fullname" . }}-manual-$(date +%s)
+{{- else }}
+
+Follow this run:
+  kubectl logs -n {{ .Release.Namespace }} -l app.kubernetes.io/instance={{ .Release.Name }} -f
+{{- end }}
+
+To pull the consolidated HTML report out of the reports volume:
+  kubectl cp -n {{ .Release.Namespace }} <pod-name>:{{ .Values.reports.mountPath }} ./out

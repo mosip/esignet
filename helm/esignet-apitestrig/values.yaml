@@ -1,0 +1,387 @@
+## Global Docker image parameters
+## Please note this will override the image parameters, including dependencies, configured to use the global value
+##
+# global:
+#   imageRegistry: myRegistryName
+#   imagePullSecrets:
+#     - myRegistryKeySecretName
+#   storageClass: myStorageClass
+
+## Add labels to all the deployed resources
+##
+commonLabels:
+  app.kubernetes.io/component: mosip
+
+## Add annotations to all the deployed resources
+##
+commonAnnotations: {}
+
+## Kubernetes Cluster Domain
+##
+clusterDomain: cluster.local
+
+## Extra objects to deploy (value evaluated as a template)
+##
+extraDeploy: []
+
+image:
+  registry: docker.io
+  repository: mosipdev/apitest-esignet
+  tag: develop-go
+  ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
+  pullPolicy: Always
+  ## Optionally specify an array of imagePullSecrets.
+  # pullSecrets:
+  #   - myRegistryKeySecretName
+
+## ---------------------------------------------------------------------------
+## How the rig is triggered
+## ---------------------------------------------------------------------------
+
+## cronjob: scheduled, recurring runs (the usual "nightly regression" model)
+## job:     a single on-demand run, e.g. triggered by `helm install`/`helm
+##          upgrade` from CI, or `kubectl create job --from=cronjob/...`
+##
+triggerKind: cronjob   # cronjob | job
+
+## Only used when triggerKind: cronjob
+##
+crontime: "0 3 * * *"    ## run every day at 3 AM
+
+concurrencyPolicy: Forbid
+successfulJobsHistoryLimit: 1
+failedJobsHistoryLimit: 1
+backoffLimit: 0
+## How long a run is allowed to take before Kubernetes kills the Job/pod.
+## The harness itself has no internal timeout, so this is the real ceiling.
+##
+activeDeadlineSeconds: 3600
+
+## ---------------------------------------------------------------------------
+## Test-rig configuration
+## ---------------------------------------------------------------------------
+apitestrig:
+  ## Path INSIDE THE IMAGE to the plugin config to run. run-all.sh's Dockerfile
+  ## already bakes in data/config/config.{mock,mosip,sunbird}.json, so picking
+  ## one of those needs no ConfigMap at all -- just point -c at it.
+  ##   /app/data/config/config.mock.json
+  ##   /app/data/config/config.mosip.json
+  ##   /app/data/config/config.sunbird.json
+  ##
+  configFile: /app/data/config/config.mosip.json
+
+  ## Set this to run a config that is NOT baked into the image (e.g. a
+  ## deployment-specific variant). When non-empty, it is rendered into a
+  ## ConfigMap, mounted at /app/custom-config/config.json, and configFile
+  ## above is ignored in favor of that mounted path.
+  ##
+  configOverride: ""
+  # configOverride: |
+  #   {
+  #     "plugin": "mosip",
+  #     "run": { "surfaces": ["api", "e2e"], "report_dir": "/app/out" },
+  #     ...
+  #   }
+
+  ## Narrow which surfaces run, overriding the config file's run.surfaces for
+  ## this deployment. Leave empty to use whatever the selected config already
+  ## specifies. Comma list, e.g. "api,e2e" or "conformance,api,e2e".
+  ##
+  surfaces: ""
+
+  ## config.local.json overlay -- credentials that must NOT sit in values.yaml
+  ## or a ConfigMap. Mounted at runtime and pointed to via CONFIG_LOCAL so it
+  ## is found regardless of where configFile/configOverride lives.
+  ##
+  configLocal:
+    enabled: true
+    ## Preferred: reference a Secret you manage out-of-band (sealed-secrets,
+    ## external-secrets, vault-injector, ...) containing a config.local.json key.
+    existingSecret: ""
+    existingSecretKey: config.local.json
+    ## Convenience/dev fallback: inline JSON, rendered into a Helm-managed
+    ## Secret. Still ends up readable via `helm get values`, so prefer
+    ## existingSecret for anything beyond local testing.
+    # data: |
+    #   { "keycloak": { "client_secret": "changeme" } }
+    data: ""
+
+  ## Private plan config for the `conformance` surface (OpenID Conformance
+  ## Suite plan files, containing a private JWKS -- treat as a long-lived
+  ## credential). The harness looks for these at the exact relative path
+  ## named in the selected config's plans[].config_file, always under
+  ## conformance-suite-private/ -- mounting here needs no other config
+  ## change. See https://github.com/mosip/esignet/issues/2434 §5a and
+  ## api-test/docs/conformance-suite.md.
+  ##
+  conformancePlanConfig:
+    enabled: false
+    ## Preferred: reference a Secret you manage out-of-band, containing one
+    ## key per plan file (e.g. esignet-config.json, esignet-fapi2-config.json)
+    ## -- key names must match plans[].config_file's basename exactly.
+    existingSecret: ""
+    ## Convenience/dev fallback: inline file contents, rendered into a
+    ## Helm-managed Secret when existingSecret is empty. Still ends up
+    ## readable via `helm get values`, so prefer existingSecret for anything
+    ## beyond local testing.
+    files: {}
+      # esignet-config.json: |
+      #   { ... }
+      # esignet-fapi2-config.json: |
+      #   { ... }
+
+  ## Runs the OpenID Conformance Suite (mongodb + server + nginx) as regular
+  ## containers in THIS pod, so CONFORMANCE_BASE_URL can point at
+  ## https://localhost.emobix.co.uk:8443 (which already resolves to 127.0.0.1
+  ## via public DNS) and just work -- no separate Deployment/Service needed.
+  ## Pod containers share a network namespace regardless of container type,
+  ## so this DNS fix needs nothing beyond that -- no K8s version requirement.
+  ##
+  ## Images/env are taken directly from api-test/docker-compose.yml's own
+  ## working local-dev recipe (server + httpd tags travel together).
+  ##
+  ## The one real wrinkle: mongodb/server/httpd are long-running processes
+  ## that never exit on their own, and a Job only completes once EVERY
+  ## container in the pod exits -- so left alone, they'd block every run
+  ## from ever completing. Fixed with shareProcessNamespace: true plus a
+  ## small "conformance-reaper" container that waits for the same
+  ## completion marker report-uploader already watches for
+  ## (reports.mountPath/.rig-complete), then kills the suite's processes by
+  ## name so their containers exit and the Job can finish. This is a
+  ## well-established pattern from before native sidecars existed, and
+  ## works on any Kubernetes version.
+  ##
+  ## shareProcessNamespace does mean every container in this pod can see and
+  ## signal every other container's processes -- acceptable here since this
+  ## pod is a single-purpose, ephemeral test rig running only images this
+  ## chart already controls, but worth knowing if you're auditing it.
+  ##
+  ## Three details below are ASSUMED, not yet verified against a real
+  ## cluster: the server's internal port (guessed 8080, Spring Boot
+  ## default), whether the httpd image's baked-in nginx.conf proxies to
+  ## hostnames "server"/"mongodb" (Compose's automatic per-service DNS --
+  ## hostAliases in the pod spec maps both to 127.0.0.1 to cover this, but
+  ## it's inferred from Compose convention, not confirmed against the image
+  ## itself), and the suite's/mongo's actual process names as reported by
+  ## `ps` (guessed "java", "mongod", "nginx" -- standard for these images,
+  ## but not confirmed). Test before relying on this in a real run.
+  ##
+  conformanceSuite:
+    enabled: false
+
+    ## Shared between server and httpd images below (they're versioned
+    ## together upstream, same as api-test's own SUITE_IMAGE_TAG).
+    imageTag: release-v5.1.42
+
+    mongodb:
+      image:
+        registry: docker.io
+        repository: mongo
+        tag: "6.0.13"
+        pullPolicy: IfNotPresent
+      resources:
+        requests:
+          cpu: 100m
+          memory: 256Mi
+        limits:
+          cpu: 500m
+          memory: 512Mi
+
+    server:
+      image:
+        registry: registry.gitlab.com
+        repository: openid/conformance-suite
+        pullPolicy: IfNotPresent
+        # tag: conformanceSuite.imageTag (above)
+      springProfile: dev
+      resources:
+        requests:
+          cpu: 500m
+          memory: 1Gi
+        limits:
+          cpu: "1"
+          memory: 2Gi
+
+    httpd:
+      image:
+        registry: registry.gitlab.com
+        repository: openid/conformance-suite/nginx
+        pullPolicy: IfNotPresent
+        # tag: conformanceSuite.imageTag (above)
+      resources:
+        requests:
+          cpu: 50m
+          memory: 64Mi
+        limits:
+          cpu: 200m
+          memory: 128Mi
+
+    ## The small watcher-and-killer container. busybox because it reliably
+    ## ships `ps` and `kill` applets without needing anything installed.
+    reaper:
+      image:
+        registry: docker.io
+        repository: busybox
+        tag: "1.36"
+        pullPolicy: IfNotPresent
+      ## Process names to kill (matched against `ps -A -o comm`) once the
+      ## completion marker appears. Adjust here if these images report
+      ## different process names in practice.
+      processNames:
+        - mongod
+        - java
+        - nginx
+
+  ## Plain (non-secret) environment variables layered on top of both config
+  ## files, mirroring api-test/.env.example. Rendered as literal env values.
+  ##
+  extraEnvVars:
+    MOSIP_ESIGNET_BASE_URL: ""
+    KEYCLOAK_TOKEN_URL: ""
+    INDIVIDUAL_ID: ""
+    ID_TYPE: ""
+    TEST_PROFILE: ""
+    ## Point at the OpenID Conformance Suite already running in-cluster, e.g.
+    ## http://openid-conformance-suite.<namespace>.svc.cluster.local:8443
+    CONFORMANCE_BASE_URL: ""
+    CONFORMANCE_TLS_VERIFY: "false"
+    ESIGNET_TLS_VERIFY: "true"
+    API_TLS_VERIFY: "true"
+    SUITE_WAIT_SECONDS: "150"
+
+  ## Secret environment variables (e.g. KEYCLOAK_CLIENT_SECRET). Rendered into
+  ## a Secret and wired up via secretKeyRef -- never landing in a ConfigMap or
+  ## in extraEnvVars above.
+  ##
+  extraEnvVarsSecret:
+    KEYCLOAK_CLIENT_SECRET: ""
+
+  ## Existing ConfigMaps/Secrets in the namespace to pull additional env from
+  ## (envFrom), for parity with cluster-wide config the way helm/esignet does
+  ## (e.g. a shared `esignet-global` configmap).
+  ##
+  extraEnvVarsCM: []
+  extraEnvVarsSecretRefs: []
+
+## Command/args for the container. The image's own ENTRYPOINT is
+## ["./run-all.sh"], so leave `command` empty to keep using it -- args below
+## are appended to it. Templates fill in -c/-s from apitestrig.* above; only
+## override this block if you need something entirely different.
+##
+command: []
+args: []
+
+## ref: http://kubernetes.io/docs/user-guide/compute-resources/
+##
+resources:
+  limits:
+    cpu: "1"
+    memory: 2Gi
+  requests:
+    cpu: 200m
+    memory: 512Mi
+
+## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-container
+## Enabled by default: api-test/Dockerfile confirms this image's own USER is
+## apitest:apitest (uid/gid 1001), so this is a known-safe, verified value
+## for the apitestrig container specifically. NOT extended by default to the
+## report-uploader/conformance-suite containers below (minio/mc, mongo, the
+## conformance-suite server/nginx, busybox) since their expected non-root
+## uids aren't verified here -- e.g. the official mongo image's entrypoint
+## has its own uid expectations, and forcing 1001 onto it blind risks
+## breaking it. Set per-container securityContext values yourself for those
+## once you've confirmed the right uid for each image.
+##
+containerSecurityContext:
+  enabled: true
+  runAsUser: 1001
+  runAsNonRoot: true
+
+## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
+## Enabled by default: the image runs as uid/gid 1001 (see Dockerfile), and
+## PVC/emptyDir volumes are created owned by root unless fsGroup is set --
+## without this, the harness's own write to the reports volume at
+## reports.mountPath fails with a permission error. See
+## https://github.com/mosip/esignet/issues/2434 §7.
+##
+podSecurityContext:
+  enabled: true
+  fsGroup: 1001
+
+istio:
+  sidecarInject: false
+
+## Deployment pod host aliases
+##
+hostAliases: []
+
+## Node affinity/anti-affinity/selector/tolerations, evaluated as templates.
+##
+podAffinityPreset: ""
+podAntiAffinityPreset: soft
+nodeAffinityPreset:
+  type: ""
+  key: ""
+  values: []
+affinity: {}
+nodeSelector: {}
+tolerations: []
+
+## Pod extra labels/annotations
+##
+podLabels: {}
+podAnnotations: {}
+
+## Specifies whether a ServiceAccount should be created
+##
+serviceAccount:
+  create: true
+  name: ""
+
+## ---------------------------------------------------------------------------
+## Reports
+## ---------------------------------------------------------------------------
+reports:
+  ## REPORT_DIR inside the container. run-all.sh writes the consolidated HTML
+  ## report and every surface's envelope here.
+  mountPath: /app/out
+  persistence:
+    ## When false, the reports volume is an emptyDir instead of a PVC --
+    ## useful when reports.s3.enabled is the only place you want them kept.
+    enabled: true
+    storageClass: ""
+    accessModes:
+      - ReadWriteOnce
+    size: 100Mi
+    existingClaim: ""
+
+  ## Push the consolidated report to S3-compatible storage (AWS S3, MinIO,
+  ## etc.) after each run. Works alongside or instead of the PVC above.
+  ## Implemented as a second container in the same pod: it waits for the
+  ## main container to finish (a completion marker file on the shared
+  ## reports volume, since run-all.sh itself has no S3 awareness), then
+  ## uploads via `mc cp`. Works against MinIO or real AWS S3.
+  s3:
+    enabled: false
+    image:
+      registry: docker.io
+      repository: minio/mc
+      tag: RELEASE.2025-05-21T01-59-54Z
+      pullPolicy: IfNotPresent
+    ## e.g. https://s3.amazonaws.com or http://minio.minio:9000
+    endpoint: ""
+    ## Set true for a self-signed cert or a plain-http endpoint.
+    insecure: false
+    bucket: ""
+    ## Each run lands under <pathPrefix>/<UTC timestamp>/ in the bucket.
+    pathPrefix: "apitestrig"
+    ## Preferred: reference a Secret you manage out-of-band containing
+    ## these two keys.
+    existingSecret: ""
+    existingSecretAccessKeyKey: accessKey
+    existingSecretSecretKeyKey: secretKey
+    ## Convenience/dev fallback: rendered into a Helm-managed Secret. Still
+    ## ends up readable via `helm get values`, so prefer existingSecret for
+    ## anything beyond local testing.
+    accessKey: ""
+    secretKey: ""
