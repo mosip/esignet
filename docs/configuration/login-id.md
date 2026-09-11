@@ -20,3 +20,9 @@ Validation `message` keys (`validation.uin.numeric`, `validation.mobile.length`,
 
 No env var or `deployment.yaml` key controls any of this — it is edited directly in the flow YAML
 under `<DATA_DIR>/flows/`.
+
+
+## Planned change (next release)
+
+`flow-esignet.yaml` will become overrideable, so login-ID types can be added, removed,
+or reconfigured through deployment overrides instead of editing the shipped flow YAML directly.

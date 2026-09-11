@@ -62,3 +62,6 @@ properties:
 
 No env var or `deployment.yaml` key controls this — it is edited directly in the flow YAML under
 `<DATA_DIR>/flows/`.
+
+> **Planned change (next release):** ACR validation will be driven by the list of ACRs defined in
+> `config/app.go`, and the values currently hardcoded in `clientmgmt/validate.go` will be removed.
