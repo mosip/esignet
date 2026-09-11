@@ -59,7 +59,7 @@ eSignet applies several data-minimization and data-protection controls to limit 
 
 - **Data minimization:** eSignet issues access tokens tied to user identifiers and releases only the claims explicitly requested and consented to by the user. Authentication inputs (OTP, biometric, KBI fields) are processed in-flight and are not persisted by eSignet.
 - **Consent:** The login process occurs exclusively on the eSignet platform. A built-in consent flow requires users to explicitly grant or withhold access to each requested claim before any information is shared with a relying party. Consent decisions are recorded with an expiry and can be withdrawn.
-- **Protected data flow:** The Go implementation enforces JWE-encrypted ID tokens and userinfo responses (configured per client), DPoP-bound access tokens (preventing token replay by a different client), and JTI replay prevention on incoming signed assertions. All signing and encryption keys are managed by the embedded Go keymanager, configured via `KEYMANAGER_*` environment variables, with optional HSM (PKCS#11) backing.
+- **Protected data flow:** The Go implementation enforces JWE-encrypted ID tokens and userinfo responses (configured per client), DPoP-bound access tokens when enabled per client via `additionalConfig.dpop_bound_access_tokens` (preventing token replay by a different client), and JTI replay prevention on incoming signed assertions. All signing and encryption keys are managed by the embedded Go keymanager, configured via `KEYMANAGER_*` environment variables, with optional HSM (PKCS#11) backing.
 
 ---
 
