@@ -5,7 +5,6 @@ window._env_ = {
   DEFAULT_THEME: '',
   DEFAULT_FAVICON: 'favicon.ico',
   DEFAULT_TITLE: 'eSignet',
-  DEFAULT_ID_PROVIDER_NAME: 'eSignet',
   DEFAULT_FONT_URL:
     'https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap',
 };

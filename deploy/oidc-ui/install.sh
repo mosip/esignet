@@ -30,12 +30,6 @@ function installing_oidc-ui() {
     default_lang="en"
   fi
 
-  # Prompt for ID Provider name
-  read -p "Please provide the name for eSignet : Note: This name would be used instead of eSignet on the login page and in other places: " id_provider_name
-  if [[ -z "$id_provider_name" ]]; then
-    id_provider_name="eSignet"
-  fi
-
   NS=esignet
   OIDCUI_SERVICE_NAME=oidc-ui
   ESIGNET_SERVICE_NAME=esignet
@@ -62,8 +56,7 @@ function installing_oidc-ui() {
     --set oidc_ui.configmaps.oidc-ui.REACT_APP_API_BASE_URL="http://$ESIGNET_SERVICE_NAME.$NS/v1/esignet" \
     --set oidc_ui.configmaps.oidc-ui.REACT_APP_SBI_DOMAIN_URI="http://$ESIGNET_SERVICE_NAME.$NS" \
     --set oidc_ui.configmaps.oidc-ui.DEFAULT_THEME="$theme" \
-    --set oidc_ui.configmaps.oidc-ui.DEFAULT_LANG="$default_lang" \
-    --set oidc_ui.configmaps.oidc-ui.DEFAULT_ID_PROVIDER_NAME="$id_provider_name"
+    --set oidc_ui.configmaps.oidc-ui.DEFAULT_LANG="$default_lang"
 
   kubectl -n $NS  get deploy $OIDCUI_SERVICE_NAME -o name |  xargs -n1 -t  kubectl -n $NS rollout status
 

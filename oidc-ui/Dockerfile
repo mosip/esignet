@@ -9,7 +9,7 @@ ARG defaultLang
 ARG defaultWellknown
 ARG defaultFavicon
 ARG defaultTitle
-ARG defaultIdProviderName
+ARG defaultFontUrl
 ARG pollingUrl
 ARG pollingInterval
 ARG pollingTimeout
@@ -21,7 +21,7 @@ ENV DEFAULT_LANG=$defaultLang
 ENV DEFAULT_WELLKNOWN=$defaultWellknown
 ENV DEFAULT_FAVICON=$defaultFavicon
 ENV DEFAULT_TITLE=$defaultTitle
-ENV DEFAULT_ID_PROVIDER_NAME=$defaultIdProviderName
+ENV DEFAULT_FONT_URL=$defaultFontUrl
 ENV POLLING_URL=$pollingUrl
 ENV POLLING_INTERVAL=$pollingInterval
 ENV POLLING_TIMEOUT=$pollingTimeout
@@ -109,7 +109,7 @@ RUN echo "DEFAULT_THEME=$DEFAULT_THEME" >> ${work_dir}/env.env \
     && echo "DEFAULT_WELLKNOWN=$DEFAULT_WELLKNOWN" >> ${work_dir}/env.env \
     && echo "DEFAULT_FAVICON=$DEFAULT_FAVICON" >> ${work_dir}/env.env \
     && echo "DEFAULT_TITLE=$DEFAULT_TITLE" >> ${work_dir}/env.env \
-    && echo "DEFAULT_ID_PROVIDER_NAME=$DEFAULT_ID_PROVIDER_NAME" >> ${work_dir}/env.env \
+    && echo "DEFAULT_FONT_URL=$DEFAULT_FONT_URL" >> ${work_dir}/env.env \
     && echo "POLLING_URL=$POLLING_URL" >> ${work_dir}/env.env \
     && echo "POLLING_INTERVAL=$POLLING_INTERVAL" >> ${work_dir}/env.env \
     && echo "POLLING_TIMEOUT=$POLLING_TIMEOUT" >> ${work_dir}/env.env \
