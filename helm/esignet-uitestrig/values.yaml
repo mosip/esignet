@@ -1,0 +1,252 @@
+## Global Docker image parameters
+# global:
+#   imageRegistry: myRegistryName
+#   imagePullSecrets:
+#     - myRegistryKeySecretName
+#   storageClass: myStorageClass
+
+commonLabels:
+  app.kubernetes.io/component: mosip
+
+commonAnnotations: {}
+
+clusterDomain: cluster.local
+
+extraDeploy: []
+
+## Fallback default -- deploy/esignet-uitestrig/values.yaml intentionally
+## overrides this at runtime via install.sh's image prompt, but the chart
+## itself should still work with a bare `helm install` and no override.
+image:
+  registry: docker.io
+  repository: mosipdev/uitest-esignet
+  ## The tag is version-y, not "which language" -- ui-test is Java regardless
+  ## of tag. See mosip/esignet#2544's own note on this.
+  tag: develop
+  pullPolicy: Always
+  # pullSecrets:
+  #   - myRegistryKeySecretName
+
+## ---------------------------------------------------------------------------
+## How the rig is triggered
+## ---------------------------------------------------------------------------
+triggerKind: cronjob   # cronjob | job
+
+crontime: "0 3 * * *"
+
+concurrencyPolicy: Forbid
+successfulJobsHistoryLimit: 1
+failedJobsHistoryLimit: 1
+backoffLimit: 0
+## Chromium+JVM startup plus a full UI regression run can genuinely take a
+## while -- this is deliberately generous. Lower it once you know your
+## actual run time.
+activeDeadlineSeconds: 5400
+
+## ---------------------------------------------------------------------------
+## Test-rig configuration
+## ---------------------------------------------------------------------------
+uitestrig:
+  ## The pod template (templates/_helpers.tpl) always wraps the image's own
+  ## ENTRYPOINT (./entrypoint.sh) in a small script that injects
+  ## configMap/secret below into the environment via mounted files -- see
+  ## that template's own comment for why. There's no command/args override
+  ## point here anymore; a custom command would conflict with that wrapper.
+
+  ## Plain, non-secret environment variables -- valid k8s env var names only
+  ## (no hyphens). Consumed directly by entrypoint.sh (mosip/esignet#2544 §4).
+  ## Rendered only when non-empty: entrypoint.sh checks [ -n "${VAR:-}" ]
+  ## before adding most of these to the java command line, so an empty value
+  ## here is equivalent to omitting it -- but ENV_ENDPOINT is NOT
+  ## conditional in entrypoint.sh (always passed), so it must be set.
+  extraEnvVars:
+    ENV_ENDPOINT: ""
+    ENV_USER: ""
+    MODULES: "esignet"
+    ENV_TESTLEVEL: "smokeAndRegression"
+    ## Chrome plus the JVM in one cgroup -- do not default anywhere near the
+    ## resources.limits.memory ceiling below (mosip/esignet#2544 §3.5).
+    JAVA_EXTRA_OPTS: "-Xmx2g"
+    ## Scope a run further. Leave blank for the full suite -- entrypoint.sh
+    ## only adds these to the java command line when non-empty, so blank
+    ## here is safe (unlike the ConfigMap/Secret keys below, where blank
+    ## actively overrides a JAR default -- see that comment).
+    CUCUMBER_FILTER_TAGS: ""
+    RUN_ONLY_SCENARIO: ""
+    FEATURE_FILES_TO_EXECUTE: ""
+
+  ## ConfigMap data -- includes hyphenated keys (e.g. keycloak-external-url)
+  ## that are NOT valid as individual container env: names. envFrom would
+  ## accept them syntactically, but the kubelet silently drops
+  ## envFrom-sourced keys containing '-' on Kubernetes versions before 1.32
+  ## (RelaxedEnvironmentVariableValidation is beta in 1.32, GA in 1.34) --
+  ## so instead this whole map is mounted as one file per key
+  ## (templates/configmap.yaml + the pod template's volume/volumeMount),
+  ## and a wrapper script reads those files and injects them via
+  ## `env KEY=VALUE ...` before exec'ing the image's own entrypoint. This
+  ## works on any Kubernetes version, since filenames have no such
+  ## restriction. See templates/_helpers.tpl's own comment for the exact
+  ## mechanism.
+  ##
+  ## IMPORTANT (mosip/esignet#2544 "silent trap"): apitest-commons'
+  ## ConfigManager does `System.getenv(key) ?? propsMap.get(key)` -- env
+  ## ALWAYS wins, and an env var that is PRESENT BUT EMPTY still wins,
+  ## wiping the JAR's own config.properties default rather than falling
+  ## through to it. Every key below is only rendered into the ConfigMap at
+  ## all when non-empty (see templates/configmap.yaml) -- leave a value
+  ## blank here to omit that key entirely and let the JAR default apply.
+  configMap:
+    ## Relying-party (health-services) origin. OIDC redirect_uris must be
+    ## exactly this + "userprofile".
+    baseurl: ""
+    localeUrl: ""
+    ## Do NOT let this be derived from ENV_ENDPOINT (api-internal host) --
+    ## that mapping is wrong for eSignet-go (mosip/esignet#2544 §4).
+    eSignetbaseurl: ""
+    ## eSignet-go has no Spring actuator, so plugin auto-detection always
+    ## falls back to mosipid unless this is set explicitly.
+    pluginToExecute: "mock"
+    runLanguage: "eng"
+    ## NOTE: this value itself is cosmetic now -- the rendered ConfigMap's
+    ## actual runOnBrowserStack key is derived from uitestrig.browserstack.enabled
+    ## below (templates/configmap.yaml), so switching between in-cluster
+    ## Chrome and BrowserStack only needs that one flag changed, not this
+    ## value and browserstack.enabled kept in sync by hand.
+    runOnBrowserStack: "false"
+    ## Consent DB -- the UI harness only reads esignetDbHost/esignetDbPassword
+    ## (mosip/esignet#2434 §3.8); name/user/schema/port ship in the JAR.
+    esignetDbHost: ""
+    esignetDbPort: "5432"
+    keycloak-external-url: ""
+    push-reports-to-s3: "no"
+    s3-host: ""
+    s3-region: ""
+    s3-account: "uitestrig"
+
+  ## Existing ConfigMaps/Secrets to also pull env from (envFrom), e.g. a
+  ## shared esignet-global ConfigMap already deployed alongside eSignet
+  ## itself in this namespace.
+  extraEnvVarsCM: []
+  extraEnvVarsSecretRefs: []
+
+  ## Secret data -- same file-mount treatment as configMap above (not
+  ## envFrom, for the same K8s-version reason), and the same "omit rather
+  ## than blank" rule.
+  secret:
+    esignetDbPassword: ""
+    keycloak_Password: ""
+    mosip_testrig_client_secret: ""
+    ## Pre-provisioned OIDC client(s); comma form "primary,secondary".
+    oidcClientId: ""
+    ## Pre-provisioned identities -- PII.
+    uin: ""
+    vid: ""
+    mockUin: ""
+    uinPhoneNumber: ""
+    emailLoginId: ""
+    passwordLoginUin: ""
+    passwordLoginPassword: ""
+    s3-user-key: ""
+    s3-user-secret: ""
+
+  browserstack:
+    ## Alternative to in-cluster Chrome (mosip/esignet#2544 §6ii-b). Needs
+    ## network egress to BrowserStack from the cluster; /dev/shm is unused
+    ## either way (ui-test's BaseTestUtil already adds --disable-dev-shm-usage
+    ## unconditionally, confirmed against src/main/java/utils/BaseTestUtil.java).
+    enabled: false
+    username: ""
+    accessKey: ""
+
+  ## Self-signed/internal certs? The JVM needs the target host's CA cert
+  ## imported into its own cacerts truststore -- this is still a JVM, same
+  ## pattern as the old Java apitestrig chart (mosip-functional-tests,
+  ## helm/apitestrig), just with paths corrected for this image's actual
+  ## base (eclipse-temurin, JAVA_HOME=/opt/java/openjdk -- NOT
+  ## /usr/local/openjdk-11 like the old chart's openjdk-11-based image).
+  ## UNVERIFIED against a live cluster -- test before relying on it.
+  enableInsecure: false
+
+  tls:
+    ## Required (helm upgrade fails without it) when enableInsecure above is
+    ## true. The full PEM content of the CA cert to trust -- obtain this
+    ## through a channel you actually trust (e.g. copy it directly from the
+    ## eSignet ingress/load balancer's own TLS config), not by fetching
+    ## whatever a live connection presents at deploy time: doing that would
+    ## trust anything a network or DNS attacker's endpoint presents instead,
+    ## which is exactly the gap pinning a specific cert here closes.
+    caCert: ""
+
+## ref: http://kubernetes.io/docs/user-guide/compute-resources/
+## Headless Chromium + the JVM in one pod needs real headroom
+## (mosip/esignet#2544 §3.2) -- this is the #1 thing the generic
+## mosip/uitestrig chart (mosip-functional-tests) has no lever for at all.
+##
+resources:
+  limits:
+    cpu: "2"
+    memory: 4Gi
+  requests:
+    cpu: 500m
+    memory: 2Gi
+
+## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
+## The image's own USER is mosip:mosip (uid/gid 1001) -- see Dockerfile.
+##
+podSecurityContext:
+  enabled: true
+  fsGroup: 1001
+
+## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-container
+##
+containerSecurityContext:
+  enabled: true
+  runAsUser: 1001
+  runAsNonRoot: true
+
+istio:
+  sidecarInject: false
+
+hostAliases: []
+
+podAffinityPreset: ""
+podAntiAffinityPreset: soft
+nodeAffinityPreset:
+  type: ""
+  key: ""
+  values: []
+affinity: {}
+nodeSelector: {}
+tolerations: []
+
+podLabels: {}
+podAnnotations: {}
+
+serviceAccount:
+  create: true
+  name: ""
+
+## ---------------------------------------------------------------------------
+## Reports
+## ---------------------------------------------------------------------------
+reports:
+  ## Extent HTML report. ui-test pushes this to S3 itself, in-process
+  ## (BaseTest.pushReportsToS3) -- unlike the Go api-test rig, there is no
+  ## external uploader sidecar here at all. Set uitestrig.configMap's
+  ## push-reports-to-s3=yes plus s3-host/s3-region/s3-account (ConfigMap) and
+  ## s3-user-key/s3-user-secret (Secret) above to use it.
+  mountPath: /home/mosip/test-output
+  ## Screenshots on failure.
+  screenshotsMountPath: /home/mosip/screenshots
+
+  ## Only relevant if you're NOT using the in-process S3 push above --
+  ## mounts a PVC at both paths so reports/screenshots survive past the
+  ## pod's own lifetime, retrievable via `kubectl cp`. The generic
+  ## mosip/uitestrig chart has no PVC template at all; this fills that gap.
+  persistence:
+    enabled: false
+    storageClass: ""
+    accessModes:
+      - ReadWriteOnce
+    size: 1Gi
+    existingClaim: ""
