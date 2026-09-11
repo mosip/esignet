@@ -50,6 +50,9 @@ export default function LoginPage() {
           onSuccess={() => {
             window.onbeforeunload = null;
           }}
+          onError={() => {
+            window.onbeforeunload = null;
+          }}
         />
       )}
     </div>

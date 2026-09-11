@@ -1,17 +1,23 @@
 import { describe, it, expect, vi } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, act } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import LoginPage from "../../pages/LoginPage";
+
+const signInPropsCapture = vi.hoisted(
+  () => ({ current: {} as Record<string, unknown> }),
+);
 
 vi.mock("@thunderid/react", async () => {
   const React = await import("react");
   return {
-    SignIn: () =>
-      React.createElement(
+    SignIn: (props: Record<string, unknown>) => {
+      signInPropsCapture.current = props;
+      return React.createElement(
         "div",
         { "data-testid": "sign-in" },
         "SignIn Component",
-      ),
+      );
+    },
     I18nContext: React.createContext(null),
   };
 });
@@ -61,5 +67,31 @@ describe("LoginPage", () => {
     // Either the spinner or SignIn is shown; the component renders without errors.
     expect(screen.getByTestId("sign-in")).toBeDefined();
     expect(screen.queryByRole("status")).toBeNull();
+  });
+
+  it("clears window.onbeforeunload when onSuccess is called", async () => {
+    window.onbeforeunload = () => "unsaved changes";
+
+    renderWithRouter("/login?applicationId=app123&authId=auth456");
+    await waitFor(() => screen.getByTestId("sign-in"));
+
+    act(() => {
+      (signInPropsCapture.current.onSuccess as () => void)();
+    });
+
+    expect(window.onbeforeunload).toBeNull();
+  });
+
+  it("clears window.onbeforeunload when onError is called", async () => {
+    window.onbeforeunload = () => "unsaved changes";
+
+    renderWithRouter("/login?applicationId=app123&authId=auth456");
+    await waitFor(() => screen.getByTestId("sign-in"));
+
+    act(() => {
+      (signInPropsCapture.current.onError as () => void)();
+    });
+
+    expect(window.onbeforeunload).toBeNull();
   });
 });
