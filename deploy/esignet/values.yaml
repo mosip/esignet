@@ -15,6 +15,10 @@
 #      secretKeyRef:
 #        name: esignet-captcha
 #        key: esignet-captcha-site-key
+#  - name: MOSIP_ESIGNET_CAPTCHA_SITE_PROVIDER
+#    value: google-recaptcha
+#  - name: MOSIP_ESIGNET_CAPTCHA_VALIDATOR_URL
+#    value: http://captcha.captcha/v1/captcha/validatecaptcha
 #  - name: MOSIP_ESIGNET_CAPTCHA_MODULE_NAME
 #    value: esignet
 #  - name: IDA_AUTHENTICATOR_ENV
