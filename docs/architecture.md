@@ -268,7 +268,7 @@ _Figure 4 – End-to-end login and consent sequence_
 | `POST` / `PUT` / `PATCH` / `GET /client-mgmt/client[/{client_id}]` | Scope-checked bearer token (if configured) |
 | `GET /system-info/certificate`                                     | Scope-checked bearer token (if configured) |
 | `POST /system-info/uploadCertificate`                              | Scope-checked bearer token (if configured) |
-| `GET /metrics`                                                     | None — served on a separate private port, not the public mux |
+| `GET /metrics`                                                     | None — unauthenticated; exposed only through an internal monitoring Service protected by NetworkPolicy; never expose METRICS_PORT through NodePort or LoadBalancer |
 
 Standard OIDC/OAuth endpoints (`/authorize`, `/token`, `/.well-known/openid-configuration`, JWKS publishing, PAR, revocation, logout) are registered by the external ThunderID engine on the same mux and are outside this repository's own route-registration code.
 
