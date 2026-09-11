@@ -40,8 +40,16 @@ public class SignupFormDynamicFiller {
 				continue;
 			}
 
-			List<WebElement> matchingElements = driver
-					.findElements(By.xpath("//*[@id='" + fieldId + "' or @data-field-id='" + fieldId + "']"));
+			if (!fieldId.matches("[A-Za-z0-9_.-]+")) {
+				logger.info("Skipping fieldId with unsupported characters for XPath lookup: " + fieldId);
+				continue;
+			}
+
+			List<WebElement> matchingElements = driver.findElements(By.xpath(
+					"//*[self::input or self::select or self::textarea][@id='" + fieldId + "' or @data-field-id='"
+							+ fieldId + "']"
+							+ " | //*[@id='" + fieldId + "' or @data-field-id='" + fieldId
+							+ "']//*[self::input or self::select or self::textarea]"));
 
 			if (matchingElements.isEmpty()) {
 				logger.info("No element found for fieldId: " + fieldId);
@@ -123,13 +131,17 @@ public class SignupFormDynamicFiller {
 				Select dropdown = new Select(element);
 				List<WebElement> options = dropdown.getOptions();
 				if (options.size() > 1) {
+
+					if (fieldId.toLowerCase().contains("lang") && selectEnglishOption(dropdown, options)) {
+						continue;
+					}
 					dropdown.selectByIndex(new Random().nextInt(options.size() - 1) + 1);
 				}
 				continue;
 			}
 
 			if ("date".equalsIgnoreCase(controlType)) {
-				String dob = EsignetUtil.getRandomDOB().replace("-", "/");
+				String dob = EsignetUtil.getRandomDOB();
 				WebElement visibleDob = element;
 				JavascriptExecutor js = (JavascriptExecutor) driver;
 				js.executeScript("arguments[0].removeAttribute('readonly')", visibleDob);
@@ -157,7 +169,9 @@ public class SignupFormDynamicFiller {
 						"//input[@type='radio' and (@name='" + fieldId + "' or @data-field-id='" + fieldId + "')]"));
 
 				if (!radios.isEmpty()) {
-					radios.get(new Random().nextInt(radios.size())).click();
+					WebElement radio = radios.get(new Random().nextInt(radios.size()));
+					((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView({block:'center'});", radio);
+					((JavascriptExecutor) driver).executeScript("arguments[0].click();", radio);
 				}
 				continue;
 			}
@@ -168,6 +182,22 @@ public class SignupFormDynamicFiller {
 				continue;
 			}
 		}
+	}
+
+	private boolean selectEnglishOption(Select dropdown, List<WebElement> options) {
+		for (WebElement option : options) {
+			String text = option.getText();
+			String value = option.getAttribute("value");
+			String normalizedText = text != null ? text.trim().toLowerCase() : "";
+			String normalizedValue = value != null ? value.trim().toLowerCase() : "";
+			boolean isEnglish = normalizedText.equals("english") || normalizedText.equals("en")
+					|| normalizedText.equals("eng") || normalizedValue.equals("en") || normalizedValue.equals("eng");
+			if (isEnglish) {
+				dropdown.selectByVisibleText(text);
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private void uploadFile(String fieldId, List<WebElement> matchingElements) throws IOException {

@@ -21,3 +21,25 @@ CreateOIDCClient:
       output: '{
         "status": "ACTIVE"
 }'
+   EsignetUI_CreateOIDCClient_secondary_Smoke_sid:
+      endPoint: /v1/partnermanager/oidc/client
+      uniqueIdentifier: TC_ESignetUI_CreateOIDCClient_02
+      description: Create secondary OIDC client for the same partner (consent registry TC_07)
+      role: partner
+      restMethod: post
+      inputTemplate: esignetUI/OidcClient/OIDCClient
+      outputTemplate: esignetUI/OidcClient/OIDCClientResult
+      input: '{
+        "name": "$RANDOMID$-secondary",
+        "policyId": "$ID:DefinePolicy_All_Valid_Smoke_sid_id$",
+        "publicKey": "$OIDC_JWK_KEY_PAR_SECONDARY$",
+        "authPartnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "logoUri": "https://health-services.com/logo.png",
+        "redirectUris": "$ESIGNET_REDIRECT_URI$",
+        "grantTypes": "authorization_code",
+        "clientAuthMethods": "private_key_jwt",
+        "require_pushed_authorization_requests": true
+}'
+      output: '{
+        "status": "ACTIVE"
+}'

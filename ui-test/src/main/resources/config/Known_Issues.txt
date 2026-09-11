@@ -1,3 +1,13 @@
-#Add the Known Issue scenario with its bug id here
-#Ex:bugId------scenario
-#Ex:ES-1234------Verify the notification when OTP requested
+# Known Issues — skipped at runtime and reported in the Known Issues bucket.
+# Format: BUGID------Scenario Name
+# BUGID can be:
+#   - a GitHub issue number (e.g. 2249) → https://github.com/mosip/esignet/issues/2249
+#   - a Jira key (e.g. ES-1234) → https://mosip.atlassian.net/browse/ES-1234
+#   - a full URL
+# Scenario Name must match the Cucumber scenario name (the text after "Scenario:").
+#
+#Ex: 2249------Verify the notification when OTP requested
+#Ex: ES-1234------Verify the notification when OTP requested
+
+2249------TC_Browser_Compatibility_check_01 - Verify the text labels, elements in browser compatibility screen
+2249------Verify the Okay button is clickable on the browser compatibility screen

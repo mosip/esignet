@@ -2,7 +2,7 @@
   	"deviceStatus": "Ready",
   	"deviceId": "4",
   	"firmware": "MOSIP.SINGLE.1.0.0.0",
-  	"certification": "L0",
+  	"certification": "L1",
   	"serviceVersion": "0.9.5",
   	"deviceSubId":[
 		"0"
@@ -11,7 +11,7 @@
   	"digitalId": "",
   	"deviceCode": "b692b595-3523-slap-99fc-bd76e35f290f",
   	"env": "Staging",
-  	"purpose": "",
+  	"purpose": "Auth",
   	"specVersion": [
   		"0.9.5"
 	]
