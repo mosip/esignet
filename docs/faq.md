@@ -55,7 +55,11 @@ For capacity planning, refer to the [performance test module](https://github.com
 
 **How does eSignet ensure the security and privacy of user data?**
 
-eSignet minimizes data storage by using access tokens linked to user IDs for login, ensuring identity verification without capturing personal information. The login process occurs exclusively on the eSignet platform, with mandatory user consent through a built-in consent flow that allows users to grant or withhold explicit access to their personal information. The Go implementation adds further protections including JWE-encrypted ID tokens and userinfo responses, DPoP-bound access tokens, JTI replay prevention, and an embedded HSM-capable key manager.
+eSignet applies several data-minimization and data-protection controls to limit exposure of personal information:
+
+- **Data minimization:** eSignet issues access tokens tied to user identifiers and releases only the claims explicitly requested and consented to by the user. Authentication inputs (OTP, biometric, KBI fields) are processed in-flight and are not persisted by eSignet.
+- **Consent:** The login process occurs exclusively on the eSignet platform. A built-in consent flow requires users to explicitly grant or withhold access to each requested claim before any information is shared with a relying party. Consent decisions are recorded with an expiry and can be withdrawn.
+- **Protected data flow:** The Go implementation enforces JWE-encrypted ID tokens and userinfo responses (configured per client), DPoP-bound access tokens (preventing token replay by a different client), and JTI replay prevention on incoming signed assertions. All signing and encryption keys are managed by the MOSIP keymanager with optional HSM (PKCS#11) backing.
 
 ---
 
@@ -320,12 +324,13 @@ MOSIP_ESIGNET_CAPTCHA_SITE_PROVIDER=hcaptcha   # e.g. recaptcha | turnstile | hc
 MOSIP_ESIGNET_CAPTCHA_SITE_KEY=<public-site-key>
 
 # Server-side token validation (skipped when the URL is unset)
-MOSIP_ESIGNET_CAPTCHA_VALIDATOR_URL=http://<captcha-service-host>/v1/captcha/validatecaptcha
+MOSIP_ESIGNET_CAPTCHA_VALIDATOR_URL=https://<captcha-service-host>/v1/captcha/validatecaptcha
+# Use http:// only for isolated local development (no outbound HTTPS available)
 MOSIP_ESIGNET_CAPTCHA_MODULE_NAME=esignet
 MOSIP_ESIGNET_CAPTCHA_TIMEOUT_SECS=10
 ```
 
-To disable CAPTCHA, remove the `CAPTCHA_BOX` reference from the relevant flow nodes in `flow-esignet.yaml` (or leave the validator URL unset so tokens are accepted unverified). The providers selectable via `MOSIP_ESIGNET_CAPTCHA_SITE_PROVIDER` are:
+To disable CAPTCHA entirely, remove the `CAPTCHA_BOX` node reference from the relevant steps in `flow-esignet.yaml`. Do **not** leave `MOSIP_ESIGNET_CAPTCHA_VALIDATOR_URL` unset in production — omitting it causes CAPTCHA tokens to be accepted without server-side verification, which defeats bot protection. Leaving the URL unset is only acceptable for isolated local development where no CAPTCHA service is reachable. The providers selectable via `MOSIP_ESIGNET_CAPTCHA_SITE_PROVIDER` are:
 
 - **`recaptcha`** — [Google reCAPTCHA](https://www.google.com/recaptcha/)
 - **`turnstile`** — [Cloudflare Turnstile](https://www.cloudflare.com/products/turnstile/)
@@ -432,7 +437,7 @@ MOSIP_ESIGNET_AUTHENTICATOR_SUNBIRD_RC_AUTH_FACTOR_KBI_FIELD_DETAILS=[{"id":"pol
 
 The `KBI_FIELD_DETAILS` entries define the fields shown on the KBI form; the `individual-id-field` entry is the identifier and every other entry is a required credential.
 
-The current compatible SunbirdRC version is [v2.0.0-rc3](https://github.com/Sunbird-RC/sunbird-rc-core/releases).
+eSignet has been tested with SunbirdRC [v2.0.0-rc3](https://github.com/Sunbird-RC/sunbird-rc-core/releases/tag/v2.0.0-rc3). Verify compatibility before upgrading to a newer SunbirdRC release.
 
 ---
 
