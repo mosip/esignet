@@ -175,6 +175,7 @@ func main() {
 		thunderidengine.WithAttestationProvider(engine.NewAttestationProvider(appCfg)),
 		thunderidengine.WithCaptchaValidationProvider(engine.NewCaptchaProvider(&appCfg.CaptchaConfig, commonHTTPClient)),
 		thunderidengine.WithRuntimeCryptoProvider(engine.NewRuntimeCryptoProvider(appCfg, keyMgrSvc, sigSvc, cryptoSvc, authnProvider)),
+		thunderidengine.WithDeviceSecretProvider(engine.NewDeviceSecretProvider(appCfg, clientSvc, sigSvc)),
 		thunderidengine.WithOriginConfig(originConfig),
 	)
 
