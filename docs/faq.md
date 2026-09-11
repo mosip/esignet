@@ -82,7 +82,7 @@ eSignet is an open-source, flexible solution that follows standard protocols ([O
 - **Standards-based security:** [OAuth 2.1](https://oauth.net/2.1/), [OpenID Connect](https://openid.net/specs/openid-connect-core-1_0.html), [FAPI 2.0](https://openid.net/specs/fapi-security-profile-2_0.html) (PAR + DPoP + `private_key_jwt`), PKCE, JWE-encrypted responses.
 - **Declarative authentication flows:** Authentication logic is defined as YAML flow graphs (`data/flows/*.yaml`) and interpreted at runtime — no code changes required to modify the login flow.
 - **Multiple pluggable identity backends:** MOSIP IDA (OTP + KYC), [SunbirdRC](https://github.com/Sunbird-RC/sunbird-rc-core) KBI, and a mock backend for development/testing.
-- **Embedded key manager:** Automatic two-level key hierarchy provisioning (`OIDC_SERVICE`, `OIDC_PARTNER`) with support for PKCS#11 HSMs and PKCS#12 file keystores.
+- **Embedded key manager:** On every startup the keymanager idempotently provisions a full key hierarchy: a `ROOT` CA; `OIDC_SERVICE` component master key (`RSA_2048`), EC signing key (`EC_SECP256R1_SIGN`), and cache encryption key (`CACHE_ENCRYPT`); and `OIDC_PARTNER` component master key (`RSA_2048`). `KEYMANAGER_KEYSTORE_TYPE` selects the PKCS#11 (HSM) or PKCS#12 (file) backend at runtime.
 - **User centricity:** Single identity credential access across services, mandatory user consent, and multiple authentication methods.
 - **Flexible CAPTCHA support:** [Google reCAPTCHA](https://www.google.com/recaptcha/), [Cloudflare Turnstile](https://www.cloudflare.com/products/turnstile/), and [hCaptcha](https://www.hcaptcha.com/) are all supported.
 
