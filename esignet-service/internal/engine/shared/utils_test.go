@@ -14,14 +14,14 @@ import (
 
 func (ts *UtilsTestSuite) TestGenerateTransactionIDReusesExistingID() {
 	t := ts.T()
-	runtimeMetadata := map[string][]string{transactionIDKey: {"1234567890"}}
+	runtimeMetadata := map[string][]string{TransactionIDKey: {"1234567890"}}
 
-	id, err := GenerateTransactionID(runtimeMetadata)
+	id, err := GenerateTransactionID(runtimeMetadata, defaultAuthTransactionIDLength)
 	if err != nil {
 		t.Fatalf("GenerateTransactionID() error = %v", err)
 	}
-	if id != "1234567890" {
-		t.Errorf("GenerateTransactionID() = %q, want %q", id, "1234567890")
+	if want := "1234567890"; id != want {
+		t.Errorf("GenerateTransactionID() = %q, want %q", id, want)
 	}
 }
 
@@ -29,7 +29,7 @@ func (ts *UtilsTestSuite) TestGenerateTransactionIDGeneratesNewNumericID() {
 	t := ts.T()
 
 	t.Run("nil runtime metadata", func(t *testing.T) {
-		id, err := GenerateTransactionID(nil)
+		id, err := GenerateTransactionID(nil, defaultAuthTransactionIDLength)
 		if err != nil {
 			t.Fatalf("GenerateTransactionID() error = %v", err)
 		}
@@ -37,7 +37,7 @@ func (ts *UtilsTestSuite) TestGenerateTransactionIDGeneratesNewNumericID() {
 	})
 
 	t.Run("runtime metadata without existing transaction id", func(t *testing.T) {
-		id, err := GenerateTransactionID(map[string][]string{})
+		id, err := GenerateTransactionID(map[string][]string{}, defaultAuthTransactionIDLength)
 		if err != nil {
 			t.Fatalf("GenerateTransactionID() error = %v", err)
 		}
@@ -45,21 +45,39 @@ func (ts *UtilsTestSuite) TestGenerateTransactionIDGeneratesNewNumericID() {
 	})
 
 	t.Run("runtime metadata with empty (non-nil) transaction id slice", func(t *testing.T) {
-		id, err := GenerateTransactionID(map[string][]string{transactionIDKey: {}})
+		id, err := GenerateTransactionID(map[string][]string{TransactionIDKey: {}}, defaultAuthTransactionIDLength)
 		if err != nil {
 			t.Fatalf("GenerateTransactionID() error = %v", err)
 		}
 		assertTenDigitNumeric(t, id)
 	})
+
+	t.Run("non-positive length falls back to default", func(t *testing.T) {
+		id, err := GenerateTransactionID(nil, 0)
+		if err != nil {
+			t.Fatalf("GenerateTransactionID() error = %v", err)
+		}
+		assertTenDigitNumeric(t, id)
+	})
+
+	t.Run("custom positive length is honored", func(t *testing.T) {
+		id, err := GenerateTransactionID(nil, 6)
+		if err != nil {
+			t.Fatalf("GenerateTransactionID() error = %v", err)
+		}
+		if len(id) != 6 {
+			t.Fatalf("GenerateTransactionID() len = %d, want 6 (id=%q)", len(id), id)
+		}
+	})
 }
 
 func (ts *UtilsTestSuite) TestGenerateTransactionIDIsRandomAcrossCalls() {
 	t := ts.T()
-	first, err := GenerateTransactionID(nil)
+	first, err := GenerateTransactionID(nil, defaultAuthTransactionIDLength)
 	if err != nil {
 		t.Fatalf("GenerateTransactionID() error = %v", err)
 	}
-	second, err := GenerateTransactionID(nil)
+	second, err := GenerateTransactionID(nil, defaultAuthTransactionIDLength)
 	if err != nil {
 		t.Fatalf("GenerateTransactionID() error = %v", err)
 	}
@@ -68,6 +86,93 @@ func (ts *UtilsTestSuite) TestGenerateTransactionIDIsRandomAcrossCalls() {
 	if first == second {
 		t.Errorf("expected distinct transaction ids across calls, got %q twice", first)
 	}
+}
+
+func (ts *UtilsTestSuite) TestDeriveAuthTransactionID() {
+	t := ts.T()
+
+	tests := []struct {
+		name              string
+		oidcTransactionID string
+		want              string
+	}{
+		{
+			name:              "10-char input is read back to front",
+			oidcTransactionID: "1234567890",
+			want:              "0987654321",
+		},
+		{
+			name:              "hyphens and underscores are stripped before deriving",
+			oidcTransactionID: "0199183a-8f2e-7abc_def0-1234-56789abcdef0",
+			want:              mustDeriveAuthTransactionID(t, "0199183a8f2e7abcdef0123456789abcdef0"),
+		},
+		{
+			name:              "input shorter than target length wraps cyclically",
+			oidcTransactionID: "abc",
+			want:              "cbacbacbac",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := DeriveAuthTransactionID(tt.oidcTransactionID, defaultAuthTransactionIDLength)
+			if err != nil {
+				t.Fatalf("DeriveAuthTransactionID(%q) error = %v", tt.oidcTransactionID, err)
+			}
+			if got != tt.want {
+				t.Fatalf("DeriveAuthTransactionID(%q) = %q, want %q", tt.oidcTransactionID, got, tt.want)
+			}
+			if len(got) != 10 {
+				t.Fatalf("DeriveAuthTransactionID(%q) length = %d, want 10", tt.oidcTransactionID, len(got))
+			}
+		})
+	}
+}
+
+func (ts *UtilsTestSuite) TestDeriveAuthTransactionIDLength() {
+	t := ts.T()
+
+	t.Run("non-positive length falls back to default", func(t *testing.T) {
+		got, err := DeriveAuthTransactionID("1234567890", 0)
+		if err != nil {
+			t.Fatalf("DeriveAuthTransactionID() error = %v", err)
+		}
+		if len(got) != defaultAuthTransactionIDLength {
+			t.Fatalf("DeriveAuthTransactionID() len = %d, want %d", len(got), defaultAuthTransactionIDLength)
+		}
+	})
+
+	t.Run("custom positive length is honored", func(t *testing.T) {
+		got, err := DeriveAuthTransactionID("1234567890", 6)
+		if err != nil {
+			t.Fatalf("DeriveAuthTransactionID() error = %v", err)
+		}
+		if want := "098765"; got != want {
+			t.Fatalf("DeriveAuthTransactionID() = %q, want %q", got, want)
+		}
+	})
+}
+
+func (ts *UtilsTestSuite) TestDeriveAuthTransactionIDErrorsOnEmptyInput() {
+	t := ts.T()
+
+	tests := []string{"", "-", "_", "-_-_"}
+	for _, in := range tests {
+		t.Run(in, func(t *testing.T) {
+			if _, err := DeriveAuthTransactionID(in, defaultAuthTransactionIDLength); err == nil {
+				t.Fatalf("DeriveAuthTransactionID(%q) error = nil, want error", in)
+			}
+		})
+	}
+}
+
+func mustDeriveAuthTransactionID(t *testing.T, oidcTransactionID string) string {
+	t.Helper()
+	got, err := DeriveAuthTransactionID(oidcTransactionID, defaultAuthTransactionIDLength)
+	if err != nil {
+		t.Fatalf("DeriveAuthTransactionID(%q) error = %v", oidcTransactionID, err)
+	}
+	return got
 }
 
 func (ts *UtilsTestSuite) TestNormalizeClaimLocales() {

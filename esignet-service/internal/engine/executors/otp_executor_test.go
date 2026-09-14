@@ -177,9 +177,6 @@ func (ts *OtpExecutorTestSuite) TestExecuteSuccessViaUserInputs() {
 	if resp.ForwardedData[maskedMobile] != provider.sendOTPResult.MaskedMobile {
 		t.Errorf("ForwardedData[maskedMobile] = %v, want %v", resp.ForwardedData[maskedMobile], provider.sendOTPResult.MaskedMobile)
 	}
-	if got := ctx.RuntimeData[providerExtendedKeyPrefix+"TransactionID"]; got != "txn-1" {
-		t.Errorf("RuntimeData transaction id = %q, want txn-1", got)
-	}
 	if provider.lastIdentifiers[usernameAttr] != "user1" {
 		t.Errorf("SendOTP identifiers[username] = %v, want user1", provider.lastIdentifiers[usernameAttr])
 	}

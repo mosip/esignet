@@ -63,6 +63,7 @@ func (ts *AppConfigTestSuite) SetupTest() {
 		"MOSIP_ESIGNET_JWT_VALIDITY_PERIOD",
 		"MOSIP_ESIGNET_JWT_LEEWAY",
 		"MOSIP_ESIGNET_DPOP_LEEWAY",
+		"MOSIP_ESIGNET_AUTH_TRANSACTION_ID_LENGTH",
 	} {
 		t.Setenv(key, "")
 	}
@@ -411,6 +412,43 @@ func (ts *AppConfigTestSuite) TestApplyDefaultsJWTValidityAndLeeway() {
 		ts.Require().EqualValues(7200, cfg.JWT.ValidityPeriod)
 		ts.Require().EqualValues(30, cfg.JWT.Leeway)
 		ts.Require().EqualValues(20, cfg.OAuth.DPoP.Leeway)
+	})
+}
+
+func (ts *AppConfigTestSuite) TestApplyDefaultsAuthTransactionIDLength() {
+	t := ts.T()
+	t.Run("defaults when unset", func(_ *testing.T) {
+		cfg := &AppConfig{}
+
+		applyDefaults(cfg)
+
+		ts.Require().EqualValues(defaultAuthTransactionIDLength, cfg.AuthTransactionIDLength)
+	})
+
+	t.Run("yaml value preserved when env var unset", func(_ *testing.T) {
+		cfg := &AppConfig{AuthTransactionIDLength: 16}
+
+		applyDefaults(cfg)
+
+		ts.Require().EqualValues(16, cfg.AuthTransactionIDLength)
+	})
+
+	t.Run("respects env override", func(t *testing.T) {
+		cfg := &AppConfig{AuthTransactionIDLength: 16}
+		t.Setenv("MOSIP_ESIGNET_AUTH_TRANSACTION_ID_LENGTH", "20")
+
+		applyDefaults(cfg)
+
+		ts.Require().EqualValues(20, cfg.AuthTransactionIDLength)
+	})
+
+	t.Run("non-positive env override ignored", func(t *testing.T) {
+		cfg := &AppConfig{AuthTransactionIDLength: 16}
+		t.Setenv("MOSIP_ESIGNET_AUTH_TRANSACTION_ID_LENGTH", "0")
+
+		applyDefaults(cfg)
+
+		ts.Require().EqualValues(16, cfg.AuthTransactionIDLength)
 	})
 }
 

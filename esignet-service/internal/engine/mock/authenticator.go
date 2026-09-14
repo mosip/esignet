@@ -88,7 +88,7 @@ func (p *mockAuthnProvider) Authenticate(ctx context.Context, identifiers, crede
 		return nil, shared.InvalidIndividualIDError
 	}
 
-	transactionID, err := shared.GenerateTransactionID(metadata.RuntimeMetadata)
+	transactionID, err := shared.GenerateTransactionID(metadata.RuntimeMetadata, p.appConfig.AuthTransactionIDLength)
 	if err != nil {
 		return nil, shared.InvalidRequestError
 	}
@@ -201,7 +201,7 @@ func (p *mockAuthnProvider) SendOTP(ctx context.Context, identifiers map[string]
 		return nil, shared.InvalidIndividualIDError
 	}
 
-	transactionID, err := shared.GenerateTransactionID(metadata.RuntimeMetadata)
+	transactionID, err := shared.GenerateTransactionID(metadata.RuntimeMetadata, p.appConfig.AuthTransactionIDLength)
 	if err != nil {
 		return nil, shared.InvalidRequestError
 	}
@@ -353,6 +353,10 @@ func setChallenge(req *KycAuthRequestDto, identifiers, credentials map[string]an
 // payload, matching the format mock-identity-system decodes on the server side. KBI
 // questions are flow-defined, so no particular fields are picked out here.
 func kbiChallenge(credentials map[string]any) (string, bool) {
+	delete(credentials, credentialOtp)
+	delete(credentials, credentialPassword)
+	delete(credentials, credentialPin)
+	delete(credentials, credentialBio)
 	if len(credentials) == 0 {
 		return "", false
 	}

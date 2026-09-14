@@ -128,9 +128,6 @@ func (e *otpExecutor) Execute(ctx *providers.NodeContext) (*providers.ExecutorRe
 		return execResp, fmt.Errorf("failed to send OTP: %s", serviceError.Code)
 	}
 
-	// Set transaction ID in RuntimeData, all the keys prefixed providerExtendedKeyPrefix will be
-	// passed to Authenticate and GetAttribute method of AuthnProvider
-	ctx.RuntimeData[providerExtendedKeyPrefix+"TransactionID"] = result.TransactionID
 	ctx.RuntimeData[otpAttemptCountKey] = strconv.Itoa(attemptCount + 1)
 
 	execResp.ForwardedData[maskedEmail] = result.MaskedEmail
