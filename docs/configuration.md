@@ -74,6 +74,7 @@ Token/OIDC transaction lifetimes:
 | `MOSIP_ESIGNET_OAUTH_AUTH_CODE_LIFETIME_SECONDS` | `oauth.authorization_code.validity_period` | `60` |
 | `MOSIP_ESIGNET_OAUTH_PAR_EXPIRY_SECONDS` | `oauth.par.expires_in` | `3600` |
 | `MOSIP_ESIGNET_DPOP_LEEWAY` | `oauth.dpop.leeway` | `10` |
+| `MOSIP_ESIGNET_AUTH_TRANSACTION_ID_LENGTH` | `auth_transaction_id_length` | `10` — length IDA/mock-identity-system require for a transaction id |
 | — | `oauth.dpop.required` | `false` |
 | — | `oauth.dpop.iat_window` | `60` |
 | — | `oauth.dpop.allowed_algs` | `["ES256","PS256","ES384","ES512","EdDSA","RS256"]` |
