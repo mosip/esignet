@@ -9,6 +9,7 @@ package mock
 import (
 	"context"
 	"database/sql"
+	"encoding/base64"
 	"encoding/json"
 	"io"
 	"net/http"
@@ -23,6 +24,7 @@ import (
 
 	"github.com/mosip/esignet/internal/clientmgmt"
 	"github.com/mosip/esignet/internal/clientmgmt/db"
+	"github.com/mosip/esignet/internal/config"
 	"github.com/mosip/esignet/internal/engine/shared"
 )
 
@@ -80,6 +82,7 @@ func getAttributesMetadataWithClientID(clientID string) *providers.GetAttributes
 func newTestProvider(t *testing.T, kycAuthURL, kycExchangeV3URL, sendOtpURL string) *mockAuthnProvider {
 	t.Helper()
 	return &mockAuthnProvider{
+		appConfig: &config.AppConfig{},
 		client:    &http.Client{Timeout: 5 * time.Second},
 		clientSvc: newTestClientSvc(),
 		cfg: Config{
@@ -645,12 +648,12 @@ func (ts *AuthenticatorTestSuite) TestSetChallenge() {
 		require.False(t, ok)
 	})
 
-	t.Run("empty otp value falls back to kbi since credentials map is non-empty", func(t *testing.T) {
+	t.Run("empty otp value does not fall back to kbi since otp is not a kbi answer", func(t *testing.T) {
 		req := &KycAuthRequestDto{}
 		ok := setChallenge(req, nil, map[string]interface{}{credentialOtp: ""})
-		require.True(t, ok)
+		require.False(t, ok)
 		require.Empty(t, req.Otp)
-		require.NotEmpty(t, req.Kbi)
+		require.Empty(t, req.Kbi)
 	})
 }
 
@@ -666,6 +669,27 @@ func (ts *AuthenticatorTestSuite) TestKbiChallenge() {
 		encoded, ok := kbiChallenge(map[string]interface{}{"fullName": "Jane"})
 		require.True(t, ok)
 		require.NotEmpty(t, encoded)
+	})
+
+	t.Run("credentials with only otp/password/pin/bio fields is not a kbi challenge", func(t *testing.T) {
+		_, ok := kbiChallenge(map[string]interface{}{
+			credentialOtp:      "",
+			credentialPassword: "",
+			credentialPin:      "",
+			credentialBio:      "",
+		})
+		require.False(t, ok)
+	})
+
+	t.Run("otp/password/pin/bio fields are excluded from the encoded kbi payload", func(t *testing.T) {
+		encoded, ok := kbiChallenge(map[string]interface{}{
+			"fullName":    "Jane",
+			credentialOtp: "111111",
+		})
+		require.True(t, ok)
+		decoded, err := base64.RawURLEncoding.DecodeString(encoded)
+		require.NoError(t, err)
+		require.NotContains(t, string(decoded), credentialOtp)
 	})
 }
 

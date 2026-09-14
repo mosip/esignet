@@ -37,6 +37,11 @@ const (
 	defaultDesignCacheTTLSecs    = 86400
 	defaultFlowCacheTTLSecs      = 86400
 
+	// defaultAuthTransactionIDLength is the fixed length MOSIP IDA/mock-identity-system
+	// require for a transaction id, used when neither deployment.yaml nor
+	// MOSIP_ESIGNET_AUTH_TRANSACTION_ID_LENGTH sets one.
+	defaultAuthTransactionIDLength = 10
+
 	defaultMetricsPort = 9090
 
 	defaultHTTPClientTimeoutSecs         = 30
@@ -105,6 +110,7 @@ type AppConfig struct {
 	ClientCacheTTLSecs         int64                            `yaml:"client_cache_ttl_secs"`
 	DesignCacheTTLSecs         int64                            `yaml:"design_cache_ttl_secs"`
 	FlowCacheTTLSecs           int64                            `yaml:"flow_cache_ttl_secs"`
+	AuthTransactionIDLength    int                              `yaml:"auth_transaction_id_length"`
 	CaptchaConfig              CaptchaConfig                    `yaml:"captcha_config"`
 	OutboundIDSystemHTTPClient HTTPClientConfig                 `yaml:"outbound_idsystem_http_client"`
 	OutboundHTTPClient         HTTPClientConfig                 `yaml:"outbound_http_client"`
@@ -408,6 +414,9 @@ func applyDefaults(cfg *AppConfig) {
 	if cfg.FlowCacheTTLSecs <= 0 {
 		cfg.FlowCacheTTLSecs = defaultFlowCacheTTLSecs
 	}
+
+	cfg.AuthTransactionIDLength = envIntOrConfigOrDefault(
+		"MOSIP_ESIGNET_AUTH_TRANSACTION_ID_LENGTH", cfg.AuthTransactionIDLength, defaultAuthTransactionIDLength)
 
 	applyHTTPClientEnvOverrides("OUTBOUND_IDSYSTEM_HTTP_CLIENT", &cfg.OutboundIDSystemHTTPClient)
 	applyHTTPClientDefaults(&cfg.OutboundIDSystemHTTPClient)

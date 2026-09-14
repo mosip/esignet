@@ -170,7 +170,7 @@ func (p *mosipAuthnProvider) Authenticate(ctx context.Context, identifiers, cred
 		return nil, shared.InvalidRequestError
 	}
 
-	transactionID, err := shared.GenerateTransactionID(metadata.RuntimeMetadata)
+	transactionID, err := shared.GenerateTransactionID(metadata.RuntimeMetadata, p.appConfig.AuthTransactionIDLength)
 	if err != nil {
 		return nil, shared.InvalidRequestError
 	}
@@ -396,7 +396,7 @@ func (p *mosipAuthnProvider) SendOTP(ctx context.Context, identifiers map[string
 		return nil, shared.ClientNotFoundError
 	}
 
-	transactionID, err := shared.GenerateTransactionID(metadata.RuntimeMetadata)
+	transactionID, err := shared.GenerateTransactionID(metadata.RuntimeMetadata, p.appConfig.AuthTransactionIDLength)
 	if err != nil {
 		return nil, shared.InvalidRequestError
 	}
