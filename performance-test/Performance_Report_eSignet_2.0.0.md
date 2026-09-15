@@ -292,7 +292,7 @@ All transaction response times remained consistent and stable throughout the 10-
 
 Attached is the resource calculator excel tool.
 
-[resource_calculator_ESignet2.0.0](resource_calculator_ESignet2.0.0.xlsx)
+[resource_calculator_eSignet_2.0.0](resource_calculator_eSignet_2.0.0.xlsx)
 
 ## **Resource level configuration**
 
@@ -379,8 +379,6 @@ Based on the defined scope and the results of this performance test, no major bo
 * eSignet 2.0.0 is recommended for release. The build sustained the target rate of 50 authentications per second for 10 continuous hours in all three test runs, with a 0.0% error rate and no degradation in response time or throughput over the duration.  
 * It has been observed that memory consumption increases with upstream ID Authentication latency. Successful tests have been conducted for 1, 3 and 5 second latency with recommended resources. However, if ID Authentication latency is expected to be greater than 5seconds, the resource calculator needs to be updated with new test data within the “Resource used in Internal Test” section.  
 * The oidc-ui-nginx connection churn observed in oidc-ui at high connection counts is tracked under issue \#2583.The issue remains manageable as long as the resource calculator recommendation for oidc-ui pod count is followed.  
-* The corrected Resource Calculator should be published alongside this release so that client countries size their environments from accurate TPS figures. The defect in the eSignet 1.4.x calculator is recorded in issue \#2584, with a fix planned for eSignet 1.8.1.
-
 .
 
 # **Conclusion**
