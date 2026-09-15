@@ -13,8 +13,8 @@ The **eSignet Resource Calculator** is intended to guide the teams in planning a
 
 > **Legend:**
 > - Blue: Data added by country
-> - Green: Data added by performance team
-> - Orange: Data calculated as per country input
+> - Grey: Data added by performance team
+> - Gold: Data calculated as per country input
 
 ---
 
@@ -24,9 +24,9 @@ The **eSignet Resource Calculator** is intended to guide the teams in planning a
 
 | Assumptions                                                                    | Example Value  |
 |--------------------------------------------------------------------------------|:--------------:|
-| Total Population Having Registered National ID                                 | 4,000,000      |
+| Total Population Having Registered National ID                                 | 105,000,000      |
 | Percentage of Population using National ID for authentication                  | 50%            |
-| Percentage of Population using National ID for authentication during peak hour | 50%  |
+| Percentage of Population using National ID for authentication during peak hour | 2%  |
 
 These values should be customized for your country's context.
 
@@ -36,27 +36,27 @@ These values should be customized for your country's context.
 
 - **Total Population using National ID for authentication:**  
   `Registered Population × % Using for Authentication`  
-  _Example:_ 4,000,000 × 50% = 2,000,000
+  _Example:_ 105,000,000 × 50% = 52,500,000
 
 - **Total Population using National ID for authentication during peak hour:**  
   `Population using for Authentication × % During Peak Hour`  
-  _Example:_ 2,000,000 × 50% = 1,000,000
+  _Example:_ 52,500,000 × 2% = 1,050,000
 
 - **Expected Peak Hour TPS (Transactions Per Second):**  
   `Total Population using National ID for authentication during peak hour/3600`  
-  _Example:_ 1,000,000 / 3600 = 277.77 = 278(approx.)
+  _Example:_ 1,050,000 / 3600 = 291.67 = 292(approx.)
 
 ---
 
-## 4. Total TPS and Resources Used during eSignet Performance execution
-This section is about the performance baselines considerations for 100TPS performance run. 
+## 4. Total TPS and Resources Utilized During eSignet Performance Testing
+This section outlines the performance baseline considerations derived from the 50 TPS performance test. Due to current infrastructure and resource constraints, it was not feasible to execute testing at the projected peak load of 292 TPS. Therefore, resource requirements for peak-load scenarios are estimated through extrapolation based on the results obtained at 50 TPS.
 
-i.e for the current resource calculator it is 106 virtual users and 1 relying party completing 25000 OIDC flows, matching the expected peak hour TPS of 278 with a factor of 3.
+As the testing was conducted only at 50 TPS, the resource requirements for 292 TPS are estimated by applying an approximate scaling factor of 6× to the observed resource consumption.  
 
 ---
 
 ## 5. Computations for the total resources required
-To support a workload of 100 transactions per second (TPS) and accommodate peak hour demands, a comprehensive service-wise resource breakdown is shown in the report.
+To support a workload of 50 transactions per second (TPS) and accommodate peak hour demands, a comprehensive service-wise resource breakdown is shown in the report.
 
 To ensure system reliability and operational readiness, buffer allocations were added to 
 Monitoring, Logging, and Alerts, Kubernetes Infrastructure, System Buffer.
@@ -66,7 +66,7 @@ Combining all components, the total resources required ensuring robust performan
 ---
 
 ## 6. Storage
-The Postgres DB size is computed considering, 1 user per relying party consumes 2.5KB of size to store user consent for total OIDC flows and factor to match peak hour TPS (OIDC flows x 2.5 KB x factor) 
+The Postgres DB size is computed considering, 1 user per relying party consumes 0.6KB of size to store user consent for total OIDC flows and factor to match peak hour TPS (OIDC flows x 0.6 KB x factor) 
 
 Maximum memory recorded in redis cache for total OIDC flows along with 20% buffer is considered for redis cache computations.
 
