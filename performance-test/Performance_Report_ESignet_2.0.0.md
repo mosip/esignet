@@ -335,8 +335,8 @@ The most recent major performance test and report for the Java-based eSignet 1.4
 * The target TPS and corresponding infrastructure requirements (vCPU and RAM) were calculated using the eSignet Resource Calculator.   
 * The calculation was based on field-provided assumptions of  
   * 105 million total population  
-  * 50 million registered users  
-  * 1 million peak-hour users  
+  * 50 million registered users (approx)  
+  * 1 million peak-hour users (approx)
 * **Important Note**: The resource calculator published with eSignet 1.4.x contained a defect where the Performance Run TPS value was incorrectly populated with the RPS value. As a result, the published value was shown as 100, whereas the correct TPS value should have been 14.4. This issue is planned to be fixed in the eSignet 1.8.1 release. The corrected TPS value has already been applied internally when generating the comparison presented above. ([\[BUG\] resource calculator TPS value is mistakenly updated with RPS value · Issue \#2584 · mosip/eSignet](https://github.com/mosip/esignet/issues/2584)). 
 
 ## **Response Time Comparison**
