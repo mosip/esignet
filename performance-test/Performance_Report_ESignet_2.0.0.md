@@ -18,9 +18,7 @@ No major performance degradation or bottlenecks were observed throughout the tes
 
 # **Performance Improvements**
 
-In this release the core authentication engine has been migrated from Java to Go, for better long-term sustainability, performance and efficiency. Go, as a runtime, has been judged to be better suited to the kind of high-throughput, low-latency authentication workloads that a national identity backend needs to sustain. 
-
-The core of the new Go version was based on ‘Thunder’ developed by WSO2. Improvements have been made in caching, connection management. Go configs have also been tuned to match varying possible auth response times.
+In this release the core authentication engine has been migrated from Java to Go, for better long-term sustainability, performance and efficiency. Go, as a runtime, has been judged to be better suited to the kind of high-throughput, low-latency authentication workloads that a national identity backend needs to sustain. Improvements have been made in caching, connection management. Go configs have also been tuned to match varying possible auth response times.
 
 # **Test Environment**
 
@@ -91,7 +89,7 @@ Performance data load was populated before the run to ensure realistic results.
 | Application Name | eSignet (under 5 second mock response delay) |
 | :---- | :---- |
 | **Test Duration** | 7/9/26, 1:56 PM \- 11:56 PM (10-Hours)  |
-| **Number of users** | 802 |
+| **Number of parallel threads** | 802 |
 | **Status** | GREEN |
 
 ### **Test 2**
@@ -99,7 +97,7 @@ Performance data load was populated before the run to ensure realistic results.
 | Application Name | eSignet (under 3 second mock response delay) |
 | :---- | :---- |
 | **Test Duration** | 8/9/26, 10:27 AM – 8:27 PM (10-Hours) |
-| **Number of users** | 516 |
+| **Number of parallel threads** | 516 |
 | **Status** | GREEN |
 
 ### **Test 3**
@@ -107,7 +105,7 @@ Performance data load was populated before the run to ensure realistic results.
 | Application Name | eSignet (under 1 second mock response delay) |
 | :---- | :---- |
 | **Test Duration** | 8/9/26, 9:00 PM \- 9/9/26 7:00 PM (10-Hours) |
-| **Number of users** | 191 |
+| **Number of parallel threads** | 191 |
 | **Status** | GREEN |
 
 ## **Test Reports**
