@@ -2,10 +2,6 @@
 
 The eSignet Performance Testing Report provides a comprehensive analysis of the system’s responsiveness, reliability, and scalability under various operational conditions. It captures key performance metrics such as throughput, resource utilization and memory consumption. This report is designed to help stakeholders understand how eSignet performs in real-world scenarios, identify potential bottlenecks, and guide future optimizations to ensure a seamless and secure authentication experience. 
 
-Read more about eSignet: [eSignet Documentation](https://docs.esignet.io/) 
-
-Further reading for eSignet integration with MOSIP: [MOSIP eSignet | MOSIP Docs 1.2.0](https://docs.mosip.io/1.2.0/interoperability/integrations/e-signet)
-
 # **Summary**
 
 Load tests were conducted to assess the performance and stability of eSignet APIs. The mock-identity-system was used to artificially induce 1,3 and 5 second delay in 3 different tests to check for performance variability under different response times.
