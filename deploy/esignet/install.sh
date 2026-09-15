@@ -216,7 +216,7 @@ function installing_esignet() {
     elif [[ "$plugin_no" == "3" ]]; then
       plugin_name="sunbird"
       read -p "Provide the URL for Sunbird registry: " sunbird_registry_url
-      extra_env_vars_additional+="  \"MOSIP_ESIGNET_AUTHENTICATOR_SUNBIRD_RC_REGISTRY_GET_URL\": \"$sunbird_registry_url\""$'\n'
+      extra_env_vars_additional+="  \"MOSIP_ESIGNET_AUTHENTICATOR_SUNBIRD_RC_REGISTRY_GET_URL\": \"$sunbird_registry_url/api/v1/Insurance/\""$'\n'
       extra_env_vars_additional+="  \"MOSIP_ESIGNET_AUTHENTICATOR_SUNBIRD_RC_AUTH_FACTOR_KBI_REGISTRY_SEARCH_URL\": \"$sunbird_registry_url/api/v1/Insurance/search\""$'\n'
       extra_env_vars_additional+="  \"MOSIP_ESIGNET_AUTHENTICATOR_DEFAULT_AUTH_FACTOR_KBI_INDIVIDUAL_ID_FIELD\": \"\${mosip.esignet.authenticator.sunbird-rc.auth-factor.kbi.individual-id-field}\""$'\n'
       extra_env_vars_additional+="  \"MOSIP_ESIGNET_AUTHENTICATOR_DEFAULT_AUTH_FACTOR_KBI_FIELD_DETAILS\": \"\${mosip.esignet.authenticator.sunbird-rc.auth-factor.kbi.field-details}\""$'\n'
