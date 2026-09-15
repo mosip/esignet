@@ -86,9 +86,7 @@ function installing_esignet() {
   COPY_UTIL=../copy_cm_func.sh
   $COPY_UTIL configmap postgres-config postgres $NS
   $COPY_UTIL configmap redis-config redis $NS
-  $COPY_UTIL configmap keycloak-host keycloak $NS
   $COPY_UTIL secret redis redis $NS
-  $COPY_UTIL secret keycloak-client-secrets keycloak $NS
 
   MOSIP_ESIGNET_HOST_DOMAIN=$(kubectl -n $NS get cm esignet-global -o jsonpath={.data.mosip-esignet-host})
   if [[ -z "$MOSIP_ESIGNET_HOST_DOMAIN" ]]; then
