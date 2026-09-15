@@ -169,14 +169,14 @@ func TestAccessLog_SkipsLoggingForExcludedPaths(t *testing.T) {
 		w.WriteHeader(http.StatusOK)
 	})
 
-	skippedPaths := []string{"/health", "/health/live", "/health/ready", "/metrics"}
+	skippedPaths := []string{"/health", "/health/live", "/health/ready"}
 	for _, path := range skippedPaths {
 		t.Run(path, func(t *testing.T) {
 			h := installAccessCounter(t)
 			before := h.n()
 			rr := httptest.NewRecorder()
 			req := httptest.NewRequest(http.MethodGet, path, nil)
-			CorrelationID(AccessLog(next, WithSkipPrefixes("/health", "/metrics"))).ServeHTTP(rr, req)
+			CorrelationID(AccessLog(next, WithSkipPrefixes("/health"))).ServeHTTP(rr, req)
 			assert.Equal(t, http.StatusOK, rr.Code)
 			assert.Equal(t, 0, h.n()-before, "expected no Access entry for skipped path %s", path)
 		})
@@ -195,7 +195,7 @@ func TestAccessLog_LogsNonSkippedPaths(t *testing.T) {
 			})
 			rr := httptest.NewRecorder()
 			req := httptest.NewRequest(http.MethodGet, path, nil)
-			CorrelationID(AccessLog(next, WithSkipPrefixes("/health", "/metrics"))).ServeHTTP(rr, req)
+			CorrelationID(AccessLog(next, WithSkipPrefixes("/health"))).ServeHTTP(rr, req)
 			assert.Equal(t, http.StatusOK, rr.Code)
 			assert.Equal(t, 1, h.n()-before, "expected one Access entry for non-skipped path %s", path)
 		})
@@ -216,6 +216,23 @@ func TestAccessLog_NoOptionsLogsAllPaths(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, rr.Code)
 	assert.Equal(t, 1, h.n()-before, "expected one Access entry when no skip prefixes are configured")
+}
+
+func TestAccessLog_EmptyPrefixIsIgnored(t *testing.T) {
+	// An empty string passed to WithSkipPrefixes must not suppress all logging —
+	// "" would otherwise match every path via strings.HasPrefix(p, "/").
+	h := installAccessCounter(t)
+	before := h.n()
+	next := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	})
+
+	rr := httptest.NewRecorder()
+	req := httptest.NewRequest(http.MethodGet, "/oauth2/token", nil)
+	CorrelationID(AccessLog(next, WithSkipPrefixes("", "/health"))).ServeHTTP(rr, req)
+
+	assert.Equal(t, http.StatusOK, rr.Code)
+	assert.Equal(t, 1, h.n()-before, "empty prefix must not suppress logging for non-skipped paths")
 }
 
 func TestAccessLog_TrailingSlashInPrefixIsNormalized(t *testing.T) {
