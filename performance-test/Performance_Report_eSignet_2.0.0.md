@@ -216,7 +216,7 @@ All transaction response times remained consistent and stable throughout the 10-
 
 ### **Throughput**  
 
-#### **Test 1!**[][image4]
+#### **Test 1**![][image4]
 
 #### **Test 2**![][image5]
 
