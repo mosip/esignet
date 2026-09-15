@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, act } from "@testing-library/react";
 import { SbiComponent, SbiCustomRenderer } from "../../components";
 import type {
@@ -50,9 +50,20 @@ function makeContext(
   } as unknown as ComponentRenderContext;
 }
 
+const TEST_EXECUTION_ID = "0199183a-8f2e-7abc-def0-123456789abc";
+// Last 10 characters of the hyphen-stripped execution id, in reverse order —
+// matches deriveAuthTransactionId's algorithm in SbiComponent.tsx.
+const EXPECTED_TRANSACTION_ID = "cba9876543";
+
 describe("SbiComponent", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    window.history.pushState({}, "", `/?executionId=${TEST_EXECUTION_ID}`);
+  });
+
+  afterEach(() => {
+    window.history.pushState({}, "", "/");
+    sessionStorage.clear();
   });
 
   it("renders the SBI container div", () => {
@@ -72,10 +83,40 @@ describe("SbiComponent", () => {
     expect(mockInit).toHaveBeenCalledWith(
       expect.objectContaining({
         buttonLabel: "scan_and_verify",
-        transactionId: "transactionId",
+        transactionId: EXPECTED_TRANSACTION_ID,
         langCode: "en",
       }),
     );
+  });
+
+  it("derives the transaction id from sessionStorage when executionId is not in the URL", () => {
+    // Mirrors real usage: @thunderid/react's SignIn flow moves executionId into
+    // sessionStorage and strips it from the URL once the flow has initialized.
+    window.history.pushState({}, "", "/");
+    sessionStorage.setItem("thunderid_execution_id", TEST_EXECUTION_ID);
+
+    render(
+      <SbiComponent component={makeComponent()} context={makeContext()} />,
+    );
+    expect(mockInit).toHaveBeenCalledWith(
+      expect.objectContaining({ transactionId: EXPECTED_TRANSACTION_ID }),
+    );
+  });
+
+  it("throws when no execution id is found in the URL or sessionStorage", () => {
+    window.history.pushState({}, "", "/");
+    const consoleError = vi
+      .spyOn(console, "error")
+      .mockImplementation(() => {});
+
+    expect(() =>
+      render(
+        <SbiComponent component={makeComponent()} context={makeContext()} />,
+      ),
+    ).toThrow(/no execution id found/);
+    expect(mockInit).not.toHaveBeenCalled();
+
+    consoleError.mockRestore();
   });
 
   it("calls propChange with an onCapture callback on mount", () => {
@@ -174,6 +215,11 @@ describe("SbiComponent", () => {
 describe("SbiCustomRenderer", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    window.history.pushState({}, "", `/?executionId=${TEST_EXECUTION_ID}`);
+  });
+
+  afterEach(() => {
+    window.history.pushState({}, "", "/");
   });
 
   it("wraps the SbiComponent component in a sbi-custom-renderer div", () => {

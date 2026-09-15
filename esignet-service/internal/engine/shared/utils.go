@@ -8,17 +8,27 @@ package shared
 
 import (
 	"crypto/rand"
+	"fmt"
 	"strings"
 
 	"golang.org/x/text/language"
 )
 
 const (
-	transactionIDKey = "provider_ext_TransactionID"
+	// TransactionIDKey is the runtime metadata key holding the OIDC transaction id
+	// (the flow's execution id) that GenerateTransactionID derives the IDA transaction
+	// id from.
+	TransactionIDKey = "provider_ext_TransactionID"
 
 	// AllowedAuthorizationScopesKey is the client additional_config key listing the
 	// authorization (non-OIDC) scopes a client is allowed to request.
 	AllowedAuthorizationScopesKey = "allowed_authorization_scopes"
+
+	// defaultAuthTransactionIDLength is the fixed length MOSIP IDA/mock-identity-system
+	// require for a transaction id, used by GenerateTransactionID/DeriveAuthTransactionID
+	// when called with a non-positive transactionIDLength (see
+	// config.AppConfig.AuthTransactionIDLength, the normal source of that argument).
+	defaultAuthTransactionIDLength = 10
 )
 
 // AllowedAuthorizationScopes extracts AllowedAuthorizationScopesKey from a client's decoded
@@ -38,17 +48,18 @@ func AllowedAuthorizationScopes(additionalConfig map[string]any) []string {
 	return scopes
 }
 
-// GenerateTransactionID generates a cryptographically random 10-digit numeric string,
-// reusing any transaction id already established for this runtime context (so
-// SendOTP/AuthenticateUser/GetUserAttributes calls for the same flow execution share
-// one transaction id, as mock-identity-system and MOSIP IDA require).
-func GenerateTransactionID(runtimeMetadata map[string][]string) (string, error) {
-	if ids := runtimeMetadata[transactionIDKey]; len(ids) > 0 {
+// GenerateTransactionID fetches the transaction id from the runtimeMetadata already
+// established for this runtime context (so SendOTP/AuthenticateUser/GetUserAttributes calls
+// for the same flow execution share one transaction id, as mock-identity-system and MOSIP IDA
+// require), falling back to a cryptographically random numeric string of transactionIDLength
+// digits (or defaultAuthTransactionIDLength, if transactionIDLength <= 0) when no OIDC
+// transaction id is available. Callers pass config.AppConfig.AuthTransactionIDLength.
+func GenerateTransactionID(runtimeMetadata map[string][]string, transactionIDLength int) (string, error) {
+	if ids := runtimeMetadata[TransactionIDKey]; len(ids) > 0 && ids[0] != "" {
 		return ids[0], nil
 	}
 
-	const digitCount = 10
-	b := make([]byte, digitCount)
+	b := make([]byte, resolveAuthTransactionIDLength(transactionIDLength))
 	if _, err := rand.Read(b); err != nil {
 		return "", err
 	}
@@ -56,6 +67,43 @@ func GenerateTransactionID(runtimeMetadata map[string][]string) (string, error) 
 		b[i] = '0' + b[i]%10
 	}
 	return string(b), nil
+}
+
+// DeriveAuthTransactionID derives a fixed-length IDA transaction id from an OIDC transaction id
+// (the flow's execution id) by reading its characters from the end, cyclically, until
+// transactionIDLength characters (or defaultAuthTransactionIDLength, if transactionIDLength <=
+// 0) are collected. Callers pass config.AppConfig.AuthTransactionIDLength. This mirrors the
+// legacy esignet-service (Java) derivation so IDA transaction ids stay a stable length
+// regardless of the OIDC transaction id's own length or format (e.g. a UUID). Returns an
+// error if oidcTransactionID is empty once hyphens/underscores are stripped, since there are
+// then no characters left to read from.
+func DeriveAuthTransactionID(oidcTransactionID string, transactionIDLength int) (string, error) {
+	cleaned := strings.NewReplacer("_", "", "-", "").Replace(oidcTransactionID)
+	if cleaned == "" {
+		return "", fmt.Errorf("cannot derive auth transaction id from empty execution id")
+	}
+	length := resolveAuthTransactionIDLength(transactionIDLength)
+	b := []byte(cleaned)
+	out := make([]byte, length)
+	i := len(b) - 1
+	for j := 0; j < length; j++ {
+		out[j] = b[i]
+		i--
+		if i < 0 {
+			i = len(b) - 1
+		}
+	}
+	return string(out), nil
+}
+
+// resolveAuthTransactionIDLength falls back to defaultAuthTransactionIDLength for a
+// non-positive length, since config.AppConfig.AuthTransactionIDLength is normally
+// already defaulted, but callers (tests, other future callers) may pass 0.
+func resolveAuthTransactionIDLength(length int) int {
+	if length <= 0 {
+		return defaultAuthTransactionIDLength
+	}
+	return length
 }
 
 // NormalizeClaimLocales parses a raw claims_locales value (a space-separated list
