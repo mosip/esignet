@@ -30,6 +30,9 @@ public class ConsentPage extends BasePage {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ConsentPage.class);
 
+	/** Last RP callback URL that carried an OAuth {@code code=} for @AuthorizeScopeOnly (TC_06). */
+	private volatile String authorizeScopeOnlyAuthCodeUrl;
+
 	public ConsentPage(WebDriver driver) {
 		super(driver);
 	}
@@ -241,6 +244,7 @@ public class ConsentPage extends BasePage {
 		assertLoginIdFieldPopulatedBeforeGetOtp();
 		logLoginIdStateBeforeGetOtp();
 		solveRecaptchaIfPresent();
+		markOtpRequestStart();
 		clickOnElement(getOtpButton, "Clicked on get otp button");
 		waitForOtpSendOutcome();
 	}
@@ -636,6 +640,138 @@ public class ConsentPage extends BasePage {
 
 	public void clickOnAllowBtnInConsentScreen() {
 		clickOnElement(allowButton, "Clicked on allow button in consent screen");
+	}
+
+	/**
+	 * @AuthorizeScopeOnly uses a hand-built authorize URL (suite PKCE/state), not the RP's own
+	 * OAuth session. eSignet still redirects with {@code code=} after Allow; the Health Portal
+	 * then replaces that with {@code error=session_expired} because it never started the flow.
+	 * Success for TC_06 is observing the auth-code callback, not a stable userprofile page.
+	 */
+	public void clickAllowAndConfirmAuthorizeScopeOnlyAuthCode() {
+		authorizeScopeOnlyAuthCodeUrl = null;
+		AutoCloseable capture = startAuthorizeScopeOnlyAuthCodeCapture();
+		try {
+			clickOnAllowBtnInConsentScreen();
+			long deadline = System.currentTimeMillis() + 30_000L;
+			while (System.currentTimeMillis() < deadline) {
+				String url = driver.getCurrentUrl();
+				if (containsOAuthAuthCode(url)) {
+					authorizeScopeOnlyAuthCodeUrl = url;
+					logAuthorizeScopeOnlyAuthCode(url, "browser URL");
+					return;
+				}
+				if (authorizeScopeOnlyAuthCodeUrl != null) {
+					logAuthorizeScopeOnlyAuthCode(authorizeScopeOnlyAuthCodeUrl, "network capture");
+					return;
+				}
+				if (url != null && url.contains("error=session_expired")) {
+					// RP often swaps code= for session_expired immediately; CDP may have the code URL.
+					if (authorizeScopeOnlyAuthCodeUrl != null) {
+						logAuthorizeScopeOnlyAuthCode(authorizeScopeOnlyAuthCodeUrl,
+								"network capture before session_expired");
+						return;
+					}
+					throw new IllegalStateException(
+							"OAuth session expired before an authorization code was observed on the RP "
+									+ "callback (hand-built @AuthorizeScopeOnly URL). URL: " + url);
+				}
+				try {
+					Thread.sleep(50L);
+				} catch (InterruptedException e) {
+					Thread.currentThread().interrupt();
+					throw new IllegalStateException("Interrupted while waiting for authorize-scope-only auth code", e);
+				}
+			}
+			if (authorizeScopeOnlyAuthCodeUrl != null) {
+				logAuthorizeScopeOnlyAuthCode(authorizeScopeOnlyAuthCodeUrl, "network capture after wait");
+				return;
+			}
+			throw new TimeoutException(
+					"Timed out waiting for authorization code on RP callback after Allow (@AuthorizeScopeOnly). Last URL: "
+							+ driver.getCurrentUrl());
+		} finally {
+			try {
+				capture.close();
+			} catch (Exception e) {
+				LOGGER.warn("Failed to close authorize-scope-only auth-code capture: {}", e.getMessage());
+			}
+		}
+	}
+
+	public boolean wasAuthorizeScopeOnlyAuthCodeDelivered() {
+		if (authorizeScopeOnlyAuthCodeUrl != null) {
+			return true;
+		}
+		return containsOAuthAuthCode(driver.getCurrentUrl());
+	}
+
+	private void logAuthorizeScopeOnlyAuthCode(String url, String source) {
+		String sanitized = url != null && url.contains("?") ? url.substring(0, url.indexOf('?')) + "?code=***" : url;
+		LOGGER.info("Authorize-scope-only auth code delivered via {}: {}", source, sanitized);
+		ExtentReportManager.logStep("TC_06 auth code delivered to RP callback (" + source + ")");
+	}
+
+	private boolean containsOAuthAuthCode(String url) {
+		if (url == null || url.isBlank() || url.contains("error=")) {
+			return false;
+		}
+		String callbackPrefix = expectedAuthorizeScopeOnlyCallbackPrefix();
+		// Require "?..." so prefixes like /userprofile-preview cannot match /userprofile.
+		if (callbackPrefix == null || !url.startsWith(callbackPrefix + "?")) {
+			return false;
+		}
+		try {
+			java.net.URI uri = java.net.URI.create(url);
+			String query = uri.getRawQuery();
+			if (query == null || query.isBlank()) {
+				return false;
+			}
+			for (String pair : query.split("&")) {
+				int eq = pair.indexOf('=');
+				String name = eq >= 0 ? pair.substring(0, eq) : pair;
+				String value = eq >= 0 ? pair.substring(eq + 1) : "";
+				if ("code".equals(name) && !value.isBlank()) {
+					return true;
+				}
+			}
+			return false;
+		} catch (IllegalArgumentException e) {
+			return false;
+		}
+	}
+
+	private String expectedAuthorizeScopeOnlyCallbackPrefix() {
+		String relyingPartyBase = EsignetConfigManager.getproperty("baseurl");
+		if (relyingPartyBase == null || relyingPartyBase.isBlank()) {
+			return null;
+		}
+		return relyingPartyBase.replaceAll("/+$", "") + "/userprofile";
+	}
+
+	private AutoCloseable startAuthorizeScopeOnlyAuthCodeCapture() {
+		if (!(driver instanceof org.openqa.selenium.devtools.HasDevTools hasDevTools)) {
+			return () -> {
+			};
+		}
+		try {
+			org.openqa.selenium.devtools.DevTools devTools = hasDevTools.getDevTools();
+			devTools.createSession();
+			devTools.send(org.openqa.selenium.devtools.v134.network.Network.enable(java.util.Optional.empty(),
+					java.util.Optional.empty(), java.util.Optional.empty()));
+			devTools.addListener(org.openqa.selenium.devtools.v134.network.Network.requestWillBeSent(), request -> {
+				String requestUrl = request.getRequest().getUrl();
+				if (containsOAuthAuthCode(requestUrl)) {
+					authorizeScopeOnlyAuthCodeUrl = requestUrl;
+				}
+			});
+			return () -> {
+			};
+		} catch (RuntimeException e) {
+			LOGGER.warn("CDP auth-code capture unavailable for @AuthorizeScopeOnly: {}", e.getMessage());
+			return () -> {
+			};
+		}
 	}
 
 	public void enterVid(String vid) {

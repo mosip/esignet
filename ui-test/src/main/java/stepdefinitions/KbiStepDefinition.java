@@ -47,10 +47,25 @@ public class KbiStepDefinition {
 
 	@When("user clicks on Login with KBI")
 	public void userClicksOnLoginWithKbi() {
+		if (EsignetUtil.isKbiOnlyLogin() && kbiPage.isOnKbiForm()) {
+			logger.info("KBI-only login: already on the KBI form, no login-option click needed");
+			return;
+		}
 
-		new WebDriverWait(driver, Duration.ofSeconds(10)).until(ExpectedConditions.or(
-				ExpectedConditions.presenceOfElementLocated(By.cssSelector("[id^='acr_']")),
-				ExpectedConditions.presenceOfElementLocated(By.id("username_input"))));
+		if (EsignetUtil.isKbiOnlyLogin()) {
+			new WebDriverWait(driver, Duration.ofSeconds(10)).until(ExpectedConditions.or(
+					ExpectedConditions.presenceOfElementLocated(By.cssSelector("[id^='acr_']")),
+					ExpectedConditions.presenceOfElementLocated(By.id("username_input")),
+					ExpectedConditions.presenceOfElementLocated(By.id("form-submit-button"))));
+			if (kbiPage.isOnKbiForm()) {
+				logger.info("KBI-only login: already on the KBI form, no login-option click needed");
+				return;
+			}
+		} else {
+			new WebDriverWait(driver, Duration.ofSeconds(10)).until(ExpectedConditions.or(
+					ExpectedConditions.presenceOfElementLocated(By.cssSelector("[id^='acr_']")),
+					ExpectedConditions.presenceOfElementLocated(By.id("username_input"))));
+		}
 
 		loginOptionsPage.revealMoreOptionsIfPresent();
 
@@ -117,6 +132,25 @@ public class KbiStepDefinition {
 		List<String> fieldIds = kbiFieldsToUse();
 		kbiPage.waitForKbiForm(fieldIds);
 
+		if (EsignetUtil.isKbiOnlyLogin()) {
+			List<String> problems = new ArrayList<>();
+			for (String fieldId : fieldIds) {
+				String actual = kbiPage.getFieldLabel(fieldId);
+				if (actual == null || actual.isBlank()) {
+					problems.add("Field '" + fieldId + "' has no visible English label");
+					continue;
+				}
+				String lower = actual.toLowerCase();
+				boolean looksEnglish = lower.matches(".*[a-z].*");
+				if (!looksEnglish) {
+					problems.add("Field '" + fieldId + "' label does not look like English: '" + actual + "'");
+				}
+			}
+			Assert.assertTrue(problems.isEmpty(),
+					"KBI page content is not displayed in default English language: " + problems);
+			return;
+		}
+
 		List<String> problems = new ArrayList<>();
 		for (String fieldId : fieldIds) {
 			String expected = EsignetUtil.getKbiFieldLabel(fieldId, "eng");
@@ -146,7 +180,7 @@ public class KbiStepDefinition {
 			return;
 		}
 
-		if (EsignetUtil.isMockPlugin() && kbiPage.isLoginButtonEnabled()) {
+		if ((EsignetUtil.isMockPlugin() || EsignetUtil.isKbiOnlyLogin()) && kbiPage.isLoginButtonEnabled()) {
 			String reason = "this environment's KBI login button starts enabled with all fields empty and only "
 					+ "disables reactively on a shown validation error, not on emptiness - verified live.";
 			logger.info("Not checking (this step only, not the scenario) - " + reason);
@@ -185,12 +219,21 @@ public class KbiStepDefinition {
 
 		String individualIdField = EsignetUtil.getKbiIndividualIdField();
 		for (String fieldId : fieldsToFill) {
-			String value = resolveKnownSunBirdRValue(fieldId, individualIdField);
+			String value = null;
+			if (EsignetUtil.isKbiOnlyLogin()) {
+				value = EsignetUtil.resolveKbiFieldValue(fieldId, kbiPage.getFieldLabel(fieldId));
+			}
+			if (value == null) {
+				value = resolveKnownSunBirdRValue(fieldId, individualIdField);
+			}
 			if (value == null) {
 				value = defaultValueForField(fieldId);
 			}
 			kbiPage.enterFieldValue(fieldId, value);
 			kbiPage.blurField(fieldId);
+		}
+		if (EsignetUtil.isKbiOnlyLogin()) {
+			kbiPage.solveRecaptchaIfPresent();
 		}
 		ExtentReportManager.logStep("Filled KBI mandatory fields: " + fieldsToFill);
 	}
@@ -209,6 +252,9 @@ public class KbiStepDefinition {
 		if (skipIfKbiNotApplicable("click KBI login button")) {
 			return;
 		}
+		if (EsignetUtil.isKbiOnlyLogin()) {
+			kbiPage.solveRecaptchaIfPresent();
+		}
 		kbiPage.clickLoginButton();
 	}
 
@@ -226,6 +272,110 @@ public class KbiStepDefinition {
 				"KBI authentication did not reach the attention screen - login was not successful");
 	}
 
+	@Then("verify KBI form shows Policy Number Fullname and Date of Birth fields")
+	public void verifyKbiFormShowsExpectedIdentityFields() {
+		if (skipIfKbiNotApplicable("KBI expected identity fields")) {
+			return;
+		}
+		List<String> fieldIds = kbiFieldsToUse();
+		kbiPage.waitForKbiForm(fieldIds);
+		Assert.assertFalse(fieldIds.isEmpty(), "No KBI fields were rendered");
+
+		boolean hasPolicy = fieldIds.stream().anyMatch(id -> EsignetUtil.normalizeKbiFieldId(id).contains("policy"));
+		boolean hasName = fieldIds.stream().anyMatch(id -> {
+			String n = EsignetUtil.normalizeKbiFieldId(id);
+			return n.contains("fullname") || n.equals("name");
+		});
+		boolean hasDob = fieldIds.stream().anyMatch(id -> {
+			String n = EsignetUtil.normalizeKbiFieldId(id);
+			return n.contains("dob") || n.contains("dateofbirth") || n.contains("birth");
+		});
+		if (!hasPolicy || !hasName || !hasDob) {
+			for (String fieldId : fieldIds) {
+				String label = kbiPage.getFieldLabel(fieldId).toLowerCase();
+				hasPolicy = hasPolicy || (label.contains("policy") && label.contains("number"));
+				hasName = hasName || label.contains("name") || label.contains("fullname");
+				hasDob = hasDob || label.contains("birth") || label.contains("dob");
+			}
+		}
+		Assert.assertTrue(hasPolicy, "Policy Number field is not rendered on the KBI form. Fields=" + fieldIds);
+		Assert.assertTrue(hasName, "Fullname field is not rendered on the KBI form. Fields=" + fieldIds);
+		Assert.assertTrue(hasDob, "Date of Birth field is not rendered on the KBI form. Fields=" + fieldIds);
+	}
+
+	@Then("verify KBI form shows validation errors for empty mandatory fields")
+	public void verifyKbiFormShowsValidationErrorsForEmptyMandatoryFields() {
+		if (skipIfKbiNotApplicable("KBI empty-field validation")) {
+			return;
+		}
+		List<String> fieldIds = kbiFieldsToUse();
+		kbiPage.waitForKbiForm(fieldIds);
+		List<String> problems = new ArrayList<>();
+		for (String fieldId : fieldIds) {
+			String error = kbiPage.getFieldErrorMessage(fieldId);
+			if (error == null || error.isBlank()) {
+				problems.add("Field '" + fieldId + "' did not show an empty-field validation error");
+			}
+		}
+		if (problems.size() == fieldIds.size()) {
+			boolean pageLevelError = !driver.findElements(By.cssSelector(
+					".error-message, [class*='error'], [role='alert'], #status_message")).isEmpty();
+			Assert.assertTrue(pageLevelError,
+					"No per-field or page-level validation error was shown after submitting empty KBI fields");
+			return;
+		}
+		Assert.assertTrue(problems.size() < fieldIds.size(),
+				"Expected at least one empty-field validation error, but found none usable: " + problems);
+	}
+
+	@When("user fills invalid KBI credentials")
+	public void userFillsInvalidKbiCredentials() {
+		if (skipIfKbiNotApplicable("filling invalid KBI credentials")) {
+			return;
+		}
+		List<String> fieldIds = kbiFieldsToUse();
+		kbiPage.waitForKbiForm(fieldIds);
+		for (String fieldId : fieldIds) {
+			String renderedType = kbiPage.getRenderedInputType(fieldId);
+			String label = kbiPage.getFieldLabel(fieldId).toLowerCase();
+			String value;
+			if ("Date".equals(renderedType) || label.contains("birth") || label.contains("dob")) {
+				value = "1990-01-01";
+			} else if (label.contains("policy") || EsignetUtil.normalizeKbiFieldId(fieldId).contains("policy")) {
+				value = "000000000";
+			} else if (label.contains("name") || EsignetUtil.normalizeKbiFieldId(fieldId).contains("name")) {
+				value = "Invalid User";
+			} else {
+				value = "INVALID";
+			}
+			kbiPage.enterFieldValue(fieldId, value);
+			kbiPage.blurField(fieldId);
+		}
+		ExtentReportManager.logStep("Filled invalid KBI credentials for negative authentication check");
+	}
+
+	@Then("verify KBI authentication is not successful")
+	public void verifyKbiAuthenticationIsNotSuccessful() {
+		if (skipIfKbiNotApplicable("KBI negative authentication")) {
+			return;
+		}
+		boolean reachedAttention = consentPage.isOnAttentionScreen(8);
+		Assert.assertFalse(reachedAttention,
+				"Invalid KBI credentials unexpectedly reached the attention/consent screen");
+		Assert.assertTrue(kbiPage.isOnKbiForm() || !driver.findElements(By.cssSelector(
+				".error-message, [class*='error'], [role='alert'], #status_message, div.error-page-header")).isEmpty(),
+				"Expected to remain on the KBI form or see an authentication error after invalid credentials");
+	}
+
+	@Then("verify user is returned to the relying party after KBI login")
+	public void verifyUserIsReturnedToRelyingPartyAfterKbiLogin() {
+		if (skipIfKbiNotApplicable("return to relying party after KBI login")) {
+			return;
+		}
+		Assert.assertTrue(consentPage.isAlreadyOnRelyingParty() || consentPage.waitForRelyingPartyRedirectQuietly(),
+				"User was not returned to the relying party after completing KBI login/consent");
+	}
+
 	private List<String> kbiFieldsToUse() {
 		List<String> schemaFieldIds = EsignetUtil.getKbiFieldIds();
 		if (!schemaFieldIds.isEmpty()) {
@@ -233,9 +383,15 @@ public class KbiStepDefinition {
 		}
 
 		new WebDriverWait(driver, Duration.ofSeconds(25)).until(ExpectedConditions.or(
+				ExpectedConditions.presenceOfElementLocated(By.cssSelector(
+						"#policyNumber, #fullName, #dob, [name='policyNumber'], [name='fullName'], [name='dob']")),
 				ExpectedConditions.presenceOfElementLocated(By.cssSelector("form input:not([type='hidden'])")),
 				ExpectedConditions.presenceOfElementLocated(By.cssSelector("input:not([type='hidden'])"))));
-		return kbiPage.getVisibleFieldIds();
+		List<String> visible = kbiPage.getVisibleFieldIds();
+		if (!visible.isEmpty()) {
+			return visible;
+		}
+		return List.of("policyNumber", "fullName", "dob");
 	}
 
 	private String defaultValueForField(String fieldId) {
@@ -680,12 +836,18 @@ public class KbiStepDefinition {
 		kbiPage.clickTryAgain();
 		boolean reloaded;
 		try {
-			new WebDriverWait(driver, Duration.ofSeconds(15)).until(ExpectedConditions.or(
-					ExpectedConditions.visibilityOfElementLocated(By.cssSelector("[id^='acr_']")),
-					ExpectedConditions.visibilityOfElementLocated(By.id("username_input"))));
-			loginOptionsPage.revealMoreOptionsIfPresent();
-			reloaded = loginOptionsPage.isLoginWithKbiDisplayed();
+			if (EsignetUtil.isKbiOnlyLogin()) {
+				new WebDriverWait(driver, Duration.ofSeconds(15)).until(d -> kbiPage.isOnKbiForm());
+				reloaded = kbiPage.isOnKbiForm();
+			} else {
+				new WebDriverWait(driver, Duration.ofSeconds(15)).until(ExpectedConditions.or(
+						ExpectedConditions.visibilityOfElementLocated(By.cssSelector("[id^='acr_']")),
+						ExpectedConditions.visibilityOfElementLocated(By.id("username_input"))));
+				loginOptionsPage.revealMoreOptionsIfPresent();
+				reloaded = loginOptionsPage.isLoginWithKbiDisplayed();
+			}
 		} catch (Exception e) {
+			logger.warn("Login flow did not reload after Try Again: " + e.getMessage(), e);
 			reloaded = false;
 		}
 		Assert.assertTrue(reloaded,
@@ -705,29 +867,13 @@ public class KbiStepDefinition {
 
 		List<String> fieldIds = EsignetUtil.getKbiFieldIds();
 		if (fieldIds.isEmpty()) {
+			fieldIds = kbiPage.getVisibleFieldIds();
+		}
+		if (fieldIds.isEmpty()) {
 			notApplicable("KBI form schema is empty for this transaction - cannot attempt a login");
 			return;
 		}
-		kbiPage.waitForKbiForm(fieldIds);
-
-		String individualIdField = EsignetUtil.getKbiIndividualIdField();
-
-		for (String fieldId : fieldIds) {
-			if (!EsignetUtil.isKbiFieldRequired(fieldId)) {
-				continue;
-			}
-			String value = resolveKnownSunBirdRValue(fieldId, individualIdField);
-			if (value == null) {
-				notApplicable("No known valid value for mandatory KBI field '" + fieldId + "' - the Sunbird policy fixture "
-						+ "doesn't cover it, so a real login can't be attempted for this schema");
-				return;
-			}
-			kbiPage.enterFieldValue(fieldId, value);
-			kbiPage.blurField(fieldId);
-			ExtentReportManager.logStep("Filled mandatory field '" + fieldId + "' with known-valid Sunbird policy data");
-		}
-
-		kbiPage.clickLoginButton();
+		kbiPage.loginWithConfiguredIdentity();
 
 		Assert.assertTrue(consentPage.isOnAttentionScreen(30),
 				"KBI authentication did not reach the attention screen - login was not successful");

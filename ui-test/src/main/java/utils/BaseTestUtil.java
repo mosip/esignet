@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -178,21 +179,24 @@ public class BaseTestUtil {
 
 		switch (browser) {
 		case "chrome":
-			if (System.getProperty("os.name").equalsIgnoreCase("Linux")
-					&& "yes".equalsIgnoreCase(EsignetConfigManager.getDocker())) {
-				String chromedriverPath = EsignetConfigManager.getProperty("chromeDriverPath", "/usr/bin/chromedriver");
-
-				File driverFile = new File(chromedriverPath);
-
-				if (!driverFile.exists() || !driverFile.canExecute()) {
-					throw new RuntimeException("Invalid ChromeDriver path configured: " + chromedriverPath
-							+ ". Ensure ChromeDriver exists and is executable.");
-				}
-
-				System.setProperty("webdriver.chrome.driver", chromedriverPath);
-
+			// Testriq images are Alpine (musl). WebDriverManager downloads the glibc
+			// chrome-for-testing binary, which fails with:
+			//   SessionNotCreatedException ... caused by Exec failed, error: 2
+			// Use the image's /usr/bin/chromedriver whenever it exists on Linux.
+			String systemChromeDriver = firstExistingPath(
+					EsignetConfigManager.getProperty("chromeDriverPath", ""),
+					System.getenv("CHROMEDRIVER_PATH"), "/usr/bin/chromedriver",
+					"/usr/lib/chromium/chromedriver", "/usr/lib/chromium-browser/chromedriver");
+			boolean linuxHost = System.getProperty("os.name", "").toLowerCase().contains("linux");
+			boolean dockerRuntime = EsignetConfigManager.isDockerRuntime();
+			// Prefer image chromedriver only in Docker (Alpine/musl). Local Linux uses WDM.
+			if (linuxHost && dockerRuntime && systemChromeDriver != null) {
+				System.setProperty("webdriver.chrome.driver", systemChromeDriver);
+				LOGGER.info("Using system ChromeDriver: " + systemChromeDriver);
 			} else {
 				WebDriverManager.chromedriver().setup();
+				LOGGER.info("Using WebDriverManager ChromeDriver: "
+						+ System.getProperty("webdriver.chrome.driver"));
 			}
 
 			ChromeOptions chromeOptions = new ChromeOptions();
@@ -202,7 +206,8 @@ public class BaseTestUtil {
 
 			String chromeBinary = firstExistingPath(EsignetConfigManager.getProperty("chromeBinaryPath", ""),
 					System.getenv("CHROME_BIN"), "/usr/bin/google-chrome", "/usr/bin/google-chrome-stable",
-					"/usr/bin/chromium", "/usr/bin/chromium-browser");
+					"/opt/google/chrome/chrome", "/usr/bin/chromium", "/usr/bin/chromium-browser",
+					"/usr/lib/chromium/chrome");
 			if (chromeBinary != null) {
 				chromeOptions.setBinary(chromeBinary);
 				LOGGER.info("Using Chrome binary: " + chromeBinary);
@@ -230,20 +235,35 @@ public class BaseTestUtil {
 				chromeOptions.setExperimentalOption("mobileEmulation", buildMobileEmulationSettings(deviceName));
 			}
 
-			if (isHeadless) {
-				LOGGER.info("Running in headless mode");
-				chromeOptions.addArguments("--headless=new");
-				chromeOptions.addArguments("--disable-gpu");
-				chromeOptions.addArguments("--window-size=1920x1080");
-			}
-
+			// Required in Docker/K8s (non-root UID 1001, no user namespace for Chrome sandbox).
+			// Do not remove for container runs; local non-Docker can still use these safely.
 			chromeOptions.addArguments("--no-sandbox");
 			chromeOptions.addArguments("--disable-dev-shm-usage");
-
-			chromeOptions.addArguments("--remote-debugging-port=0");
+			chromeOptions.addArguments("--disable-gpu");
+			chromeOptions.addArguments("--disable-setuid-sandbox");
+			chromeOptions.addArguments("--remote-allow-origins=*");
+			if (isHeadless) {
+				LOGGER.info("Running in headless mode");
+				boolean chromium = chromeBinary != null && chromeBinary.toLowerCase().contains("chromium");
+				chromeOptions.addArguments(chromium ? "--headless" : "--headless=new");
+				chromeOptions.addArguments("--window-size=1920,1080");
+			}
 
 			LOGGER.info("Chrome args: " + chromeOptions);
-			driver = new ChromeDriver(chromeOptions);
+			try {
+				driver = new ChromeDriver(chromeOptions);
+			} catch (Exception e) {
+				String currentDriver = System.getProperty("webdriver.chrome.driver");
+				if (dockerRuntime && systemChromeDriver != null
+						&& !systemChromeDriver.equals(currentDriver)) {
+					LOGGER.warning("ChromeDriver session failed with " + currentDriver + " (" + e.getMessage()
+							+ "); retrying with system ChromeDriver " + systemChromeDriver);
+					System.setProperty("webdriver.chrome.driver", systemChromeDriver);
+					driver = new ChromeDriver(chromeOptions);
+				} else {
+					throw e;
+				}
+			}
 			break;
 
 		case "firefox":
@@ -438,11 +458,46 @@ public class BaseTestUtil {
 				continue;
 			}
 			File file = new File(candidate);
-			if (file.isFile() && file.canExecute()) {
+			if (isUsableExecutable(file)) {
 				return file.getAbsolutePath();
 			}
 		}
 		return null;
+	}
+
+	private static boolean isUsableExecutable(File file) {
+		if (file == null || !file.exists() || !file.canExecute()) {
+			return false;
+		}
+		try {
+			if (file.getCanonicalPath().contains("/snap/")) {
+				LOGGER.warning("Skipping snap-wrapped browser binary: " + file);
+				return false;
+			}
+		} catch (IOException e) {
+			LOGGER.warning("Rejecting browser binary; canonical path inspection failed for " + file + ": "
+					+ e.getMessage());
+			return false;
+		}
+		if (file.isFile() && looksLikeSnapStub(file)) {
+			LOGGER.warning("Skipping snap stub browser binary: " + file);
+			return false;
+		}
+		return file.isFile() || (file.exists() && !file.isDirectory());
+	}
+
+	private static boolean looksLikeSnapStub(File file) {
+		try {
+			if (file.length() > 4096) {
+				return false;
+			}
+			String text = Files.readString(file.toPath());
+			return text.contains("/snap/") || text.contains("snap run");
+		} catch (Exception e) {
+			LOGGER.warning("Rejecting browser binary; snap-stub inspection failed for " + file + ": "
+					+ e.getMessage());
+			return true;
+		}
 	}
 
 }

@@ -8,7 +8,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.security.KeyStore;
+import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Enumeration;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Logger;
@@ -36,6 +40,10 @@ public final class MockMdsManager {
 	}
 
 	public static boolean isEnabled() {
+		String fromSys = System.getProperty("useMockMds");
+		if (fromSys != null && !fromSys.isBlank()) {
+			return Boolean.parseBoolean(fromSys.trim());
+		}
 		String value = EsignetConfigManager.getproperty("useMockMds");
 		return value != null && Boolean.parseBoolean(value.trim());
 	}
@@ -57,7 +65,17 @@ public final class MockMdsManager {
 			throw new IllegalStateException("useMockMds must be true to start Mock MDS for biometric scan");
 		}
 
+		if (running && verifyDeviceDiscoveryOnLocalhost()) {
+			LOGGER.info("Reusing Mock MDS already running on port " + activePort);
+			return;
+		}
+
 		stopAll();
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+		}
 		resetMockSbiPropertyCache();
 		startForAuth(true);
 	}
@@ -263,6 +281,8 @@ public final class MockMdsManager {
 	private static void ensureMockMdsRuntimeLayout() {
 		ensureApplicationPropertiesAvailable();
 		ensureDevicePartnerP12AtWorkingDirectory();
+		alignMockSbiKeyAliasWithWorkingDirectoryP12();
+		ensureIdaEncryptionCertificatesAvailable();
 		ensureBiometricDevicesDirectoryAvailable();
 		try {
 			ensureAuthProfileFromBioValues();
@@ -289,18 +309,116 @@ public final class MockMdsManager {
 		}
 	}
 
-	private static void ensureDevicePartnerP12AtWorkingDirectory() {
+	/**
+	 * Mock partner p12 uses alias {@code keyalias}; mosipid p12 uses {@code device}.
+	 * Docker/IDE bake one application.properties, so rewrite aliases to match the p12
+	 * actually copied into the working directory.
+	 */
+	private static void alignMockSbiKeyAliasWithWorkingDirectoryP12() {
+		Path propsPath = Paths.get(System.getProperty("user.dir"), "application.properties");
 		Path cwdP12 = Paths.get(System.getProperty("user.dir"), "device-dsk-partner.p12");
-		if (Files.isRegularFile(cwdP12)) {
+		if (!Files.isRegularFile(propsPath) || !Files.isRegularFile(cwdP12)) {
 			return;
 		}
+		try {
+			String storePassword = readKeystorePassword(propsPath);
+			String alias = readFirstKeystoreAlias(cwdP12, storePassword);
+			if (alias == null || alias.isBlank()) {
+				alias = "mosipid".equalsIgnoreCase(EsignetUtil.getPluginName()) ? "device" : "keyalias";
+			}
+			String original = Files.readString(propsPath, StandardCharsets.UTF_8);
+			String updated = original.replaceAll(
+					"(?m)^(mosip\\.mock\\.sbi\\.file\\.[^=]*\\.keyalias(?:\\.ftm)?=).*",
+					"$1" + alias);
+			if (!updated.equals(original)) {
+				Files.writeString(propsPath, updated, StandardCharsets.UTF_8);
+				LOGGER.info("Aligned Mock SBI keyalias=" + alias + " with " + cwdP12.getFileName());
+			}
+		} catch (Exception e) {
+			LOGGER.warning("Could not align Mock SBI keyalias with working-directory p12: " + e.getMessage());
+		}
+	}
+
+	private static String readKeystorePassword(Path propsPath) throws IOException {
+		Properties props = new Properties();
+		try (InputStream in = Files.newInputStream(propsPath)) {
+			props.load(in);
+		}
+		String password = props.getProperty("mosip.mock.sbi.file.face.keys.keystorepwd");
+		if (password == null || password.isBlank()) {
+			password = "qwerty@123";
+		}
+		return password;
+	}
+
+	private static String readFirstKeystoreAlias(Path p12, String storePassword) {
+		try (InputStream in = Files.newInputStream(p12)) {
+			KeyStore keyStore = KeyStore.getInstance("PKCS12");
+			keyStore.load(in, storePassword.toCharArray());
+			Enumeration<String> aliases = keyStore.aliases();
+			if (aliases.hasMoreElements()) {
+				return aliases.nextElement();
+			}
+		} catch (Exception e) {
+			LOGGER.warning("Could not read alias from " + p12 + ": " + e.getMessage());
+		}
+		return null;
+	}
+
+	private static void ensureIdaEncryptionCertificatesAvailable() {
+		Path source = findBundledIdaFirCertificate();
+		if (source == null) {
+			LOGGER.warning("No bundled IDA FIR certificate found to seed Biometric Devices/*/Keys");
+			return;
+		}
+		String[] relativeTargets = {
+				"Biometric Devices/Face/Keys/mosip-ida.cer",
+				"Biometric Devices/Finger/Slap/Keys/mosip-ida.cer",
+				"Biometric Devices/Finger/Single/Keys/mosip-ida.cer",
+				"Biometric Devices/Iris/Double/Keys/mosip-ida.cer",
+				"Biometric Devices/Iris/Single/Keys/mosip-ida.cer"
+		};
+		Path cwd = Paths.get(System.getProperty("user.dir"));
+		for (String relative : relativeTargets) {
+			Path target = cwd.resolve(relative);
+			try {
+				Files.createDirectories(target.getParent());
+				if (!Files.isRegularFile(target)) {
+					Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
+					LOGGER.info("Seeded IDA encryption cert at " + target);
+				}
+			} catch (IOException e) {
+				LOGGER.warning("Could not seed IDA encryption cert at " + target + ": " + e.getMessage());
+			}
+		}
+	}
+
+	private static Path findBundledIdaFirCertificate() {
+		String[] candidates = {
+				"certs/ida-fir-released.cer",
+				"../certs/ida-fir-released.cer",
+				"Biometric Devices/Finger/Slap/Keys/mosip-ida.cer",
+				"../Biometric Devices/Finger/Slap/Keys/mosip-ida.cer"
+		};
+		Path cwd = Paths.get(System.getProperty("user.dir"));
+		for (String candidate : candidates) {
+			Path path = cwd.resolve(candidate).normalize();
+			if (Files.isRegularFile(path)) {
+				return path;
+			}
+		}
+		return null;
+	}
+
+	private static void ensureDevicePartnerP12AtWorkingDirectory() {
+		Path cwdP12 = Paths.get(System.getProperty("user.dir"), "device-dsk-partner.p12");
 		Path bundled = findBundledDevicePartnerP12();
 		if (bundled == null) {
 			return;
 		}
 		try {
 			Files.copy(bundled, cwdP12, StandardCopyOption.REPLACE_EXISTING);
-			LOGGER.info("Copied device-dsk-partner.p12 to " + cwdP12);
+			LOGGER.info("Copied " + bundled.getFileName() + " to " + cwdP12);
 		} catch (IOException e) {
 			LOGGER.warning("Could not copy device-dsk-partner.p12 to working directory: " + e.getMessage());
 		}
@@ -413,17 +531,25 @@ public final class MockMdsManager {
 		}
 	}
 
+	private static String bundledDevicePartnerP12Name() {
+		return "device-dsk-partner.p12";
+	}
+
 	private static Path findBundledDevicePartnerP12() {
-		String[] relativePaths = {
-				"certs/device-dsk-partner.p12",
-				"../certs/device-dsk-partner.p12",
-				"device-dsk-partner.p12"
-		};
+		List<String> fileNames = new ArrayList<>();
+		if ("mosipid".equalsIgnoreCase(EsignetUtil.getPluginName())) {
+			// Prefer mosipid-trusted keystore (bundled for Rancher/Docker mosipid runs).
+			fileNames.add("device-dsk-partner-mosipid.p12");
+		}
+		fileNames.add("device-dsk-partner.p12");
+		String[] relativeDirs = { "certs/", "../certs/", "" };
 		Path cwd = Paths.get(System.getProperty("user.dir"));
-		for (String relative : relativePaths) {
-			Path candidate = cwd.resolve(relative).normalize();
-			if (Files.isRegularFile(candidate)) {
-				return candidate;
+		for (String fileName : fileNames) {
+			for (String relativeDir : relativeDirs) {
+				Path candidate = cwd.resolve(relativeDir + fileName).normalize();
+				if (Files.isRegularFile(candidate)) {
+					return candidate;
+				}
 			}
 		}
 		return null;
@@ -464,7 +590,8 @@ public final class MockMdsManager {
 			projectP12 = Paths.get(System.getProperty("user.dir"), "device-dsk-partner.p12");
 		}
 		if (!Files.isRegularFile(projectP12)) {
-			LOGGER.warning("device-dsk-partner.p12 not found under ui-test/certs or " + System.getProperty("user.dir"));
+			LOGGER.warning(bundledDevicePartnerP12Name() + " not found under ui-test/certs or "
+					+ System.getProperty("user.dir"));
 			return;
 		}
 		try {
@@ -472,10 +599,8 @@ public final class MockMdsManager {
 			Path targetDir = Paths.get(keysDir);
 			Files.createDirectories(targetDir);
 			Path targetP12 = targetDir.resolve("device-dsk-partner.p12");
-			if (!Files.isRegularFile(targetP12)) {
-				Files.copy(projectP12, targetP12, StandardCopyOption.REPLACE_EXISTING);
-				LOGGER.info("Copied device-dsk-partner.p12 to " + targetP12);
-			}
+			Files.copy(projectP12, targetP12, StandardCopyOption.REPLACE_EXISTING);
+			LOGGER.info("Copied " + projectP12.getFileName() + " to " + targetP12);
 		} catch (Exception e) {
 			LOGGER.warning("Could not copy device-dsk-partner.p12 to AUTHCERTS: " + e.getMessage());
 		}

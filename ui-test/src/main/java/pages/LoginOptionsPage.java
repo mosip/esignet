@@ -968,6 +968,7 @@ public class LoginOptionsPage extends BasePage {
 	public void clickOnPasswordLoginButton() {
 		syncPasswordLoginFieldsBeforeSubmit();
 		solveRecaptchaIfPresent();
+		markOtpRequestStart();
 		clickOnElement(findPasswordLoginButton(), "Clicked on password login button");
 		try {
 			waitForPasswordAuthenticationOutcome();
@@ -1607,8 +1608,20 @@ public class LoginOptionsPage extends BasePage {
 		if (continueButton == null) {
 			throw new TimeoutException("Continue button not found on biometric login ID screen");
 		}
+		if (!MockMdsManager.isRunning()) {
+			clearBrowserSbiDeviceCache();
+		}
 		clickOnElement(continueButton, "Clicked Continue on biometric login ID screen");
 		waitForBiometricWidgetAfterIdEntry();
+		if (!MockMdsManager.isRunning()
+				&& isBiometricIntegrationContainerVisibleNow()
+				&& !hasSbiWidgetContent()
+				&& !isScanningDevicesMessageVisible()
+				&& !isDeviceNotFoundMessageVisible()
+				&& !isBiometricDeviceDiscovered()) {
+			triggerBrowserSbiDiscovery();
+			waitForBiometricWidgetAfterIdEntry();
+		}
 	}
 
 	private WebElement findBiometricLoginIdContinueButton() {
@@ -1639,9 +1652,23 @@ public class LoginOptionsPage extends BasePage {
 					.until(webDriver -> isScanningDevicesMessageVisible()
 							|| isDeviceNotFoundMessageVisible()
 							|| isBiometricDeviceDiscovered()
-							|| isBiometricIntegrationContainerVisibleNow());
+							|| hasSbiWidgetContent());
 		} catch (TimeoutException ignored) {
 
+		}
+	}
+
+	private boolean hasSbiWidgetContent() {
+		try {
+			Object result = ((JavascriptExecutor) driver).executeScript(
+					"const root = document.querySelector('#secure-biometric-interface-integration');"
+							+ "if (!root) { return false; }"
+							+ "return !!(root.querySelector('.sbd-exosekeleton, .sbd-animate-spin, [role=\"status\"],"
+							+ " div[role=\"alert\"], .sbd-dropdown__container, .sbd-dropdown_container,"
+							+ " button, select, input'));");
+			return Boolean.TRUE.equals(result);
+		} catch (org.openqa.selenium.WebDriverException e) {
+			return false;
 		}
 	}
 
@@ -1760,9 +1787,33 @@ public class LoginOptionsPage extends BasePage {
 	}
 
 	private boolean isScanningDevicesMessageVisible() {
+		if (isSbiScanningInProgress()) {
+			return true;
+		}
 		return isLocalizedTextVisibleWithinBiometricContainer(SCANNING_DEVICES_MSG_KEY)
 				|| isTextVisibleWithinBiometricContainer("scanning devices")
+				|| getSbiVisibleText().contains("scanning devices")
 				|| getVisiblePageText().contains("scanning devices");
+	}
+
+	private boolean isSbiScanningInProgress() {
+		try {
+			Object result = ((JavascriptExecutor) driver).executeScript(
+					"const root = document.querySelector('#secure-biometric-interface-integration');"
+							+ "if (!root) { return false; }"
+							+ "if (root.querySelector('.sbd-animate-spin, [role=\"status\"]')) { return true; }"
+							+ "const text = (root.innerText || root.textContent || '').toLowerCase();"
+							+ "if (text.includes('scanning devices') || text.includes('please wait')) { return true; }"
+							+ "const buttons = Array.from(root.querySelectorAll('button, a, [role=\"button\"]'));"
+							+ "return buttons.some((el) => {"
+							+ "  const label = ((el.innerText || el.textContent || '') + ' '"
+							+ "    + (el.getAttribute('aria-label') || '')).toLowerCase();"
+							+ "  return label.includes('cancel') && !label.includes('scan and verify');"
+							+ "});");
+			return Boolean.TRUE.equals(result);
+		} catch (org.openqa.selenium.WebDriverException e) {
+			return false;
+		}
 	}
 
 	public boolean isScanningDevicesMessageDisplayed() {
@@ -1801,6 +1852,7 @@ public class LoginOptionsPage extends BasePage {
 
 	private static final By ICON_RETRY_BUTTON_SELECTOR = By.cssSelector(
 			"#secure-biometric-interface-integration button[type='button'].sbd-cursor-pointer.sbd-ml-1, "
+					+ "#secure-biometric-interface-integration div.sbd-dropdown__container + button[type='button'], "
 					+ "#secure-biometric-interface-integration div.sbd-dropdown_container + button[type='button'], "
 					+ "#secure-biometric-interface-integration div.sbd-flex button[type='button'].sbd-cursor-pointer");
 
@@ -2029,7 +2081,7 @@ public class LoginOptionsPage extends BasePage {
 							+ "    element.click(); return true;"
 							+ "  }"
 							+ "}"
-							+ "const dropdown = root.querySelector('.sbd-dropdown_container, [class*=\"dropdown\"]');"
+							+ "const dropdown = root.querySelector('.sbd-dropdown__container, .sbd-dropdown_container, [class*=\"dropdown\"]');"
 							+ "if (dropdown && dropdown.nextElementSibling && dropdown.nextElementSibling.tagName === 'BUTTON') {"
 							+ "  dropdown.nextElementSibling.click(); return true;"
 							+ "}"
@@ -2609,12 +2661,48 @@ public class LoginOptionsPage extends BasePage {
 
 		}
 
+		if (isDeviceNotFoundUiState()) {
+			return true;
+		}
+
 		String expectedMessage = ResourceBundleLoader.get("errors.no_devices_found_msg");
 		if (!expectedMessage.startsWith("!!MISSING_KEY:")
 				&& combined.contains(normalizeMessage(expectedMessage))) {
 			return true;
 		}
 		return false;
+	}
+
+	private boolean isDeviceNotFoundUiState() {
+		if (MockMdsManager.isRunning() || isSbiScanningInProgress() || hasDiscoveredBiometricDevice()) {
+			return false;
+		}
+		try {
+			Object result = ((JavascriptExecutor) driver).executeScript(
+					"const root = document.querySelector('#secure-biometric-interface-integration');"
+							+ "if (!root) { return false; }"
+							+ "const text = (root.innerText || root.textContent || '').toLowerCase();"
+							+ "if (text.includes('device not found') || text.includes('no devices found')"
+							+ "    || text.includes('no device found') || text.includes('no options')"
+							+ "    || (text.includes('connectivity') && text.includes('retry'))) { return true; }"
+							+ "const alert = root.querySelector(\"div[role='alert']\");"
+							+ "if (alert) {"
+							+ "  const alertText = (alert.innerText || alert.textContent || '').toLowerCase();"
+							+ "  if (alertText.includes('device') || alertText.includes('connectivity')"
+							+ "      || alertText.includes('retry') || alertText.includes('not found')) { return true; }"
+							+ "}"
+							+ "const retry = Array.from(root.querySelectorAll('button, a, [role=\"button\"], span'))"
+							+ ".some((el) => {"
+							+ "  const label = ((el.innerText || el.textContent || '') + ' '"
+							+ "    + (el.getAttribute('aria-label') || el.getAttribute('title') || '')).toLowerCase();"
+							+ "  return label.includes('retry') || label.includes('try again') || label.includes('refresh');"
+							+ "});"
+							+ "const dropdown = root.querySelector('.sbd-dropdown__container, .sbd-dropdown_container');"
+							+ "return !!(retry && dropdown);");
+			return Boolean.TRUE.equals(result);
+		} catch (org.openqa.selenium.WebDriverException e) {
+			return false;
+		}
 	}
 
 	private boolean containsDeviceNotFoundCopy(String text) {
@@ -2634,6 +2722,11 @@ public class LoginOptionsPage extends BasePage {
 
 	private String getVisiblePageText() {
 		try {
+			Object text = ((JavascriptExecutor) driver).executeScript(
+					"return (document.body && (document.body.innerText || document.body.textContent)) || '';");
+			if (text != null && !text.toString().isBlank()) {
+				return normalizeMessage(text.toString());
+			}
 			return normalizeMessage(safeGetText(driver.findElement(By.tagName("body"))));
 		} catch (Exception e) {
 			return "";
@@ -2649,17 +2742,25 @@ public class LoginOptionsPage extends BasePage {
 
 	private String getBiometricContainerText() {
 		try {
-			List<WebElement> containers = driver.findElements(By.id("secure-biometric-interface-integration"));
-			if (containers.isEmpty()) {
+			Object text = ((JavascriptExecutor) driver).executeScript(
+					"const root = document.querySelector('#secure-biometric-interface-integration');"
+							+ "if (!root) { return ''; }"
+							+ "return (root.innerText || root.textContent || '');");
+			return normalizeMessage(text == null ? "" : text.toString());
+		} catch (org.openqa.selenium.WebDriverException e) {
+			try {
+				List<WebElement> containers = driver.findElements(By.id("secure-biometric-interface-integration"));
+				if (containers.isEmpty()) {
+					return "";
+				}
+				WebElement container = containers.get(0);
+				if (!container.isDisplayed()) {
+					return "";
+				}
+				return normalizeMessage(safeGetText(container));
+			} catch (StaleElementReferenceException ignored) {
 				return "";
 			}
-			WebElement container = containers.get(0);
-			if (!container.isDisplayed()) {
-				return "";
-			}
-			return normalizeMessage(safeGetText(container));
-		} catch (StaleElementReferenceException e) {
-			return "";
 		}
 	}
 

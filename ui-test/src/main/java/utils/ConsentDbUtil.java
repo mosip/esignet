@@ -5,18 +5,20 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.testng.SkipException;
-
-import io.mosip.testrig.apirig.utils.ConfigManager;
 
 public final class ConsentDbUtil {
 
 	private static final Logger logger = Logger.getLogger(ConsentDbUtil.class);
-	private static final String DEFAULT_DB_NAME = "mosip_esignet";
 	private static final String DEFAULT_SCHEMA = "esignet";
 	private static final String DEFAULT_PORT = "5432";
 
@@ -31,8 +33,8 @@ public final class ConsentDbUtil {
 
 	public static void requireDbConfigured() {
 		if (!isDbConfigured()) {
-			String reason = "Consent DB verification skipped - configure esignetDbUrl/esignetDbPassword "
-					+ "(or database-host/database-name/database-username + postgres-password) in config.properties";
+			String reason = "Consent DB verification skipped - configure esignetDbHost, esignetDbName and "
+					+ "esignetDbPassword in config.properties";
 			ExtentReportManager.logStep("⚠️ " + reason);
 			throw new SkipException(reason);
 		}
@@ -85,18 +87,93 @@ public final class ConsentDbUtil {
 	}
 
 	public static void assertAcceptedClaimsEmpty(String clientIdKey) {
+		requireDbConfigured();
 		String clientId = EsignetUtil.resolveClientId(clientIdKey);
 		ConsentRecord record = findLatestByClientId(clientId)
 				.orElseThrow(() -> new AssertionError("No consent_detail row found for clientId=" + clientId));
-
-		String acceptedClaims = record.acceptedClaims();
-		if (acceptedClaims == null || acceptedClaims.isBlank() || "{}".equals(acceptedClaims.trim())
-				|| "[]".equals(acceptedClaims.trim())) {
-			logger.info("Verified empty accepted_claims for clientId=" + clientId);
-			return;
+		List<String> accepted = parseAcceptedClaimIds(record.acceptedClaims());
+		Set<String> optional = optionalClaimIdsFromAuthorizeRequest();
+		List<String> leftoverOptional = new ArrayList<>();
+		for (String claim : accepted) {
+			if (optional.contains(claim)) {
+				leftoverOptional.add(claim);
+			}
 		}
-		throw new AssertionError(
-				"Expected empty accepted_claims for clientId=" + clientId + " but found: " + acceptedClaims);
+		if (!leftoverOptional.isEmpty()) {
+			throw new AssertionError(
+					"consent_detail.accepted_claims still contains optional claims after they were declined for clientId="
+							+ clientId + ": " + leftoverOptional + " (accepted_claims=" + record.acceptedClaims()
+							+ ")");
+		}
+		logger.info("Verified consent_detail.accepted_claims contains no optional claims for clientId=" + clientId
+				+ " accepted_claims=" + record.acceptedClaims());
+	}
+
+	private static List<String> parseAcceptedClaimIds(String acceptedClaims) {
+		List<String> ids = new ArrayList<>();
+		if (acceptedClaims == null || acceptedClaims.isBlank()) {
+			return ids;
+		}
+		String trimmed = acceptedClaims.trim();
+		if ("[]".equals(trimmed) || "{}".equals(trimmed) || "null".equalsIgnoreCase(trimmed)) {
+			return ids;
+		}
+		try {
+			if (trimmed.startsWith("[")) {
+				JSONArray array = new JSONArray(trimmed);
+				for (int i = 0; i < array.length(); i++) {
+					String claim = array.optString(i, "").trim();
+					if (!claim.isEmpty()) {
+						ids.add(claim);
+					}
+				}
+				return ids;
+			}
+			if (trimmed.startsWith("{")) {
+				JSONObject object = new JSONObject(trimmed);
+				for (String key : object.keySet()) {
+					if (object.optBoolean(key, false) || object.opt(key) != null) {
+						ids.add(key);
+					}
+				}
+			}
+		} catch (Exception e) {
+			throw new AssertionError("consent_detail.accepted_claims is not valid JSON: " + acceptedClaims, e);
+		}
+		return ids;
+	}
+
+	private static Set<String> optionalClaimIdsFromAuthorizeRequest() {
+		Set<String> optional = new HashSet<>();
+		JSONObject userinfo = claimsUserinfo();
+		if (userinfo != null) {
+			for (String claim : userinfo.keySet()) {
+				if ("verified_claims".equals(claim)) {
+					continue;
+				}
+				JSONObject spec = userinfo.optJSONObject(claim);
+				if (spec != null && !spec.optBoolean("essential", false)) {
+					optional.add(claim);
+				}
+			}
+		}
+		if (optional.isEmpty()) {
+			optional.add("name");
+		}
+		return optional;
+	}
+
+	private static JSONObject claimsUserinfo() {
+		try {
+			org.json.simple.JSONObject raw = EsignetUtil.getClaimsJsonSafely();
+			if (raw == null || raw.isEmpty()) {
+				return null;
+			}
+			return new JSONObject(raw.toJSONString()).optJSONObject("userinfo");
+		} catch (Exception e) {
+			logger.warn("Could not read optional claims from claims.json: " + e.getMessage());
+			return null;
+		}
 	}
 
 	private static String resolveDbUrl() {
@@ -104,42 +181,27 @@ public final class ConsentDbUtil {
 		if (override != null) {
 			return withJdbcDefaults(override);
 		}
-		String server = firstConfigured("esignetDbHost", "database-host", "db-server");
-		if (server == null) {
-			server = blankToNull(ConfigManager.getDbServer());
-		}
+		String server = firstConfigured("esignetDbHost");
 		if (server == null) {
 			return null;
 		}
-		String port = firstConfigured("esignetDbPort", "database-port", "db-port");
-		if (port == null) {
-			port = blankToNull(ConfigManager.getDbPort());
-		}
+		String port = firstConfigured("esignetDbPort");
 		if (port == null) {
 			port = DEFAULT_PORT;
 		}
-		String dbName = firstConfigured("esignetDbName", "database-name");
+		String dbName = firstConfigured("esignetDbName");
 		if (dbName == null) {
-			dbName = DEFAULT_DB_NAME;
+			return null;
 		}
 		return withJdbcDefaults("jdbc:postgresql://" + server + ":" + port + "/" + dbName);
 	}
 
 	private static String resolveDbUsername() {
-		String user = firstConfigured("esignetDbUsername", "database-username", "db-su-user");
-		if (user != null) {
-			return user;
-		}
-		user = blankToNull(ConfigManager.getproperty("db-su-user"));
-		return user != null ? user : "postgres";
+		return firstConfigured("esignetDbUsername");
 	}
 
 	private static String resolveDbPassword() {
-		String password = firstConfigured("esignetDbPassword", "postgres-password");
-		if (password != null) {
-			return password;
-		}
-		return blankToNull(ConfigManager.getproperty("postgres-password"));
+		return firstConfigured("esignetDbPassword");
 	}
 
 	private static Connection openConnection() throws SQLException {
@@ -153,8 +215,14 @@ public final class ConsentDbUtil {
 
 	private static String withJdbcDefaults(String url) {
 		String jdbcUrl = url.trim();
+		// Default disable matches internal esqa/postgres ClusterIP access without a client CA.
+		// Override with esignetDbSslMode=verify-full (and trust store) when the DB requires TLS.
+		String sslMode = firstConfigured("esignetDbSslMode");
+		if (sslMode == null) {
+			sslMode = "disable";
+		}
 		if (!jdbcUrl.contains("sslmode=")) {
-			jdbcUrl += jdbcUrl.contains("?") ? "&sslmode=disable" : "?sslmode=disable";
+			jdbcUrl += jdbcUrl.contains("?") ? "&sslmode=" + sslMode : "?sslmode=" + sslMode;
 		}
 		if (!jdbcUrl.toLowerCase().contains("currentschema=")) {
 			jdbcUrl += "&currentSchema=" + getSchema();
