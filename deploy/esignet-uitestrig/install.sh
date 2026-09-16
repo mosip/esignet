@@ -121,14 +121,20 @@ function installing_uitestrig() {
 
   echo ""
   echo "Installing $RELEASE_NAME (mosip/esignet-uitestrig, version $CHART_VERSION) in namespace $NS ..."
-  helm -n $NS upgrade --install $RELEASE_NAME mosip/esignet-uitestrig --version $CHART_VERSION \
-    -f "$VALUES_FILE" \
-    -f "$SECRET_VALUES_FILE" \
-    --set uitestrig.configMap.eSignetbaseurl="$ESIGNET_BASE_URL" \
-    --set uitestrig.extraEnvVars.ENV_ENDPOINT="$ENV_ENDPOINT" \
-    --set uitestrig.extraEnvVars.ENV_USER="$ENV_USER" \
-    "${LOCALE_OPTS[@]}" \
-    --wait
+  HELM_ARGS=(
+    -n "$NS" upgrade --install "$RELEASE_NAME" mosip/esignet-uitestrig --version "$CHART_VERSION"
+    -f "$VALUES_FILE"
+    -f "$SECRET_VALUES_FILE"
+    --set "uitestrig.configMap.eSignetbaseurl=$ESIGNET_BASE_URL"
+    --set "uitestrig.extraEnvVars.ENV_ENDPOINT=$ENV_ENDPOINT"
+    --set "uitestrig.extraEnvVars.ENV_USER=$ENV_USER"
+  )
+  if [[ "${#LOCALE_OPTS[@]}" -gt 0 ]]; then
+    HELM_ARGS+=("${LOCALE_OPTS[@]}")
+  fi
+  HELM_ARGS+=(--wait)
+
+  helm "${HELM_ARGS[@]}"
 
   echo "Installed $RELEASE_NAME."
   return 0

@@ -34,11 +34,11 @@ uitestrig:
   configMap:
     # Relying-party (health-services) origin. OIDC redirect_uris must be
     # exactly this + "userprofile".
-    baseurl: "https://healthservices-go.sandbox.mosip.net/"   # UPDATE 'sandbox' to your environment
+    baseurl: "https://healthservices.sandbox.mosip.net/"   # UPDATE 'sandbox' to your environment
     # Blank = same as eSignetbaseurl at install time (install.sh fills this
     # in for you if left blank here).
     localeUrl: ""
-    eSignetbaseurl: "https://esignet-go.sandbox.mosip.net"   # UPDATE 'sandbox' to your environment
+    eSignetbaseurl: "https://esignet.sandbox.mosip.net"   # UPDATE 'sandbox' to your environment
     pluginToExecute: "mock"
     runLanguage: "eng"
     runOnBrowserStack: "false"   # see uitestrig.browserstack below to switch this

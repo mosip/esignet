@@ -77,10 +77,9 @@ so this must be set explicitly. No `/dev/shm` volume is needed:
 `src/main/java/utils/BaseTestUtil.java`), which works around the shared-memory
 requirement at the application level.
 
-To use BrowserStack instead: set `uitestrig.browserstack.enabled: true` plus
-`username`/`accessKey`, and set `uitestrig.configMap.runOnBrowserStack: "true"`
-yourself (the chart doesn't flip that for you, since it's ultimately a
-harness-config concern, not purely a "which secret" concern).
+`username`/`accessKey`. Setting `uitestrig.browserstack.enabled: true` is all
+that's needed — the chart automatically derives `runOnBrowserStack` for you
+in the rendered ConfigMap; there's no separate flag to flip.
 
 ## Reports
 
