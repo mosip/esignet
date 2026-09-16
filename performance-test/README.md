@@ -64,6 +64,29 @@ This module describes how to conduct load test of the eSignet OIDC(FAPI2.0) flow
 * Note: as shipped, this script has only "S01 OTP Authentication" and "S02 Biometric Authentication" are enabled by default; "A00", "A01" and "A02" are disabled. Enable each Thread Group deliberately per the validation steps above rather than assuming all groups are active.
 
 
+# Observability / tracing overhead
+
+**No observability action is required before a load run. eSignet Go exports no OpenTelemetry traces, so tracing contributes zero overhead and no OTLP collector needs to be reachable from the perf environment.**
+
+This was verified for [issue #2497](https://github.com/mosip/esignet/issues/2497). Three independent reasons, any one of which is sufficient:
+
+1. **The tracing code is not in the binary.** Neither the OTel SDK (`go.opentelemetry.io/otel/sdk/trace`) nor the OTLP gRPC exporter (`.../exporters/otlp/otlptrace/otlptracegrpc`) is linked into `cmd/esignet`. Only OTel *API* packages are present, pulled in transitively by `go-redis`. With no SDK registered, `otel.GetTracerProvider()` returns the noop provider, so no spans are created and nothing is exported.
+2. **Config never reaches the tracing subscriber.** The embedded ThunderID engine builds its runtime config with only the gate-client, crypto, and attribute-cache sections; the `Observability` section is never populated, so the OTel subscriber's enable-check always reads the zero value.
+3. **The observability service is never constructed.** The engine has no call site that instantiates it, and the `WithObservabilityConfig(...)` option writes a field nothing reads.
+
+eSignet's audit trail does not depend on any of the above: it runs through its own observability *provider* (MOSIP audit-manager, or a logging no-op for the `mock`/`sunbird` providers), which is unaffected by these settings.
+
+Re-verify at any time, from `esignet-service/`:
+
+```bash
+go list -deps ./cmd/esignet | grep -E 'otel/sdk|otlptracegrpc' || echo "confirmed: no OTel SDK/OTLP exporter linked"
+```
+
+**Chosen configuration.** `data/deployment.yaml` sets `observability.enabled: true` explicitly, overridable with `MOSIP_ESIGNET_OBSERVABILITY_ENABLED`. The value has no effect today; it is kept explicit so the toggle already exists if the engine starts honoring this field, and so load runs have a documented place to turn the pipeline off. Because an omitted YAML block cannot be distinguished from `false`, leave the key in place rather than deleting it.
+
+**Regression risk.** This conclusion expires if a future ThunderID bump both populates the engine's `Observability` runtime config and links the OTel SDK. If the `go list` check above ever prints matching packages, re-evaluate #2497: at that point a reachable collector and a `sample_rate` of `<= 0.01` (an unset or `0` rate is coerced to `1.0`, i.e. trace *everything*) become necessary, and the safest load-run setting is `observability.enabled: false`.
+
+
 # Script execution steps:
 
   01. A00 Auth Token Generation (Preparation) - In this thread group we are creating the authorization token - Using User Id which will be saved to a file within user defined path - "runTimeFilePath". The authorization token has expiration time which is controlled by MOSIP settings. Ensure the tokens remain valid throughout the duration of the test execution.
