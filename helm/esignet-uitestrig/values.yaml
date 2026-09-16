@@ -102,7 +102,7 @@ uitestrig:
     localeUrl: ""
     ## Do NOT let this be derived from ENV_ENDPOINT (api-internal host) --
     ## that mapping is wrong for eSignet-go (mosip/esignet#2544 §4).
-    eSignetbaseurl: ""
+    eSignetbaseurl: "https://esignet.sandbox.mosip.net"
     ## eSignet-go has no Spring actuator, so plugin auto-detection always
     ## falls back to mosipid unless this is set explicitly.
     pluginToExecute: "mock"
