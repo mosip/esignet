@@ -24,6 +24,27 @@ Create the name of the service account to use
 {{- end -}}
 
 {{/*
+Fail fast on an invalid triggerKind instead of silently rendering no
+CronJob/Job at all (cronjob.yaml and job.yaml are each gated on an exact
+string match, so a typo/case-mismatch would otherwise make both render
+nothing while `helm upgrade --install` still exits 0).
+*/}}
+{{- if not (or (eq .Values.triggerKind "cronjob") (eq .Values.triggerKind "job")) }}
+{{- fail (printf "triggerKind must be \"cronjob\" or \"job\", got %q" .Values.triggerKind) }}
+{{- end }}
+
+{{/*
+.Values.command is only safe to honour on the plain run-all.sh code path.
+When S3 push or the in-pod conformance suite is enabled, this file must
+own the full command line to inject the completion-marker logic (see
+apitestrig.podTemplate below), so a custom command can't be layered in
+without silently conflicting with that.
+*/}}
+{{- if and .Values.command (or .Values.reports.s3.enabled .Values.apitestrig.conformanceSuite.enabled) }}
+{{- fail "apitestrig: .Values.command is not supported together with reports.s3.enabled or apitestrig.conformanceSuite.enabled" }}
+{{- end }}
+
+{{/*
 Resolve the -c value to pass to run-all.sh: the mounted custom config when
 apitestrig.configOverride is set, otherwise the in-image path from
 apitestrig.configFile.
@@ -150,22 +171,24 @@ spec:
       {{- if .Values.containerSecurityContext.enabled }}
       securityContext: {{- omit .Values.containerSecurityContext "enabled" | toYaml | nindent 8 }}
       {{- end }}
-      {{- if .Values.reports.s3.enabled }}
+      {{- if or .Values.reports.s3.enabled .Values.apitestrig.conformanceSuite.enabled }}
       {{/*
-      S3 push needs to know when the harness is done (run-all.sh has no S3
-      awareness of its own), so wrap it in a shell that drops a completion
-      marker on the shared reports volume for the uploader container to
-      watch for, then exits with the harness's own exit code.
+      Whenever something else in the pod is waiting on this container to
+      finish -- the report-uploader sidecar (S3 push) and/or
+      conformance-reaper (in-pod conformance suite) -- run-all.sh has no
+      awareness of that on its own, so wrap it in a shell that drops a
+      completion marker on the shared reports volume for those containers
+      to watch for, then exits with the harness's own exit code.
 
-      NOTE: .Values.command is intentionally NOT honoured here (unlike the
-      non-S3 branch below) -- this branch must own the full command line to
-      inject the completion-marker logic, so a custom command can't be
-      layered in without conflicting with that. .Values.args is inlined
+      NOTE: .Values.command is intentionally NOT honoured here (guarded
+      above with an explicit fail) -- this branch must own the full command
+      line to inject the completion-marker logic, so a custom command can't
+      be layered in without conflicting with that. .Values.args is inlined
       directly into this single shell string (not rendered as a separate
-      argv list via common.tplvalues.render like the non-S3 branch), so an
+      argv list via common.tplvalues.render like the branch below), so an
       args entry containing a Helm template expression renders differently
-      here than in that branch -- stick to plain strings in
-      .Values.args if you also set reports.s3.enabled.
+      here than in that branch -- stick to plain strings in .Values.args if
+      you also set reports.s3.enabled or apitestrig.conformanceSuite.enabled.
       */}}
       command: ["/bin/bash", "-c"]
       args:
@@ -196,6 +219,24 @@ spec:
         {{- if .Values.apitestrig.configLocal.enabled }}
         - name: CONFIG_LOCAL
           value: "/app/secrets/config.local.json"
+        {{- end }}
+        {{/*
+        Guard against the same key being set in both extraEnvVars (plain)
+        and extraEnvVarsSecret (secretKeyRef) -- e.g. INDIVIDUAL_ID, which
+        is PII and documented to go through extraEnvVarsSecret. Kubernetes
+        would silently prefer the later entry at runtime, but the plaintext
+        value would still render into the pod spec/manifest either way.
+        */}}
+        {{- $dupKeys := list }}
+        {{- range $key, $value := .Values.apitestrig.extraEnvVars }}
+        {{- if and $value (hasKey $.Values.apitestrig.extraEnvVarsSecret $key) }}
+        {{- if index $.Values.apitestrig.extraEnvVarsSecret $key }}
+        {{- $dupKeys = append $dupKeys $key }}
+        {{- end }}
+        {{- end }}
+        {{- end }}
+        {{- if $dupKeys }}
+        {{- fail (printf "apitestrig: keys set in both extraEnvVars and extraEnvVarsSecret: %v" $dupKeys) }}
         {{- end }}
         {{- range $key, $value := .Values.apitestrig.extraEnvVars }}
         {{- if $value }}
@@ -360,14 +401,22 @@ spec:
           # Reads /proc/<pid>/comm directly rather than parsing `ps` output --
           # a kernel feature, not a ps feature, so it works regardless of
           # which ps applet variant this busybox build shipped with.
+          killed=""
           for pid_dir in /proc/[0-9]*; do
             pid=${pid_dir#/proc/}
             comm=$(cat "$pid_dir/comm" 2>/dev/null) || continue
             for name in {{ .Values.apitestrig.conformanceSuite.reaper.processNames | join " " }}; do
               if [ "$comm" = "$name" ]; then
                 kill "$pid" 2>/dev/null
+                killed="$killed $pid"
               fi
             done
+          done
+          # Escalate to SIGKILL for anything that ignored the SIGTERM above,
+          # so a slow-to-exit process can't eat into activeDeadlineSeconds.
+          sleep 5
+          for pid in $killed; do
+            kill -0 "$pid" 2>/dev/null && kill -9 "$pid" 2>/dev/null
           done
           exit 0
       volumeMounts:

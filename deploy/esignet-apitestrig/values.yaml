@@ -1,6 +1,13 @@
 # Secrets (KEYCLOAK_CLIENT_SECRET, the test identity, S3 keys) do NOT belong
 # in this file -- it's tracked in git. Put those in values.secret.yaml
 # instead (gitignored; copy values.secret.yaml.example to get started).
+#
+# Fields marked "changeme" below are hard requirements -- install.sh refuses
+# to run while any of them are still present. Fields with a real default
+# value plus a "# UPDATE" comment (e.g. KEYCLOAK_TOKEN_URL) are optional to
+# change: the default points at MOSIP's own sandbox and works as-is if
+# that's your target environment, so it is intentionally NOT treated as a
+# placeholder.
 
 image:
   repository: mosipdev/apitest-esignet
@@ -32,10 +39,12 @@ apitestrig:
     KEYCLOAK_CLIENT_ID: "mosip-pms-client"   # blank = config file's own default
 
     # --- TLS ---
-    # Self-signed/internal certs? Set both to "false" (was the y/N prompt).
-    ESIGNET_TLS_VERIFY: "false"
-    API_TLS_VERIFY: "false"
-    CONFORMANCE_TLS_VERIFY: "false"
+    # Defaults to verifying TLS. Only set these to "false" if you're running
+    # against self-signed/internal certs -- this is an explicit, conscious
+    # opt-out, not the default.
+    ESIGNET_TLS_VERIFY: "true"
+    API_TLS_VERIFY: "true"
+    CONFORMANCE_TLS_VERIFY: "true"
 
     # --- Test identity (non-secret half; ID_TYPE only) ---
     ID_TYPE: "uin"   # uin | vid | phone | email
@@ -43,10 +52,10 @@ apitestrig:
     # --- OTP / PMS -- required by config.mosip.json, shipped blank there ---
     # (see the config file's own _comment block and issue #2434 §4)
     OTP_WS_URL: "https://smtp.sandbox.mosip.net"   # UPDATE 'sandbox' to your environment
-    OTP_RECIPIENT_EMAIL: "provide phone number or email for fetching OTP"   # UPDATE with your test identity's contact
+    OTP_RECIPIENT_EMAIL: "changeme"   # UPDATE: phone number or email for fetching OTP
     PMS_BASE_URL: "https://api-internal.sandbox.mosip.net/v1/partnermanager"   # UPDATE 'sandbox' to your environment
-    AUTH_PARTNER_ID: "auth partner ID to create client ID"   # UPDATE with your auth partner ID
-    AUTH_POLICY_ID: "policy ID to create client ID"   # UPDATE with your policy ID
+    AUTH_PARTNER_ID: "changeme"   # UPDATE: your auth partner ID (used to create client ID)
+    AUTH_POLICY_ID: "changeme"   # UPDATE: your policy ID (used to create client ID)
 
     # --- Conformance (only used if apitestrig.surfaces includes it) ---
     # https://localhost.emobix.co.uk:8443 resolves to 127.0.0.1 via public
@@ -89,7 +98,7 @@ reports:
 
   s3:
     enabled: true
-    endpoint: "your s3 url"   # UPDATE with your S3/MinIO endpoint
-    bucket: "your bucket name"   # UPDATE with your bucket name
+    endpoint: "changeme"   # UPDATE with your S3/MinIO endpoint
+    bucket: "changeme"   # UPDATE with your bucket name
     pathPrefix: "go"
     insecure: true   # self-signed cert or plain http

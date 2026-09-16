@@ -42,6 +42,10 @@ image:
 ## job:     a single on-demand run, e.g. triggered by `helm install`/`helm
 ##          upgrade` from CI, or `kubectl create job --from=cronjob/...`
 ##
+## Must be exactly "cronjob" or "job" -- _helpers.tpl fails the render
+## otherwise, since cronjob.yaml/job.yaml are each gated on an exact string
+## match and a typo would otherwise silently deploy neither resource.
+##
 triggerKind: cronjob   # cronjob | job
 
 ## Only used when triggerKind: cronjob
@@ -151,6 +155,11 @@ apitestrig:
   ## well-established pattern from before native sidecars existed, and
   ## works on any Kubernetes version.
   ##
+  ## NOTE: the apitestrig container only writes reports.mountPath/.rig-complete
+  ## when reports.s3.enabled OR conformanceSuite.enabled is true (see
+  ## _helpers.tpl) -- so enabling this always gets you the completion
+  ## marker the reaper needs, even with reports.s3.enabled left false.
+  ##
   ## shareProcessNamespace does mean every container in this pod can see and
   ## signal every other container's processes -- acceptable here since this
   ## pod is a single-purpose, ephemeral test rig running only images this
@@ -235,26 +244,35 @@ apitestrig:
   ## Plain (non-secret) environment variables layered on top of both config
   ## files, mirroring api-test/.env.example. Rendered as literal env values.
   ##
+  ## NOTE: INDIVIDUAL_ID is deliberately NOT listed here -- it's PII and
+  ## belongs under extraEnvVarsSecret below instead. _helpers.tpl fails the
+  ## render if the same key is set in both, but the safest default is to
+  ## never invite the plaintext path for it in the first place.
+  ##
   extraEnvVars:
     MOSIP_ESIGNET_BASE_URL: ""
     KEYCLOAK_TOKEN_URL: ""
-    INDIVIDUAL_ID: ""
     ID_TYPE: ""
     TEST_PROFILE: ""
     ## Point at the OpenID Conformance Suite already running in-cluster, e.g.
     ## http://openid-conformance-suite.<namespace>.svc.cluster.local:8443
     CONFORMANCE_BASE_URL: ""
-    CONFORMANCE_TLS_VERIFY: "false"
+    ## TLS verification defaults to on for all three. Only set any of these
+    ## to "false" as a conscious, explicit opt-out for self-signed/internal
+    ## certs -- never leave it off by default.
     ESIGNET_TLS_VERIFY: "true"
     API_TLS_VERIFY: "true"
+    CONFORMANCE_TLS_VERIFY: "true"
     SUITE_WAIT_SECONDS: "150"
 
-  ## Secret environment variables (e.g. KEYCLOAK_CLIENT_SECRET). Rendered into
-  ## a Secret and wired up via secretKeyRef -- never landing in a ConfigMap or
-  ## in extraEnvVars above.
+  ## Secret environment variables (e.g. KEYCLOAK_CLIENT_SECRET, INDIVIDUAL_ID).
+  ## Rendered into a Secret and wired up via secretKeyRef -- never landing in
+  ## a ConfigMap or in extraEnvVars above.
   ##
   extraEnvVarsSecret:
     KEYCLOAK_CLIENT_SECRET: ""
+    ## The test identity is PII -- keep it here, not in extraEnvVars.
+    INDIVIDUAL_ID: ""
 
   ## Existing ConfigMaps/Secrets in the namespace to pull additional env from
   ## (envFrom), for parity with cluster-wide config the way helm/esignet does
@@ -267,6 +285,11 @@ apitestrig:
 ## ["./run-all.sh"], so leave `command` empty to keep using it -- args below
 ## are appended to it. Templates fill in -c/-s from apitestrig.* above; only
 ## override this block if you need something entirely different.
+##
+## NOTE: command is ignored (and _helpers.tpl fails the render) whenever
+## reports.s3.enabled or apitestrig.conformanceSuite.enabled is true -- those
+## paths need to own the full command line to inject completion-marker
+## logic. Leave this empty in that case.
 ##
 command: []
 args: []
@@ -316,13 +339,11 @@ istio:
 hostAliases: []
 
 ## Node affinity/anti-affinity/selector/tolerations, evaluated as templates.
+## Pass a full affinity spec via `affinity` directly if you need one --
+## there is no preset-to-spec translation (e.g. bitnami's
+## common.affinities.pods/nodes) wired up in this chart, so preset-style
+## keys would silently do nothing.
 ##
-podAffinityPreset: ""
-podAntiAffinityPreset: soft
-nodeAffinityPreset:
-  type: ""
-  key: ""
-  values: []
 affinity: {}
 nodeSelector: {}
 tolerations: []
@@ -385,3 +406,4 @@ reports:
     ## anything beyond local testing.
     accessKey: ""
     secretKey: ""
+    

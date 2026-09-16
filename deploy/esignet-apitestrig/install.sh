@@ -29,6 +29,7 @@ RELEASE_NAME=esignet-apitestrig
 CHART_VERSION=0.0.1-develop
 VALUES_FILE=values.yaml
 SECRET_VALUES_FILE=values.secret.yaml
+HELM_WAIT_TIMEOUT=15m
 
 function installing_apitestrig() {
   if [[ ! -f "$SECRET_VALUES_FILE" ]]; then
@@ -41,16 +42,30 @@ function installing_apitestrig() {
   # Catches the case where someone copies the example/template files and
   # runs install.sh without actually filling them in -- these placeholders
   # would otherwise reach Helm and land in real Secret/ConfigMap objects.
-  if grep -qE '"changeme"' "$SECRET_VALUES_FILE" "$VALUES_FILE"; then
-    echo "ERROR: $SECRET_VALUES_FILE and/or $VALUES_FILE still contain the"
-    echo "\"changeme\" placeholder value."
+  #
+  # Matches "changeme" (the tracked placeholder value convention for every
+  # field that has no usable default) and REPLACE_WITH_REAL_* (the
+  # conformance plan JSON blocks). Deliberately does NOT match on the
+  # "# UPDATE" comment text alone -- several fields (e.g. KEYCLOAK_TOKEN_URL,
+  # PMS_BASE_URL) keep that comment permanently as a reminder even once
+  # correctly filled in with a working sandbox default, so matching on it
+  # would reject every valid values.yaml.
+  if grep -qE '"changeme"|REPLACE_WITH_REAL_' "$SECRET_VALUES_FILE" "$VALUES_FILE"; then
+    echo "ERROR: $SECRET_VALUES_FILE and/or $VALUES_FILE still contain an"
+    echo "unfilled placeholder (\"changeme\" or a REPLACE_WITH_REAL_*"
+    echo "conformance-plan placeholder)."
     echo "Fill in real values for every field marked '# UPDATE ...' before"
     echo "running this script; EXITING."
     exit 1
   fi
 
   echo "Create $NS namespace (if it doesn't already exist)"
-  kubectl create ns $NS || true
+  if ! kubectl create ns "$NS" 2>&1 | tee /dev/stderr | grep -qi "already exists"; then
+    kubectl get ns "$NS" >/dev/null 2>&1 || {
+      echo "ERROR: failed to create namespace $NS; EXITING."
+      exit 1
+    }
+  fi
 
   helm repo add mosip https://mosip.github.io/mosip-helm
   helm repo update
@@ -79,10 +94,15 @@ function installing_apitestrig() {
 
   echo ""
   echo "Installing $RELEASE_NAME (mosip/esignet-apitestrig, version $CHART_VERSION) in namespace $NS ..."
+  # --timeout is explicit because the default 5m Helm wait can be shorter
+  # than a conformance,api,e2e run needs to boot the in-pod conformance
+  # suite (mongodb+server+nginx) -- without it, install.sh can report a
+  # false failure while the Job is still legitimately running.
   helm -n $NS upgrade --install $RELEASE_NAME mosip/esignet-apitestrig --version $CHART_VERSION \
     -f "$VALUES_FILE" \
     -f "$SECRET_VALUES_FILE" \
     --set apitestrig.extraEnvVars.MOSIP_ESIGNET_BASE_URL="$MOSIP_ESIGNET_BASE_URL" \
+    --timeout "$HELM_WAIT_TIMEOUT" \
     --wait
 
   echo "Installed $RELEASE_NAME."
