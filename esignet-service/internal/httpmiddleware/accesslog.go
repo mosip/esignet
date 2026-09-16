@@ -31,11 +31,11 @@ type Option func(*accessLogOptions)
 func WithSkipPrefixes(prefixes ...string) Option {
 	return func(o *accessLogOptions) {
 		for _, p := range prefixes {
-			if p == "" {
-				continue
-			}
 			if p != "/" {
 				p = strings.TrimRight(p, "/")
+			}
+			if p == "" {
+				continue
 			}
 			o.skipPrefixes = append(o.skipPrefixes, p)
 		}
