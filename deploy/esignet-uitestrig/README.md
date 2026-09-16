@@ -73,10 +73,9 @@ garbage-collected.
 
 ## Browser
 Defaults to in-cluster Chromium. To use BrowserStack instead: set
-`uitestrig.browserstack.enabled: true` in `values.yaml`, fill in
-`uitestrig.browserstack.username`/`accessKey` in `values.secret.yaml`, and
-set `uitestrig.configMap.runOnBrowserStack: "true"` yourself in
-`values.yaml`.
+`uitestrig.browserstack.enabled: true` in `values.yaml` and fill in
+`uitestrig.browserstack.username`/`accessKey` in `values.secret.yaml`.
+`runOnBrowserStack` is derived automatically from `browserstack.enabled`.
 
 ## Self-signed TLS
 Set `uitestrig.enableInsecure: true` and `uitestrig.tls.caCert` (the

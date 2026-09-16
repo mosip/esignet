@@ -30,4 +30,4 @@ echo "/home/mosip/src/main/java/utils/"
 ls -l /home/mosip/src/main/java/utils/
 
 java --version
-java $JAVA_EXTRA_OPTS -Denv.endpoint="$ENV_ENDPOINT" uitest-esignet-*.jar
+java -jar -Denv.endpoint="$ENV_ENDPOINT" uitest-esignet-*.jar

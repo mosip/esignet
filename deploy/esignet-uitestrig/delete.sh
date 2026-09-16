@@ -10,6 +10,7 @@ function deleting_uitestrig() {
   NS=esignet-uitestrig
   while true; do
       read -p "Are you sure you want to delete uitestrig helm charts?(Y/n) " yn
+      yn=${yn:-Y}
       if [ "$yn" = "Y" ] || [ "$yn" = "y" ]
         then
           helm -n $NS delete esignet-uitestrig
