@@ -219,20 +219,24 @@ func TestAccessLog_NoOptionsLogsAllPaths(t *testing.T) {
 }
 
 func TestAccessLog_EmptyPrefixIsIgnored(t *testing.T) {
-	// An empty string passed to WithSkipPrefixes must not suppress all logging —
-	// "" would otherwise match every path via strings.HasPrefix(p, "/").
-	h := installAccessCounter(t)
-	before := h.n()
-	next := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-		w.WriteHeader(http.StatusOK)
-	})
-
-	rr := httptest.NewRecorder()
-	req := httptest.NewRequest(http.MethodGet, "/oauth2/token", nil)
-	CorrelationID(AccessLog(next, WithSkipPrefixes("", "/health"))).ServeHTTP(rr, req)
-
-	assert.Equal(t, http.StatusOK, rr.Code)
-	assert.Equal(t, 1, h.n()-before, "empty prefix must not suppress logging for non-skipped paths")
+	// Prefixes that are empty before or after normalisation must be discarded:
+	//   ""    — raw empty input
+	//   "///" — becomes "" after strings.TrimRight, must not match every path
+	degenerate := []string{"", "///"}
+	for _, bad := range degenerate {
+		t.Run(bad, func(t *testing.T) {
+			h := installAccessCounter(t)
+			before := h.n()
+			next := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+				w.WriteHeader(http.StatusOK)
+			})
+			rr := httptest.NewRecorder()
+			req := httptest.NewRequest(http.MethodGet, "/oauth2/token", nil)
+			CorrelationID(AccessLog(next, WithSkipPrefixes(bad, "/health"))).ServeHTTP(rr, req)
+			assert.Equal(t, http.StatusOK, rr.Code)
+			assert.Equal(t, 1, h.n()-before, "degenerate prefix %q must not suppress logging for non-skipped paths", bad)
+		})
+	}
 }
 
 func TestAccessLog_TrailingSlashInPrefixIsNormalized(t *testing.T) {
