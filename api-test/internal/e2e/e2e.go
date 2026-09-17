@@ -249,6 +249,8 @@ type Runner struct {
 	PMSBaseURL    string
 	AuthPartnerID string
 	PolicyID      string
+	// PMSClientAPI selects which registration endpoint under PMSBaseURL to use; see pmsClientPath.
+	PMSClientAPI string
 
 	acr    []string // registered ACRs, set from the spec in Run
 	client *http.Client
@@ -695,7 +697,27 @@ func (r *Runner) createClientViaClientMgmt(ctx context.Context, calls *[]result.
 // errPMSForbidden marks the one registration failure that is an environment gap rather than a defect: PMS refused the bearer for lack of a role.
 var errPMSForbidden = errors.New("PMS create client forbidden (KER-ATH-403)")
 
-// createClientViaPMS registers the test client through partner-management-service /oidc-clients — NOT /oauth/client, which IDA then refuses to authenticate (visible only by driving a login); the bearer needs the AUTH_PARTNER realm role, which a client_credentials service account does not carry (KER-ATH-403).
+// pmsClientAPIPaths maps the esignet.pms.client_api values to PMS's two OIDC-client registration endpoints.
+//
+// Deployments differ in which they serve: PMS 1.2.2.x has only /oauth/client and answers 404 for /oidc-clients, while current builds serve both. The setting selects a path and nothing else — both endpoints take the identical request body. That was verified live against both a 1.2.2.3 and a current PMS: /oidc-clients validates the wrapper id and rejects a wrong one with PMS_REQUEST_ERROR_002, whereas /oauth/client registers the client regardless, so the id/version/metadata members are simply ignored there.
+//
+// /oidc-clients is the default, and is what a deployment that has it should keep using: a client registered there is the one IDA is known to authenticate, whereas /oauth/client registrations have been seen refused at login (visible only by driving a login, so no create-and-read-back test catches it).
+var pmsClientAPIPaths = map[string]string{
+	"oidc-clients": "/oidc-clients",
+	"oauth-client": "/oauth/client",
+}
+
+const pmsClientAPIDefault = "oidc-clients"
+
+// pmsClientPath is the registration endpoint this run is configured to use. An unset or unrecognised value takes the default; config validation has already rejected anything else by the time a run starts.
+func (r *Runner) pmsClientPath() string {
+	if p, ok := pmsClientAPIPaths[strings.ToLower(strings.TrimSpace(r.PMSClientAPI))]; ok {
+		return p
+	}
+	return pmsClientAPIPaths[pmsClientAPIDefault]
+}
+
+// createClientViaPMS registers the test client through partner-management-service — NOT eSignet client-mgmt, whose clients IDA then refuses to authenticate; the bearer needs the AUTH_PARTNER realm role, which a client_credentials service account does not carry (KER-ATH-403).
 func (r *Runner) createClientViaPMS(ctx context.Context, calls *[]result.HTTPCall, cl *testClient, spec Spec) (string, error) {
 	if r.PMSBaseURL == "" || r.AuthPartnerID == "" || r.PolicyID == "" {
 		return "", fmt.Errorf("mosip client registration needs PMS_BASE_URL, AUTH_PARTNER_ID and AUTH_POLICY_ID")
@@ -728,15 +750,21 @@ func (r *Runner) createClientViaPMS(ctx context.Context, calls *[]result.HTTPCal
 	if err != nil {
 		return "", fmt.Errorf("marshal PMS request: %w", err)
 	}
-	url := strings.TrimRight(r.PMSBaseURL, "/") + "/oidc-clients"
+	url := strings.TrimRight(r.PMSBaseURL, "/") + r.pmsClientPath()
 	// PMS reads the admin token from a cookie named Authorization and rejects the Bearer header with KER-ATH-401, unlike eSignet's own client-mgmt.
 	status, rb, err := r.do(ctx, calls, "create client (PMS)", http.MethodPost, url,
 		map[string]string{"Content-Type": "application/json", "Cookie": "Authorization=" + r.AdminToken}, string(body))
 	if err != nil {
 		return "", fmt.Errorf("create client via PMS: %w", err)
 	}
+	// A 404 is the signature of a PMS that does not serve this endpoint at all — 1.2.2.x has no /oidc-clients controller — so name the setting that switches it rather than reporting a bare Not Found.
+	if status == http.StatusNotFound {
+		return "", fmt.Errorf("PMS create client failed (HTTP 404): %s is not served by this PMS — "+
+			"set esignet.pms.client_api (PMS_CLIENT_API) to one of oidc-clients|oauth-client to match the deployment "+
+			"(1.2.2.x serves oauth-client only)", url)
+	}
 	if code := firstErrorCode(rb); code != "" {
-		// The one rejection worth naming: /oidc-clients alone is gated on the AUTH_PARTNER realm role.
+		// The one rejection worth naming: PMS registration is gated on the AUTH_PARTNER realm role.
 		if code == "KER-ATH-403" {
 			return "", fmt.Errorf("%w: %s needs the AUTH_PARTNER realm role, "+
 				"which the client_credentials grant for keycloak.client_id does not carry — grant it that role, "+
