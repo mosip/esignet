@@ -40,7 +40,7 @@ Additionally, the package provides **PAR** and **DPoP** support. Refer to the St
 - `response_type` (required) — must be `code`
 - `client_id` (required)
 - `redirect_uri` (required) — must match one of the pre-registered URIs
-- `state`, `nonce`, `display`, `prompt`, `max_age`, `ui_locales`, `acr_values`, `claims_locales`, `claims`, `code_challenge`, `code_challenge_method`, `id_token_hint`, `request_uri`
+- `state`, `nonce`, `display`, `prompt`, `ui_locales`, `acr_values`, `claims_locales`, `claims`, `code_challenge`, `code_challenge_method`, `request_uri`
 
 Supported `acr_values`:
 - `mosip:idp:acr:generated-code` — OTP sent to the user's registered mobile/email
