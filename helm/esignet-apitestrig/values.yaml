@@ -406,4 +406,3 @@ reports:
     ## anything beyond local testing.
     accessKey: ""
     secretKey: ""
-    
