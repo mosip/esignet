@@ -130,9 +130,13 @@ type Esignet struct {
 
 // PMS holds partner-management-service settings used only by the mosip(id) plugin.
 type PMS struct {
-	BaseURL       string `json:"base_url"`        // PMS base, e.g. https://host/v1/partnermanagement; {base}/oauth/client is the create endpoint
+	BaseURL       string `json:"base_url"`        // PMS base, e.g. https://host/v1/partnermanager
 	AuthPartnerID string `json:"auth_partner_id"` // onboarded Auth partner id -> becomes the client's relying-party id
 	PolicyID      string `json:"policy_id"`       // published auth policy id -> governs allowed claims/ACRs
+	// ClientAPI selects the registration endpoint under BaseURL: oidc-clients (default) or oauth-client.
+	// Both take the same request body; they differ only in which PMS build serves them. PMS 1.2.2.x has
+	// only {base}/oauth/client and answers 404 for {base}/oidc-clients, which current builds do serve.
+	ClientAPI string `json:"client_api"`
 }
 
 type Identity struct {
@@ -481,6 +485,7 @@ func (c *Config) applyEnv() (int, error) {
 	envStr(&c.Esignet.PMS.BaseURL, "PMS_BASE_URL", &n)
 	envStr(&c.Esignet.PMS.AuthPartnerID, "AUTH_PARTNER_ID", &n)
 	envStr(&c.Esignet.PMS.PolicyID, "AUTH_POLICY_ID", &n)
+	envStr(&c.Esignet.PMS.ClientAPI, "PMS_CLIENT_API", &n)
 
 	envStr(&c.Keycloak.TokenURL, "KEYCLOAK_TOKEN_URL", &n)
 	envStr(&c.Keycloak.ClientID, "KEYCLOAK_CLIENT_ID", &n)
@@ -596,6 +601,7 @@ func (c *Config) defaults() {
 	// Normalize the enum-valued fields once, so every downstream comparison agrees about casing.
 	c.Esignet.Provider = strings.ToLower(strings.TrimSpace(c.Esignet.Provider))
 	c.Esignet.OTP.Source = strings.ToLower(strings.TrimSpace(c.Esignet.OTP.Source))
+	c.Esignet.PMS.ClientAPI = strings.ToLower(strings.TrimSpace(c.Esignet.PMS.ClientAPI))
 	c.Run.Profile = strings.ToLower(strings.TrimSpace(c.Run.Profile))
 	if len(c.Run.Surfaces) == 0 {
 		c.Run.Surfaces = []string{SurfaceConformance, SurfaceAPI, SurfaceE2E}
@@ -640,6 +646,9 @@ func (c *Config) defaults() {
 	}
 	if c.Esignet.OTP.Value == "" {
 		c.Esignet.OTP.Value = "111111"
+	}
+	if c.Esignet.PMS.ClientAPI == "" {
+		c.Esignet.PMS.ClientAPI = "oidc-clients"
 	}
 	// full, not smoke: a run that silently grades a curated subset and reports
 	// it as "conformance" overstates what was checked. Only oidcc-test-plan
@@ -696,6 +705,13 @@ func (c *Config) validate() error {
 		}
 	default:
 		return fmt.Errorf("unknown otp.source %q (want static|dynamic)", c.Esignet.OTP.Source)
+	}
+
+	switch c.Esignet.PMS.ClientAPI {
+	case "oidc-clients", "oauth-client":
+		// Both are real PMS endpoints; which one a deployment serves is what this selects.
+	default:
+		return fmt.Errorf("unknown pms.client_api %q (want oidc-clients|oauth-client)", c.Esignet.PMS.ClientAPI)
 	}
 
 	switch c.Run.Profile {
