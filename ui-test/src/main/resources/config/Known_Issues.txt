@@ -11,3 +11,4 @@
 
 2249------TC_Browser_Compatibility_check_01 - Verify the text labels, elements in browser compatibility screen
 2249------Verify the Okay button is clickable on the browser compatibility screen
+1802------Log in with Biometrics - Mock MDS fingerprint login (TC_05)
