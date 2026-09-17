@@ -1,0 +1,23 @@
+{{- if .Values.uitestrig.enableInsecure }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "uitestrig.caCertConfigMapName" . }}
+  namespace: {{ .Release.Namespace }}
+  labels: {{- include "common.labels.standard" . | nindent 4 }}
+    {{- if .Values.commonLabels }}
+    {{- include "common.tplvalues.render" ( dict "value" .Values.commonLabels "context" $ ) | nindent 4 }}
+    {{- end }}
+  {{- if .Values.commonAnnotations }}
+  annotations: {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
+  {{- end }}
+data:
+  {{/*
+  X.509 certificates are public information (unlike private keys), so a
+  ConfigMap is appropriate here, not a Secret. required() so a missing cert
+  fails loudly at helm upgrade instead of the init container silently
+  importing nothing (or erroring in a confusing way) at runtime.
+  */}}
+  ca.pem: |
+{{ required "uitestrig.tls.caCert is required when uitestrig.enableInsecure is true -- see helm/esignet-uitestrig/README.md's \"Self-signed TLS\" section" .Values.uitestrig.tls.caCert | indent 4 }}
+{{- end }}
