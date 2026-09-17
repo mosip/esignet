@@ -60,68 +60,25 @@ type AuthnProviderInterface interface {
 }
 ```
 
-So a full implementation has eight methods: `SendOTP`, `Authenticate`, `GetEntityReference`, `GetAttributes`, `GetSigningCertificates`, plus `InitiateAuthentication`, `InitiateEnrollment`, and `Enroll`. Those last three exist only for the engine's built-in passkey/WebAuthn executor, which none of eSignet's shipped flows use — all three built-in providers implement them as no-ops (see [`internal/engine/mock/authenticator.go`](../esignet-service/internal/engine/mock/authenticator.go), lines 176-189), so you can safely stub them out too unless you add a flow that exercises that path.
+So a full implementation has eight methods: `SendOTP`, `Authenticate`, `GetEntityReference`, `GetAttributes`, `GetSigningCertificates`, `InitiateAuthentication`, `InitiateEnrollment`, and `Enroll`. The last three exist only for the engine's built-in passkey/WebAuthn executor, which none of eSignet's shipped flows use — all three built-in providers implement them as no-ops (see [`authenticator.go`](https://github.com/mosip/esignet/blob/d843ca002293de59ec69056c49634ba6c923f85d/esignet-service/internal/engine/mock/authenticator.go#L176-L189)), so you can safely stub them out too unless you add a flow that exercises that path.
 
 ### Supporting types
 
 ```go
-// AuthnMetadata carries request-scoped metadata into every provider call.
-type AuthnMetadata struct {
-	RuntimeMetadata map[string][]string `json:"runtimeMetadata,omitempty"`
-}
-
-// AuthnResult is returned by Authenticate (and Enroll).
-type AuthnResult struct {
-	AuthenticatedClaims AuthenticatedClaims `json:"authenticatedClaims,omitempty"`
-	EntityReferenceToken any             `json:"entityReferenceToken"` // opaque token, or nil if EntityReference is set directly
-	EntityReference      *EntityReference `json:"entityReference,omitempty"`
-	AttributeToken any                 `json:"attributeToken"` // opaque token, or nil if Attributes is set directly
-	Attributes     *AttributesResponse `json:"attributes,omitempty"`
-}
-
-// EntityReference identifies the authenticated user to the rest of the engine.
-type EntityReference struct {
-	EntityID       string `json:"entityId"` // the stable, pairwise identifier returned as the OIDC "sub" claim
-	EntityCategory string `json:"entityCategory"`
-	EntityType     string `json:"entityType"`
-	OUID           string `json:"ouId"`
-}
-
-// GetAttributesMetadata carries locale and runtime metadata into GetAttributes.
-type GetAttributesMetadata struct {
-	Locale          string              `json:"locale"`
-	RuntimeMetadata map[string][]string `json:"runtimeMetadata,omitempty"`
-}
-
-// RequestedAttributes lists the claims the user has consented to release.
-type RequestedAttributes struct {
-	Attributes    map[string]*AttributeMetadataRequest `json:"attributes,omitempty"`
-	Verifications map[string]*VerificationRequest      `json:"verifications,omitempty"`
-}
-
-// AttributesResponse carries the resolved claim values back to the engine.
-type AttributesResponse struct {
-	Attributes    map[string]*AttributeResponse    `json:"attributes,omitempty"`
-	Verifications map[string]*VerificationResponse `json:"verifications,omitempty"`
-}
-type AttributeResponse struct {
-	Value                     interface{}                `json:"value,omitempty"`
-	AssuranceMetadataResponse *AssuranceMetadataResponse `json:"assuranceMetadataResponse,omitempty"`
-}
-
-// SendOTPResult and CertificateData are eSignet-specific (package shared).
-type SendOTPResult struct {
-	TransactionID string
-	MaskedEmail   string `json:"maskedEmail,omitempty"`
-	MaskedMobile  string `json:"maskedMobile,omitempty"`
-}
-type CertificateData struct {
-	KeyID       string
-	Certificate string
-}
+type AuthnMetadata struct{ /* ... */ }
+type AuthnResult struct{ /* ... */ }
+type EntityReference struct{ /* ... */ }
+type GetAttributesMetadata struct{ /* ... */ }
+type RequestedAttributes struct{ /* ... */ }
+type AttributesResponse struct{ /* ... */ }
+type AttributeResponse struct{ /* ... */ }
+type SendOTPResult struct{ /* ... */ }
+type CertificateData struct{ /* ... */ }
 ```
 
-`identifiers` and `credentials` are `map[string]interface{}` arguments — `Authenticate` receives both; `SendOTP` receives only `identifiers` (plus `metadata`, in both cases). They split the login form's inputs, but not strictly by "sensitive vs. not" — the actual split, per the flow executor that builds these maps, is: a UIN/username lands in `identifiers`; OTP and password land in `credentials` (they arrive as sensitive `OTP_INPUT`/`PASSWORD_INPUT` flow inputs); PIN and biometric payloads land in both `identifiers` and `credentials` (the mock provider reads them from `identifiers`); and an arbitrary KBI challenge (no fixed field set) is read from whatever remains in `credentials`. See [`internal/engine/mock/authenticator.go`](../esignet-service/internal/engine/mock/authenticator.go)'s `setChallenge` function for the exact per-factor mapping.
+The first seven are defined in the vendored engine's [`model.go`](https://github.com/thunder-id/thunderid/blob/64f1aa911649/backend/pkg/thunderidengine/providers/model.go#L362-L457); the last two, eSignet-specific and returned only by `ConsolidatedAuthnProvider`'s own methods, are defined in [`model.go`](https://github.com/mosip/esignet/blob/d843ca002293de59ec69056c49634ba6c923f85d/esignet-service/internal/engine/shared/model.go).
+
+`identifiers` and `credentials` are `map[string]interface{}` arguments — `Authenticate` receives both; `SendOTP` receives only `identifiers` (and `metadata`, in both cases). They split the login form's inputs, but not strictly by "sensitive vs. not" — the actual split, per the flow executor that builds these maps, is: a UIN/username lands in `identifiers`; OTP and password land in `credentials` (they arrive as sensitive `OTP_INPUT`/`PASSWORD_INPUT` flow inputs); PIN and biometric payloads land in both `identifiers` and `credentials` (the mock provider reads them from `identifiers`); and an arbitrary KBI challenge (no fixed field set) is read from whatever remains in `credentials`. See [`setChallenge`](https://github.com/mosip/esignet/blob/d843ca002293de59ec69056c49634ba6c923f85d/esignet-service/internal/engine/mock/authenticator.go#L321-L350) for the exact per-factor mapping.
 
 ### Errors
 
@@ -157,7 +114,7 @@ SendOTP           →  Authenticate        →  GetEntityReference   →  GetAtt
 
 ## Configuration
 
-Each provider owns its own configuration — there is no shared plugin-config schema. The convention is a `Config` struct plus a `LoadConfig()` function that reads environment variables directly via `os.Getenv`, with sane defaults or fail-fast validation for required values. See [`internal/engine/mock/config.go`](../esignet-service/internal/engine/mock/config.go) for the all-optional-defaults shape, or [`internal/engine/mosip/config.go`](../esignet-service/internal/engine/mosip/config.go) for one with required, fail-fast variables.
+Each provider owns its own configuration — there is no shared plugin-config schema. The convention is a `Config` struct and a `LoadConfig()` function that reads environment variables directly via `os.Getenv`, with sane defaults or fail-fast validation for required values. See [`internal/engine/mock/config.go`](../esignet-service/internal/engine/mock/config.go) for the all-optional-defaults shape, or [`internal/engine/mosip/config.go`](../esignet-service/internal/engine/mosip/config.go) for one with required, fail-fast variables.
 
 Name environment variables with a provider-specific prefix (e.g. `MOSIP_ESIGNET_MOCK_...`, `MOSIP_ESIGNET_AUTHENTICATOR_SUNBIRD_RC_...`) to avoid colliding with the generic `MOSIP_ESIGNET_*` settings and other providers' variables.
 
