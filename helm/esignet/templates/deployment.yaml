@@ -194,6 +194,10 @@ spec:
           - name: {{ .Values.persistence.volume_name }}
             mountPath: {{ .Values.persistence.mountDir }}
           {{- end }}
+          - name: flow-config-volume
+            mountPath: /home/mosip/data/flows/flow-esignet.yaml
+            subPath: flow-esignet.yaml
+            readOnly: true
         {{- if .Values.sidecars }}
         {{- include "common.tplvalues.render" ( dict "value" .Values.sidecars "context" $) | nindent 8 }}
         {{- end }}
@@ -207,3 +211,10 @@ spec:
         persistentVolumeClaim:
           claimName: {{ .Values.persistence.existingClaim | default .Values.persistence.pvc_claim_name  }}
       {{ end }}
+      - name: flow-config-volume
+        configMap:
+          name: esignet-flow-config
+          optional: true
+          items:
+            - key: flow-esignet.yaml
+              path: flow-esignet.yaml
