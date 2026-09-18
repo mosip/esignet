@@ -8,6 +8,7 @@ Open ID Connect based identity provider for large-scale authentication, from [MO
 |------|---------|
 | [`esignet-service/`](esignet-service/README.md) | Go service embedding the ThunderID authorization engine — PostgreSQL-backed client management, Redis-backed session/flow storage, pluggable authentication (mock, MOSIP IDA, SunbirdRC KBI). The core of this repo. |
 | [`oidc-ui/`](oidc-ui/README.md) | React + TypeScript + Vite UI for the OIDC login/consent screens. |
+| [`docs/`](docs/architecture.md) | Architecture, [configuration reference](docs/configuration.md), and resource-server/permission-scope docs. |
 | [`postman-collection/`](postman-collection/README.md) | Postman collection + environment for manual/scripted checks against `esignet-service`. |
 | [`docker-compose/`](docker-compose/docker-compose.yaml) | Local Postgres + Redis for `esignet-service` development. |
 | [`deploy/`](deploy/README.md) | Kubernetes deployment guide and scripts. |
@@ -19,17 +20,18 @@ Open ID Connect based identity provider for large-scale authentication, from [MO
 | [`ui-test/`](ui-test/README.md) | Cucumber + TestNG + Selenium UI automation framework. |
 | [`performance-test/`](performance-test/README.md) | JMeter performance test scripts. |
 
-## Quick start (local dev)
+## Local setup
+
+**[docker-compose/README.md](docker-compose/README.md)** — step-by-step guide covering prerequisites, which services come up in each compose file, health verification, database initialization, the OIDC happy flow, troubleshooting, and teardown.
+
+Quick reference:
 
 ```bash
-# 1. Infra: Postgres (host port 5455) + Redis (6379)
+# Full demo (PostgreSQL + Mock ID + eSignet service + OIDC UI)
 cd docker-compose && docker compose up -d
 
-# 2. Service — see esignet-service/README.md for the full environment-variable reference
-cd ../esignet-service
-./make.sh keys && ./make.sh run
-
-# 3. Exercise the API — import both files from postman-collection/ into Postman
+# Dev dependencies only (PostgreSQL + Mock ID, for running the service from source)
+cd docker-compose && docker compose -f dependent-docker-compose.yaml up -d
 ```
 
 Each subproject is independently built and tested; see its own README (linked above) for its specific prerequisites and commands.
@@ -37,3 +39,4 @@ Each subproject is independently built and tested; see its own README (linked ab
 ## License
 
 Mozilla Public License 2.0 — see [LICENSE](LICENSE).
+Third-party dependency licenses — see [THIRD-PARTY-NOTICES.txt](THIRD-PARTY-NOTICES.txt).
