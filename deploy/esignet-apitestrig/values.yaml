@@ -2,7 +2,6 @@
 # in this file -- it's tracked in git. Put those in values.secret.yaml
 # instead (gitignored; copy values.secret.yaml.example to get started).
 #
-# Fields marked "changeme" below are hard requirements -- install.sh refuses
 # to run while any of them are still present. Fields with a real default
 # value plus a "# UPDATE" comment (e.g. KEYCLOAK_TOKEN_URL) are optional to
 # change: the default points at MOSIP's own sandbox and works as-is if

@@ -385,7 +385,7 @@ reports:
   s3:
     enabled: false
     image:
-      registry: docker.io
+      registry: quay.io
       repository: minio/mc
       tag: RELEASE.2025-05-21T01-59-54Z
       pullPolicy: IfNotPresent
