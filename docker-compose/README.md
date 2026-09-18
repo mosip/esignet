@@ -228,7 +228,7 @@ The easiest way to walk through the full OIDC flow is via the included Postman c
 
 1. Import both files from [`postman-collection/`](../postman-collection/) into Postman.
 2. The collection includes requests for:
-   - Registering an OIDC client (`POST /client-mgmt/oidc-client`)
+   - Registering an OIDC client (`POST /client-mgmt/client`)
    - Initiating an authorization request (`GET /authorize`)
    - Completing authentication (OTP or PIN via the Mock ID system)
    - Exchanging the authorization code for tokens (`POST /oauth2/token`)
@@ -385,7 +385,7 @@ docker compose -f dependent-docker-compose.yaml down -v --rmi all
 | Mock Relying Party compose setup | [mosip/esignet-mock-services](https://github.com/mosip/esignet-mock-services/blob/release-0.14.x/docker-compose/README.md) |
 | Architecture overview (backend + frontend components, flow engine, data model) | [`docs/architecture.md`](../docs/architecture.md) |
 | OpenAPI spec (all REST endpoints with request/response schemas) | [`docs/esignet-openapi.yaml`](../docs/esignet-openapi.yaml) |
-| Resource servers and OAuth permission scopes | [`docs/resource-servers-and-permissions.md`](../docs/resource-servers-and-permissions.md) |
+| Resource servers and OAuth permission scopes | [`docs/resource-servers-and-permissions.md`](../docs/configuration/resource-servers-and-permissions.md) |
 | eSignet service — env vars, build, run from source | [`esignet-service/README.md`](../esignet-service/README.md) |
 | OIDC UI — build, theming, runtime config | [`oidc-ui/README.md`](../oidc-ui/README.md) |
 | Postman collection for API exploration | [`postman-collection/`](../postman-collection/) |

@@ -61,7 +61,7 @@ The default 2.0.0 configuration is applied automatically when the new services a
 The only thing that needs manual attention is **environment-specific overrides**: if your 1.8.0 deployment used non-default values for any property (custom key-policy settings, custom captcha/auth-provider config, custom hostnames, etc.), those custom values do **not** carry forward automatically and must be re-applied on top of the new 2.0.0 defaults.
 
 - Refer to the **[configuration documentation](./configuration.md)** for the full list of 2.0.0 properties and their defaults.
-- Refer to the **configuration-delta documentation** for the 1.8.0 → 2.0.0 release to see exactly which properties were added, removed, renamed, or changed in default value: `[PLACEHOLDER: link to configuration-delta documentation]`.
+- Refer to the **[configuration-delta documentation](./configuration-delta.md)** for the 1.8.0 → 2.0.0 release to see exactly which properties were added, removed, renamed, or changed in default value.
 - For each property in that delta that you had overridden in 1.8.0, decide whether the override is still needed against the new 2.0.0 default, and port it forward into your environment's override file accordingly.
 - Do **not** re-apply overrides for properties the delta shows as removed/replaced.
 
