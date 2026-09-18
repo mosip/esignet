@@ -276,7 +276,7 @@ Standard OIDC/OAuth endpoints (`/authorize`, `/token`, `/.well-known/openid-conf
 
 | Variable                                            | Effect                                                       |
 | --------------------------------------------------- | ------------------------------------------------------------ |
-| `PORT`                                              | HTTP listen port (default 8088)                              |
+| `PORT`                                              | HTTP listen port (default 8080)                              |
 | `MOSIP_ESIGNET_HOST`                                | OIDC issuer URL                                              |
 | `MOSIP_ESIGNET_AUTHN_PROVIDER`                      | Selects the identity backend: `mosip` \| `sunbird` \| `mock` |
 | `MOSIP_ESIGNET_AUTH_FLOW_ID`                        | Selects the active flow YAML under `data/flows/`             |
