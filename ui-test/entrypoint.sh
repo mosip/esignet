@@ -18,9 +18,9 @@ echo "ENV_USER=${ENV_USER:-}"
 echo "ENV_TESTLEVEL=${ENV_TESTLEVEL:-smokeAndRegression}"
 echo "MODULES=${MODULES:-esignet}"
 
-JAR=$(ls -1 uitest-esignet-*-jar-with-dependencies.jar 2>/dev/null | head -1)
+JAR=$(ls -1 uitest-esignet-*-jar-with-dependencies.jar 2>/dev/null | head -1 || true)
 if [[ -z "${JAR}" ]]; then
-  JAR=$(ls -1 uitest-esignet-*.jar 2>/dev/null | head -1)
+  JAR=$(ls -1 uitest-esignet-*.jar 2>/dev/null | head -1 || true)
 fi
 if [[ -z "${JAR}" ]]; then
   echo "Shaded uitest-esignet jar not found in $(pwd)" >&2

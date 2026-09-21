@@ -8,6 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.security.KeyStore;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -601,19 +602,24 @@ public final class MockMdsManager {
 	 */
 	private static void ensureWritableCertsRoot() {
 		String configured = EsignetConfigManager.getproperty("authCertsPath");
-		Path root = (configured != null && !configured.isBlank())
-				? Paths.get(configured.trim())
-				: Paths.get(System.getProperty("java.io.tmpdir"), "AUTHCERTS");
+		Path root;
 		try {
-			Files.createDirectories(root);
-		} catch (IOException e) {
-			root = Paths.get(System.getProperty("user.dir"), "AUTHCERTS");
-			try {
+			if (configured != null && !configured.isBlank()) {
+				root = Paths.get(configured.trim());
 				Files.createDirectories(root);
-			} catch (IOException ex) {
-				LOGGER.warning("Could not create a writable AUTHCERTS root: " + ex.getMessage());
-				return;
+			} else {
+				try {
+					root = Files.createTempDirectory("AUTHCERTS-",
+							PosixFilePermissions.asFileAttribute(
+									PosixFilePermissions.fromString("rwx------")));
+				} catch (UnsupportedOperationException e) {
+					// Windows and other non-POSIX filesystems
+					root = Files.createTempDirectory("AUTHCERTS-");
+				}
 			}
+		} catch (IOException e) {
+			LOGGER.warning("Could not create a writable AUTHCERTS root: " + e.getMessage());
+			return;
 		}
 		EsignetConfigManager.setRuntimeProperty("authCertsPath", root.toString());
 	}

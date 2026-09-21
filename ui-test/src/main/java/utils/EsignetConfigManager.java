@@ -50,6 +50,7 @@ public class EsignetConfigManager extends io.mosip.testrig.apirig.utils.ConfigMa
 			overlaySystemProperty(moduleSpecificPropertiesMap, "esignetActuatorEnabled");
 			overlaySystemProperty(moduleSpecificPropertiesMap, "mdsP12Path");
 			overlaySystemProperty(moduleSpecificPropertiesMap, "idaFirCertificate");
+			overlaySystemProperty(moduleSpecificPropertiesMap, "featureFilesToExecute");
 		} catch (Exception e) {
 			LOGGER.error(e.getMessage());
 		}

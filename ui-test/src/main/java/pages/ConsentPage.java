@@ -765,8 +765,7 @@ public class ConsentPage extends BasePage {
 					authorizeScopeOnlyAuthCodeUrl = requestUrl;
 				}
 			});
-			return () -> {
-			};
+			return devTools::clearListeners;
 		} catch (RuntimeException e) {
 			LOGGER.warn("CDP auth-code capture unavailable for @AuthorizeScopeOnly: {}", e.getMessage());
 			return () -> {

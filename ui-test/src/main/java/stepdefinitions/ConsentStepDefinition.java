@@ -171,7 +171,9 @@ public class ConsentStepDefinition {
 	}
 
 	private void loginWithKbiIfNeeded() {
-		if (kbiLoginCompleted || consentPage.isOnAttentionScreen()) {
+		// Guard only: use a short check so an absent attention screen does not wait ~20s
+		// before KBI login. Post-login still waits up to 30s for attention/consent.
+		if (kbiLoginCompleted || consentPage.isOnAttentionScreen(1)) {
 			kbiLoginCompleted = true;
 			return;
 		}

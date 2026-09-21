@@ -45,7 +45,11 @@ public class KbiPage extends BasePage {
 			return true;
 		}
 		List<WebElement> loginButtons = driver.findElements(LOGIN_BUTTON);
-		return !loginButtons.isEmpty() && !getVisibleFieldIds().isEmpty()
+		List<String> visibleFieldIds = getVisibleFieldIds();
+		boolean hasKbiField = visibleFieldIds.stream()
+				.map(EsignetUtil::normalizeKbiFieldId)
+				.anyMatch(id -> id.contains("policy") || id.contains("fullname") || id.contains("dob"));
+		return !loginButtons.isEmpty() && hasKbiField
 				&& driver.findElements(By.cssSelector("[id^='acr_']")).isEmpty()
 				&& driver.findElements(By.id("username_input")).isEmpty();
 	}

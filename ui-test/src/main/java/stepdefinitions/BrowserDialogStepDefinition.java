@@ -66,7 +66,8 @@ public class BrowserDialogStepDefinition {
 			landedOnErrorPage = false;
 		}
 		if (landedOnErrorPage) {
-			if (EsignetUtil.isKbiOnlyLogin()) {
+			boolean expectedKbiRefresh401 = driver.getPageSource().contains("Something went wrong (401)");
+			if (EsignetUtil.isKbiOnlyLogin() && expectedKbiRefresh401) {
 				leaveSiteCheckNotApplicable = true;
 				String reason = "refreshing the KBI form invalidated the authorize transaction (401 error page) "
 						+ "- leave-site prompt cannot be verified on this single-use-transaction login";

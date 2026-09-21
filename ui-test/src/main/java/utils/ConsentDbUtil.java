@@ -132,7 +132,9 @@ public final class ConsentDbUtil {
 			if (trimmed.startsWith("{")) {
 				JSONObject object = new JSONObject(trimmed);
 				for (String key : object.keySet()) {
-					if (object.optBoolean(key, false) || object.opt(key) != null) {
+					Object value = object.opt(key);
+					boolean accepted = !(value instanceof Boolean) || Boolean.TRUE.equals(value);
+					if (accepted && value != JSONObject.NULL) {
 						ids.add(key);
 					}
 				}

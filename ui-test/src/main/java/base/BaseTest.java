@@ -575,7 +575,16 @@ public class BaseTest extends AdminTestUtil {
 	}
 
 	private static boolean containsQueryParam(String lowerUrl, String name, String value) {
-		return lowerUrl.contains(name + "=" + value);
+		int from = 0;
+		String token = name + "=" + value;
+		while ((from = lowerUrl.indexOf(token, from)) >= 0) {
+			int end = from + token.length();
+			if (end == lowerUrl.length() || "&#".indexOf(lowerUrl.charAt(end)) >= 0) {
+				return true;
+			}
+			from = end;
+		}
+		return false;
 	}
 
 	private static String maskSensitiveUrlParams(String url) {

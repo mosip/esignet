@@ -318,8 +318,9 @@ public class KbiStepDefinition {
 			}
 		}
 		if (problems.size() == fieldIds.size()) {
-			boolean pageLevelError = !driver.findElements(By.cssSelector(
-					".error-message, [class*='error'], [role='alert'], #status_message")).isEmpty();
+			boolean pageLevelError = driver.findElements(By.cssSelector(
+					".error-message, [class*='error'], [role='alert'], #status_message")).stream()
+					.anyMatch(el -> el.isDisplayed() && !el.getText().trim().isEmpty());
 			Assert.assertTrue(pageLevelError,
 					"No per-field or page-level validation error was shown after submitting empty KBI fields");
 			return;
