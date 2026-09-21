@@ -29,18 +29,19 @@ WORKDIR ${work_dir}
 # Google Chrome + matching ChromeDriver (amd64). Alpine apk Chromium / Ubuntu snaps
 # cannot start a ChromeDriver session in testriq pods (SessionNotCreatedException).
 # kubectl is used by MOSIP testriq jobs on Rancher to pull env config / push reports.
+# Use curl only (not wget) to satisfy Dockerfile DS-0014.
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
-        wget gnupg unzip curl ca-certificates bash \
+        gnupg unzip curl ca-certificates bash \
         fonts-liberation libasound2 libatk-bridge2.0-0 libatk1.0-0 \
         libcups2 libdrm2 libgbm1 libgtk-3-0 libnspr4 libnss3 \
         libxcomposite1 libxdamage1 libxrandr2 xdg-utils \
-    && wget -qO /tmp/google-chrome.deb https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb \
+    && curl -fsSL -o /tmp/google-chrome.deb https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb \
     && apt-get install -y --no-install-recommends /tmp/google-chrome.deb \
     && rm -f /tmp/google-chrome.deb \
     && CHROME_MAJOR=$(google-chrome --version | grep -oE '[0-9]+' | head -1) \
     && DRIVER_VERSION=$(curl -fsSL "https://googlechromelabs.github.io/chrome-for-testing/LATEST_RELEASE_${CHROME_MAJOR}") \
-    && wget -qO /tmp/chromedriver.zip "https://storage.googleapis.com/chrome-for-testing-public/${DRIVER_VERSION}/linux64/chromedriver-linux64.zip" \
+    && curl -fsSL -o /tmp/chromedriver.zip "https://storage.googleapis.com/chrome-for-testing-public/${DRIVER_VERSION}/linux64/chromedriver-linux64.zip" \
     && unzip -q /tmp/chromedriver.zip -d /tmp \
     && mv /tmp/chromedriver-linux64/chromedriver /usr/bin/chromedriver \
     && chmod +x /usr/bin/chromedriver \
@@ -72,5 +73,9 @@ RUN chmod +x ${work_dir}/entrypoint.sh \
 USER ${container_user_uid}:${container_user_gid}
 
 WORKDIR ${work_dir}
+
+# Batch test runner has no HTTP listener; verify Java + ChromeDriver stay available (DS-0026).
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+    CMD java -version >/dev/null 2>&1 && test -x /usr/bin/chromedriver || exit 1
 
 ENTRYPOINT ["./entrypoint.sh"]
