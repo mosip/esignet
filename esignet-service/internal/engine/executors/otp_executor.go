@@ -129,6 +129,8 @@ func (e *otpExecutor) Execute(ctx *providers.NodeContext) (*providers.ExecutorRe
 	}
 
 	ctx.RuntimeData[otpAttemptCountKey] = strconv.Itoa(attemptCount + 1)
+	// Persisted to RuntimeData so it survives clearConsumedInputs removing it from UserInputs after a failed auth.
+	ctx.RuntimeData[usernameAttr] = username
 
 	execResp.ForwardedData[maskedEmail] = result.MaskedEmail
 	execResp.ForwardedData[maskedMobile] = result.MaskedMobile
