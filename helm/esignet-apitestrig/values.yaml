@@ -26,8 +26,8 @@ extraDeploy: []
 
 image:
   registry: docker.io
-  repository: mosipdev/apitest-esignet
-  tag: develop-go
+  repository: mosipid/apitest-esignet
+  tag: 2.0.0
   ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
   pullPolicy: Always
   ## Optionally specify an array of imagePullSecrets.

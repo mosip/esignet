@@ -8,10 +8,10 @@
 # that's your target environment, so it is intentionally NOT treated as a
 # placeholder.
 
-image:
-  repository: mosipdev/apitest-esignet
-  tag: develop-go
-  pullPolicy: Always
+#image:
+#  repository: mosipid/apitest-esignet
+#  tag: 2.0.0
+#  pullPolicy: Always
 
 triggerKind: cronjob
 crontime: "0 8 * * *"   # hour 0-23, matches the old "time" prompt
