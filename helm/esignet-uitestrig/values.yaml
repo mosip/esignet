@@ -19,10 +19,10 @@ extraDeploy: []
 ## itself should still work with a bare `helm install` and no override.
 image:
   registry: docker.io
-  repository: mosipdev/uitest-esignet
+  repository: mosipid/uitest-esignet
   ## The tag is version-y, not "which language" -- ui-test is Java regardless
   ## of tag. See mosip/esignet#2544's own note on this.
-  tag: develop
+  tag: 2.0.0
   pullPolicy: Always
   # pullSecrets:
   #   - myRegistryKeySecretName

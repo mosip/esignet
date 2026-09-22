@@ -12,10 +12,10 @@
 # Uses the chart's own default image (helm/esignet-uitestrig/values.yaml)
 # unless uncommented here. Uncomment and edit if you need a different
 # repository/tag for this environment.
-# image:
-#   repository: mosipdev/uitest-esignet
-#   tag: develop
-#   pullPolicy: Always
+#image:
+#  repository: mosipid/uitest-esignet
+#  tag: 2.0.0
+#  pullPolicy: Always
 
 triggerKind: cronjob
 crontime: "0 3 * * *"   # hour 0-23
