@@ -1,6 +1,8 @@
-# Postman — eSignet embedder flows
+# Postman — eSignet flows
 
-Manual API checks for a running [esignet-service](../esignet-service/README.md) instance.
+Postman collection for manually testing the APIs of a running [esignet-service](../esignet-service/README.md) instance.
+
+For API documentation and relying party integration, see the [`docs`](../docs) folder.
 
 All OAuth clients are **confidential** and must use `clientAuthMethods: ["private_key_jwt"]` at registration. Public clients (`none`) are not supported.
 
@@ -18,7 +20,7 @@ Variable names follow the standard eSignet Postman convention (snake_case: `base
 1. Start the server with `MOSIP_ESIGNET_HOST` matching `baseUrl` in the environment (default `http://127.0.0.1:8080`). See [esignet-service/README.md](../esignet-service/README.md) for build and run steps.
 2. In Postman, import **both** files (environment first, then collection).
 3. Select the **Go-eSignet (local)** environment.
-4. Run **Client Management → Create client** once, with `additionalConfig.require_pushed_authorization_requests` and `dpop_bound_access_tokens` set to `true` (see below), and `authContextRefs` covering the authentication method you want to exercise.
+4. Run **Client Management → Create client** once, with `authContextRefs` covering the authentication method you want to exercise.
 5. Run the **FAPI2.0 flow** folder top to bottom, running only the `Flow execute` step(s) matching the ACR the server actually offered (see [FAPI2.0 flow](#fapi20-flow) below) — and **Sunbird Registry → Create Policy (Identity)** first if you're testing the KBI branch.
 
 No external script or manually-generated key is needed: **Create client**'s pre-request script generates a fresh RSA key pair and `client_id` entirely inside Postman (`crypto.subtle`) and stores them in `client_private_key` / `client_public_key` / `client_id`. Every later request in the flow folder signs with that same private key.
