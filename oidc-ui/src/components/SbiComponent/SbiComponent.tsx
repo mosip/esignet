@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { init, propChange } from "@mosip/secure-biometric-interface-integrator";
 import { encodeBase64 } from "../../utils/encoding";
 import { useTranslation } from "@thunderid/react";
+import { SDK_EXECUTION_ID_KEY } from "../../constants/storage";
 import type {
   ComponentRenderContext,
   EmbeddedFlowComponent,
@@ -39,15 +40,6 @@ const SBI_SUPPORTED_LANGS = new Set(["en", "ar", "hi", "kn", "ta"]);
 const AUTH_TRANSACTION_ID_LENGTH = 10;
 
 /**
- * sessionStorage key @thunderid/react's SignIn flow stores the current flow
- * execution id under, once it has moved the id out of the URL (see
- * getCurrentExecutionId below). Must stay in sync with the "thunderid" default
- * vendor prefix (VendorConstants.VENDOR_PREFIX in @thunderid/javascript), since
- * oidc-ui never overrides `vendor` on ThunderIDProvider (see main.tsx).
- */
-const EXECUTION_ID_STORAGE_KEY = "thunderid_execution_id";
-
-/**
  * Reads the flow's current execution id. esignet-service puts it on the login-page
  * redirect URL as `executionId`, but @thunderid/react's SignIn flow reads it on
  * mount, moves it into sessionStorage, and strips it from the URL to prevent stale
@@ -56,7 +48,7 @@ const EXECUTION_ID_STORAGE_KEY = "thunderid_execution_id";
  */
 const getCurrentExecutionId = (): string =>
   new URLSearchParams(window.location.search).get("executionId") ??
-  sessionStorage.getItem(EXECUTION_ID_STORAGE_KEY) ??
+  sessionStorage.getItem(SDK_EXECUTION_ID_KEY) ??
   "";
 
 /**

@@ -2,6 +2,7 @@ import { SignIn } from "@thunderid/react";
 import LoadingIndicator from "../components/LoadingIndicator";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { SDK_EXECUTION_ID_KEY } from "../constants/storage";
 const REQUIRED_PARAMS = ["applicationId", "authId"];
 
 export default function LoginPage() {
@@ -24,13 +25,19 @@ export default function LoginPage() {
     const allParamsPresent = REQUIRED_PARAMS.every((p: string) =>
       searchParams?.has(p),
     );
-    if (allParamsPresent) {
+
+    // On reload the SDK has stripped applicationId/authId from the URL but kept the flow's
+    // executionId to resume from. A present executionId means the flow is still resumable (#2249).
+    const hasResumableTransaction = Boolean(
+      sessionStorage.getItem(SDK_EXECUTION_ID_KEY),
+    );
+
+    if (allParamsPresent || hasResumableTransaction) {
       setIsLoading(false);
       return;
     }
 
-    // If we have search params but are missing
-    // required ones, show page not found
+    // No fresh params and no resumable transaction: treat as an invalid direct hit.
     navigate("/something-went-wrong", {
       state: { code: 401 },
       replace: true,
