@@ -43,8 +43,8 @@ jobs:
     uses: mosip/kattu/.github/workflows/go-sonar-analysis.yml@develop
     with:
       SERVICE_LOCATION: ./esignet-service
-      GO_VERSION: '1.26'
-      SONAR_EXCLUSIONS: '**/vendor/**,**/*_test.go,internal/clientmgmt/db/**,internal/consentmgmt/db/**,internal/keymanager/db/**'
+      GO_VERSION: "1.26"
+      SONAR_EXCLUSIONS: "**/vendor/**,**/*_test.go,internal/clientmgmt/db/**,internal/consentmgmt/db/**,internal/keymanager/db/**"
 
     secrets:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -222,8 +222,8 @@ jobs:
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
-          java-version: '21'
+          distribution: "temurin"
+          java-version: "21"
           server-id: ossrh
           settings-path: ${{ github.workspace }}
 
@@ -260,9 +260,9 @@ jobs:
     strategy:
       matrix:
         include:
-          - SERVICE_LOCATION: 'ui-test'
-            SERVICE_NAME: 'uitest-esignet'
-            BUILD_ARTIFACT: 'uitest-esignet-local'
+          - SERVICE_LOCATION: "ui-test"
+            SERVICE_NAME: "uitest-esignet"
+            BUILD_ARTIFACT: "uitest-esignet-local"
             PLATFORMS: "linux/amd64"
       fail-fast: false
     name: ${{ matrix.SERVICE_NAME }}
@@ -277,3 +277,88 @@ jobs:
       ACTOR_DOCKER_HUB: ${{ secrets.ACTOR_DOCKER_HUB }}
       RELEASE_DOCKER_HUB: ${{ secrets.RELEASE_DOCKER_HUB }}
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+
+  run-apitest-pr:
+    if: github.event_name == 'pull_request' || github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Build esignet-service image
+        run: docker build -t esignet:ci ./esignet-service
+
+      - name: Build apitest image
+        run: docker build -t apitest-esignet:ci ./api-test
+
+      - name: Start Full Stack
+        run: docker compose -f docker-compose/docker-compose-ci.yaml up -d database mock-identity-system esignet
+
+      - name: Wait for esignet Service
+        run: |
+          for _ in {1..30}; do
+            if curl -fsS --max-time 5 http://localhost:8080/health | grep -qw ok; then
+              echo "Service is UP"
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "::error::esignet did not become healthy"
+          exit 1
+
+      - name: Run API Tests
+        id: apitest
+        run: |
+          set +e
+          docker compose -f docker-compose/docker-compose-ci.yaml up --exit-code-from apitest apitest
+          EXIT_CODE=$?
+          echo "EXIT_CODE=$EXIT_CODE" >> "$GITHUB_ENV"
+          set -e
+
+      - name: Copy reports from api test container
+        if: always()
+        run: |
+          mkdir -p ci-reports
+          CONTAINER_ID=$(docker ps -a --filter "name=apitest" --format "{{.ID}}" | head -n 1)
+          if [ -n "$CONTAINER_ID" ]; then
+            docker cp "$CONTAINER_ID":/home/esignet/test-report/. ci-reports || echo "No reports found"
+          else
+            echo "Apitest container not found"
+          fi
+          ls -R ci-reports || true
+
+      - name: Sanitize report filenames
+        if: always()
+        run: |
+          find ci-reports -depth -name "*:*" -exec bash -c '
+            for f; do
+              mv "$f" "${f//:/_}"
+            done
+          ' _ {} +
+
+      - name: Upload Test Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: esignet-test-report
+          path: ci-reports/
+
+      - name: Print esignet-service logs
+        if: always()
+        run: docker logs esignet-service
+
+      - name: Print all service logs
+        if: always()
+        run: docker compose -f docker-compose/docker-compose-ci.yaml logs
+
+      - name: Shutdown
+        if: always()
+        run: docker compose -f docker-compose/docker-compose-ci.yaml down
+
+      - name: Fail Job If Tests Failed
+        if: env.EXIT_CODE != '0'
+        run: exit 1

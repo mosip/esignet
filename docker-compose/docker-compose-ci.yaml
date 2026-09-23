@@ -1,0 +1,89 @@
+services:
+
+  database:
+    container_name: postgres-db
+    image: 'postgres:bookworm'
+    ports:
+      - 5455:5432
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - ./init-ci.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  mock-identity-system:
+    container_name: mock-id
+    image: 'mosipdev/mock-identity-system:release-0.14.x'
+    user: root
+    ports:
+      - 8082:8082
+    environment:
+      - container_user=mosip
+      - active_profile_env=default,local
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://database:5432/mosip_mockidentitysystem?currentSchema=mockidentitysystem
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+      - MOSIP_ESIGNET_HOST=localhost:8080
+    depends_on:
+      database:
+        condition: service_healthy
+
+  esignet:
+    container_name: esignet-service
+    image: "esignet:ci"
+    user: root
+    ports:
+      - 8080:8080
+    environment:
+      - container_user=mosip
+      - PORT=8080
+      - DATABASE_HOST=database
+      - DATABASE_PORT=5432
+      - DATABASE_USERNAME=postgres
+      - DATABASE_PASSWORD=postgres
+      - KEYMANAGER_KEYSTORE_TYPE=PKCS12
+      - KEYMANAGER_DB_SCHEMA=esignet
+      - KEYMANAGER_PKCS12_FILE_PATH=/opt/mosip/test.pfx
+      - KEYMANAGER_PKCS12_PASSWORD=localtest
+      - KEYMANAGER_PKCS12_ALLOW_INSECURE_SOFTWARE_KEYSTORE=true
+      - MOSIP_ESIGNET_CACHE_TYPE=inmemory
+      - MOSIP_ESIGNET_HOST=http://localhost:8080
+      - MOSIP_ESIGNET_OIDC_UI_HOSTNAME=localhost
+      - MOSIP_ESIGNET_CAPTCHA_SITE_PROVIDER=hcaptcha
+      - MOSIP_ESIGNET_CAPTCHA_SITE_KEY=10000000-ffff-ffff-ffff-000000000001
+      - MOSIP_ESIGNET_AUTHN_PROVIDER=mock
+      - MOSIP_ESIGNET_MOCK_DOMAIN_URL=http://mock-identity-system:8082
+    depends_on:
+      database:
+        condition: service_healthy
+      mock-identity-system:
+        condition: service_started
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:8080/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
+
+  apitest:
+    image: apitest-esignet:ci
+    user: root
+    depends_on:
+      esignet:
+        condition: service_healthy
+    environment:
+      MOSIP_ESIGNET_BASE_URL: http://esignet:8080
+      CONFIG: /app/data/config/config.mock.json
+      REPORT_DIR: /home/esignet/test-report
+      ADMIN_TOKEN: local-no-scope
+      INDIVIDUAL_ID: 1774231323
+      ID_TYPE: uin
+      SURFACES: api,e2e
+      TEST_PROFILE: full
+
+
