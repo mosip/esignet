@@ -11,7 +11,7 @@ A Go service that embeds the ThunderID authorization engine with PostgreSQL-back
 - OpenSSL (for local TLS signing-key generation; bundled with Git Bash)
 - PostgreSQL 14+ (client management persistence, and keymanager's key/certificate store)
 - Redis 6.2+ when using the Redis runtime / session store (`MOSIP_ESIGNET_CACHE_TYPE=redis`; requires `GETDEL` and `KEEPTTL` support)
-- A C toolchain (gcc) for `CGO_ENABLED=1` builds — required for the PKCS#11 (HSM/SoftHSM2) keymanager keystore backend; the default `CGO_ENABLED=0` local build only supports the PKCS#12 backend (see [Key management](#key-management-keymanager))
+- A C toolchain (gcc) for `CGO_ENABLED=1` builds — required for the PKCS#11 (HSM/SoftHSM2) keymanager keystore backend; the default `CGO_ENABLED=0` local build only supports the PKCS#12 backend (see [Key management](internal/keymanager/README.md))
 - Network access to fetch the Thunder backend module (see `go.mod` `replace` directive)
 
 The Redis runtime store's `Take` operation uses [`GETDEL`](https://redis.io/docs/latest/commands/getdel/)
