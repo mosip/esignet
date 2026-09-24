@@ -148,7 +148,15 @@ func (s *Service) CreateClient(ctx context.Context, profile Profile, req CreateC
 
 // UpdateClient updates an existing OIDC client.
 func (s *Service) UpdateClient(ctx context.Context, profile Profile, clientID string, req UpdateClientRequest) (ClientResponse, error) {
-	if err := ValidateUpdate(profile, req); err != nil {
+	existing, err := s.q.GetClient(ctx, clientID)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return ClientResponse{}, ErrClientNotFound
+		}
+		return ClientResponse{}, fmt.Errorf("get client: %w", err)
+	}
+	// PUT cannot change encPublicKey, so its presence is carried over as-is.
+	if err := ValidateUpdate(profile, req, existing.EncPublicKey.Valid); err != nil {
 		return ClientResponse{}, err
 	}
 
@@ -224,7 +232,11 @@ func (s *Service) PatchClient(ctx context.Context, clientID string, req PatchCli
 	if err != nil {
 		return ClientResponse{}, err
 	}
-	if err := ValidatePatch(ProfileClient, merged, fields, req.EncPublicKey, s.supportedEncAlgs); err != nil {
+	hasEncPublicKey := existing.EncPublicKey.Valid
+	if fields.EncPublicKey {
+		hasEncPublicKey = !req.EncPublicKey.IsNull
+	}
+	if err := ValidatePatch(ProfileClient, merged, fields, req.EncPublicKey, s.supportedEncAlgs, hasEncPublicKey); err != nil {
 		return ClientResponse{}, err
 	}
 

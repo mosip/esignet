@@ -33,7 +33,7 @@ func validCreateRequest() CreateClientRequest {
 		RedirectURIs: []string{"https://example.com/callback"},
 		Claims:       []string{"name", "email"},
 		AcrValues:    []string{"mosip:idp:acr:static-code"},
-		PublicKey:    map[string]string{"kty": "RSA", "n": "abc", "e": "AQAB"},
+		PublicKey:    map[string]string{"kty": "RSA", "n": "abc", "e": "AQAB", "kid": "key-1"},
 		GrantTypes:   []string{"authorization_code"},
 		AuthMethods:  []string{"private_key_jwt"},
 	}
@@ -156,6 +156,12 @@ func (ts *ValidateTestSuite) TestValidateCreate() {
 		assert.Equal(t, "invalid_public_key", errCode(t, ValidateCreate(ProfileOIDC, req, nil)))
 	})
 
+	t.Run("public key without kid rejected", func(t *testing.T) {
+		req := validCreateRequest()
+		req.PublicKey = map[string]string{"kty": "RSA", "n": "abc", "e": "AQAB"}
+		assert.Equal(t, "invalid_public_key", errCode(t, ValidateCreate(ProfileOIDC, req, nil)))
+	})
+
 	t.Run("empty grant types", func(t *testing.T) {
 		req := validCreateRequest()
 		req.GrantTypes = nil
@@ -185,6 +191,21 @@ func (ts *ValidateTestSuite) TestValidateCreate() {
 		req.ClientNameLangMap = map[string]string{"eng": "x"}
 		req.AdditionalConfig = json.RawMessage(`not-json`)
 		assert.Equal(t, "invalid_additional_config", errCode(t, ValidateCreate(ProfileClient, req, nil)))
+	})
+
+	t.Run("client profile jwe userinfo response type without enc public key rejected", func(t *testing.T) {
+		req := validCreateRequest()
+		req.ClientNameLangMap = map[string]string{"eng": "x"}
+		req.AdditionalConfig = json.RawMessage(`{"userinfo_response_type":"JWE"}`)
+		assert.Equal(t, "invalid_additional_config", errCode(t, ValidateCreate(ProfileClient, req, nil)))
+	})
+
+	t.Run("client profile jwe userinfo response type with enc public key accepted", func(t *testing.T) {
+		req := validCreateRequest()
+		req.ClientNameLangMap = map[string]string{"eng": "x"}
+		req.AdditionalConfig = json.RawMessage(`{"userinfo_response_type":"JWE"}`)
+		req.EncPublicKey = map[string]string{"kty": "RSA", "n": "abc", "e": "AQAB", "alg": "RSA-OAEP-256"}
+		assert.NoError(t, ValidateCreate(ProfileClient, req, nil))
 	})
 
 	t.Run("invalid enc public key", func(t *testing.T) {
@@ -223,117 +244,117 @@ func (ts *ValidateTestSuite) TestValidateUpdate() {
 	t := ts.T()
 	t.Run("valid oidc profile", func(t *testing.T) {
 		req := validUpdateRequest()
-		assert.NoError(t, ValidateUpdate(ProfileOIDC, req))
+		assert.NoError(t, ValidateUpdate(ProfileOIDC, req, false))
 	})
 
 	t.Run("oidc profile rejects client name lang map", func(t *testing.T) {
 		req := validUpdateRequest()
 		req.ClientNameLangMap = map[string]string{"eng": "x"}
-		assert.Equal(t, "invalid_input", errCode(t, ValidateUpdate(ProfileOIDC, req)))
+		assert.Equal(t, "invalid_input", errCode(t, ValidateUpdate(ProfileOIDC, req, false)))
 	})
 
 	t.Run("non-oidc requires client name lang map", func(t *testing.T) {
 		req := validUpdateRequest()
-		assert.Equal(t, "invalid_input", errCode(t, ValidateUpdate(ProfileOAuth, req)))
+		assert.Equal(t, "invalid_input", errCode(t, ValidateUpdate(ProfileOAuth, req, false)))
 	})
 
 	t.Run("invalid status", func(t *testing.T) {
 		req := validUpdateRequest()
 		req.Status = "bogus"
-		assert.Equal(t, "invalid_input", errCode(t, ValidateUpdate(ProfileOIDC, req)))
+		assert.Equal(t, "invalid_input", errCode(t, ValidateUpdate(ProfileOIDC, req, false)))
 	})
 
 	t.Run("empty claims below minimum", func(t *testing.T) {
 		req := validUpdateRequest()
 		req.Claims = nil
-		assert.Equal(t, "invalid_claim", errCode(t, ValidateUpdate(ProfileOIDC, req)))
+		assert.Equal(t, "invalid_claim", errCode(t, ValidateUpdate(ProfileOIDC, req, false)))
 	})
 
 	t.Run("oidc acr must be in restricted set", func(t *testing.T) {
 		req := validUpdateRequest()
 		req.AcrValues = []string{"mosip:idp:acr:password"}
-		assert.Equal(t, "invalid_acr", errCode(t, ValidateUpdate(ProfileOIDC, req)))
+		assert.Equal(t, "invalid_acr", errCode(t, ValidateUpdate(ProfileOIDC, req, false)))
 	})
 
 	t.Run("client profile additional config", func(t *testing.T) {
 		req := validUpdateRequest()
 		req.ClientNameLangMap = map[string]string{"eng": "x"}
 		req.AdditionalConfig = json.RawMessage(`{"dpop_bound_access_tokens":true}`)
-		assert.NoError(t, ValidateUpdate(ProfileClient, req))
+		assert.NoError(t, ValidateUpdate(ProfileClient, req, false))
 	})
 
 	t.Run("oauth profile rejects additional config", func(t *testing.T) {
 		req := validUpdateRequest()
 		req.ClientNameLangMap = map[string]string{"eng": "x"}
 		req.AdditionalConfig = json.RawMessage(`{}`)
-		assert.Equal(t, "invalid_input", errCode(t, ValidateUpdate(ProfileOAuth, req)))
+		assert.Equal(t, "invalid_input", errCode(t, ValidateUpdate(ProfileOAuth, req, false)))
 	})
 
 	t.Run("invalid client name", func(t *testing.T) {
 		req := validUpdateRequest()
 		req.ClientName = ""
-		assert.Equal(t, "invalid_client_name", errCode(t, ValidateUpdate(ProfileOIDC, req)))
+		assert.Equal(t, "invalid_client_name", errCode(t, ValidateUpdate(ProfileOIDC, req, false)))
 	})
 
 	t.Run("invalid logo uri", func(t *testing.T) {
 		req := validUpdateRequest()
 		req.LogoURI = "not a uri"
-		assert.Equal(t, "invalid_uri", errCode(t, ValidateUpdate(ProfileOIDC, req)))
+		assert.Equal(t, "invalid_uri", errCode(t, ValidateUpdate(ProfileOIDC, req, false)))
 	})
 
 	t.Run("empty redirect uris", func(t *testing.T) {
 		req := validUpdateRequest()
 		req.RedirectURIs = nil
-		assert.Equal(t, "invalid_redirect_uri", errCode(t, ValidateUpdate(ProfileOIDC, req)))
+		assert.Equal(t, "invalid_redirect_uri", errCode(t, ValidateUpdate(ProfileOIDC, req, false)))
 	})
 
 	t.Run("invalid redirect uri", func(t *testing.T) {
 		req := validUpdateRequest()
 		req.RedirectURIs = []string{"not a uri"}
-		assert.Equal(t, "invalid_redirect_uri", errCode(t, ValidateUpdate(ProfileOIDC, req)))
+		assert.Equal(t, "invalid_redirect_uri", errCode(t, ValidateUpdate(ProfileOIDC, req, false)))
 	})
 
 	t.Run("invalid claims", func(t *testing.T) {
 		req := validUpdateRequest()
 		req.Claims = []string{"not_allowed"}
-		assert.Equal(t, "invalid_claim", errCode(t, ValidateUpdate(ProfileOIDC, req)))
+		assert.Equal(t, "invalid_claim", errCode(t, ValidateUpdate(ProfileOIDC, req, false)))
 	})
 
 	t.Run("empty acr values", func(t *testing.T) {
 		req := validUpdateRequest()
 		req.AcrValues = nil
-		assert.Equal(t, "invalid_acr", errCode(t, ValidateUpdate(ProfileOIDC, req)))
+		assert.Equal(t, "invalid_acr", errCode(t, ValidateUpdate(ProfileOIDC, req, false)))
 	})
 
 	t.Run("empty grant types", func(t *testing.T) {
 		req := validUpdateRequest()
 		req.GrantTypes = nil
-		assert.Equal(t, "invalid_grant_type", errCode(t, ValidateUpdate(ProfileOIDC, req)))
+		assert.Equal(t, "invalid_grant_type", errCode(t, ValidateUpdate(ProfileOIDC, req, false)))
 	})
 
 	t.Run("invalid grant types", func(t *testing.T) {
 		req := validUpdateRequest()
 		req.GrantTypes = []string{"implicit"}
-		assert.Equal(t, "invalid_grant_type", errCode(t, ValidateUpdate(ProfileOIDC, req)))
+		assert.Equal(t, "invalid_grant_type", errCode(t, ValidateUpdate(ProfileOIDC, req, false)))
 	})
 
 	t.Run("empty auth methods", func(t *testing.T) {
 		req := validUpdateRequest()
 		req.AuthMethods = nil
-		assert.Equal(t, "invalid_client_auth", errCode(t, ValidateUpdate(ProfileOIDC, req)))
+		assert.Equal(t, "invalid_client_auth", errCode(t, ValidateUpdate(ProfileOIDC, req, false)))
 	})
 
 	t.Run("invalid auth methods", func(t *testing.T) {
 		req := validUpdateRequest()
 		req.AuthMethods = []string{"client_secret_basic"}
-		assert.Equal(t, "invalid_client_auth", errCode(t, ValidateUpdate(ProfileOIDC, req)))
+		assert.Equal(t, "invalid_client_auth", errCode(t, ValidateUpdate(ProfileOIDC, req, false)))
 	})
 
 	t.Run("client profile invalid additional config", func(t *testing.T) {
 		req := validUpdateRequest()
 		req.ClientNameLangMap = map[string]string{"eng": "x"}
 		req.AdditionalConfig = json.RawMessage(`not-json`)
-		assert.Equal(t, "invalid_additional_config", errCode(t, ValidateUpdate(ProfileClient, req)))
+		assert.Equal(t, "invalid_additional_config", errCode(t, ValidateUpdate(ProfileClient, req, false)))
 	})
 }
 
@@ -342,64 +363,64 @@ func (ts *ValidateTestSuite) TestValidatePatch() {
 	base := validUpdateRequest()
 
 	t.Run("no fields set falls through to ValidateUpdate", func(t *testing.T) {
-		assert.NoError(t, ValidatePatch(ProfileOIDC, base, PatchFields{}, NullableJWK{}, nil))
+		assert.NoError(t, ValidatePatch(ProfileOIDC, base, PatchFields{}, NullableJWK{}, nil, false))
 	})
 
 	t.Run("patched client name validated", func(t *testing.T) {
 		merged := base
 		merged.ClientName = ""
-		err := ValidatePatch(ProfileOIDC, merged, PatchFields{ClientName: true}, NullableJWK{}, nil)
+		err := ValidatePatch(ProfileOIDC, merged, PatchFields{ClientName: true}, NullableJWK{}, nil, false)
 		assert.Equal(t, "invalid_client_name", errCode(t, err))
 	})
 
 	t.Run("patched status validated", func(t *testing.T) {
 		merged := base
 		merged.Status = "bogus"
-		err := ValidatePatch(ProfileOIDC, merged, PatchFields{Status: true}, NullableJWK{}, nil)
+		err := ValidatePatch(ProfileOIDC, merged, PatchFields{Status: true}, NullableJWK{}, nil, false)
 		assert.Equal(t, "invalid_input", errCode(t, err))
 	})
 
 	t.Run("patched redirect uris validated", func(t *testing.T) {
 		merged := base
 		merged.RedirectURIs = []string{"not a uri"}
-		err := ValidatePatch(ProfileOIDC, merged, PatchFields{RedirectURIs: true}, NullableJWK{}, nil)
+		err := ValidatePatch(ProfileOIDC, merged, PatchFields{RedirectURIs: true}, NullableJWK{}, nil, false)
 		assert.Equal(t, "invalid_redirect_uri", errCode(t, err))
 	})
 
 	t.Run("patched enc public key validated", func(t *testing.T) {
 		err := ValidatePatch(ProfileOIDC, base, PatchFields{EncPublicKey: true},
-			NullableJWK{Value: map[string]string{"kty": "bogus"}}, nil)
+			NullableJWK{Value: map[string]string{"kty": "bogus"}}, nil, false)
 		assert.Equal(t, "invalid_public_key", errCode(t, err))
 	})
 
 	t.Run("null enc public key skips validation", func(t *testing.T) {
-		err := ValidatePatch(ProfileOIDC, base, PatchFields{EncPublicKey: true}, NullableJWK{IsNull: true}, nil)
+		err := ValidatePatch(ProfileOIDC, base, PatchFields{EncPublicKey: true}, NullableJWK{IsNull: true}, nil, false)
 		assert.NoError(t, err)
 	})
 
 	t.Run("patched enc public key missing alg rejected", func(t *testing.T) {
 		err := ValidatePatch(ProfileOIDC, base, PatchFields{EncPublicKey: true},
-			NullableJWK{Value: map[string]string{"kty": "RSA", "n": "abc", "e": "AQAB"}}, nil)
+			NullableJWK{Value: map[string]string{"kty": "RSA", "n": "abc", "e": "AQAB"}}, nil, false)
 		assert.Equal(t, "invalid_public_key", errCode(t, err))
 	})
 
 	t.Run("patched enc public key alg not in supported list rejected", func(t *testing.T) {
 		err := ValidatePatch(ProfileOIDC, base, PatchFields{EncPublicKey: true},
 			NullableJWK{Value: map[string]string{"kty": "RSA", "n": "abc", "e": "AQAB", "alg": "RSA-OAEP"}},
-			[]string{"RSA-OAEP-256"})
+			[]string{"RSA-OAEP-256"}, false)
 		assert.Equal(t, "invalid_public_key", errCode(t, err))
 	})
 
 	t.Run("status normalized before final ValidateUpdate", func(t *testing.T) {
 		merged := base
 		merged.Status = "ACTIVE"
-		assert.NoError(t, ValidatePatch(ProfileOIDC, merged, PatchFields{}, NullableJWK{}, nil))
+		assert.NoError(t, ValidatePatch(ProfileOIDC, merged, PatchFields{}, NullableJWK{}, nil, false))
 	})
 
 	t.Run("patched client name lang map validated", func(t *testing.T) {
 		merged := base
 		merged.ClientNameLangMap = map[string]string{"xx": "bad code"}
-		err := ValidatePatch(ProfileOIDC, merged, PatchFields{ClientNameLangMap: true}, NullableJWK{}, nil)
+		err := ValidatePatch(ProfileOIDC, merged, PatchFields{ClientNameLangMap: true}, NullableJWK{}, nil, false)
 		assert.Equal(t, "invalid_language_code", errCode(t, err))
 	})
 
@@ -410,7 +431,7 @@ func (ts *ValidateTestSuite) TestValidatePatch() {
 			many = append(many, "name")
 		}
 		merged.Claims = many
-		err := ValidatePatch(ProfileOIDC, merged, PatchFields{Claims: true}, NullableJWK{}, nil)
+		err := ValidatePatch(ProfileOIDC, merged, PatchFields{Claims: true}, NullableJWK{}, nil, false)
 		assert.Equal(t, "invalid_claim", errCode(t, err))
 	})
 
@@ -421,21 +442,21 @@ func (ts *ValidateTestSuite) TestValidatePatch() {
 			many = append(many, "mosip:idp:acr:static-code")
 		}
 		merged.AcrValues = many
-		err := ValidatePatch(ProfileOIDC, merged, PatchFields{AcrValues: true}, NullableJWK{}, nil)
+		err := ValidatePatch(ProfileOIDC, merged, PatchFields{AcrValues: true}, NullableJWK{}, nil, false)
 		assert.Equal(t, "invalid_acr", errCode(t, err))
 	})
 
 	t.Run("patched grant types exceeding max rejected", func(t *testing.T) {
 		merged := base
 		merged.GrantTypes = []string{"authorization_code", "authorization_code", "authorization_code", "authorization_code"}
-		err := ValidatePatch(ProfileOIDC, merged, PatchFields{GrantTypes: true}, NullableJWK{}, nil)
+		err := ValidatePatch(ProfileOIDC, merged, PatchFields{GrantTypes: true}, NullableJWK{}, nil, false)
 		assert.Equal(t, "invalid_grant_type", errCode(t, err))
 	})
 
 	t.Run("patched auth methods exceeding max rejected", func(t *testing.T) {
 		merged := base
 		merged.AuthMethods = []string{"private_key_jwt", "private_key_jwt", "private_key_jwt", "private_key_jwt"}
-		err := ValidatePatch(ProfileOIDC, merged, PatchFields{AuthMethods: true}, NullableJWK{}, nil)
+		err := ValidatePatch(ProfileOIDC, merged, PatchFields{AuthMethods: true}, NullableJWK{}, nil, false)
 		assert.Equal(t, "invalid_client_auth", errCode(t, err))
 	})
 
@@ -443,8 +464,24 @@ func (ts *ValidateTestSuite) TestValidatePatch() {
 		merged := base
 		merged.ClientNameLangMap = map[string]string{"eng": "x"}
 		merged.AdditionalConfig = json.RawMessage(`not-json`)
-		err := ValidatePatch(ProfileClient, merged, PatchFields{AdditionalConfig: true}, NullableJWK{}, nil)
+		err := ValidatePatch(ProfileClient, merged, PatchFields{AdditionalConfig: true}, NullableJWK{}, nil, false)
 		assert.Equal(t, "invalid_additional_config", errCode(t, err))
+	})
+
+	t.Run("patched jwe additional config without enc public key rejected", func(t *testing.T) {
+		merged := base
+		merged.ClientNameLangMap = map[string]string{"eng": "x"}
+		merged.AdditionalConfig = json.RawMessage(`{"userinfo_response_type":"JWE"}`)
+		err := ValidatePatch(ProfileClient, merged, PatchFields{AdditionalConfig: true}, NullableJWK{}, nil, false)
+		assert.Equal(t, "invalid_additional_config", errCode(t, err))
+	})
+
+	t.Run("patched jwe additional config with enc public key accepted", func(t *testing.T) {
+		merged := base
+		merged.ClientNameLangMap = map[string]string{"eng": "x"}
+		merged.AdditionalConfig = json.RawMessage(`{"userinfo_response_type":"JWE"}`)
+		err := ValidatePatch(ProfileClient, merged, PatchFields{AdditionalConfig: true}, NullableJWK{}, nil, true)
+		assert.NoError(t, err)
 	})
 }
 
@@ -481,82 +518,100 @@ func (ts *ValidateTestSuite) TestValidateClientNameLangMap() {
 func (ts *ValidateTestSuite) TestValidateAdditionalConfig() {
 	t := ts.T()
 	t.Run("invalid json", func(t *testing.T) {
-		err := validateAdditionalConfig(json.RawMessage(`not-json`))
+		err := validateAdditionalConfig(json.RawMessage(`not-json`), false)
 		assert.Equal(t, "invalid_additional_config", errCode(t, err))
 	})
 
-	t.Run("valid userinfo_response_type", func(t *testing.T) {
-		assert.NoError(t, validateAdditionalConfig(json.RawMessage(`{"userinfo_response_type":"JWE"}`)))
+	t.Run("valid userinfo_response_type JWS", func(t *testing.T) {
+		assert.NoError(t, validateAdditionalConfig(json.RawMessage(`{"userinfo_response_type":"JWS"}`), false))
+	})
+
+	t.Run("userinfo_response_type JWE without enc public key rejected", func(t *testing.T) {
+		err := validateAdditionalConfig(json.RawMessage(`{"userinfo_response_type":"JWE"}`), false)
+		assert.Equal(t, "invalid_additional_config", errCode(t, err))
+	})
+
+	t.Run("userinfo_response_type JWE with enc public key accepted", func(t *testing.T) {
+		assert.NoError(t, validateAdditionalConfig(json.RawMessage(`{"userinfo_response_type":"JWE"}`), true))
 	})
 
 	t.Run("invalid userinfo_response_type", func(t *testing.T) {
-		err := validateAdditionalConfig(json.RawMessage(`{"userinfo_response_type":"XML"}`))
+		err := validateAdditionalConfig(json.RawMessage(`{"userinfo_response_type":"XML"}`), false)
 		assert.Equal(t, "invalid_additional_config", errCode(t, err))
 	})
 
-	t.Run("valid id_token_response_type", func(t *testing.T) {
-		assert.NoError(t, validateAdditionalConfig(json.RawMessage(`{"id_token_response_type":"JWE"}`)))
+	t.Run("valid id_token_response_type JWS", func(t *testing.T) {
+		assert.NoError(t, validateAdditionalConfig(json.RawMessage(`{"id_token_response_type":"JWS"}`), false))
+	})
+
+	t.Run("id_token_response_type JWE without enc public key rejected", func(t *testing.T) {
+		err := validateAdditionalConfig(json.RawMessage(`{"id_token_response_type":"JWE"}`), false)
+		assert.Equal(t, "invalid_additional_config", errCode(t, err))
+	})
+
+	t.Run("id_token_response_type JWE with enc public key accepted", func(t *testing.T) {
+		assert.NoError(t, validateAdditionalConfig(json.RawMessage(`{"id_token_response_type":"JWE"}`), true))
 	})
 
 	t.Run("invalid id_token_response_type", func(t *testing.T) {
-		err := validateAdditionalConfig(json.RawMessage(`{"id_token_response_type":"XML"}`))
+		err := validateAdditionalConfig(json.RawMessage(`{"id_token_response_type":"XML"}`), false)
 		assert.Equal(t, "invalid_additional_config", errCode(t, err))
 	})
 
 	t.Run("consent_expire_in_mins too low", func(t *testing.T) {
-		err := validateAdditionalConfig(json.RawMessage(`{"consent_expire_in_mins":5}`))
+		err := validateAdditionalConfig(json.RawMessage(`{"consent_expire_in_mins":5}`), false)
 		assert.Equal(t, "invalid_additional_config", errCode(t, err))
 	})
 
 	t.Run("bool fields validated", func(t *testing.T) {
-		err := validateAdditionalConfig(json.RawMessage(`{"signup_banner_required":"not-a-bool"}`))
+		err := validateAdditionalConfig(json.RawMessage(`{"signup_banner_required":"not-a-bool"}`), false)
 		assert.Equal(t, "invalid_additional_config", errCode(t, err))
 	})
 
 	t.Run("valid require_pkce", func(t *testing.T) {
-		assert.NoError(t, validateAdditionalConfig(json.RawMessage(`{"require_pkce":true}`)))
+		assert.NoError(t, validateAdditionalConfig(json.RawMessage(`{"require_pkce":true}`), false))
 	})
 
 	t.Run("invalid require_pkce", func(t *testing.T) {
-		err := validateAdditionalConfig(json.RawMessage(`{"require_pkce":"not-a-bool"}`))
+		err := validateAdditionalConfig(json.RawMessage(`{"require_pkce":"not-a-bool"}`), false)
 		assert.Equal(t, "invalid_additional_config", errCode(t, err))
 	})
 
 	t.Run("unknown key rejected", func(t *testing.T) {
-		err := validateAdditionalConfig(json.RawMessage(`{"unknown_field":true}`))
+		err := validateAdditionalConfig(json.RawMessage(`{"unknown_field":true}`), false)
 		assert.Equal(t, "invalid_additional_config", errCode(t, err))
 	})
 
 	t.Run("valid allowed_authorization_scopes", func(t *testing.T) {
-		assert.NoError(t, validateAdditionalConfig(json.RawMessage(`{"allowed_authorization_scopes":["custom_scope","other_scope"]}`)))
+		assert.NoError(t, validateAdditionalConfig(json.RawMessage(`{"allowed_authorization_scopes":["custom_scope","other_scope"]}`), false))
 	})
 
 	t.Run("empty allowed_authorization_scopes accepted", func(t *testing.T) {
-		assert.NoError(t, validateAdditionalConfig(json.RawMessage(`{"allowed_authorization_scopes":[]}`)))
+		assert.NoError(t, validateAdditionalConfig(json.RawMessage(`{"allowed_authorization_scopes":[]}`), false))
 	})
 
 	t.Run("duplicate allowed_authorization_scopes rejected", func(t *testing.T) {
-		err := validateAdditionalConfig(json.RawMessage(`{"allowed_authorization_scopes":["custom_scope","custom_scope"]}`))
+		err := validateAdditionalConfig(json.RawMessage(`{"allowed_authorization_scopes":["custom_scope","custom_scope"]}`), false)
 		assert.Equal(t, "invalid_additional_config", errCode(t, err))
 	})
 
 	t.Run("blank allowed_authorization_scopes entry rejected", func(t *testing.T) {
-		err := validateAdditionalConfig(json.RawMessage(`{"allowed_authorization_scopes":["custom_scope"," "]}`))
+		err := validateAdditionalConfig(json.RawMessage(`{"allowed_authorization_scopes":["custom_scope"," "]}`), false)
 		assert.Equal(t, "invalid_additional_config", errCode(t, err))
 	})
 
 	t.Run("non-array allowed_authorization_scopes rejected", func(t *testing.T) {
-		err := validateAdditionalConfig(json.RawMessage(`{"allowed_authorization_scopes":"not-an-array"}`))
+		err := validateAdditionalConfig(json.RawMessage(`{"allowed_authorization_scopes":"not-an-array"}`), false)
 		assert.Equal(t, "invalid_additional_config", errCode(t, err))
 	})
 
 	t.Run("purpose validated", func(t *testing.T) {
 		assert.NoError(t, validateAdditionalConfig(json.RawMessage(
-			`{"purpose":{"type":"consent","title":{"@none":"Title"}}}`)))
+			`{"purpose":{"type":"consent","title":{"@none":"Title"}}}`), false))
 	})
 
 	t.Run("invalid purpose propagates", func(t *testing.T) {
-		err := validateAdditionalConfig(json.RawMessage(`{"purpose":{}}`))
+		err := validateAdditionalConfig(json.RawMessage(`{"purpose":{}}`), false)
 		assert.Equal(t, "invalid_additional_config", errCode(t, err))
 	})
 }

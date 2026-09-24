@@ -14,7 +14,11 @@ import (
 	"slices"
 )
 
-func validateJWK(key map[string]string) error {
+// validateJWK validates a public key JWK's structure. When requireKid is
+// true, a non-empty "kid" is also mandatory — the client assertion verifier
+// and JWKS lookups resolve keys by kid, so a signing key registered without
+// one can never be matched at authentication time.
+func validateJWK(key map[string]string, requireKid bool) error {
 	if len(key) == 0 {
 		return validationErr("invalid_public_key")
 	}
@@ -48,6 +52,9 @@ func validateJWK(key map[string]string) error {
 	default:
 		return validationErr("invalid_public_key")
 	}
+	if requireKid && key["kid"] == "" {
+		return validationErr("invalid_public_key")
+	}
 	return nil
 }
 
@@ -56,7 +63,7 @@ func validateJWK(key map[string]string) error {
 // supportedAlgs is non-empty — that alg is one of the configured supported
 // encryption algorithms (config.AppConfig.SupportedEncAlgorithms).
 func validateEncJWK(key map[string]string, supportedAlgs []string) error {
-	if err := validateJWK(key); err != nil {
+	if err := validateJWK(key, false); err != nil {
 		return err
 	}
 	alg := key["alg"]
