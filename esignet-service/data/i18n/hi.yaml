@@ -1283,6 +1283,7 @@ validation:
   maxLength.invalid: मान बहुत लंबा है
   policy.numeric: पॉलिसी नंबर में केवल संख्याएँ होनी चाहिए
   policy.length: पॉलिसी नंबर 8 से 50 अंकों के बीच होना चाहिए
+  otp.required: कृपया एक मान्य OTP दर्ज करें
 
 validations:
   required.field.error: यह फ़ील्ड आवश्यक है

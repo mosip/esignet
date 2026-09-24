@@ -1283,6 +1283,7 @@ validation:
   maxLength.invalid: El valor es demasiado largo
   policy.numeric: El número de póliza debe contener solo números
   policy.length: El número de póliza debe tener entre 8 y 50 dígitos
+  otp.required: Introduce un OTP válido
 
 validations:
   required.field.error: Este campo es obligatorio
