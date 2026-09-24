@@ -200,7 +200,7 @@ func (ts *HandlerTestSuite) TestUpdateClientHandler() {
 	})
 
 	t.Run("client not found", func(t *testing.T) {
-		h := newTestHandler(&fakeQuerier{updateErr: sql.ErrNoRows})
+		h := newTestHandler(&fakeQuerier{getErr: sql.ErrNoRows})
 		mux := http.NewServeMux()
 		h.RegisterRoutes(mux, nil)
 
@@ -215,6 +215,24 @@ func (ts *HandlerTestSuite) TestUpdateClientHandler() {
 		errs := decoded["errors"].([]any)
 		errObj := errs[0].(map[string]any)
 		require.Equal(t, "invalid_client_id", errObj["errorCode"])
+	})
+
+	t.Run("concurrent modification conflict", func(t *testing.T) {
+		h := newTestHandler(&fakeQuerier{getRow: existingClientRow(), updateErr: sql.ErrNoRows})
+		mux := http.NewServeMux()
+		h.RegisterRoutes(mux, nil)
+
+		updateJSON, err := json.Marshal(validUpdateRequest())
+		require.NoError(t, err)
+		body := []byte(`{"requestTime":"2026-07-27T00:00:00.000Z","request":` + string(updateJSON) + `}`)
+		req := httptest.NewRequest(http.MethodPut, "/client-mgmt/oidc-client/client-1", bytes.NewReader(body))
+		rec := httptest.NewRecorder()
+		mux.ServeHTTP(rec, req)
+
+		decoded := decodeEnvelope(t, rec.Body.Bytes())
+		errs := decoded["errors"].([]any)
+		errObj := errs[0].(map[string]any)
+		require.Equal(t, "patch_conflict", errObj["errorCode"])
 	})
 
 	t.Run("malformed body", func(t *testing.T) {
