@@ -1283,6 +1283,7 @@ validation:
   maxLength.invalid: القيمة طويلة جدًا
   policy.numeric: يجب أن يحتوي رقم الوثيقة على أرقام فقط
   policy.length: يجب أن يكون رقم الوثيقة بين 8 و 50 رقمًا
+  otp.required: يُرجى إدخال رمز OTP صالح
 
 validations:
   required.field.error: هذا الحقل مطلوب

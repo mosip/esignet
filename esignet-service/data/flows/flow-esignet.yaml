@@ -305,6 +305,12 @@ otp_max_attempts: &otp_max_attempts
 nodes:
   - id: start
     type: START
+    onSuccess: seed_transaction_id
+
+  - id: seed_transaction_id
+    type: TASK_EXECUTION
+    executor:
+      name: eSignetTransactionIDExecutor
     onSuccess: prompt_acr
 
   - id: prompt_acr
@@ -584,6 +590,10 @@ nodes:
             identifier: otp
             type: TEXT_INPUT
             required: true
+            validation:
+              - type: minLength
+                value: 6
+                message: "validation.otp.required"
         action:
           ref: action_submit_otp
           nextNode: basic_auth

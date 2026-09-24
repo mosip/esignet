@@ -1,0 +1,35 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "uitestrig.configMapName" . }}
+  namespace: {{ .Release.Namespace }}
+  labels: {{- include "common.labels.standard" . | nindent 4 }}
+    {{- if .Values.commonLabels }}
+    {{- include "common.tplvalues.render" ( dict "value" .Values.commonLabels "context" $ ) | nindent 4 }}
+    {{- end }}
+  {{- if .Values.commonAnnotations }}
+  annotations: {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
+  {{- end }}
+data:
+  {{- range $key, $value := .Values.uitestrig.configMap }}
+  {{- if and $value (not (has $key (list "s3-host" "s3-region" "runOnBrowserStack"))) }}
+  {{ $key }}: {{ $value | quote }}
+  {{- end }}
+  {{- end }}
+  {{/*
+  Driven from uitestrig.browserstack.enabled rather than the static
+  configMap.runOnBrowserStack value above -- otherwise enabling BrowserStack
+  (which creates its credentials Secret) wouldn't actually switch the test
+  rig to use it, since the JAR reads this key to decide.
+  */}}
+  runOnBrowserStack: {{ ternary "true" "false" .Values.uitestrig.browserstack.enabled | quote }}
+  {{- if eq (index .Values.uitestrig.configMap "push-reports-to-s3") "yes" }}
+  {{/*
+  Rendered here instead of via the generic loop above (which only skips
+  empty values silently) so a missing S3 endpoint/region fails loudly at
+  `helm upgrade` instead of causing a silent S3 push failure at runtime --
+  only enforced when push-reports-to-s3 is actually "yes".
+  */}}
+  s3-host: {{ required "uitestrig.configMap.s3-host is required when push-reports-to-s3 is \"yes\"" (index .Values.uitestrig.configMap "s3-host") | quote }}
+  s3-region: {{ required "uitestrig.configMap.s3-region is required when push-reports-to-s3 is \"yes\"" (index .Values.uitestrig.configMap "s3-region") | quote }}
+  {{- end }}

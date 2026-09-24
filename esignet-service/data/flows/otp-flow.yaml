@@ -6,6 +6,12 @@ activeVersion: 1
 nodes:
   - id: start
     type: START
+    onSuccess: seed_transaction_id
+
+  - id: seed_transaction_id
+    type: TASK_EXECUTION
+    executor:
+      name: eSignetTransactionIDExecutor
     onSuccess: prompt_individual_id
 
   - id: prompt_individual_id

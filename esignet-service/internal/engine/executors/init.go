@@ -8,6 +8,7 @@ package executors
 
 import (
 	"github.com/mosip/esignet/internal/clientmgmt"
+	"github.com/mosip/esignet/internal/config"
 	"github.com/mosip/esignet/internal/engine/shared"
 
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/providers"
@@ -15,6 +16,7 @@ import (
 
 // Initialize builds the map of executors registered for this engine, keyed by executor name.
 func Initialize(
+	appConfig *config.AppConfig,
 	authnProvider shared.ConsolidatedAuthnProvider,
 	clientSvc *clientmgmt.Service,
 	resourceSvc providers.ResourceServerProvider,
@@ -23,6 +25,7 @@ func Initialize(
 		ExecutorNameEsignetClearInputs:   NewClearInputsExecutor(),
 		ExecutorNameEsignetOTP:           NewOtpExecutor(authnProvider),
 		ExecutorNameEsignetAuthorization: NewAuthorizationExecutor(clientSvc, resourceSvc),
+		ExecutorNameEsignetTransactionID: NewTransactionIDExecutor(appConfig),
 	}
 	return executors
 }

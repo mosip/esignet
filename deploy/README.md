@@ -65,14 +65,20 @@ You'll be asked which plugin to use:
 
 Plugins 2 and 3 also ask which HSM to use — pick SoftHSM unless you have real hardware HSM set up (that path isn't supported by this script yet). Then you'll set a theme, language, and display name for the OIDC UI.
 
-### Note: When deploying multiple plugins in the same cluster, a few manual changes are required in the deployment scripts:
-##### If you are deploying a single plugin in a cluster, these changes are not required.
+
+### Deploying Multiple Plugins in the Same Cluster
+
+When deploying multiple plugins within the same cluster using separate namespaces, certain manual configuration changes are required in the deployment setup.
 - Create a new database for the plugin from the [`db_scripts`](../db_scripts/) directory:
     - Update **dbName**, **dbUser**, **host**, and **port** in [`init_values.yaml`](../db_scripts/init_values.yaml) according to the plugin being deployed.
-    - Run the `init_db.sh` script from the `db_scripts` directory to create the database.
-      ```
+    - Postgres is a shared prerequisite — you don't copy any secret for it. Just read the existing `db-common-secrets` value from the `postgres` namespace and paste it into `init_values.yaml`'s `dbUserPasswords.dbuserPassword` field:
+```
+  kubectl get secret db-common-secrets -n postgres -o jsonpath="{.data.db-dbuser-password}" | base64 --decode
+```
+          - Run the `init_db.sh` script from the `db_scripts` directory to create the database.
+```
       ./init_db.sh
-      ```
+```
 - Update the **namespace** and **mosip-esignet-host domain** in the `esignet-global.yaml` scripts according to the plugin being deployed.
 - Update the **namespace**, **esignet service name**, and **SoftHSM name** in the `esignet` directory's `install.sh` script according to the plugin being deployed.
 - Update the **namespace** and **service name** in the `oidc-ui` directory's `install.sh` script according to the plugin being deployed.
@@ -82,6 +88,16 @@ Plugins 2 and 3 also ask which HSM to use — pick SoftHSM unless you have real 
         *  mosip-esignet-host: esignet-sunbird.sandbox.mosip.net
         *  esignet service name: esignet-sunbird
         *  oidc service name: oidc-ui-sunbird
+- Copy the required config maps and secrets into the new namespace so its pods can reach the shared Keycloak and Redis instances:
+    - `keycloak-client-secrets` (Secret) — from the original `esignet` esignet-sunbird
+    - `keycloak-host` (ConfigMap) — from the original `esignet` esignet-sunbird
+    - Redis secret (Secret, e.g. `redis`) — from the `redis` esignet-sunbird. Confirm the actual name with `kubectl get secret -n redis` before copying, as it depends on how Redis was installed.
+
+```
+  ./copy_cm_func.sh secret keycloak-client-secrets esignet esignet-sunbird
+  ./copy_cm_func.sh configmap keycloak-host esignet esignet-sunbird
+  ./copy_cm_func.sh secret redis redis esignet-sunbird
+```
 
 ### Note:
 * Before proceeding with the **Onboarding** steps, please ensure that the Mock Relying Party services are deployed and running.

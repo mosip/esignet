@@ -86,9 +86,7 @@ function installing_esignet() {
   COPY_UTIL=../copy_cm_func.sh
   $COPY_UTIL configmap postgres-config postgres $NS
   $COPY_UTIL configmap redis-config redis $NS
-  $COPY_UTIL configmap keycloak-host keycloak $NS
   $COPY_UTIL secret redis redis $NS
-  $COPY_UTIL secret keycloak-client-secrets keycloak $NS
 
   MOSIP_ESIGNET_HOST_DOMAIN=$(kubectl -n $NS get cm esignet-global -o jsonpath={.data.mosip-esignet-host})
   if [[ -z "$MOSIP_ESIGNET_HOST_DOMAIN" ]]; then
@@ -216,7 +214,7 @@ function installing_esignet() {
     elif [[ "$plugin_no" == "3" ]]; then
       plugin_name="sunbird"
       read -p "Provide the URL for Sunbird registry: " sunbird_registry_url
-      extra_env_vars_additional+="  \"MOSIP_ESIGNET_AUTHENTICATOR_SUNBIRD_RC_REGISTRY_GET_URL\": \"$sunbird_registry_url\""$'\n'
+      extra_env_vars_additional+="  \"MOSIP_ESIGNET_AUTHENTICATOR_SUNBIRD_RC_REGISTRY_GET_URL\": \"$sunbird_registry_url/api/v1/Insurance/\""$'\n'
       extra_env_vars_additional+="  \"MOSIP_ESIGNET_AUTHENTICATOR_SUNBIRD_RC_AUTH_FACTOR_KBI_REGISTRY_SEARCH_URL\": \"$sunbird_registry_url/api/v1/Insurance/search\""$'\n'
       extra_env_vars_additional+="  \"MOSIP_ESIGNET_AUTHENTICATOR_DEFAULT_AUTH_FACTOR_KBI_INDIVIDUAL_ID_FIELD\": \"\${mosip.esignet.authenticator.sunbird-rc.auth-factor.kbi.individual-id-field}\""$'\n'
       extra_env_vars_additional+="  \"MOSIP_ESIGNET_AUTHENTICATOR_DEFAULT_AUTH_FACTOR_KBI_FIELD_DETAILS\": \"\${mosip.esignet.authenticator.sunbird-rc.auth-factor.kbi.field-details}\""$'\n'
@@ -373,6 +371,8 @@ function installing_esignet() {
     extra_env_vars_additional+="      secretKeyRef:"$'\n'
     extra_env_vars_additional+="        name: esignet-captcha"$'\n'
     extra_env_vars_additional+="        key: esignet-captcha-site-key"$'\n'
+    extra_env_vars_additional+="  \"MOSIP_ESIGNET_CAPTCHA_SITE_PROVIDER\": \"google-recaptcha\""$'\n'
+    extra_env_vars_additional+="  \"MOSIP_ESIGNET_CAPTCHA_VALIDATOR_URL\": \"http://captcha.captcha/v1/captcha/validatecaptcha\""$'\n'
   else
     extra_env_vars_additional+="  \"MOSIP_ESIGNET_CAPTCHA_SITE_KEY\": \"\""$'\n'
   fi
