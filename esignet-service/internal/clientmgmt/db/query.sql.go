@@ -261,21 +261,23 @@ UPDATE client_detail SET
 	additional_config   = $10,
 	upd_dtimes          = $11
 WHERE id = $1
+  AND upd_dtimes IS NOT DISTINCT FROM $12
 RETURNING id, name, rp_id, logo_uri, redirect_uris, claims, acr_values, public_key, public_key_hash, enc_public_key, enc_public_key_hash, enc_public_key_cert, grant_types, auth_methods, status, additional_config, cr_dtimes, upd_dtimes
 `
 
 type UpdateClientParams struct {
-	ID               string         `db:"id" json:"id"`
-	Name             string         `db:"name" json:"name"`
-	LogoUri          string         `db:"logo_uri" json:"logo_uri"`
-	RedirectUris     string         `db:"redirect_uris" json:"redirect_uris"`
-	Claims           string         `db:"claims" json:"claims"`
-	AcrValues        string         `db:"acr_values" json:"acr_values"`
-	GrantTypes       string         `db:"grant_types" json:"grant_types"`
-	AuthMethods      string         `db:"auth_methods" json:"auth_methods"`
-	Status           string         `db:"status" json:"status"`
-	AdditionalConfig sql.NullString `db:"additional_config" json:"additional_config"`
-	UpdDtimes        sql.NullTime   `db:"upd_dtimes" json:"upd_dtimes"`
+	ID                string         `db:"id" json:"id"`
+	Name              string         `db:"name" json:"name"`
+	LogoUri           string         `db:"logo_uri" json:"logo_uri"`
+	RedirectUris      string         `db:"redirect_uris" json:"redirect_uris"`
+	Claims            string         `db:"claims" json:"claims"`
+	AcrValues         string         `db:"acr_values" json:"acr_values"`
+	GrantTypes        string         `db:"grant_types" json:"grant_types"`
+	AuthMethods       string         `db:"auth_methods" json:"auth_methods"`
+	Status            string         `db:"status" json:"status"`
+	AdditionalConfig  sql.NullString `db:"additional_config" json:"additional_config"`
+	UpdDtimes         sql.NullTime   `db:"upd_dtimes" json:"upd_dtimes"`
+	ExpectedUpdDtimes sql.NullTime   `db:"expected_upd_dtimes" json:"expected_upd_dtimes"`
 }
 
 func (q *Queries) UpdateClient(ctx context.Context, arg UpdateClientParams) (ClientDetail, error) {
@@ -291,6 +293,7 @@ func (q *Queries) UpdateClient(ctx context.Context, arg UpdateClientParams) (Cli
 		arg.Status,
 		arg.AdditionalConfig,
 		arg.UpdDtimes,
+		arg.ExpectedUpdDtimes,
 	)
 	var i ClientDetail
 	err := row.Scan(

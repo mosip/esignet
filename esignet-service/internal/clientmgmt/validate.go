@@ -93,7 +93,7 @@ func ValidateCreate(profile Profile, req CreateClientRequest, supportedEncAlgs [
 	if err := validateACRs(req.AcrValues, allowedACRAll, 0, 0); err != nil {
 		return err
 	}
-	if err := validateJWK(req.PublicKey); err != nil {
+	if err := validateJWK(req.PublicKey, true); err != nil {
 		return err
 	}
 	if len(req.GrantTypes) == 0 {
@@ -109,7 +109,7 @@ func ValidateCreate(profile Profile, req CreateClientRequest, supportedEncAlgs [
 		return err
 	}
 	if profile == ProfileClient && len(req.AdditionalConfig) > 0 {
-		if err := validateAdditionalConfig(req.AdditionalConfig); err != nil {
+		if err := validateAdditionalConfig(req.AdditionalConfig, len(req.EncPublicKey) > 0); err != nil {
 			return err
 		}
 	}
@@ -122,7 +122,10 @@ func ValidateCreate(profile Profile, req CreateClientRequest, supportedEncAlgs [
 }
 
 // ValidateUpdate validates a full update request for the given API profile.
-func ValidateUpdate(profile Profile, req UpdateClientRequest) error {
+// hasEncPublicKey reports whether the client already has (and, since PUT
+// cannot change it, will keep) an encPublicKey — required when
+// additionalConfig requests a JWE response type.
+func ValidateUpdate(profile Profile, req UpdateClientRequest, hasEncPublicKey bool) error {
 	if profile == ProfileOIDC {
 		if req.ClientNameLangMap != nil {
 			return validationErr("invalid_input")
@@ -188,7 +191,7 @@ func ValidateUpdate(profile Profile, req UpdateClientRequest) error {
 		return err
 	}
 	if profile == ProfileClient && len(req.AdditionalConfig) > 0 {
-		if err := validateAdditionalConfig(req.AdditionalConfig); err != nil {
+		if err := validateAdditionalConfig(req.AdditionalConfig, hasEncPublicKey); err != nil {
 			return err
 		}
 	}
@@ -198,8 +201,11 @@ func ValidateUpdate(profile Profile, req UpdateClientRequest) error {
 // ValidatePatch validates a merged client state after applying PATCH fields.
 // supportedEncAlgs restricts encPublicKey's alg to the runtime crypto
 // provider's supported encryption algorithms; pass nil/empty to skip that
-// restriction.
-func ValidatePatch(profile Profile, merged UpdateClientRequest, fields PatchFields, encPublicKey NullableJWK, supportedEncAlgs []string) error {
+// restriction. hasEncPublicKey reports whether the client will have an
+// encPublicKey after this patch is applied (i.e. the existing value, unless
+// this patch changes it) — required when additionalConfig requests a JWE
+// response type.
+func ValidatePatch(profile Profile, merged UpdateClientRequest, fields PatchFields, encPublicKey NullableJWK, supportedEncAlgs []string, hasEncPublicKey bool) error {
 	if fields.ClientName {
 		if err := validateClientName(merged.ClientName); err != nil {
 			return err
@@ -246,7 +252,7 @@ func ValidatePatch(profile Profile, merged UpdateClientRequest, fields PatchFiel
 		}
 	}
 	if fields.AdditionalConfig && len(merged.AdditionalConfig) > 0 {
-		if err := validateAdditionalConfig(merged.AdditionalConfig); err != nil {
+		if err := validateAdditionalConfig(merged.AdditionalConfig, hasEncPublicKey); err != nil {
 			return err
 		}
 	}
@@ -256,7 +262,7 @@ func ValidatePatch(profile Profile, merged UpdateClientRequest, fields PatchFiel
 		}
 	}
 
-	return ValidateUpdate(profile, merged)
+	return ValidateUpdate(profile, merged, hasEncPublicKey)
 }
 
 func validateClientID(id string) error {
@@ -494,7 +500,12 @@ var allowedAdditionalConfigKeys = map[string]struct{}{
 	"allowed_authorization_scopes":          {},
 }
 
-func validateAdditionalConfig(raw json.RawMessage) error {
+// validateAdditionalConfig validates the additionalConfig JSON object.
+// hasEncPublicKey must be true if the client has (or will have, once this
+// request is applied) an encPublicKey; a JWE response type otherwise leaves
+// the client permanently unable to complete userinfo/id_token decryption, so
+// it is rejected here rather than accepted and left broken.
+func validateAdditionalConfig(raw json.RawMessage, hasEncPublicKey bool) error {
 	var cfg map[string]json.RawMessage
 	if err := json.Unmarshal(raw, &cfg); err != nil {
 		return validationErr("invalid_additional_config")
@@ -509,10 +520,16 @@ func validateAdditionalConfig(raw json.RawMessage) error {
 		if err := json.Unmarshal(v, &rt); err != nil || (rt != "JWS" && rt != "JWE") {
 			return validationErr("invalid_additional_config")
 		}
+		if rt == "JWE" && !hasEncPublicKey {
+			return validationErr("invalid_additional_config")
+		}
 	}
 	if v, ok := cfg["id_token_response_type"]; ok {
 		var rt string
 		if err := json.Unmarshal(v, &rt); err != nil || (rt != "JWS" && rt != "JWE") {
+			return validationErr("invalid_additional_config")
+		}
+		if rt == "JWE" && !hasEncPublicKey {
 			return validationErr("invalid_additional_config")
 		}
 	}
