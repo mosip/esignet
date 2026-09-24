@@ -198,12 +198,14 @@ func (ts *ServiceTestSuite) TestUpdateClient() {
 		require.NoError(t, err)
 		require.NoError(t, cache.Put(context.Background(), clientCacheNamespace, "client-1", data, 60))
 
-		q := &fakeQuerier{updateRow: row}
+		q := &fakeQuerier{getRow: row, updateRow: row}
 		s := NewServiceWithQuerier(q, cache, 60, nil)
 		resp, err := s.UpdateClient(context.Background(), ProfileOIDC, "client-1", validUpdateRequest())
 		require.NoError(t, err)
 		require.Equal(t, "client-1", resp.ClientID)
 		require.Equal(t, "ACTIVE", q.updateParams.Status)
+		// the write is pinned to the version read before validation
+		require.Equal(t, row.UpdDtimes, q.updateParams.ExpectedUpdDtimes)
 
 		cached, err := cache.Get(context.Background(), clientCacheNamespace, "client-1")
 		require.NoError(t, err)
@@ -211,18 +213,50 @@ func (ts *ServiceTestSuite) TestUpdateClient() {
 	})
 
 	t.Run("not found", func(t *testing.T) {
-		q := &fakeQuerier{updateErr: sql.ErrNoRows}
+		q := &fakeQuerier{getErr: sql.ErrNoRows}
 		s := NewServiceWithQuerier(q, nil, 0, nil)
 		_, err := s.UpdateClient(context.Background(), ProfileOIDC, "missing", validUpdateRequest())
 		require.ErrorIs(t, err, ErrClientNotFound)
 	})
 
-	t.Run("generic db error", func(t *testing.T) {
-		q := &fakeQuerier{updateErr: errors.New("boom")}
+	t.Run("get client generic error", func(t *testing.T) {
+		q := &fakeQuerier{getErr: errors.New("boom")}
 		s := NewServiceWithQuerier(q, nil, 0, nil)
 		_, err := s.UpdateClient(context.Background(), ProfileOIDC, "client-1", validUpdateRequest())
 		require.Error(t, err)
 		require.False(t, errors.Is(err, ErrClientNotFound))
+	})
+
+	// CreateClient never sets upd_dtimes, so a never-updated client carries a
+	// NULL version. It must round-trip as NULL: the query matches it with
+	// IS NOT DISTINCT FROM precisely because "upd_dtimes = NULL" is never true,
+	// which would make the first PUT after a create always conflict.
+	t.Run("never-updated row passes a null expected version", func(t *testing.T) {
+		row := existingClientRow()
+		row.UpdDtimes = sql.NullTime{}
+		q := &fakeQuerier{getRow: row, updateRow: row}
+		s := NewServiceWithQuerier(q, nil, 0, nil)
+		_, err := s.UpdateClient(context.Background(), ProfileOIDC, "client-1", validUpdateRequest())
+		require.NoError(t, err)
+		require.False(t, q.updateParams.ExpectedUpdDtimes.Valid)
+	})
+
+	// The row was read successfully above, so a write that matches nothing
+	// means upd_dtimes moved under us — a concurrent write, not a missing row.
+	t.Run("update conflict", func(t *testing.T) {
+		q := &fakeQuerier{getRow: existingClientRow(), updateErr: sql.ErrNoRows}
+		s := NewServiceWithQuerier(q, nil, 0, nil)
+		_, err := s.UpdateClient(context.Background(), ProfileOIDC, "client-1", validUpdateRequest())
+		require.ErrorIs(t, err, ErrClientConflict)
+	})
+
+	t.Run("generic db error", func(t *testing.T) {
+		q := &fakeQuerier{getRow: existingClientRow(), updateErr: errors.New("boom")}
+		s := NewServiceWithQuerier(q, nil, 0, nil)
+		_, err := s.UpdateClient(context.Background(), ProfileOIDC, "client-1", validUpdateRequest())
+		require.Error(t, err)
+		require.False(t, errors.Is(err, ErrClientNotFound))
+		require.False(t, errors.Is(err, ErrClientConflict))
 	})
 }
 

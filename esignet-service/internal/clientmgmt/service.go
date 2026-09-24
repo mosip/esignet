@@ -191,24 +191,32 @@ func (s *Service) UpdateClient(ctx context.Context, profile Profile, clientID st
 	}
 
 	now := time.Now().UTC()
+	// ExpectedUpdDtimes pins the write to the row read above. Validation of
+	// additionalConfig depends on that row's encPublicKey, so without the
+	// version check a PATCH clearing encPublicKey between the read and this
+	// write would let a JWE response type land on a client that no longer has
+	// an encryption key — the very state this validation exists to prevent.
 	params := db.UpdateClientParams{
-		ID:               clientID,
-		Name:             marshalClientName(req.ClientName, req.ClientNameLangMap, profile),
-		LogoUri:          req.LogoURI,
-		RedirectUris:     redirectURIs,
-		Claims:           claims,
-		AcrValues:        acrValues,
-		GrantTypes:       grantTypes,
-		AuthMethods:      authMethods,
-		Status:           status,
-		AdditionalConfig: additionalConfig,
-		UpdDtimes:        sql.NullTime{Time: now, Valid: true},
+		ID:                clientID,
+		Name:              marshalClientName(req.ClientName, req.ClientNameLangMap, profile),
+		LogoUri:           req.LogoURI,
+		RedirectUris:      redirectURIs,
+		Claims:            claims,
+		AcrValues:         acrValues,
+		GrantTypes:        grantTypes,
+		AuthMethods:       authMethods,
+		Status:            status,
+		AdditionalConfig:  additionalConfig,
+		ExpectedUpdDtimes: existing.UpdDtimes,
+		UpdDtimes:         sql.NullTime{Time: now, Valid: true},
 	}
 
 	row, err := s.q.UpdateClient(ctx, params)
 	if err != nil {
+		// The row existed at the read above, so no match here means its
+		// upd_dtimes moved: a concurrent write, not a missing client.
 		if errors.Is(err, sql.ErrNoRows) {
-			return ClientResponse{}, ErrClientNotFound
+			return ClientResponse{}, ErrClientConflict
 		}
 		return ClientResponse{}, fmt.Errorf("update client: %w", err)
 	}
