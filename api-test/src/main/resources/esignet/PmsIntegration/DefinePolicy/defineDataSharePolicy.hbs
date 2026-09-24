@@ -1,0 +1,45 @@
+{
+	"id": "string",
+	"metadata": {},
+	"version": "string",
+	"requesttime": "{{requesttime}}",
+	"request": {
+		"desc": "{{desc}}",
+		"name": "{{name}}",
+		"policyGroupName": "{{policyGroupName}}",
+		"policyType": "{{policyType}}",
+		"version": "{{version}}",
+		 "policyId": "{{policyId}}",
+		"policies": {
+			"shareableAttributes": [{
+				"attributeName": "{{attributeName}}",
+				"source": [{
+					"attribute": "registration-client\/NEW\/individualBiometrics",
+					"filter": [{
+						"type": "Iris"
+					}]
+				}, {
+					"attribute": "CNIE\/verification\/biometrics",
+					"filter": [{
+						"type": "Finger"
+					}]
+				}, {
+					"attribute": "CNIE\/verification\/biometrics",
+					"filter": [{
+						"type": "Face"
+					}]
+				}],
+				"encrypted": true,
+				"format": "{{format}}"
+			}],
+			"dataSharePolicies": {
+				"typeOfShare": "{{typeOfShare}}",
+				"validForInMinutes": "{{validForInMinutes}}",
+				"transactionsAllowed": "{{transactionsAllowed}}",
+				"encryptionType": "{{encryptionType}}",
+				"shareDomain": "{{shareDomain}}",
+				"source": "{{source}}"
+			}
+		}
+	}
+}

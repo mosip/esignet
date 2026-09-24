@@ -1,0 +1,69 @@
+ApproveMappingKey:
+   Esignet_ApproveMappingKey_All_Valid_Smoke:
+      endPoint: /v1/partnermanager/partners/policy/{mappingkey}
+      uniqueIdentifier: TC_PMS_ApproveAPIKey_01
+      description: Validate that a mapping key is successfully approved when all input parameters are valid
+      role: partner
+      checkErrorsOnlyInResponse: true
+      restMethod: put
+      inputTemplate: esignet/PmsIntegration/ApprovePartnerPolicyMapping/approveMappingKey
+      outputTemplate: esignet/PmsIntegration/ApprovePartnerPolicyMapping/approveMappingKeyResult
+      input: '{
+      "status": "Approved",
+      "mappingkey": "$ID:partnerPolicyMapping_All_Valid_Smoke_sid_mappingkey$",
+	  "requesttime": "$TIMESTAMP$"
+}'
+      output: '{
+        "response": "Policy mapping approved successfully"
+}'
+   Esignet_ApproveMappingKey_Valid_Smoke:
+      endPoint: /v1/partnermanager/partners/policy/{mappingkey}
+      uniqueIdentifier: TC_PMS_ApproveAPIKey_02
+      description: Validate that a mapping key is successfully approved when all input parameters are valid
+      role: partner
+      checkErrorsOnlyInResponse: true
+      restMethod: put
+      inputTemplate: esignet/PmsIntegration/ApprovePartnerPolicyMapping/approveMappingKey
+      outputTemplate: esignet/PmsIntegration/ApprovePartnerPolicyMapping/approveMappingKeyResult
+      input: '{
+      "status": "Approved",
+      "mappingkey": "$ID:partnerPolicyMapping_For_Policy_WithOut_AllowedKycAttributes_sid_mappingkey$",
+	  "requesttime": "$TIMESTAMP$"
+}'
+      output: '{
+        "response": "Policy mapping approved successfully"
+}'
+   Esignet_ApproveMappingKey1_Valid_Smoke:
+      endPoint: /v1/partnermanager/partners/policy/{mappingkey}
+      uniqueIdentifier: TC_PMS_ApproveAPIKey_03
+      description: Validate that a mapping key is successfully approved when all input parameters are valid
+      role: partner
+      checkErrorsOnlyInResponse: true
+      restMethod: put
+      inputTemplate: esignet/PmsIntegration/ApprovePartnerPolicyMapping/approveMappingKey
+      outputTemplate: esignet/PmsIntegration/ApprovePartnerPolicyMapping/approveMappingKeyResult
+      input: '{
+      "status": "Approved",
+      "mappingkey": "$ID:partnerPolicyMapping_For_Policy_WithOut_AllowedAuthTypes_sid_mappingkey$",
+	  "requesttime": "$TIMESTAMP$"
+}'
+      output: '{
+        "response": "Policy mapping approved successfully"
+}'
+   Esignet_ApproveMappingKey2_Valid_Smoke:
+      endPoint: /v1/partnermanager/partners/policy/{mappingkey}
+      uniqueIdentifier: TC_PMS_ApproveAPIKey_04
+      description: Validate that a mapping key is successfully approved when all input parameters are valid
+      role: partner
+      checkErrorsOnlyInResponse: true
+      restMethod: put
+      inputTemplate: esignet/PmsIntegration/ApprovePartnerPolicyMapping/approveMappingKey
+      outputTemplate: esignet/PmsIntegration/ApprovePartnerPolicyMapping/approveMappingKeyResult
+      input: '{
+      "status": "Approved",
+      "mappingkey": "$ID:partnerPolicyMapping_For_Policy_WithOut_FullName_Email_Gender_sid_mappingkey$",
+	  "requesttime": "$TIMESTAMP$"
+}'
+      output: '{
+        "response": "Policy mapping approved successfully"
+}'

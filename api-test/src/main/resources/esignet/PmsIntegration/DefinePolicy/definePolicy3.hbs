@@ -1,0 +1,43 @@
+{
+  "id": "string",
+  "metadata": {},
+  "request": {
+    "desc":"{{desc}}",
+    "name":"{{name}}",
+    "policyGroupName":"{{policyGroupName}}",
+    "policyType":"{{policyType}}",
+    "version": "{{version}}",
+    "policies": {
+		"authTokenType": "policy",
+		"allowedKycAttributes": [
+			{
+				"attributeName": "fullName"
+			},
+			{
+				"attributeName": "gender"
+			},
+			{
+				"attributeName": "phone"
+			},
+			{
+				"attributeName": "email"
+			},
+			{
+				"attributeName": "dateOfBirth"
+			},
+			{
+				"attributeName": "city"
+			},
+			{
+				"attributeName": "face"
+			},
+			{
+				"attributeName": "addressLine1"
+			}
+		],
+		"allowedAuthTypes": []
+	}
+  },
+  "requesttime": "{{requesttime}}",
+  "version": "string"
+}
