@@ -145,15 +145,29 @@ func resolveDBDSN(yamlDSN string) string {
 func loadDB(yamlDB DB) DB {
 	dsn := resolveDBDSN(yamlDB.DSN)
 
-	maxOpen := clampPositiveInt32("DB_MAX_OPEN_CONNS", envIntOrConfigOrDefault("DB_MAX_OPEN_CONNS", yamlDB.Pool.MaxOpenConns, defaultDBMaxOpenConns))
-	maxIdle := clampPositiveInt32("DB_MAX_IDLE_CONNS", envIntOrConfigOrDefault("DB_MAX_IDLE_CONNS", yamlDB.Pool.MaxIdleConns, defaultDBMaxIdleConns))
+	maxOpenRaw, maxOpenSrc := envIntOrConfigOrDefaultSourced("DB_MAX_OPEN_CONNS", yamlDB.Pool.MaxOpenConns, defaultDBMaxOpenConns)
+	maxOpen := clampPositiveInt32("DB_MAX_OPEN_CONNS", maxOpenRaw)
+	maxIdleRaw, maxIdleSrc := envIntOrConfigOrDefaultSourced("DB_MAX_IDLE_CONNS", yamlDB.Pool.MaxIdleConns, defaultDBMaxIdleConns)
+	maxIdle := clampPositiveInt32("DB_MAX_IDLE_CONNS", maxIdleRaw)
 	// An explicit env var of "0" means "no limit" — same convention as
 	// database/sql and Redis. See effectiveMaxConnLifetime in Open() for why
 	// pgxpool needs this translated rather than passed through. A yaml value
 	// of 0 (or an omitted field, which decodes to the same zero value) can't
 	// be distinguished from "not configured", so only the env var can opt out.
-	lifetimeSecs := clampDurationSecs("DB_CONN_MAX_LIFETIME_SECS", envIntOrConfigOrDefaultAllowEnvZero("DB_CONN_MAX_LIFETIME_SECS", yamlDB.Pool.ConnMaxLifetimeSecs, defaultDBConnMaxLifetimeSecs))
-	idleSecs := clampDurationSecs("DB_CONN_MAX_IDLE_TIME_SECS", envIntOrConfigOrDefault("DB_CONN_MAX_IDLE_TIME_SECS", yamlDB.Pool.ConnMaxIdleTimeSecs, defaultDBConnMaxIdleTimeSecs))
+	lifetimeRaw, lifetimeSrc := envIntOrConfigOrDefaultAllowEnvZeroSourced("DB_CONN_MAX_LIFETIME_SECS", yamlDB.Pool.ConnMaxLifetimeSecs, defaultDBConnMaxLifetimeSecs)
+	lifetimeSecs := clampDurationSecs("DB_CONN_MAX_LIFETIME_SECS", lifetimeRaw)
+	idleRaw, idleSrc := envIntOrConfigOrDefaultSourced("DB_CONN_MAX_IDLE_TIME_SECS", yamlDB.Pool.ConnMaxIdleTimeSecs, defaultDBConnMaxIdleTimeSecs)
+	idleSecs := clampDurationSecs("DB_CONN_MAX_IDLE_TIME_SECS", idleRaw)
+
+	// Report the effective value *and* which tier supplied it. Logging only
+	// the values (as the "postgres connected" line in cmd/esignet/main.go
+	// does) leaves an operator unable to tell an env var that took effect
+	// from one that was ignored in favour of deployment.yaml.
+	logResolvedSettings("db pool config resolved",
+		resolvedSetting{"maxOpenConns", maxOpen, maxOpenSrc},
+		resolvedSetting{"maxIdleConns", maxIdle, maxIdleSrc},
+		resolvedSetting{"connMaxLifetimeSecs", lifetimeSecs, lifetimeSrc},
+		resolvedSetting{"connMaxIdleTimeSecs", idleSecs, idleSrc})
 
 	return DB{
 		DSN: dsn,

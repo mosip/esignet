@@ -237,3 +237,23 @@ func TestRedisApplyPool(t *testing.T) {
 	require.Equal(t, 4*time.Second, opts.PoolTimeout)
 	require.NotNil(t, opts.TLSConfig)
 }
+
+// Redis pool fields are env-only (yaml:"-"), so an unusable env var falls back
+// to the compiled default rather than being passed through.
+func TestLoadRedis_InvalidEnvFallsBackToDefault(t *testing.T) {
+	t.Setenv("REDIS_POOL_SIZE", "abc")
+	t.Setenv("REDIS_CONN_MAX_LIFETIME_SECS", "not-a-number")
+
+	r := loadRedis(Redis{})
+
+	require.Equal(t, defaultRedisPoolSize, r.PoolSize)
+	require.Equal(t, time.Duration(defaultRedisConnMaxLifetimeSecs)*time.Second, r.ConnMaxLifetime)
+}
+
+func TestLoadRedis_NegativeLifetimeFallsBackToDefault(t *testing.T) {
+	t.Setenv("REDIS_CONN_MAX_LIFETIME_SECS", "-5")
+
+	r := loadRedis(Redis{})
+
+	require.Equal(t, time.Duration(defaultRedisConnMaxLifetimeSecs)*time.Second, r.ConnMaxLifetime)
+}
