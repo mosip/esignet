@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi, afterEach } from "vitest";
 import { render, screen, waitFor, act } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import LoginPage from "../../pages/LoginPage";
@@ -39,6 +39,10 @@ function renderWithRouter(path: string) {
 }
 
 describe("LoginPage", () => {
+  afterEach(() => {
+    sessionStorage.clear();
+  });
+
   it("renders SignIn component when required params are present", async () => {
     renderWithRouter("/login?applicationId=app123&authId=auth456");
     await waitFor(() => {
@@ -93,5 +97,15 @@ describe("LoginPage", () => {
     });
 
     expect(window.onbeforeunload).toBeNull();
+  });
+
+  it("renders SignIn when params are missing but a resumable transaction exists", async () => {
+    sessionStorage.setItem("thunderid_execution_id", "exec-123");
+
+    renderWithRouter("/login");
+
+    await waitFor(() => {
+      expect(screen.getByTestId("sign-in")).toBeDefined();
+    });
   });
 });

@@ -8,11 +8,17 @@ import {
   BackButtonRenderer,
   CaptchaRenderer,
 } from "./components";
+import { LOGIN } from "./constants/routes";
 
 const searchParams = new URL(window.location.href).searchParams;
 
-// getting applicationId from query param to pass it to ThunderIDProvider
-const applicationId = searchParams.get("applicationId");
+// Mount the provider on the sign-in route only (other pages are provider-less). Gating on the
+// route, not the URL's applicationId, lets a reload resume: the SDK restores applicationId and
+// executionId itself, so the provider just needs to re-mount.
+const isLoginRoute = window.location.pathname.endsWith(LOGIN);
+
+// From the RP hand-off URL on first load; absent on reload (SDK restores it from its storage).
+const applicationId = searchParams.get("applicationId") ?? undefined;
 
 // ui_locales (OIDC) is a space-separated, preference-ordered locale list; take
 // the most preferred one and let the backend fall back to English if unsupported.
@@ -36,7 +42,7 @@ const baseUrl = baseUrlRaw || `http://localhost:8080`;
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    {applicationId ? (
+    {isLoginRoute ? (
       <ThunderIDProvider
         baseUrl={baseUrl}
         applicationId={applicationId}
