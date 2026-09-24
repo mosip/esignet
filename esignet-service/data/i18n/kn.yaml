@@ -1283,6 +1283,7 @@ validation:
   maxLength.invalid: ಮೌಲ್ಯ ತುಂಬಾ ಉದ್ದವಾಗಿದೆ
   policy.numeric: ಪಾಲಿಸಿ ಸಂಖ್ಯೆಯಲ್ಲಿ ಅಂಕೆಗಳು ಮಾತ್ರ ಇರಬೇಕು
   policy.length: ಪಾಲಿಸಿ ಸಂಖ್ಯೆಯು 8 ಮತ್ತು 50 ಅಂಕೆಗಳ ನಡುವೆ ಇರಬೇಕು
+  otp.required: ದಯವಿಟ್ಟು ಮಾನ್ಯವಾದ OTP ನಮೂದಿಸಿ
 
 validations:
   required.field.error: ಈ ಕ್ಷೇತ್ರ ಅಗತ್ಯವಿದೆ

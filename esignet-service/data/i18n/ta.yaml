@@ -1283,6 +1283,7 @@ validation:
   maxLength.invalid: மதிப்பு மிகவும் நீளமானது
   policy.numeric: பாலிசி எண்ணில் எண்கள் மட்டுமே இருக்க வேண்டும்
   policy.length: பாலிசி எண் 8 முதல் 50 இலக்கங்களுக்கு இடையில் இருக்க வேண்டும்
+  otp.required: சரியான OTP ஐ உள்ளிடவும்
 
 validations:
   required.field.error: இந்த புலம் தேவை
