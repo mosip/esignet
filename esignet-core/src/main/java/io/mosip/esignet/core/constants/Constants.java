@@ -61,7 +61,6 @@ public class Constants {
     public static final String DPOP_BOUND_ACCESS_TOKENS = "dpop_bound_access_tokens";
 
     public static final String PAR_REQUEST_URI_PREFIX = "urn:ietf:params:oauth:request_uri:";
-    public static final String JTI_CACHE = "jti";
 
     public static final String REQUIRE_PAR= "require_pushed_authorization_requests";
     public static final String REQUIRE_PKCE= "require_pkce";
