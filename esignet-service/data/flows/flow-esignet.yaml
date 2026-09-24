@@ -592,7 +592,7 @@ nodes:
             required: true
             validation:
               - type: minLength
-                value: 1
+                value: 6
                 message: "validation.otp.required"
         action:
           ref: action_submit_otp
