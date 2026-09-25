@@ -54,8 +54,8 @@ func newTestMiddleware(t *testing.T, key *rsa.PrivateKey, kid, issuer string) fu
 	srv := newTestJWKSServer(t, key, kid)
 	cache := NewJWKSCache(srv.URL, time.Minute, http.DefaultClient)
 	return ScopeMiddleware(cache, config.SecurityConfig{
-		IssuerURL:        issuer,
-		AllowedClientIDs: []string{"allowed-client"},
+		IssuerURL:         issuer,
+		AllowedIAMClients: []string{"allowed-iam-client"},
 		ScopeMapping: []config.AuthorizationConfig{
 			{Method: http.MethodGet, Endpoint: "/", Scope: "test"},
 		},
@@ -81,7 +81,7 @@ func (ts *ScopeMiddlewareTestSuite) TestScopeMiddleware_Success() {
 	claims := jwt.MapClaims{
 		"iss":   "https://issuer.example.com",
 		"exp":   time.Now().Add(time.Hour).Unix(),
-		"azp":   "allowed-client",
+		"azp":   "allowed-iam-client",
 		"scope": "test other",
 	}
 	tokenStr := signTestToken(t, key, "kid-1", claims)
@@ -100,7 +100,7 @@ func (ts *ScopeMiddlewareTestSuite) TestScopeMiddleware_Success() {
 	}
 }
 
-func (ts *ScopeMiddlewareTestSuite) TestScopeMiddleware_AllowedClientFromAZPOrAudience() {
+func (ts *ScopeMiddlewareTestSuite) TestScopeMiddleware_AllowedIAMClientFromAZPOrAudience() {
 	t := ts.T()
 	key, err := rsa.GenerateKey(rand.Reader, 2048)
 	if err != nil {
@@ -113,12 +113,12 @@ func (ts *ScopeMiddlewareTestSuite) TestScopeMiddleware_AllowedClientFromAZPOrAu
 		clientClaims jwt.MapClaims
 		wantStatus   int
 	}{
-		{name: "allowed azp", clientClaims: jwt.MapClaims{"azp": "allowed-client", "aud": "other-client"}, wantStatus: http.StatusOK},
-		{name: "allowed string audience", clientClaims: jwt.MapClaims{"azp": "other-client", "aud": "allowed-client"}, wantStatus: http.StatusOK},
-		{name: "allowed array audience", clientClaims: jwt.MapClaims{"azp": "other-client", "aud": []string{"other-client", "allowed-client"}}, wantStatus: http.StatusOK},
+		{name: "allowed azp", clientClaims: jwt.MapClaims{"azp": "allowed-iam-client", "aud": "other-iam-client"}, wantStatus: http.StatusOK},
+		{name: "allowed string audience", clientClaims: jwt.MapClaims{"azp": "other-iam-client", "aud": "allowed-iam-client"}, wantStatus: http.StatusOK},
+		{name: "allowed array audience", clientClaims: jwt.MapClaims{"azp": "other-iam-client", "aud": []string{"other-iam-client", "allowed-iam-client"}}, wantStatus: http.StatusOK},
 		{name: "neither claim allowed", clientClaims: jwt.MapClaims{"azp": "other-client", "aud": "another-client"}, wantStatus: http.StatusUnauthorized},
 		{name: "claims missing", clientClaims: jwt.MapClaims{}, wantStatus: http.StatusUnauthorized},
-		{name: "exact match required", clientClaims: jwt.MapClaims{"azp": "allowed-client-extra", "aud": "other-client"}, wantStatus: http.StatusUnauthorized},
+		{name: "exact match required", clientClaims: jwt.MapClaims{"azp": "allowed-iam-client-extra", "aud": "other-iam-client"}, wantStatus: http.StatusUnauthorized},
 	}
 
 	for _, tc := range tests {
@@ -274,7 +274,7 @@ func (ts *ScopeMiddlewareTestSuite) TestScopeMiddleware_MissingScope() {
 	claims := jwt.MapClaims{
 		"iss":   "https://issuer.example.com",
 		"exp":   time.Now().Add(time.Hour).Unix(),
-		"azp":   "allowed-client",
+		"azp":   "allowed-iam-client",
 		"scope": "other",
 	}
 	tokenStr := signTestToken(t, key, "kid-1", claims)
@@ -302,14 +302,14 @@ func (ts *ScopeMiddlewareTestSuite) TestScopeMiddleware_NoScopeMappingConfigured
 	srv := newTestJWKSServer(t, key, "kid-1")
 	cache := NewJWKSCache(srv.URL, time.Minute, http.DefaultClient)
 	mw := ScopeMiddleware(cache, config.SecurityConfig{
-		IssuerURL:        "https://issuer.example.com",
-		AllowedClientIDs: []string{"allowed-client"},
+		IssuerURL:         "https://issuer.example.com",
+		AllowedIAMClients: []string{"allowed-iam-client"},
 	})
 
 	claims := jwt.MapClaims{
 		"iss":   "https://issuer.example.com",
 		"exp":   time.Now().Add(time.Hour).Unix(),
-		"azp":   "allowed-client",
+		"azp":   "allowed-iam-client",
 		"scope": "test",
 	}
 	tokenStr := signTestToken(t, key, "kid-1", claims)

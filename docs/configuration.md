@@ -145,8 +145,8 @@ the encryption algorithms discovery advertises.
 
 Bearer-token scope enforcement on `/client-mgmt/*` and `/system-info/*` is configured under the
 `security_config:` block in `deployment.yaml`: `issuer_url` (env `MOSIP_ESIGNET_SECURITY_ISSUER_URL`),
-`jwks_url` (env `MOSIP_ESIGNET_SECURITY_JWKS_URL`), `allowed_client_ids` (comma-separated env
-`MOSIP_ESIGNET_SECURITY_ALLOWED_CLIENT_IDS`), `jwks_cache_ttl` (default `3000`), and an
+`jwks_url` (env `MOSIP_ESIGNET_SECURITY_JWKS_URL`), `allowed_iam_clients` (comma-separated env
+`MOSIP_ESIGNET_SECURITY_ALLOWED_IAM_CLIENTS`), `jwks_cache_ttl` (default `3000`), and an
 `endpoint`/`method`/`scope` `scope_mapping` list — see `deployment.yaml` for the full list, which
 includes mappings for the deprecated `/client-mgmt/oidc-client` and `/client-mgmt/oauth-client`
 aliases. After signature, issuer, and expiry validation, a token is accepted only when an allowed

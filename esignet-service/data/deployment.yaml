@@ -152,7 +152,7 @@ oauth:
 security_config:
   issuer_url: ""  # override via MOSIP_ESIGNET_SECURITY_ISSUER_URL
   jwks_url: ""    # override via MOSIP_ESIGNET_SECURITY_JWKS_URL
-  allowed_client_ids: ["mosip-pms-client"]  # override via MOSIP_ESIGNET_SECURITY_ALLOWED_CLIENT_IDS
+  allowed_iam_clients: ["mosip-pms-client"]  # override via MOSIP_ESIGNET_SECURITY_ALLOWED_IAM_CLIENTS
   jwks_cache_ttl: 3000
   scope_mapping:
     - endpoint: "/client-mgmt/oidc-client"

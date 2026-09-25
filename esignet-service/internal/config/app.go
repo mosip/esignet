@@ -192,7 +192,7 @@ type SecurityConfig struct {
 	JwksURL               string                `yaml:"jwks_url"`
 	JwksCacheTTL          int64                 `yaml:"jwks_cache_ttl"`
 	RequestTimeLeewaySecs int                   `yaml:"request_time_leeway_secs"`
-	AllowedClientIDs      []string              `yaml:"allowed_client_ids,omitempty"`
+	AllowedIAMClients     []string              `yaml:"allowed_iam_clients,omitempty"`
 	ScopeMapping          []AuthorizationConfig `yaml:"scope_mapping,omitempty"`
 }
 
@@ -641,12 +641,12 @@ func ApplyEnvOverrides(cfg *AppConfig) error {
 	if v := os.Getenv("MOSIP_ESIGNET_SECURITY_JWKS_URL"); v != "" {
 		cfg.SecurityConfig.JwksURL = v
 	}
-	if v := os.Getenv("MOSIP_ESIGNET_SECURITY_ALLOWED_CLIENT_IDS"); v != "" {
-		clientIDs := strings.Split(v, ",")
-		cfg.SecurityConfig.AllowedClientIDs = make([]string, 0, len(clientIDs))
-		for _, clientID := range clientIDs {
-			if clientID = strings.TrimSpace(clientID); clientID != "" {
-				cfg.SecurityConfig.AllowedClientIDs = append(cfg.SecurityConfig.AllowedClientIDs, clientID)
+	if v := os.Getenv("MOSIP_ESIGNET_SECURITY_ALLOWED_IAM_CLIENTS"); v != "" {
+		iamClients := strings.Split(v, ",")
+		cfg.SecurityConfig.AllowedIAMClients = make([]string, 0, len(iamClients))
+		for _, iamClient := range iamClients {
+			if iamClient = strings.TrimSpace(iamClient); iamClient != "" {
+				cfg.SecurityConfig.AllowedIAMClients = append(cfg.SecurityConfig.AllowedIAMClients, iamClient)
 			}
 		}
 	}
