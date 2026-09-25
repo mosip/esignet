@@ -102,6 +102,7 @@
                   "    };",
                   "    pm.environment.set('client_private_key', JSON.stringify(privateJwk));",
                   "    pm.environment.set('client_public_key', JSON.stringify({ kty: jwk.kty, n: jwk.n, e: jwk.e, kid: kid, use: 'sig' }));",
+                  "    pm.environment.set('client_id', 'postman-client-' + kid.slice(0, 16));",
                   "    pm.environment.set('client_mgmt_request_time', new Date().toISOString());",
                   "  })",
                   ");"
