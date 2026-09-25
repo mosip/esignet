@@ -25,7 +25,7 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://database:5432/mosip_mockidentitysystem?currentSchema=mockidentitysystem
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=postgres
-      - MOSIP_ESIGNET_HOST=localhost:8080
+      - MOSIP_ESIGNET_HOST=localhost:8088
     depends_on:
       database:
         condition: service_healthy
@@ -34,10 +34,10 @@ services:
     image: "mosipdev/esignet:develop-go"
     user: root
     ports:
-      - 8080:8080
+      - 8088:8088
     environment:
       - container_user=mosip
-      - PORT=8080
+      - PORT=8088
       - DATABASE_HOST=database
       - DATABASE_PORT=5432
       - DATABASE_USERNAME=postgres
@@ -48,7 +48,7 @@ services:
       - KEYMANAGER_PKCS12_PASSWORD=localtest
       - KEYMANAGER_PKCS12_ALLOW_INSECURE_SOFTWARE_KEYSTORE=true
       - MOSIP_ESIGNET_CACHE_TYPE=inmemory
-      - MOSIP_ESIGNET_HOST=http://localhost:8080
+      - MOSIP_ESIGNET_HOST=http://localhost:8088
       - MOSIP_ESIGNET_OIDC_UI_HOSTNAME=localhost
       - MOSIP_ESIGNET_CAPTCHA_SITE_PROVIDER=hcaptcha
       - MOSIP_ESIGNET_CAPTCHA_SITE_KEY=10000000-ffff-ffff-ffff-000000000001

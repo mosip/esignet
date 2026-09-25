@@ -32,7 +32,7 @@ if (!baseUrlRaw) {
       "Add it to your .env file (e.g. VITE_API_URL=https://your-api-host:8090).",
   );
 }
-const baseUrl = baseUrlRaw || `http://localhost:8080`;
+const baseUrl = baseUrlRaw || `http://localhost:8088`;
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

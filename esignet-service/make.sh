@@ -43,7 +43,7 @@ done
 OUT_DIR=out
 if $WINDOWS; then BINARY=$OUT_DIR/esignet.exe; else BINARY=$OUT_DIR/esignet; fi
 CMD=./cmd/esignet
-: "${PORT:=8080}"
+: "${PORT:=8088}"
 # Backward compatibility: ISSUER_URL was renamed to MOSIP_ESIGNET_HOST.
 if [ -z "${MOSIP_ESIGNET_HOST:-}" ] && [ -n "${ISSUER_URL:-}" ]; then
   MOSIP_ESIGNET_HOST="$ISSUER_URL"
@@ -141,7 +141,7 @@ target_docker_build() { ## Build container image (esignet:latest by default)
   docker build -f Dockerfile -t "$DOCKER_IMAGE" .
 }
 
-target_docker_run() { ## Run container mapped to PORT (default 8080)
+target_docker_run() { ## Run container mapped to PORT (default 8088)
   target_docker_build
   docker run --rm -p "$PORT:8088" \
     -e MOSIP_ESIGNET_HOST="$MOSIP_ESIGNET_HOST" \
@@ -242,7 +242,7 @@ Test
 
 Docker
   docker-build       Build container image ($DOCKER_IMAGE)
-  docker-run         Run container mapped to PORT (default 8080)
+  docker-run         Run container mapped to PORT (default 8088)
 
 Maintenance
   sqlc               Regenerate DB layer from SQL (requires sqlc; run sqlc-install first)

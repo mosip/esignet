@@ -17,7 +17,7 @@ Variable names follow the standard eSignet Postman convention (snake_case: `base
 
 ## Quick start
 
-1. Start the server with `MOSIP_ESIGNET_HOST` matching `baseUrl` in the environment (default `http://127.0.0.1:8080`). See [esignet-service/README.md](../esignet-service/README.md) for build and run steps.
+1. Start the server with `MOSIP_ESIGNET_HOST` matching `baseUrl` in the environment (default `http://localhost:8088`). See [esignet-service/README.md](../esignet-service/README.md) for build and run steps.
 2. In Postman, import **both** files (environment first, then collection).
 3. Select the **Go-eSignet (local)** environment.
 4. Run **Client Management → Create client** once, with `authContextRefs` covering the authentication method you want to exercise.

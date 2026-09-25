@@ -35,7 +35,7 @@ This guide brings up a fully functional eSignet environment on your local machin
 | Docker Engine + Compose plugin | [Install Docker](https://docs.docker.com/engine/install/); verify with `docker compose version` |
 | Free RAM | 4 GB minimum, 8 GB recommended |
 | Free disk | ~2 GB for pulled images |
-| Free ports | **5455**, **8082**, **8080**, **3000** — must not be in use before starting |
+| Free ports | **5455**, **8082**, **8088**, **3000** — must not be in use before starting |
 | `curl` | For health checks from the terminal (optional) |
 | Browser | For the OIDC UI flow |
 
@@ -53,7 +53,7 @@ Brings up **all four services**. Use this for demos, hackathons, or evaluating e
 |---|---|---|---|
 | `database` | `postgres:bookworm` | **5455** | PostgreSQL — two databases: `mosip_esignet` and `mosip_mockidentitysystem`, schemas and seed data created automatically via `init.sql` |
 | `mock-identity-system` | `mosipid/mock-identity-system:**` | **8082** | Mock identity backend — simulates a national ID system; supports OTP, PIN, and password auth |
-| `esignet` | `mosipid/esignet:**` | **8080** | eSignet OIDC/OAuth2 service — the core authorization server |
+| `esignet` | `mosipid/esignet:**` | **8088** | eSignet OIDC/OAuth2 service — the core authorization server |
 | `esignet-ui` | `mosipid/oidc-ui:**` | **3000** | OIDC login UI — nginx-served React app; proxies API calls to the `esignet` service |
 
 Startup order enforced by `depends_on`:
@@ -110,7 +110,7 @@ Verify each service responds:
 
 ```bash
 # eSignet service health
-curl http://localhost:8080/health
+curl http://localhost:8088/health
 # Expected: {"status":"UP"} or similar
 
 # OIDC discovery endpoint (via the UI nginx proxy)
@@ -192,7 +192,7 @@ copy .env.example .env
 #   KEYMANAGER_PKCS12_FILE_PATH=./keystore.pfx  (keymanager auto-provisions this file on first startup; /opt/mosip/test.pfx does not exist locally)
 
 # 3. Run the service (Linux / macOS / Git Bash) — keymanager provisions its own keys on first start
-./make.sh run    # starts the service on port 8080
+./make.sh run    # starts the service on port 8088
 ```
 
 See [`esignet-service/README.md`](../esignet-service/README.md) for the full environment-variable reference and build options.
@@ -239,11 +239,11 @@ The easiest way to walk through the full OIDC flow is via the included Postman c
 
 ```
 1. Register an OIDC client
-   POST http://localhost:8080/client-mgmt/client
+   POST http://localhost:8088/client-mgmt/client
    (see Postman collection for the request body)
 
 2. Initiate authorization (browser)
-   http://localhost:8080/oauth2/authorize?client_id={CLIENT_ID}&redirect_uri={REDIRECT_URI}&prompt=consent&response_type=code&scope=openid%20email%20profile&claims={CLAIMS}&state={STATE}&code_challenge={CODE_CHALLENGE}&code_challenge_method=S256
+   http://localhost:8088/oauth2/authorize?client_id={CLIENT_ID}&redirect_uri={REDIRECT_URI}&prompt=consent&response_type=code&scope=openid%20email%20profile&claims={CLAIMS}&state={STATE}&code_challenge={CODE_CHALLENGE}&code_challenge_method=S256
    The OIDC UI login screen appears.
 
 3. Authenticate
@@ -258,11 +258,11 @@ The easiest way to walk through the full OIDC flow is via the included Postman c
    Redirected to your redirect_uri with ?code=<auth_code>
 
 6. Exchange code for tokens
-   POST http://localhost:8080/oauth2/token
+   POST http://localhost:8088/oauth2/token
    grant_type=authorization_code&code=<auth_code>&...
 
 7. Fetch user info
-   GET http://localhost:8080/oidc/userinfo
+   GET http://localhost:8088/oidc/userinfo
    Authorization: Bearer <access_token>
 ```
 
@@ -284,9 +284,9 @@ Follow that guide to bring up the Mock Relying Party Portal alongside this stack
 
 ```bash
 # Linux/macOS
-lsof -i :8080
+lsof -i :8088
 # Windows
-netstat -ano | findstr :8080
+netstat -ano | findstr :8088
 ```
 
 Stop the conflicting process or change the host port in `docker-compose.yaml` (left side of `ports: - HOST:CONTAINER`).
@@ -334,7 +334,7 @@ Check your internet connection or Docker Hub rate limits.
 
 **OIDC discovery returns a connection error from the UI**
 
-The `esignet-ui` nginx proxies `/v1/esignet/` to `esignet:8080` using the internal Docker network. If the proxy fails, `esignet` may not have started yet. Wait 30 seconds and refresh.
+The `esignet-ui` nginx proxies `/v1/esignet/` to `esignet:8088` using the internal Docker network. If the proxy fails, `esignet` may not have started yet. Wait 30 seconds and refresh.
 
 **CAPTCHA blocks login**
 
