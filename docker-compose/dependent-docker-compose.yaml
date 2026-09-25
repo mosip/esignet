@@ -20,6 +20,6 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://database:5432/mosip_mockidentitysystem?currentSchema=mockidentitysystem
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=postgres
-      - MOSIP_ESIGNET_HOST=localhost:8080
+      - MOSIP_ESIGNET_HOST=localhost:8088
     depends_on:
       - database

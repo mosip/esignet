@@ -24,7 +24,7 @@ import (
 )
 
 const (
-	defaultPort                  = 8080
+	defaultPort                  = 8088
 	defaultDataDir               = "./data"
 	appConfigFileName            = "deployment.yaml"
 	defaultGatePort              = 3000

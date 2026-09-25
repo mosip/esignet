@@ -8,7 +8,7 @@
 # A few fields (noted inline) are env-var-only or fully derived and are never
 # read from this file; they're documented here for operators anyway.
 identifier: "${NAMESPACE}"
-port: 8080
+port: 8088
 # Private Prometheus scrape port, not routed through the public ingress.
 # Override with METRICS_PORT (env wins over this value).
 metrics_port: 9090
@@ -25,7 +25,7 @@ server:
   hostname: "0.0.0.0"
   # port/identifier always mirror the top-level port/identifier above (see
   # applyDefaults in internal/config/app.go); not independently settable here.
-  port: 8080
+  port: 8088
   identifier: ${NAMESPACE}
   # public_url falls back to `issuer` above when unset here and
   # MOSIP_ESIGNET_BASE_URL is unset.

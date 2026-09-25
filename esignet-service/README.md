@@ -122,7 +122,7 @@ Minimum to start the service:
 | `REDIS_HOST` | `localhost` | Redis connection (session/flow/PAR store) |
 | `MOSIP_ESIGNET_AUTHN_PROVIDER` | `mock` | `mock`, `mosip`, or `sunbird` — see [`docs/configuration.md`](../docs/configuration.md) §7 for what each requires |
 | `PORT` | `8088` | HTTP listen port |
-| `MOSIP_ESIGNET_HOST` | `http://127.0.0.1:<PORT>` | OIDC issuer / discovery base |
+| `MOSIP_ESIGNET_HOST` | `http://localhost:<PORT>` | OIDC issuer / discovery base |
 | `LOG_LEVEL` | `info` | `debug` for verbose tracing |
 
 Copy `.env.example` to `.env` for copy-paste local values (including MOSIP/SunbirdRC overrides).
@@ -271,7 +271,7 @@ OAuth clients are created on demand (see [Postman](#postman) below) rather than 
 The collection lives in [`postman-collection/`](../postman-collection/README.md), a sibling of this directory.
 
 1. Import `Go-eSignet.postman_environment.json`, then `Go-eSignet.postman_collection.json`.
-2. Select the **Go-eSignet (local)** environment; start the server with `MOSIP_ESIGNET_HOST` matching `baseUrl` (default `http://127.0.0.1:8080`).
+2. Select the **Go-eSignet (local)** environment; start the server with `MOSIP_ESIGNET_HOST` matching `baseUrl` (default `http://localhost:8088`).
 3. Run **Client Management → Create client** — its pre-request script generates a fresh RSA key and `clientId` entirely inside Postman, no external tooling needed.
 4. Run one of the numbered OAuth flow folders (1 — MOSIP OTP, 2 — MOSIP Credentials, 3 — MOSIP FAPI2) top to bottom.
 

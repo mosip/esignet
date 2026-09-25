@@ -55,7 +55,7 @@ Other rules:
 | Variable | YAML key | Default | Purpose |
 |---|---|---|---|
 | `NAMESPACE` | `identifier` | `esignet` | Deployment identifier. |
-| `PORT` | `port` | `8080` | HTTP listen port. |
+| `PORT` | `port` | `8088` | HTTP listen port. |
 | `METRICS_PORT` | _(env-only)_ | `9090` | Prometheus `/metrics` port. |
 | `MOSIP_ESIGNET_HOST` | `issuer` | `http://localhost:<PORT>` | OIDC `issuer`; fallback base URL. |
 | `MOSIP_ESIGNET_BASE_URL` | `server.public_url` | falls back to `issuer` | Base URL prefixed to every discovery endpoint path. `server.http_only` is derived from its scheme, not independently settable. |
@@ -172,8 +172,9 @@ Redis connection (pool/timeout tuning is env-only, §2):
 | `REDIS_KEY_PREFIX` | `redis.key_prefix` | `esignet:` |
 | `REDIS_SENTINEL_MASTER` | `redis.sentinel_master` | `""` |
 | `REDIS_SENTINEL_ADDRS` (comma-separated) | `redis.sentinel_addrs` | `""` |
-| `REDIS_POOL_SIZE` | _(env-only)_ | `10` |
-| `REDIS_MIN_IDLE_CONNS` | _(env-only)_ | `2` |
+| `REDIS_POOL_SIZE` | _(env-only)_ | `100` |
+| `REDIS_MAX_ACTIVE_CONNS` | _(env-only)_ | `100` — hard ceiling on connections |
+| `REDIS_MIN_IDLE_CONNS` | _(env-only)_ | `10` |
 | `REDIS_CONN_MAX_IDLE_TIME_SECS` | _(env-only)_ | `300` |
 | `REDIS_CONN_MAX_LIFETIME_SECS` | _(env-only)_ | `1800`; explicit `0` = no limit |
 | `REDIS_DIAL_TIMEOUT_SECS` | _(env-only)_ | `5` |
@@ -194,8 +195,8 @@ Connection mode priority: `REDIS_URL` set → DSN mode; else `REDIS_SENTINEL_MAS
 | `DATABASE_NAME` | — | `mosip_esignet` |
 | `DATABASE_USERNAME` | — | `postgres` |
 | `DATABASE_PASSWORD` / `DB_DBUSER_PASSWORD` | — | `""`; `DATABASE_PASSWORD` takes precedence |
-| `DB_MAX_OPEN_CONNS` | `db.pool.max_open_conns` | `25` |
-| `DB_MAX_IDLE_CONNS` | `db.pool.max_idle_conns` | `5` |
+| `DB_MAX_OPEN_CONNS` | `db.pool.max_open_conns` | `50` |
+| `DB_MAX_IDLE_CONNS` | `db.pool.max_idle_conns` | `25` |
 | `DB_CONN_MAX_LIFETIME_SECS` | `db.pool.conn_max_lifetime_secs` | `1800`; explicit env `0` = no limit |
 | `DB_CONN_MAX_IDLE_TIME_SECS` | `db.pool.conn_max_idle_time_secs` | `300` |
 
@@ -317,7 +318,7 @@ without raising this only logs a warning, it isn't enforced.
 
 ## 10. eSignet UI configuration
 
-**Build-time** (Vite): `VITE_API_URL` — `oidc-ui/.env` sets `http://localhost:8080` for local dev,
+**Build-time** (Vite): `VITE_API_URL` — `oidc-ui/.env` sets `http://localhost:8088` for local dev,
 `oidc-ui/.env.production` sets `/v1/esignet`.
 
 **Runtime**, `window._env_` (populated by the container entrypoint from baked-in defaults, overridable

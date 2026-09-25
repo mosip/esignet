@@ -280,7 +280,7 @@ docker compose up --build --abort-on-container-exit --exit-code-from harness
 The report appears in `./out` on the host. `docker compose down -v` tears everything down.
 
 Compose does **not** start eSignet itself — point `MOSIP_ESIGNET_BASE_URL` at a deployed environment, or
-at `http://host.docker.internal:8080` for one running on your own machine.
+at `http://host.docker.internal:8088` for one running on your own machine.
 
 | `.env` knob | Effect |
 |---|---|
