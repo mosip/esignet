@@ -192,6 +192,7 @@ type SecurityConfig struct {
 	JwksURL               string                `yaml:"jwks_url"`
 	JwksCacheTTL          int64                 `yaml:"jwks_cache_ttl"`
 	RequestTimeLeewaySecs int                   `yaml:"request_time_leeway_secs"`
+	AllowedIAMClients     []string              `yaml:"allowed_iam_clients,omitempty"`
 	ScopeMapping          []AuthorizationConfig `yaml:"scope_mapping,omitempty"`
 }
 
@@ -644,6 +645,15 @@ func ApplyEnvOverrides(cfg *AppConfig) error {
 	}
 	if v := os.Getenv("MOSIP_ESIGNET_SECURITY_JWKS_URL"); v != "" {
 		cfg.SecurityConfig.JwksURL = v
+	}
+	if v := os.Getenv("MOSIP_ESIGNET_SECURITY_ALLOWED_IAM_CLIENTS"); v != "" {
+		iamClients := strings.Split(v, ",")
+		cfg.SecurityConfig.AllowedIAMClients = make([]string, 0, len(iamClients))
+		for _, iamClient := range iamClients {
+			if iamClient = strings.TrimSpace(iamClient); iamClient != "" {
+				cfg.SecurityConfig.AllowedIAMClients = append(cfg.SecurityConfig.AllowedIAMClients, iamClient)
+			}
+		}
 	}
 	if v := os.Getenv("MOSIP_ESIGNET_CLIENT_CACHE_TTL_SECS"); v != "" {
 		secs, err := strconv.ParseInt(v, 10, 64)

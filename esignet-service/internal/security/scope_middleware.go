@@ -23,7 +23,8 @@ import (
 //  1. Requires a Bearer token in the Authorization header.
 //  2. Validates the token's signature using the JWKS cache.
 //  3. Validates standard claims: iss, exp.
-//  4. Checks that the token's scope claim contains requiredScope.
+//  4. Requires an allowed IAM client in either the azp or aud claim.
+//  5. Checks that the token's scope claim contains requiredScope.
 func ScopeMiddleware(cache *JWKSCache, config config.SecurityConfig) func(http.Handler) http.Handler {
 	parser := jwt.NewParser(
 		jwt.WithIssuer(config.IssuerURL),
@@ -50,6 +51,14 @@ func ScopeMiddleware(cache *JWKSCache, config config.SecurityConfig) func(http.H
 				logger.Warn(r.Context(), "rejected request with invalid or expired token",
 					applog.String("path", r.URL.Path), applog.Error(err))
 				common.WriteError(r.Context(), w, http.StatusUnauthorized, "unauthorized", "invalid or expired token")
+				return
+			}
+
+			if !claimHasAllowedIAMClient(claims, config.AllowedIAMClients) {
+				logger.Warn(r.Context(), "rejected token with no allowed IAM client",
+					applog.String("path", r.URL.Path))
+				common.WriteError(r.Context(), w, http.StatusUnauthorized, "unauthorized",
+					"token does not identify an allowed IAM client")
 				return
 			}
 
@@ -137,6 +146,29 @@ func parseAndValidate(ctx context.Context, parser *jwt.Parser, tokenStr string, 
 		return nil, fmt.Errorf("invalid token claims")
 	}
 	return claims, nil
+}
+
+// claimHasAllowedIAMClient reports whether an allowed IAM client exactly matches
+// either the authorized party (azp) or any audience (aud) value in the token.
+func claimHasAllowedIAMClient(claims jwt.MapClaims, allowedIAMClients []string) bool {
+	azp, _ := claims["azp"].(string)
+	audiences, _ := claims.GetAudience()
+
+	for _, allowedIAMClient := range allowedIAMClients {
+		allowedIAMClient = strings.TrimSpace(allowedIAMClient)
+		if allowedIAMClient == "" {
+			continue
+		}
+		if azp == allowedIAMClient {
+			return true
+		}
+		for _, audience := range audiences {
+			if audience == allowedIAMClient {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 // claimHasScope checks whether the token's scope claim (space-separated string)
