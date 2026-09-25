@@ -10,8 +10,9 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest run",
-    "test:coverage": "vitest run --coverage",
-    "typecheck": "tsc -b"
+    "test:ci": "vitest run --coverage",
+    "typecheck": "tsc -b",
+    "sonar": "sonar-scanner"
   },
   "dependencies": {
     "@hcaptcha/react-hcaptcha": "^2.0.2",
