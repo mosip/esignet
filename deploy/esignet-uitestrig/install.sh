@@ -35,7 +35,7 @@ set -o pipefail
 SOURCE_NS=esignet
 NS=esignet-uitestrig
 RELEASE_NAME=esignet-uitestrig
-CHART_VERSION=2.0.0-develop
+CHART_VERSION=2.0.0
 VALUES_FILE=values.yaml
 SECRET_VALUES_FILE=values.secret.yaml
 
