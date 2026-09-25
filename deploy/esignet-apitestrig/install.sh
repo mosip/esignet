@@ -26,7 +26,7 @@ set -o pipefail
 
 NS=esignet
 RELEASE_NAME=esignet-apitestrig
-CHART_VERSION=2.0.0-develop
+CHART_VERSION=2.0.0
 VALUES_FILE=values.yaml
 SECRET_VALUES_FILE=values.secret.yaml
 HELM_WAIT_TIMEOUT=15m
