@@ -787,26 +787,38 @@ func (ts *AppConfigTestSuite) TestApplyEnvOverridesInvalidAccessTokenLifetime() 
 
 func (ts *AppConfigTestSuite) TestApplyEnvOverridesSecurityConfig() {
 	t := ts.T()
-	cfg := &AppConfig{SecurityConfig: SecurityConfig{IssuerURL: "https://yaml-issuer", JwksURL: "https://yaml-jwks"}}
+	cfg := &AppConfig{SecurityConfig: SecurityConfig{
+		IssuerURL:        "https://yaml-issuer",
+		JwksURL:          "https://yaml-jwks",
+		AllowedClientIDs: []string{"yaml-client"},
+	}}
 	t.Setenv("MOSIP_ESIGNET_SECURITY_ISSUER_URL", "https://issuer.example.com")
 	t.Setenv("MOSIP_ESIGNET_SECURITY_JWKS_URL", "https://issuer.example.com/jwks.json")
+	t.Setenv("MOSIP_ESIGNET_SECURITY_ALLOWED_CLIENT_IDS", " client-a,client-b, ,client-c ")
 
 	ts.Require().NoError(ApplyEnvOverrides(cfg))
 
 	ts.Require().Equal("https://issuer.example.com", cfg.SecurityConfig.IssuerURL, "env var takes precedence over yaml-set value")
 	ts.Require().Equal("https://issuer.example.com/jwks.json", cfg.SecurityConfig.JwksURL, "env var takes precedence over yaml-set value")
+	ts.Require().Equal([]string{"client-a", "client-b", "client-c"}, cfg.SecurityConfig.AllowedClientIDs, "env var takes precedence over yaml-set value")
 }
 
 func (ts *AppConfigTestSuite) TestApplyEnvOverridesSecurityConfigNoEnvSetPreservesYAML() {
 	t := ts.T()
 	t.Setenv("MOSIP_ESIGNET_SECURITY_ISSUER_URL", "")
 	t.Setenv("MOSIP_ESIGNET_SECURITY_JWKS_URL", "")
-	cfg := &AppConfig{SecurityConfig: SecurityConfig{IssuerURL: "https://yaml-issuer", JwksURL: "https://yaml-jwks"}}
+	t.Setenv("MOSIP_ESIGNET_SECURITY_ALLOWED_CLIENT_IDS", "")
+	cfg := &AppConfig{SecurityConfig: SecurityConfig{
+		IssuerURL:        "https://yaml-issuer",
+		JwksURL:          "https://yaml-jwks",
+		AllowedClientIDs: []string{"yaml-client"},
+	}}
 
 	ts.Require().NoError(ApplyEnvOverrides(cfg))
 
 	ts.Require().Equal("https://yaml-issuer", cfg.SecurityConfig.IssuerURL, "yaml value preserved when env var unset")
 	ts.Require().Equal("https://yaml-jwks", cfg.SecurityConfig.JwksURL, "yaml value preserved when env var unset")
+	ts.Require().Equal([]string{"yaml-client"}, cfg.SecurityConfig.AllowedClientIDs, "yaml value preserved when env var unset")
 }
 
 func (ts *AppConfigTestSuite) TestApplyEnvOverridesClientCacheTTLSecs() {

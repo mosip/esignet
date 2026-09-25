@@ -23,7 +23,8 @@ import (
 //  1. Requires a Bearer token in the Authorization header.
 //  2. Validates the token's signature using the JWKS cache.
 //  3. Validates standard claims: iss, exp.
-//  4. Checks that the token's scope claim contains requiredScope.
+//  4. Requires an allowed client ID in either the azp or aud claim.
+//  5. Checks that the token's scope claim contains requiredScope.
 func ScopeMiddleware(cache *JWKSCache, config config.SecurityConfig) func(http.Handler) http.Handler {
 	parser := jwt.NewParser(
 		jwt.WithIssuer(config.IssuerURL),
@@ -50,6 +51,14 @@ func ScopeMiddleware(cache *JWKSCache, config config.SecurityConfig) func(http.H
 				logger.Warn(r.Context(), "rejected request with invalid or expired token",
 					applog.String("path", r.URL.Path), applog.Error(err))
 				common.WriteError(r.Context(), w, http.StatusUnauthorized, "unauthorized", "invalid or expired token")
+				return
+			}
+
+			if !claimHasAllowedClient(claims, config.AllowedClientIDs) {
+				logger.Warn(r.Context(), "rejected token not issued to an allowed client",
+					applog.String("path", r.URL.Path))
+				common.WriteError(r.Context(), w, http.StatusUnauthorized, "unauthorized",
+					"token was not issued to an allowed client")
 				return
 			}
 
@@ -137,6 +146,29 @@ func parseAndValidate(ctx context.Context, parser *jwt.Parser, tokenStr string, 
 		return nil, fmt.Errorf("invalid token claims")
 	}
 	return claims, nil
+}
+
+// claimHasAllowedClient reports whether an allowed client ID exactly matches
+// either the authorized party (azp) or any audience (aud) value in the token.
+func claimHasAllowedClient(claims jwt.MapClaims, allowedClientIDs []string) bool {
+	azp, _ := claims["azp"].(string)
+	audiences, _ := claims.GetAudience()
+
+	for _, allowedClientID := range allowedClientIDs {
+		allowedClientID = strings.TrimSpace(allowedClientID)
+		if allowedClientID == "" {
+			continue
+		}
+		if azp == allowedClientID {
+			return true
+		}
+		for _, audience := range audiences {
+			if audience == allowedClientID {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 // claimHasScope checks whether the token's scope claim (space-separated string)

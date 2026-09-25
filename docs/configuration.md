@@ -145,10 +145,14 @@ the encryption algorithms discovery advertises.
 
 Bearer-token scope enforcement on `/client-mgmt/*` and `/system-info/*` is configured under the
 `security_config:` block in `deployment.yaml`: `issuer_url` (env `MOSIP_ESIGNET_SECURITY_ISSUER_URL`),
-`jwks_url` (env `MOSIP_ESIGNET_SECURITY_JWKS_URL`), `jwks_cache_ttl` (default `3000`), and an
+`jwks_url` (env `MOSIP_ESIGNET_SECURITY_JWKS_URL`), `allowed_client_ids` (comma-separated env
+`MOSIP_ESIGNET_SECURITY_ALLOWED_CLIENT_IDS`), `jwks_cache_ttl` (default `3000`), and an
 `endpoint`/`method`/`scope` `scope_mapping` list — see `deployment.yaml` for the full list, which
 includes mappings for the deprecated `/client-mgmt/oidc-client` and `/client-mgmt/oauth-client`
-aliases. Enforcement only activates when both `issuer_url` and `jwks_url` are non-empty.
+aliases. After signature, issuer, and expiry validation, a token is accepted only when an allowed
+client ID exactly matches either its `azp` claim or one of its `aud` values, and it has the scope
+mapped to the requested endpoint. Enforcement only activates when both `issuer_url` and `jwks_url`
+are non-empty.
 
 ## 5. Cache and runtime store
 
