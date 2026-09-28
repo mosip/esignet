@@ -34,6 +34,7 @@ import io.mosip.esignet.core.spi.ClientManagementService;
 import io.mosip.esignet.core.spi.TokenService;
 import io.mosip.esignet.core.util.AuthenticationContextClassRefUtil;
 import io.mosip.esignet.core.util.CaptchaHelper;
+import io.mosip.esignet.core.util.IdentityProviderUtil;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -114,6 +115,9 @@ public class AuthorizationServiceTest {
 
     @Mock
     private ServerProfile serverProfile;
+
+    @Mock
+    IdentityProviderUtil identityProviderUtil;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -199,6 +203,8 @@ public class AuthorizationServiceTest {
         oauthDetailRequest.setRedirectUri("http://localhost:8088/v2/idp");
         oauthDetailRequest.setNonce("test-nonce");
         when(clientManagementService.getClientDetails(oauthDetailRequest.getClientId())).thenReturn(clientDetail);
+        doThrow(new EsignetException(ErrorConstants.INVALID_REDIRECT_URI))
+                .when(identityProviderUtil).validateRedirectURI(any(), any());
 
         try {
             authorizationServiceImpl.getOauthDetails(oauthDetailRequest);
@@ -669,6 +675,8 @@ public class AuthorizationServiceTest {
         oauthDetailRequest.setRedirectUri("http://localhost:8088/v2/idp");
         oauthDetailRequest.setNonce("test-nonce");
         when(clientManagementService.getClientDetails(oauthDetailRequest.getClientId())).thenReturn(clientDetail);
+        doThrow(new EsignetException(ErrorConstants.INVALID_REDIRECT_URI))
+                .when(identityProviderUtil).validateRedirectURI(any(), any());
 
         try {
             authorizationServiceImpl.getOauthDetailsV2(oauthDetailRequest);

@@ -79,6 +79,9 @@ public class OAuthServiceImpl implements OAuthService {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Autowired
+    private IdentityProviderUtil identityProviderUtil;
+
     @Value("${mosip.esignet.access-token-expire-seconds:60}")
     private int accessTokenExpireSeconds;
 
@@ -109,7 +112,7 @@ public class OAuthServiceImpl implements OAuthService {
 
         validateRequestParametersWithTransaction(tokenRequest, transaction);
 
-        IdentityProviderUtil.validateRedirectURI(Collections.singletonList(transaction.getRedirectUri()), tokenRequest.getRedirect_uri());
+        identityProviderUtil.validateRedirectURI(Collections.singletonList(transaction.getRedirectUri()), tokenRequest.getRedirect_uri());
 
         if (dpopHeader != null || transaction.isDpopBoundAccessToken()) {
             if (dpopHeader == null) throw new EsignetException(INVALID_REQUEST);
@@ -192,7 +195,7 @@ public class OAuthServiceImpl implements OAuthService {
         }
 
         log.info("nonce : {} Valid client id found, proceeding to validate redirect URI", pushedAuthorizationRequest.getNonce());
-        IdentityProviderUtil.validateRedirectURI(clientDetailDto.getRedirectUris(), pushedAuthorizationRequest.getRedirect_uri());
+        identityProviderUtil.validateRedirectURI(clientDetailDto.getRedirectUris(), pushedAuthorizationRequest.getRedirect_uri());
 
         List<String> validAudience = List.of((String) oauthServerDiscoveryMap.get(PAR_ENDPOINT), (String) oauthServerDiscoveryMap.get(TOKEN_ENDPOINT), (String) discoveryMap.get(ISSUER));
 
