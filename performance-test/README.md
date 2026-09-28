@@ -64,6 +64,11 @@ This module describes how to conduct load test of the eSignet OIDC(FAPI2.0) flow
 * Note: as shipped, this script has only "S01 OTP Authentication" and "S02 Biometric Authentication" are enabled by default; "A00", "A01" and "A02" are disabled. Enable each Thread Group deliberately per the validation steps above rather than assuming all groups are active.
 
 
+# Observability
+
+No changes to observability settings are needed before a load run. eSignet does not connect to any OTLP collectors; it uses its own observability provider (MOSIP audit-manager), which does not impose any rate limits. Performance testing should be executed with the observability provider running as-is.
+
+
 # Script execution steps:
 
   01. A00 Auth Token Generation (Preparation) - In this thread group we are creating the authorization token - Using User Id which will be saved to a file within user defined path - "runTimeFilePath". The authorization token has expiration time which is controlled by MOSIP settings. Ensure the tokens remain valid throughout the duration of the test execution.
