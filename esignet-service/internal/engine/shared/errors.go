@@ -179,6 +179,20 @@ var AuthTokenFetchFailed = &common.ServiceError{
 	},
 }
 
+// InvalidOTPError is returned when the submitted OTP has expired or is otherwise invalid.
+var InvalidOTPError = &common.ServiceError{
+	Code: "invalid_otp",
+	Type: common.ClientErrorType,
+	Error: common.I18nMessage{
+		Key:          "flows.executor.errors.invalid_otp",
+		DefaultValue: "The one-time password provided is invalid or has expired",
+	},
+	ErrorDescription: common.I18nMessage{
+		Key:          "flows.executor.errors.invalid_otp_desc",
+		DefaultValue: "The one-time password provided is invalid or has expired. Please request a new OTP.",
+	},
+}
+
 // InternalServerError is returned when an unexpected server-side failure occurs.
 var InternalServerError = &common.ServiceError{
 	Code: "server_error",

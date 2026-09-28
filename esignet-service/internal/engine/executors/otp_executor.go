@@ -9,6 +9,7 @@ package executors
 import (
 	"fmt"
 	"strconv"
+	"time"
 
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/common"
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/providers"
@@ -30,6 +31,9 @@ const (
 	// otpAttemptCountKey stores the running OTP generate/resend count in RuntimeData across
 	// node executions within a flow session.
 	otpAttemptCountKey = "otpAttemptCount"
+	// otpIssuedAtKey stores the UTC RFC3339 timestamp of the most recent successful OTP send
+	// in RuntimeData so the expiry-check executor can enforce the OTP validity window.
+	otpIssuedAtKey = "otpIssuedAt"
 	// defaultMaxOTPAttempts is used when the maxAttempts node property is absent or invalid.
 	defaultMaxOTPAttempts = 3
 )
@@ -129,6 +133,7 @@ func (e *otpExecutor) Execute(ctx *providers.NodeContext) (*providers.ExecutorRe
 	}
 
 	ctx.RuntimeData[otpAttemptCountKey] = strconv.Itoa(attemptCount + 1)
+	ctx.RuntimeData[otpIssuedAtKey] = time.Now().UTC().Format(time.RFC3339)
 
 	execResp.ForwardedData[maskedEmail] = result.MaskedEmail
 	execResp.ForwardedData[maskedMobile] = result.MaskedMobile
