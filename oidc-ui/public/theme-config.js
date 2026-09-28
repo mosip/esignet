@@ -13,7 +13,7 @@ if (title) {
   title.textContent = window._env_.DEFAULT_TITLE;
 }
 
-if (window._env_.DEFAULT_FONT_URL !== "") {
+if (window._env_.DEFAULT_FONT_URL) {
   var fontsUrl = document.getElementById("fonts-url");
   if (fontsUrl) {
     fontsUrl.href = window._env_.DEFAULT_FONT_URL;
