@@ -57,8 +57,8 @@ func AccessLog(next http.Handler, opts ...Option) http.Handler {
 
 		next.ServeHTTP(rec, r)
 
+		p := r.URL.Path
 		for _, prefix := range o.skipPrefixes {
-			p := r.URL.Path
 			if prefix == "/" || p == prefix || strings.HasPrefix(p, prefix+"/") {
 				return
 			}
