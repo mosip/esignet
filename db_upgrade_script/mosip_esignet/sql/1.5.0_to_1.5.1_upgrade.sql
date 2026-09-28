@@ -1,4 +1,4 @@
-\c mosip_esignet
+\c :mosipdbname
 
 CREATE OR REPLACE FUNCTION is_column_jsonb(
     p_table_name text,

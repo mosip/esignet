@@ -2,7 +2,7 @@
 -- License, v. 2.0. If a copy of the MPL was not distributed with this
 -- file, You can obtain one at https://mozilla.org/MPL/2.0/.
 -- -------------------------------------------------------------------------------------------------
--- Database Name: mosip_esignet
+-- Database Name: :mosipdbname
 -- Table Name : consent_detail
 -- Purpose    : To store user consent details
 --
@@ -13,7 +13,7 @@
 -- ------------------------------------------------------------------------------------------
 -- ------------------------------------------------------------------------------------------
 
-\c mosip_esignet
+\c :mosipdbname
 
 drop table consent_detail;
 drop table consent_history;
