@@ -15,6 +15,18 @@ vi.mock("react-detect-offline", () => ({
     render({ online: onlineStatus }),
 }));
 
+// The /signin route renders SignIn, which needs the ThunderIDProvider that only
+// main.tsx mounts. These tests exercise AppRouter's routing, so stub SignIn.
+vi.mock("@thunderid/react", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@thunderid/react")>();
+  const React = await import("react");
+  return {
+    ...actual,
+    SignIn: () =>
+      React.createElement("div", { "data-testid": "sign-in" }, "SignIn"),
+  };
+});
+
 function renderWithDataRouter(
   initialPath: string,
   state?: Record<string, unknown>,

@@ -8,18 +8,22 @@ import {
   BackButtonRenderer,
   CaptchaRenderer,
 } from "./components";
+import { LOGIN } from "./constants/routes";
+import { returnToRelyingParty } from "./utils/session-recovery";
 
 const searchParams = new URL(window.location.href).searchParams;
 
-// getting applicationId from query param to pass it to ThunderIDProvider
-const applicationId = searchParams.get("applicationId");
+// Normalize the trailing slash so /signin/ matches like the router does.
+const isLoginRoute = window.location.pathname.replace(/\/+$/, "").endsWith(LOGIN);
 
-// ui_locales (OIDC) is a space-separated, preference-ordered locale list; take
-// the most preferred one and let the backend fall back to English if unsupported.
+// From the RP hand-off URL; absent after the SDK strips it or on reload/back.
+const applicationId = searchParams.get("applicationId") ?? undefined;
+
+// OIDC ui_locales is a space-separated, preference-ordered list; take the first.
 const uiLocales = searchParams.get("ui_locales");
 const uiLocalesLanguage = uiLocales?.trim().split(/\s+/)[0] || undefined;
 
-// Fallback to DEFAULT_LANG environment variable if ui_locales is not provided or empty.
+// Fall back to DEFAULT_LANG env when ui_locales is absent.
 const defaultLanguage = (window as any)._env_?.DEFAULT_LANG || undefined;
 const initialLanguage = uiLocalesLanguage || defaultLanguage || undefined;
 
@@ -34,31 +38,36 @@ if (!baseUrlRaw) {
 }
 const baseUrl = baseUrlRaw || `http://localhost:8088`;
 
-createRoot(document.getElementById("root")!).render(
-  <StrictMode>
-    {applicationId ? (
-      <ThunderIDProvider
-        baseUrl={baseUrl}
-        applicationId={applicationId}
-        namespace={applicationId}
-        preferences={
-          initialLanguage ? { i18n: { language: initialLanguage } } : undefined
-        }
-        extensions={{
-          components: {
-            renderers: {
-              SBI_ID: SbiCustomRenderer,
-              RESEND_OTP: ResendOtpRenderer,
-              BACK_BUTTON: BackButtonRenderer,
-              CAPTCHA_BOX: CaptchaRenderer,
+if (isLoginRoute && !applicationId) {
+  // Reload/back with no live transaction → hand back to the RP.
+  returnToRelyingParty();
+} else {
+  createRoot(document.getElementById("root")!).render(
+    <StrictMode>
+      {applicationId ? (
+        <ThunderIDProvider
+          baseUrl={baseUrl}
+          applicationId={applicationId}
+          namespace={applicationId}
+          preferences={
+            initialLanguage ? { i18n: { language: initialLanguage } } : undefined
+          }
+          extensions={{
+            components: {
+              renderers: {
+                SBI_ID: SbiCustomRenderer,
+                RESEND_OTP: ResendOtpRenderer,
+                BACK_BUTTON: BackButtonRenderer,
+                CAPTCHA_BOX: CaptchaRenderer,
+              },
             },
-          },
-        }}
-      >
+          }}
+        >
+          <App />
+        </ThunderIDProvider>
+      ) : (
         <App />
-      </ThunderIDProvider>
-    ) : (
-      <App />
-    )}
-  </StrictMode>,
-);
+      )}
+    </StrictMode>,
+  );
+}
