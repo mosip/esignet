@@ -7,8 +7,10 @@
 package clientmgmt
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
+	"strings"
 
 	"github.com/mosip/esignet/internal/common"
 )
@@ -256,4 +258,29 @@ func DecodePatchRequest(data []byte) (PatchClientRequest, PatchFields, error) {
 		}
 	}
 	return req, fields, nil
+}
+
+// DecodeUpdateRequest strictly unmarshals the request object of a PUT body.
+// Fields outside UpdateClientRequest — including the immutable clientId,
+// relyingPartyId and publicKey — are rejected instead of silently dropped.
+func DecodeUpdateRequest(data []byte) (UpdateClientRequest, error) {
+	var envelope struct {
+		Request json.RawMessage `json:"request"`
+	}
+	if err := json.Unmarshal(data, &envelope); err != nil {
+		return UpdateClientRequest{}, err
+	}
+	var req UpdateClientRequest
+	if len(envelope.Request) == 0 || string(envelope.Request) == "null" {
+		return req, nil
+	}
+	dec := json.NewDecoder(bytes.NewReader(envelope.Request))
+	dec.DisallowUnknownFields()
+	if err := dec.Decode(&req); err != nil {
+		if field, found := strings.CutPrefix(err.Error(), "json: unknown field "); found {
+			return UpdateClientRequest{}, fmt.Errorf("unknown field %s", field)
+		}
+		return UpdateClientRequest{}, err
+	}
+	return req, nil
 }

@@ -231,6 +231,35 @@ func (ts *HandlerTestSuite) TestUpdateClientHandler() {
 		require.Equal(t, "invalid_input", errObj["errorCode"])
 	})
 
+	for _, extra := range []string{
+		`"clientId":"hacked-id"`,
+		`"relyingPartyId":"bogus-rp"`,
+		`"publicKey":{"kty":"RSA","n":"ZZZZ","e":"AQAB"}`,
+		`"unknownField":"x"`,
+	} {
+		t.Run("rejects "+extra, func(t *testing.T) {
+			q := &fakeQuerier{updateRow: existingClientRow()}
+			h := newTestHandler(q)
+			mux := http.NewServeMux()
+			h.RegisterRoutes(mux, nil)
+			updateJSON, err := json.Marshal(validUpdateRequest())
+			require.NoError(t, err)
+			reqJSON := string(updateJSON[:len(updateJSON)-1]) + `,` + extra + `}`
+			body := []byte(`{"requestTime":"2026-07-27T00:00:00.000Z","request":` + reqJSON + `}`)
+			req := httptest.NewRequest(http.MethodPut, "/client-mgmt/client/client-1", bytes.NewReader(body))
+			rec := httptest.NewRecorder()
+			mux.ServeHTTP(rec, req)
+
+			require.Equal(t, http.StatusOK, rec.Code)
+			decoded := decodeEnvelope(t, rec.Body.Bytes())
+			errs := decoded["errors"].([]any)
+			errObj := errs[0].(map[string]any)
+			require.Equal(t, "invalid_input", errObj["errorCode"])
+			require.Nil(t, decoded["response"])
+			require.Empty(t, q.updateParams.ID, "update must not reach the database")
+		})
+	}
+
 	t.Run("missing request time", func(t *testing.T) {
 		h := newTestHandler(&fakeQuerier{})
 		mux := http.NewServeMux()
