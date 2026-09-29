@@ -17,50 +17,68 @@ import (
 func (ts *JwkValidateTestSuite) TestValidateJWK() {
 	t := ts.T()
 	t.Run("empty key", func(t *testing.T) {
-		assert.Equal(t, "invalid_public_key", errCode(t, validateJWK(nil)))
+		assert.Equal(t, "invalid_public_key", errCode(t, validateJWK(nil, false)))
 	})
 
 	t.Run("unsupported kty", func(t *testing.T) {
-		assert.Equal(t, "invalid_public_key", errCode(t, validateJWK(map[string]string{"kty": "oct"})))
+		assert.Equal(t, "invalid_public_key", errCode(t, validateJWK(map[string]string{"kty": "oct"}, false)))
 	})
 
 	t.Run("rsa missing fields", func(t *testing.T) {
-		assert.Equal(t, "invalid_public_key", errCode(t, validateJWK(map[string]string{"kty": "RSA"})))
+		assert.Equal(t, "invalid_public_key", errCode(t, validateJWK(map[string]string{"kty": "RSA"}, false)))
 	})
 
 	t.Run("rsa invalid base64", func(t *testing.T) {
-		err := validateJWK(map[string]string{"kty": "RSA", "n": "not base64!", "e": "AQAB"})
+		err := validateJWK(map[string]string{"kty": "RSA", "n": "not base64!", "e": "AQAB"}, false)
 		assert.Equal(t, "invalid_public_key", errCode(t, err))
 	})
 
 	t.Run("rsa valid", func(t *testing.T) {
-		assert.NoError(t, validateJWK(map[string]string{"kty": "RSA", "n": "abc", "e": "AQAB"}))
+		assert.NoError(t, validateJWK(map[string]string{"kty": "RSA", "n": "abc", "e": "AQAB"}, false))
 	})
 
 	t.Run("ec missing fields", func(t *testing.T) {
-		assert.Equal(t, "invalid_public_key", errCode(t, validateJWK(map[string]string{"kty": "EC"})))
+		assert.Equal(t, "invalid_public_key", errCode(t, validateJWK(map[string]string{"kty": "EC"}, false)))
 	})
 
 	t.Run("ec invalid base64 x", func(t *testing.T) {
-		err := validateJWK(map[string]string{"kty": "EC", "crv": "P-256", "x": "not base64!", "y": "abc"})
+		err := validateJWK(map[string]string{"kty": "EC", "crv": "P-256", "x": "not base64!", "y": "abc"}, false)
 		assert.Equal(t, "invalid_public_key", errCode(t, err))
 	})
 
 	t.Run("ec invalid base64 y", func(t *testing.T) {
-		err := validateJWK(map[string]string{"kty": "EC", "crv": "P-256", "x": "abc", "y": "not base64!"})
+		err := validateJWK(map[string]string{"kty": "EC", "crv": "P-256", "x": "abc", "y": "not base64!"}, false)
 		assert.Equal(t, "invalid_public_key", errCode(t, err))
 	})
 
 	t.Run("ec unsupported curve", func(t *testing.T) {
-		err := validateJWK(map[string]string{"kty": "EC", "crv": "P-999", "x": "abc", "y": "abc"})
+		err := validateJWK(map[string]string{"kty": "EC", "crv": "P-999", "x": "abc", "y": "abc"}, false)
 		assert.Equal(t, "invalid_public_key", errCode(t, err))
 	})
 
 	for _, curve := range []string{"P-256", "P-384", "P-521"} {
 		t.Run("ec valid "+curve, func(t *testing.T) {
-			assert.NoError(t, validateJWK(map[string]string{"kty": "EC", "crv": curve, "x": "abc", "y": "abc"}))
+			assert.NoError(t, validateJWK(map[string]string{"kty": "EC", "crv": curve, "x": "abc", "y": "abc"}, false))
 		})
 	}
+
+	t.Run("kid not required by default", func(t *testing.T) {
+		assert.NoError(t, validateJWK(map[string]string{"kty": "RSA", "n": "abc", "e": "AQAB"}, false))
+	})
+
+	t.Run("missing kid rejected when required", func(t *testing.T) {
+		err := validateJWK(map[string]string{"kty": "RSA", "n": "abc", "e": "AQAB"}, true)
+		assert.Equal(t, "invalid_public_key", errCode(t, err))
+	})
+
+	t.Run("blank kid rejected when required", func(t *testing.T) {
+		err := validateJWK(map[string]string{"kty": "RSA", "n": "abc", "e": "AQAB", "kid": ""}, true)
+		assert.Equal(t, "invalid_public_key", errCode(t, err))
+	})
+
+	t.Run("present kid accepted when required", func(t *testing.T) {
+		assert.NoError(t, validateJWK(map[string]string{"kty": "RSA", "n": "abc", "e": "AQAB", "kid": "key-1"}, true))
+	})
 }
 
 func (ts *JwkValidateTestSuite) TestValidateEncJWK() {

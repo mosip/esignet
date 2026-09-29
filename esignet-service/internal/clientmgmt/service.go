@@ -148,7 +148,15 @@ func (s *Service) CreateClient(ctx context.Context, profile Profile, req CreateC
 
 // UpdateClient updates an existing OIDC client.
 func (s *Service) UpdateClient(ctx context.Context, profile Profile, clientID string, req UpdateClientRequest) (ClientResponse, error) {
-	if err := ValidateUpdate(profile, req); err != nil {
+	existing, err := s.q.GetClient(ctx, clientID)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return ClientResponse{}, ErrClientNotFound
+		}
+		return ClientResponse{}, fmt.Errorf("get client: %w", err)
+	}
+	// PUT cannot change encPublicKey, so its presence is carried over as-is.
+	if err := ValidateUpdate(profile, req, existing.EncPublicKey.Valid); err != nil {
 		return ClientResponse{}, err
 	}
 
@@ -183,24 +191,32 @@ func (s *Service) UpdateClient(ctx context.Context, profile Profile, clientID st
 	}
 
 	now := time.Now().UTC()
+	// ExpectedUpdDtimes pins the write to the row read above. Validation of
+	// additionalConfig depends on that row's encPublicKey, so without the
+	// version check a PATCH clearing encPublicKey between the read and this
+	// write would let a JWE response type land on a client that no longer has
+	// an encryption key — the very state this validation exists to prevent.
 	params := db.UpdateClientParams{
-		ID:               clientID,
-		Name:             marshalClientName(req.ClientName, req.ClientNameLangMap, profile),
-		LogoUri:          req.LogoURI,
-		RedirectUris:     redirectURIs,
-		Claims:           claims,
-		AcrValues:        acrValues,
-		GrantTypes:       grantTypes,
-		AuthMethods:      authMethods,
-		Status:           status,
-		AdditionalConfig: additionalConfig,
-		UpdDtimes:        sql.NullTime{Time: now, Valid: true},
+		ID:                clientID,
+		Name:              marshalClientName(req.ClientName, req.ClientNameLangMap, profile),
+		LogoUri:           req.LogoURI,
+		RedirectUris:      redirectURIs,
+		Claims:            claims,
+		AcrValues:         acrValues,
+		GrantTypes:        grantTypes,
+		AuthMethods:       authMethods,
+		Status:            status,
+		AdditionalConfig:  additionalConfig,
+		ExpectedUpdDtimes: existing.UpdDtimes,
+		UpdDtimes:         sql.NullTime{Time: now, Valid: true},
 	}
 
 	row, err := s.q.UpdateClient(ctx, params)
 	if err != nil {
+		// The row existed at the read above, so no match here means its
+		// upd_dtimes moved: a concurrent write, not a missing client.
 		if errors.Is(err, sql.ErrNoRows) {
-			return ClientResponse{}, ErrClientNotFound
+			return ClientResponse{}, ErrClientConflict
 		}
 		return ClientResponse{}, fmt.Errorf("update client: %w", err)
 	}
@@ -224,7 +240,11 @@ func (s *Service) PatchClient(ctx context.Context, clientID string, req PatchCli
 	if err != nil {
 		return ClientResponse{}, err
 	}
-	if err := ValidatePatch(ProfileClient, merged, fields, req.EncPublicKey, s.supportedEncAlgs); err != nil {
+	hasEncPublicKey := existing.EncPublicKey.Valid
+	if fields.EncPublicKey {
+		hasEncPublicKey = !req.EncPublicKey.IsNull
+	}
+	if err := ValidatePatch(ProfileClient, merged, fields, req.EncPublicKey, s.supportedEncAlgs, hasEncPublicKey); err != nil {
 		return ClientResponse{}, err
 	}
 

@@ -43,6 +43,7 @@ UPDATE client_detail SET
 	additional_config   = $10,
 	upd_dtimes          = $11
 WHERE id = $1
+  AND upd_dtimes IS NOT DISTINCT FROM sqlc.arg(expected_upd_dtimes)
 RETURNING *;
 
 -- name: PatchClient :one
