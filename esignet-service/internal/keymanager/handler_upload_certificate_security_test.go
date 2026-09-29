@@ -22,7 +22,6 @@ import (
 	"crypto/x509"
 	"encoding/json"
 	"encoding/pem"
-	"fmt"
 	"io"
 	"math/big"
 	"net/http"
@@ -123,7 +122,7 @@ func (ts *Finding7HTTPSuite) upload(certPEM string) uploadResponse {
 
 	resp, err := http.Post(ts.server.URL+"/system-info/uploadCertificate", "application/json", bytes.NewReader(body))
 	ts.Require().NoError(err)
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 	raw, err := io.ReadAll(resp.Body)
 	ts.Require().NoError(err)
 
@@ -150,7 +149,7 @@ func (ts *Finding7HTTPSuite) assertRejectedWith(ur uploadResponse, wantCode stri
 	hasError := len(ur.Errors) > 0 && ur.Errors[0].ErrorCode == wantCode
 
 	ts.Assert().False(isSuccess, "[%s] upload must NOT succeed", label)
-	ts.Assert().True(hasError,
+	ts.Require().True(hasError,
 		"[%s] expected errorCode=%q, got response=%+v errors=%+v", label, wantCode, ur.Response, ur.Errors)
 
 	if hasError {
@@ -268,9 +267,9 @@ func containsAny(s string, substrs ...string) bool {
 // ── summary logger ────────────────────────────────────────────────────────────
 
 func (ts *Finding7HTTPSuite) TestSummary() {
-	ts.T().Log(fmt.Sprintf(`
+	ts.T().Log(`
 ╔══════════════════════════════════════════════════════════════════════╗
-║  Finding-7  HTTP integration test matrix                            ║
+║  UploadCertificate security-guard test matrix                       ║
 ╠══════════════════════════════════════════════════════════════════════╣
 ║  Sc  Description                              Expected  Guard       ║
 ║  1   Throwaway signer, correct pubkey         REJECT    provenance  ║
@@ -278,5 +277,5 @@ func (ts *Finding7HTTPSuite) TestSummary() {
 ║  3   Correct signer, NotBefore in the future  REJECT    not-valid   ║
 ║  4   Cert already on file (same thumbprint)   REJECT    duplicate   ║
 ║  5   Correct signer, valid window             ACCEPT    (none)      ║
-╚══════════════════════════════════════════════════════════════════════╝`))
+╚══════════════════════════════════════════════════════════════════════╝`)
 }

@@ -1300,7 +1300,7 @@ func (s *Service) verifyUploadedCertSignature(ctx context.Context, appID, refID 
 	}
 
 	if err := signerCert.CheckSignature(newCert.SignatureAlgorithm, newCert.RawTBSCertificate, newCert.Signature); err != nil {
-		return fmt.Errorf("%w: %v", ErrInvalidCertificateProvenance, err)
+		return fmt.Errorf("%w: %w", ErrInvalidCertificateProvenance, err)
 	}
 	return nil
 }
