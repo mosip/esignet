@@ -11,13 +11,12 @@ import (
 
 	"github.com/stretchr/testify/suite"
 
-	"github.com/mosip/esignet/internal/clientmgmt"
 	"github.com/mosip/esignet/internal/config"
 )
 
 func (ts *InitTestSuite) TestInitializeRegistersAllExecutors() {
 	t := ts.T()
-	clientSvc := clientmgmt.NewServiceWithQuerier(&stubClientQuerier{}, nil, 0, nil)
+	clientSvc := newTestClientService(&stubClientQuerier{}, nil, 0, nil)
 	registered := Initialize(&config.AppConfig{}, &fakeAuthnProvider{}, clientSvc, passthroughResourceServerProvider())
 
 	if len(registered) != 4 {

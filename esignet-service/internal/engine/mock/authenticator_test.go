@@ -68,7 +68,7 @@ func testClientRow() db.ClientDetail {
 }
 
 func newTestClientSvc() *clientmgmt.Service {
-	return clientmgmt.NewServiceWithQuerier(&stubQuerier{client: testClientRow(), found: true}, nil, 0, nil)
+	return newTestClientService(&stubQuerier{client: testClientRow(), found: true}, nil, 0, nil)
 }
 
 func metadataWithClientID(clientID string) *providers.AuthnMetadata {

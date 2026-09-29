@@ -18,7 +18,6 @@ import (
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/common"
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/providers"
 
-	"github.com/mosip/esignet/internal/clientmgmt"
 	"github.com/mosip/esignet/internal/clientmgmt/db"
 )
 
@@ -119,7 +118,7 @@ func nodeCtx(runtimeData map[string]string) *providers.NodeContext {
 }
 
 func TestAuthorizationExecutor_NoRequestedPermissions(t *testing.T) {
-	svc := clientmgmt.NewServiceWithQuerier(&stubClientQuerier{}, nil, 0, nil)
+	svc := newTestClientService(&stubClientQuerier{}, nil, 0, nil)
 	e := NewAuthorizationExecutor(svc, passthroughResourceServerProvider())
 
 	resp, err := e.Execute(nodeCtx(map[string]string{"clientId": "client-001"}))
@@ -130,7 +129,7 @@ func TestAuthorizationExecutor_NoRequestedPermissions(t *testing.T) {
 
 func TestAuthorizationExecutor_FullOverlap(t *testing.T) {
 	row := testAuthzClientRow(`{"allowed_authorization_scopes":["read","write"]}`)
-	svc := clientmgmt.NewServiceWithQuerier(&stubClientQuerier{client: row, found: true}, nil, 0, nil)
+	svc := newTestClientService(&stubClientQuerier{client: row, found: true}, nil, 0, nil)
 	e := NewAuthorizationExecutor(svc, passthroughResourceServerProvider())
 
 	resp, err := e.Execute(nodeCtx(map[string]string{
@@ -143,7 +142,7 @@ func TestAuthorizationExecutor_FullOverlap(t *testing.T) {
 
 func TestAuthorizationExecutor_PartialOverlap(t *testing.T) {
 	row := testAuthzClientRow(`{"allowed_authorization_scopes":["read"]}`)
-	svc := clientmgmt.NewServiceWithQuerier(&stubClientQuerier{client: row, found: true}, nil, 0, nil)
+	svc := newTestClientService(&stubClientQuerier{client: row, found: true}, nil, 0, nil)
 	e := NewAuthorizationExecutor(svc, passthroughResourceServerProvider())
 
 	resp, err := e.Execute(nodeCtx(map[string]string{
@@ -156,7 +155,7 @@ func TestAuthorizationExecutor_PartialOverlap(t *testing.T) {
 
 func TestAuthorizationExecutor_NoOverlap(t *testing.T) {
 	row := testAuthzClientRow(`{"allowed_authorization_scopes":["admin"]}`)
-	svc := clientmgmt.NewServiceWithQuerier(&stubClientQuerier{client: row, found: true}, nil, 0, nil)
+	svc := newTestClientService(&stubClientQuerier{client: row, found: true}, nil, 0, nil)
 	e := NewAuthorizationExecutor(svc, passthroughResourceServerProvider())
 
 	resp, err := e.Execute(nodeCtx(map[string]string{
@@ -169,7 +168,7 @@ func TestAuthorizationExecutor_NoOverlap(t *testing.T) {
 
 func TestAuthorizationExecutor_MissingAllowedScopesConfig(t *testing.T) {
 	row := testAuthzClientRow("")
-	svc := clientmgmt.NewServiceWithQuerier(&stubClientQuerier{client: row, found: true}, nil, 0, nil)
+	svc := newTestClientService(&stubClientQuerier{client: row, found: true}, nil, 0, nil)
 	e := NewAuthorizationExecutor(svc, passthroughResourceServerProvider())
 
 	resp, err := e.Execute(nodeCtx(map[string]string{
@@ -181,7 +180,7 @@ func TestAuthorizationExecutor_MissingAllowedScopesConfig(t *testing.T) {
 }
 
 func TestAuthorizationExecutor_ClientNotFound(t *testing.T) {
-	svc := clientmgmt.NewServiceWithQuerier(&stubClientQuerier{}, nil, 0, nil)
+	svc := newTestClientService(&stubClientQuerier{}, nil, 0, nil)
 	e := NewAuthorizationExecutor(svc, passthroughResourceServerProvider())
 
 	resp, err := e.Execute(nodeCtx(map[string]string{
@@ -194,7 +193,7 @@ func TestAuthorizationExecutor_ClientNotFound(t *testing.T) {
 }
 
 func TestAuthorizationExecutor_ClientLookupError(t *testing.T) {
-	svc := clientmgmt.NewServiceWithQuerier(errorClientQuerier{}, nil, 0, nil)
+	svc := newTestClientService(errorClientQuerier{}, nil, 0, nil)
 	e := NewAuthorizationExecutor(svc, passthroughResourceServerProvider())
 
 	resp, err := e.Execute(nodeCtx(map[string]string{
@@ -206,14 +205,14 @@ func TestAuthorizationExecutor_ClientLookupError(t *testing.T) {
 }
 
 func TestAuthorizationExecutor_NameAndType(t *testing.T) {
-	e := NewAuthorizationExecutor(clientmgmt.NewServiceWithQuerier(&stubClientQuerier{}, nil, 0, nil), passthroughResourceServerProvider())
+	e := NewAuthorizationExecutor(newTestClientService(&stubClientQuerier{}, nil, 0, nil), passthroughResourceServerProvider())
 	assert.Equal(t, ExecutorNameEsignetAuthorization, e.GetName())
 	assert.Equal(t, providers.ExecutorTypeUtility, e.GetType())
 }
 
 func TestAuthorizationExecutor_NoResourceServerBound_DropsPermissions(t *testing.T) {
 	row := testAuthzClientRow(`{"allowed_authorization_scopes":["read","write"]}`)
-	svc := clientmgmt.NewServiceWithQuerier(&stubClientQuerier{client: row, found: true}, nil, 0, nil)
+	svc := newTestClientService(&stubClientQuerier{client: row, found: true}, nil, 0, nil)
 	resourceSvc := &stubResourceServerProvider{getErr: &common.ServiceError{Code: "resource_server_not_found"}}
 	e := NewAuthorizationExecutor(svc, resourceSvc)
 
@@ -228,7 +227,7 @@ func TestAuthorizationExecutor_NoResourceServerBound_DropsPermissions(t *testing
 
 func TestAuthorizationExecutor_NilResourceServerProvider_DropsPermissions(t *testing.T) {
 	row := testAuthzClientRow(`{"allowed_authorization_scopes":["read","write"]}`)
-	svc := clientmgmt.NewServiceWithQuerier(&stubClientQuerier{client: row, found: true}, nil, 0, nil)
+	svc := newTestClientService(&stubClientQuerier{client: row, found: true}, nil, 0, nil)
 	e := NewAuthorizationExecutor(svc, nil)
 
 	resp, err := e.Execute(nodeCtx(map[string]string{
@@ -242,7 +241,7 @@ func TestAuthorizationExecutor_NilResourceServerProvider_DropsPermissions(t *tes
 
 func TestAuthorizationExecutor_AllPermissionsInvalidForResourceServer_DropsPermissions(t *testing.T) {
 	row := testAuthzClientRow(`{"allowed_authorization_scopes":["read","write"]}`)
-	svc := clientmgmt.NewServiceWithQuerier(&stubClientQuerier{client: row, found: true}, nil, 0, nil)
+	svc := newTestClientService(&stubClientQuerier{client: row, found: true}, nil, 0, nil)
 	resourceSvc := &stubResourceServerProvider{
 		rs:      &providers.ResourceServer{ID: "rs-1"},
 		invalid: []string{"read", "write"}, // none of the requested scopes are defined on this resource server
@@ -261,7 +260,7 @@ func TestAuthorizationExecutor_AllPermissionsInvalidForResourceServer_DropsPermi
 
 func TestAuthorizationExecutor_ResourceServerFiltersOutOfScopePermissions(t *testing.T) {
 	row := testAuthzClientRow(`{"allowed_authorization_scopes":["read","write","admin"]}`)
-	svc := clientmgmt.NewServiceWithQuerier(&stubClientQuerier{client: row, found: true}, nil, 0, nil)
+	svc := newTestClientService(&stubClientQuerier{client: row, found: true}, nil, 0, nil)
 	resourceSvc := &stubResourceServerProvider{
 		rs:      &providers.ResourceServer{ID: "rs-1"},
 		invalid: []string{"admin"}, // client is allowed "admin", but it isn't defined on this resource server
@@ -279,7 +278,7 @@ func TestAuthorizationExecutor_ResourceServerFiltersOutOfScopePermissions(t *tes
 
 func TestAuthorizationExecutor_ResourceServerIdentifierIgnoresUserInputs(t *testing.T) {
 	row := testAuthzClientRow(`{"allowed_authorization_scopes":["read"]}`)
-	svc := clientmgmt.NewServiceWithQuerier(&stubClientQuerier{client: row, found: true}, nil, 0, nil)
+	svc := newTestClientService(&stubClientQuerier{client: row, found: true}, nil, 0, nil)
 	resourceSvc := passthroughResourceServerProvider()
 	e := NewAuthorizationExecutor(svc, resourceSvc)
 
@@ -300,7 +299,7 @@ func TestAuthorizationExecutor_ResourceServerIdentifierIgnoresUserInputs(t *test
 
 func TestAuthorizationExecutor_ValidatePermissionsError_DropsPermissions(t *testing.T) {
 	row := testAuthzClientRow(`{"allowed_authorization_scopes":["read"]}`)
-	svc := clientmgmt.NewServiceWithQuerier(&stubClientQuerier{client: row, found: true}, nil, 0, nil)
+	svc := newTestClientService(&stubClientQuerier{client: row, found: true}, nil, 0, nil)
 	resourceSvc := &stubResourceServerProvider{
 		rs:         &providers.ResourceServer{ID: "rs-1"},
 		invalidErr: &common.ServiceError{Code: "internal_error"},

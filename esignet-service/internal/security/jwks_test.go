@@ -18,7 +18,17 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
-const testRSAJWKS = `{"keys":[{"kty":"RSA","kid":"rsa-1","use":"sig","alg":"RS256","n":"AQAB","e":"AQAB"}]}`
+// rsaModulus returns a base64url RSA modulus of exactly bits bits (top bit set).
+func rsaModulus(bits int) string {
+	b := make([]byte, bits/8)
+	b[0] = 0x80
+	return base64.RawURLEncoding.EncodeToString(b)
+}
+
+var (
+	testRSAN    = rsaModulus(minRSAKeyBits)
+	testRSAJWKS = `{"keys":[{"kty":"RSA","kid":"rsa-1","use":"sig","alg":"RS256","n":"` + testRSAN + `","e":"AQAB"}]}`
+)
 
 func (ts *JwksTestSuite) TestJWKSCache_GetKey_RSA() {
 	t := ts.T()
@@ -130,8 +140,9 @@ func (ts *JwksTestSuite) TestJWKSCache_GetKey_InvalidJSON() {
 func (ts *JwksTestSuite) TestJWKSCache_SkipsEncryptionKeysAndUnparsableKeys() {
 	t := ts.T()
 	doc := `{"keys":[
-		{"kty":"RSA","kid":"enc-1","use":"enc","n":"AQAB","e":"AQAB"},
+		{"kty":"RSA","kid":"enc-1","use":"enc","n":"` + testRSAN + `","e":"AQAB"},
 		{"kty":"RSA","kid":"bad-1","use":"sig","n":"not base64!","e":"AQAB"},
+		{"kty":"RSA","kid":"weak-1","use":"sig","n":"` + rsaModulus(512) + `","e":"AQAB"},
 		{"kty":"oct","kid":"unsupported-1","use":"sig"}
 	]}`
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
@@ -140,7 +151,7 @@ func (ts *JwksTestSuite) TestJWKSCache_SkipsEncryptionKeysAndUnparsableKeys() {
 	defer srv.Close()
 
 	cache := NewJWKSCache(srv.URL, time.Minute, http.DefaultClient)
-	for _, kid := range []string{"enc-1", "bad-1", "unsupported-1"} {
+	for _, kid := range []string{"enc-1", "bad-1", "weak-1", "unsupported-1"} {
 		if _, err := cache.GetKey(context.Background(), kid); err == nil {
 			t.Errorf("expected %q to be excluded from the cache", kid)
 		}
@@ -197,8 +208,27 @@ func (ts *JwksTestSuite) TestParseRSAKey_InvalidN() {
 
 func (ts *JwksTestSuite) TestParseRSAKey_InvalidE() {
 	t := ts.T()
-	if _, err := parseRSAKey(jwkKey{N: "AQAB", E: "not base64!"}); err == nil {
+	if _, err := parseRSAKey(jwkKey{N: testRSAN, E: "not base64!"}); err == nil {
 		t.Fatal("expected error for invalid e")
+	}
+}
+
+func (ts *JwksTestSuite) TestParseRSAKey_ModulusSize() {
+	t := ts.T()
+	for _, bits := range []int{512, 1024, 2040} {
+		if _, err := parseRSAKey(jwkKey{N: rsaModulus(bits), E: "AQAB"}); err == nil {
+			t.Errorf("expected %d-bit modulus to be rejected", bits)
+		}
+	}
+	for _, bits := range []int{2048, 4096} {
+		pub, err := parseRSAKey(jwkKey{N: rsaModulus(bits), E: "AQAB"})
+		if err != nil {
+			t.Errorf("%d-bit modulus: %v", bits, err)
+			continue
+		}
+		if pub.N.BitLen() != bits {
+			t.Errorf("BitLen = %d, want %d", pub.N.BitLen(), bits)
+		}
 	}
 }
 

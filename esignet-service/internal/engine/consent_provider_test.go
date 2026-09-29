@@ -19,7 +19,6 @@ import (
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/common"
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/providers"
 
-	"github.com/mosip/esignet/internal/clientmgmt"
 	clientdb "github.com/mosip/esignet/internal/clientmgmt/db"
 	"github.com/mosip/esignet/internal/config"
 	"github.com/mosip/esignet/internal/consentmgmt"
@@ -88,7 +87,7 @@ func newConsentTestProvider(q db.Querier, cfg *config.AppConfig, registeredClaim
 		cfg = &config.AppConfig{}
 	}
 	svc := consentmgmt.NewServiceWithQuerier(q)
-	clientSvc := clientmgmt.NewServiceWithQuerier(&clientStubQuerier{getRow: registeredClientRow(registeredClaims)}, nil, 0, nil)
+	clientSvc := newTestClientService(&clientStubQuerier{getRow: registeredClientRow(registeredClaims)}, nil, 0, nil)
 	return NewConsentProvider(svc, clientSvc, cfg).(*consentProvider)
 }
 
