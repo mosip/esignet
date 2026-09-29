@@ -18,6 +18,7 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
+	"github.com/thunder-id/thunderid/pkg/thunderidengine/providers"
 
 	"github.com/mosip/esignet/internal/clientmgmt/db"
 	"github.com/mosip/esignet/internal/engine/runtimestores/inmemory"
@@ -70,12 +71,25 @@ func (f *fakeQuerier) PatchClient(_ context.Context, arg db.PatchClientParams) (
 	return f.patchRow, f.patchErr
 }
 
+// recordingAuditor is a providers.ObservabilityProvider that captures
+// published events.
+type recordingAuditor struct {
+	disabled bool
+	events   []*providers.Event
+}
+
+func (a *recordingAuditor) IsEnabled() bool { return !a.disabled }
+
+func (a *recordingAuditor) PublishEvent(_ context.Context, evt *providers.Event) {
+	a.events = append(a.events, evt)
+}
+
 func b64(s string) string {
 	return base64.RawURLEncoding.EncodeToString([]byte(s))
 }
 
 func validJWK() map[string]string {
-	return map[string]string{"kty": "RSA", "n": b64("modulus-bytes"), "e": b64("AQAB"), "alg": "RSA-OAEP-256"}
+	return map[string]string{"kty": "RSA", "n": testRSAN, "e": b64("AQAB"), "alg": "RSA-OAEP-256"}
 }
 
 func existingClientRow() db.ClientDetail {
@@ -505,6 +519,109 @@ func (ts *ServiceTestSuite) TestGetActiveClient() {
 		cached, err := cache.Get(context.Background(), clientCacheNamespace, "client-1")
 		require.NoError(t, err)
 		require.NotNil(t, cached)
+	})
+}
+
+func (ts *ServiceTestSuite) TestGetActiveClient_WeakRSAKeyAudit() {
+	t := ts.T()
+	rsaJWK := func(bits int) string {
+		return `{"kty":"RSA","n":"` + rsaModulus(bits) + `","e":"AQAB"}`
+	}
+
+	t.Run("weak signing key publishes event", func(t *testing.T) {
+		row := existingClientRow()
+		row.PublicKey = rsaJWK(1024)
+		auditor := &recordingAuditor{}
+		s := NewServiceWithQuerier(&fakeQuerier{getActiveRow: row}, nil, 0, nil)
+		s.SetAuditor(auditor)
+
+		resp, err := s.GetActiveClient(context.Background(), "client-1")
+		require.NoError(t, err)
+		require.Equal(t, "client-1", resp.ClientID)
+		require.Len(t, auditor.events, 1)
+		evt := auditor.events[0]
+		require.Equal(t, eventWeakRSAKey, evt.Type)
+		require.Equal(t, providers.StatusFailure, evt.Status)
+		require.NotEmpty(t, evt.EventID)
+		require.Equal(t, "client-1", evt.Data["client_id"])
+		require.Equal(t, "rp-1", evt.Data["rp_id"])
+		require.Equal(t, "public_key", evt.Data["key_field"])
+		require.Equal(t, 1024, evt.Data["key_bits"])
+		require.Equal(t, minRSAKeyBits, evt.Data["min_key_bits"])
+	})
+
+	t.Run("weak encryption key publishes event", func(t *testing.T) {
+		row := existingClientRow()
+		row.PublicKey = rsaJWK(2048)
+		row.EncPublicKey = sql.NullString{String: rsaJWK(1024), Valid: true}
+		auditor := &recordingAuditor{}
+		s := NewServiceWithQuerier(&fakeQuerier{getActiveRow: row}, nil, 0, nil)
+		s.SetAuditor(auditor)
+
+		_, err := s.GetActiveClient(context.Background(), "client-1")
+		require.NoError(t, err)
+		require.Len(t, auditor.events, 1)
+		require.Equal(t, "enc_public_key", auditor.events[0].Data["key_field"])
+	})
+
+	t.Run("strong and non-rsa keys publish nothing", func(t *testing.T) {
+		for _, jwk := range []string{rsaJWK(2048), rsaJWK(4096), `{"kty":"EC","crv":"P-256","x":"AA","y":"AA"}`} {
+			row := existingClientRow()
+			row.PublicKey = jwk
+			auditor := &recordingAuditor{}
+			s := NewServiceWithQuerier(&fakeQuerier{getActiveRow: row}, nil, 0, nil)
+			s.SetAuditor(auditor)
+
+			_, err := s.GetActiveClient(context.Background(), "client-1")
+			require.NoError(t, err)
+			require.Empty(t, auditor.events)
+		}
+	})
+
+	t.Run("cache hit still publishes", func(t *testing.T) {
+		row := existingClientRow()
+		row.PublicKey = rsaJWK(1024)
+		auditor := &recordingAuditor{}
+		s := NewServiceWithQuerier(&fakeQuerier{getActiveRow: row}, inmemory.Initialize("test"), 60, nil)
+		s.SetAuditor(auditor)
+
+		for range 3 {
+			_, err := s.GetActiveClient(context.Background(), "client-1")
+			require.NoError(t, err)
+		}
+		require.Len(t, auditor.events, 3)
+	})
+
+	t.Run("inactive cached client publishes nothing", func(t *testing.T) {
+		row := existingClientRow()
+		row.PublicKey = rsaJWK(1024)
+		row.Status = "INACTIVE"
+		cache := inmemory.Initialize("test")
+		data, err := json.Marshal(row)
+		require.NoError(t, err)
+		require.NoError(t, cache.Put(context.Background(), clientCacheNamespace, "client-1", data, 60))
+		auditor := &recordingAuditor{}
+		s := NewServiceWithQuerier(&fakeQuerier{getActiveErr: errors.New("db should not be called")}, cache, 60, nil)
+		s.SetAuditor(auditor)
+
+		_, err = s.GetActiveClient(context.Background(), "client-1")
+		require.ErrorIs(t, err, ErrClientNotFound)
+		require.Empty(t, auditor.events)
+	})
+
+	t.Run("nil or disabled auditor does not fail lookup", func(t *testing.T) {
+		row := existingClientRow()
+		row.PublicKey = rsaJWK(1024)
+
+		s := NewServiceWithQuerier(&fakeQuerier{getActiveRow: row}, nil, 0, nil)
+		_, err := s.GetActiveClient(context.Background(), "client-1")
+		require.NoError(t, err)
+
+		auditor := &recordingAuditor{disabled: true}
+		s.SetAuditor(auditor)
+		_, err = s.GetActiveClient(context.Background(), "client-1")
+		require.NoError(t, err)
+		require.Empty(t, auditor.events)
 	})
 }
 
