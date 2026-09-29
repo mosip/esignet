@@ -630,9 +630,10 @@ func (ts *AuthenticatorTestSuite) TestSetChallenge() {
 
 	t.Run("biometrics", func(t *testing.T) {
 		req := &KycAuthRequestDto{}
-		ok := setChallenge(req, map[string]interface{}{credentialBio: "bio-data"}, nil)
+		ok := setChallenge(req, nil, map[string]interface{}{credentialBio: "bio-data"})
 		require.True(t, ok)
 		require.Equal(t, "bio-data", req.Biometrics)
+		require.Empty(t, req.Kbi)
 	})
 
 	t.Run("kbi fallback", func(t *testing.T) {

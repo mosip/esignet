@@ -37,7 +37,7 @@ const (
 	credentialOtp      = "otp"
 	credentialPassword = "password"
 	credentialPin      = "pin"
-	credentialBio      = "biometrics"
+	credentialBio      = "biometric"
 
 	// identifierKeyIndividualID is the identifiers-map key that carries the individual ID.
 	identifierKeyIndividualID = "username"
@@ -319,11 +319,11 @@ func (p *mockAuthnProvider) fetchSigningCertificates(ctx context.Context) ([]sha
 }
 
 // setChallenge inspects identifiers and credentials for a supported auth factor and
-// populates the corresponding field on the kyc-auth request. Only otp/password (which
-// arrive as sensitive PASSWORD_INPUT/OTP_INPUT flow inputs) reach the credentials map;
-// pin and biometrics arrive via identifiers (see credentials_auth_executor.go). KBI has
-// no fixed field set - if otp/password/pin/biometrics are absent, whatever remains in
-// credentials is forwarded as the KBI challenge as-is.
+// populates the corresponding field on the kyc-auth request. Only otp/password/biometric
+// (which arrive as sensitive PASSWORD_INPUT/OTP_INPUT flow inputs) reach the credentials
+// map; pin arrives via identifiers (see credentials_auth_executor.go). KBI has no fixed
+// field set - if otp/password/pin/biometric are absent, whatever remains in credentials
+// is forwarded as the KBI challenge as-is.
 // Returns false when no supported challenge was found.
 func setChallenge(req *KycAuthRequestDto, identifiers, credentials map[string]any) bool {
 	if otp, ok := credentials[credentialOtp].(string); ok && otp != "" {
@@ -338,7 +338,7 @@ func setChallenge(req *KycAuthRequestDto, identifiers, credentials map[string]an
 		req.Pin = pin
 		return true
 	}
-	if bio, ok := identifiers[credentialBio].(string); ok && bio != "" {
+	if bio, ok := credentials[credentialBio].(string); ok && bio != "" {
 		req.Biometrics = bio
 		return true
 	}
