@@ -117,6 +117,28 @@ var (
 	// (ApplicationID, ReferenceID). The same certificate has already been
 	// uploaded, so this is a caller mistake, not a benign re-upload.
 	ErrCertificateAlreadyExists = errors.New("a certificate with this thumbprint already exists for this application/reference id")
+
+	// ErrInvalidCertificateProvenance is returned when UploadCertificate's
+	// signature-provenance check fails: the uploaded certificate's signature
+	// cannot be verified by the key that is authoritative for this position in
+	// the internal hierarchy (ROOT cert must be self-signed with the ROOT
+	// private key; Component Master Key / EC sign key certs must be signed by
+	// ROOT; Component Encryption Key certs must be signed by the Component
+	// Master Key). A public key is public — anyone can embed the correct key in
+	// a self-signed document — so the public-key-match gate alone is not
+	// sufficient; provenance must also be verified.
+	ErrInvalidCertificateProvenance = errors.New("uploaded certificate's signature does not chain to the expected signing key in the internal hierarchy")
+
+	// ErrUploadedCertificateExpired is returned when UploadCertificate is
+	// called with a certificate whose NotAfter is in the past. Writing
+	// an already-expired validity window into KeyGenDtimes/KeyExpireDtimes
+	// would immediately mark the key as expired, triggering spurious rotation.
+	ErrUploadedCertificateExpired = errors.New("uploaded certificate has already expired")
+
+	// ErrUploadedCertificateNotYetValid is returned when UploadCertificate is
+	// called with a certificate whose NotBefore is in the future. A certificate
+	// that isn't valid yet cannot be the replacement for the current active key.
+	ErrUploadedCertificateNotYetValid = errors.New("uploaded certificate is not yet valid")
 )
 
 const (
@@ -836,6 +858,26 @@ func (s *Service) UploadCertificate(ctx context.Context, req UploadCertificateRe
 		return UploadCertificateResponse{}, ErrThumbprintMismatch
 	}
 
+	// Provenance check: the uploaded cert's signature must be verifiable by
+	// the key that is authoritative for this position in the internal hierarchy.
+	// A public key is public — embedding the correct key in a self-signed cert
+	// is trivial — so the public-key-match gate above is not sufficient alone.
+	if err := s.verifyUploadedCertSignature(ctx, req.ApplicationID, req.ReferenceID, current, newCert); err != nil {
+		return UploadCertificateResponse{}, err
+	}
+
+	// Validity-window sanity check: reject certs whose window can't represent a
+	// legitimate renewal — an already-expired cert would immediately corrupt
+	// KeyGenDtimes/KeyExpireDtimes and trigger spurious rotation; a not-yet-valid
+	// cert cannot be the live replacement for the current key.
+	now := time.Now().UTC()
+	if now.Before(newCert.NotBefore) {
+		return UploadCertificateResponse{}, fmt.Errorf("%w: NotBefore=%v is in the future", ErrUploadedCertificateNotYetValid, newCert.NotBefore.UTC())
+	}
+	if !now.Before(newCert.NotAfter) {
+		return UploadCertificateResponse{}, fmt.Errorf("%w: NotAfter=%v is in the past", ErrUploadedCertificateExpired, newCert.NotAfter.UTC())
+	}
+
 	if resident {
 		priv, err := s.ks.GetPrivateKey(current.ID)
 		if err != nil {
@@ -850,7 +892,6 @@ func (s *Service) UploadCertificate(ctx context.Context, req UploadCertificateRe
 			return UploadCertificateResponse{}, fmt.Errorf("get key_store record: %w", err)
 		}
 		rec.CertificateData = encodeCertPEM(newCert.Raw)
-		now := time.Now().UTC()
 		rec.UpdDtimes = &now
 		if err := s.q.UpdateKeyStoreRecord(ctx, rec); err != nil {
 			return UploadCertificateResponse{}, fmt.Errorf("update key_store record: %w", err)
@@ -868,7 +909,6 @@ func (s *Service) UploadCertificate(ctx context.Context, req UploadCertificateRe
 	current.KeyGenDtimes = &genTime
 	current.KeyExpireDtimes = &expiry
 	current.CertThumbprint = &newThumbprint
-	now := time.Now().UTC()
 	current.UpdDtimes = &now
 	if err := s.q.UpdateKeyAlias(ctx, *current); err != nil {
 		return UploadCertificateResponse{}, fmt.Errorf("update key alias: %w", err)
@@ -1218,6 +1258,51 @@ func (s *Service) publicKeyForAlias(ctx context.Context, alias string, keystoreR
 		return nil, err
 	}
 	return cert.PublicKey, nil
+}
+
+// verifyUploadedCertSignature confirms that newCert was signed by the key
+// authoritative for (appID, refID) in the internal hierarchy:
+//
+//   - ROOT (self-signed): the existing ROOT cert's public key must verify the
+//     uploaded cert's signature — a throwaway key signing a cert that merely
+//     embeds the ROOT public key is rejected.
+//   - Component Master Key / EC sign key (refID=RSA_2048/EC_*): must be signed
+//     by the current ROOT key.
+//   - Component Encryption Key (any other refID): must be signed by the current
+//     Component Master Key (RSA_2048).
+//
+// Uses parent.CheckSignature (raw crypto) rather than CheckSignatureFrom so
+// the check does not fail on internally-generated certs whose templates
+// pre-date having IsCA/BasicConstraintsValid set.
+func (s *Service) verifyUploadedCertSignature(ctx context.Context, appID, refID string, current *db.KeyAlias, newCert *x509.Certificate) error {
+	signAlias, err := s.resolveSignKeyAlias(ctx, appID, refID)
+	if err != nil {
+		return fmt.Errorf("resolve signing key for provenance check: %w", err)
+	}
+
+	resident := isKeystoreResident(appID, refID)
+	var signerCert *x509.Certificate
+	if signAlias == "" {
+		// ROOT: self-signed — the existing alias cert's public key (already
+		// confirmed to equal newCert.PublicKey via publicKeysEqual above) must
+		// verify the uploaded cert's signature.
+		signerCert, err = s.certificateForAlias(ctx, current.ID, resident)
+		if err != nil {
+			return fmt.Errorf("load existing certificate for self-sign provenance check: %w", err)
+		}
+	} else {
+		// Component Master Key / EC sign key / Component Encryption Key:
+		// the signer (ROOT or Component Master Key) is always keystore-resident.
+		signerCert, err = s.ks.GetCertificate(signAlias)
+		if err != nil {
+			return fmt.Errorf("load signing certificate for provenance check: %w", err)
+		}
+	}
+
+	if err := signerCert.CheckSignature(newCert.SignatureAlgorithm, newCert.RawTBSCertificate, newCert.Signature); err != nil {
+		return fmt.Errorf("%w: %v", ErrInvalidCertificateProvenance, err)
+	}
+	return nil
 }
 
 // certParamsFromSubject copies a certificate's Subject DN into
