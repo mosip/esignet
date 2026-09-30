@@ -215,6 +215,25 @@ func (ts *AuthenticatorTestSuite) TestAuthenticate() {
 		require.NotNil(t, result)
 	})
 
+	t.Run("password challenge with stale otp timestamp in metadata is not rejected", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = w.Write([]byte(`{"response":{"authStatus":true,"kycToken":"kyc-token-3","partnerSpecificUserToken":"psut-3"}}`))
+		}))
+		defer server.Close()
+
+		p := newTestProvider(t, server.URL, "http://unused", "http://unused")
+		p.cfg.OTPValiditySeconds = 300
+		identifiers := map[string]interface{}{identifierKeyIndividualID: "ind-1"}
+		credentials := map[string]interface{}{credentialPassword: "secret"}
+		// Metadata carries an expired OTP timestamp from a prior OTP send in the same session.
+		// The expiry check must be skipped because the current challenge is password, not OTP.
+		result, svcErr := p.Authenticate(context.Background(), identifiers, credentials,
+			metadataWithOTPIssuedAt("client-1", time.Now().Add(-10*time.Minute)))
+		require.Nil(t, svcErr)
+		require.NotNil(t, result)
+	})
+
 	t.Run("password challenge accepted", func(t *testing.T) {
 		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 			w.Header().Set("Content-Type", "application/json")

@@ -106,8 +106,10 @@ func (p *mockAuthnProvider) Authenticate(ctx context.Context, identifiers, crede
 		return nil, shared.InvalidRequestError
 	}
 
-	if svcErr := p.checkOTPExpiry(ctx, metadata.RuntimeMetadata); svcErr != nil {
-		return nil, svcErr
+	if kycAuthRequest.Otp != "" {
+		if svcErr := p.checkOTPExpiry(ctx, metadata.RuntimeMetadata); svcErr != nil {
+			return nil, svcErr
+		}
 	}
 
 	requestBytes, err := json.Marshal(kycAuthRequest)
