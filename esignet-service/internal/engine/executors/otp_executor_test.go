@@ -9,6 +9,7 @@ package executors
 import (
 	"context"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/suite"
 
@@ -179,6 +180,31 @@ func (ts *OtpExecutorTestSuite) TestExecuteSuccessViaUserInputs() {
 	}
 	if provider.lastIdentifiers[usernameAttr] != "user1" {
 		t.Errorf("SendOTP identifiers[username] = %v, want user1", provider.lastIdentifiers[usernameAttr])
+	}
+}
+
+func (ts *OtpExecutorTestSuite) TestExecuteSuccessWritesOTPIssuedAtToRuntimeData() {
+	t := ts.T()
+	before := time.Now().UTC().Truncate(time.Second)
+	provider := &fakeAuthnProvider{sendOTPResult: &shared.SendOTPResult{TransactionID: "txn-1"}}
+	e := NewOtpExecutor(provider)
+	ctx := newOtpNodeContext(map[string]string{usernameAttr: "user1"}, map[string]string{})
+
+	if _, err := e.Execute(ctx); err != nil {
+		t.Fatalf("Execute() error = %v", err)
+	}
+
+	issuedAtStr := ctx.RuntimeData[otpIssuedAtKey]
+	if issuedAtStr == "" {
+		t.Fatal("RuntimeData[otpIssuedAtKey] is empty; expected a timestamp to be written")
+	}
+	issuedAt, err := time.Parse(time.RFC3339, issuedAtStr)
+	if err != nil {
+		t.Fatalf("RuntimeData[otpIssuedAtKey] = %q; want a valid RFC3339 timestamp, got parse error: %v", issuedAtStr, err)
+	}
+	after := time.Now().UTC().Add(time.Second)
+	if issuedAt.Before(before) || issuedAt.After(after) {
+		t.Errorf("issuedAt = %v; want a time between %v and %v", issuedAt, before, after)
 	}
 }
 

@@ -75,6 +75,13 @@ func metadataWithClientID(clientID string) *providers.AuthnMetadata {
 	return &providers.AuthnMetadata{RuntimeMetadata: map[string][]string{runtimeKeyClientID: {clientID}}}
 }
 
+func metadataWithOTPIssuedAt(clientID string, issuedAt time.Time) *providers.AuthnMetadata {
+	return &providers.AuthnMetadata{RuntimeMetadata: map[string][]string{
+		runtimeKeyClientID: {clientID},
+		otpIssuedAtMetaKey: {issuedAt.UTC().Format(time.RFC3339)},
+	}}
+}
+
 func getAttributesMetadataWithClientID(clientID string) *providers.GetAttributesMetadata {
 	return &providers.GetAttributesMetadata{RuntimeMetadata: map[string][]string{runtimeKeyClientID: {clientID}}}
 }
@@ -151,6 +158,80 @@ func (ts *AuthenticatorTestSuite) TestAuthenticate() {
 		require.NotNil(t, result)
 		require.Equal(t, "psut-1", result.EntityReferenceToken)
 		require.Contains(t, result.AttributeToken, "kyc-token-1||ind-1||")
+	})
+
+	t.Run("otp authentication with fresh timestamp succeeds", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = w.Write([]byte(`{"response":{"authStatus":true,"kycToken":"kyc-token-1","partnerSpecificUserToken":"psut-1"}}`))
+		}))
+		defer server.Close()
+
+		p := newTestProvider(t, server.URL, "http://unused", "http://unused")
+		p.cfg.OTPValiditySeconds = 300
+		identifiers := map[string]interface{}{identifierKeyIndividualID: "ind-1"}
+		credentials := map[string]interface{}{credentialOtp: "111111"}
+		result, svcErr := p.Authenticate(context.Background(), identifiers, credentials,
+			metadataWithOTPIssuedAt("client-1", time.Now().Add(-30*time.Second)))
+		require.Nil(t, svcErr)
+		require.NotNil(t, result)
+	})
+
+	t.Run("otp authentication with expired timestamp is rejected", func(t *testing.T) {
+		p := newTestProvider(t, "http://unused", "http://unused", "http://unused")
+		p.cfg.OTPValiditySeconds = 300
+		identifiers := map[string]interface{}{identifierKeyIndividualID: "ind-1"}
+		credentials := map[string]interface{}{credentialOtp: "111111"}
+		result, svcErr := p.Authenticate(context.Background(), identifiers, credentials,
+			metadataWithOTPIssuedAt("client-1", time.Now().Add(-10*time.Minute)))
+		require.Nil(t, result)
+		require.Same(t, shared.InvalidOTPError, svcErr)
+	})
+
+	t.Run("otp authentication with unparsable timestamp is rejected", func(t *testing.T) {
+		p := newTestProvider(t, "http://unused", "http://unused", "http://unused")
+		meta := metadataWithClientID("client-1")
+		meta.RuntimeMetadata[otpIssuedAtMetaKey] = []string{"not-a-timestamp"}
+		identifiers := map[string]interface{}{identifierKeyIndividualID: "ind-1"}
+		credentials := map[string]interface{}{credentialOtp: "111111"}
+		result, svcErr := p.Authenticate(context.Background(), identifiers, credentials, meta)
+		require.Nil(t, result)
+		require.Same(t, shared.InvalidOTPError, svcErr)
+	})
+
+	t.Run("non-otp authentication without timestamp is not affected by expiry check", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = w.Write([]byte(`{"response":{"authStatus":true,"kycToken":"kyc-token-2","partnerSpecificUserToken":"psut-2"}}`))
+		}))
+		defer server.Close()
+
+		p := newTestProvider(t, server.URL, "http://unused", "http://unused")
+		identifiers := map[string]interface{}{identifierKeyIndividualID: "ind-1"}
+		credentials := map[string]interface{}{credentialPassword: "secret"}
+		// No otpIssuedAt in metadata — expiry check must be skipped entirely.
+		result, svcErr := p.Authenticate(context.Background(), identifiers, credentials, metadataWithClientID("client-1"))
+		require.Nil(t, svcErr)
+		require.NotNil(t, result)
+	})
+
+	t.Run("password challenge with stale otp timestamp in metadata is not rejected", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = w.Write([]byte(`{"response":{"authStatus":true,"kycToken":"kyc-token-3","partnerSpecificUserToken":"psut-3"}}`))
+		}))
+		defer server.Close()
+
+		p := newTestProvider(t, server.URL, "http://unused", "http://unused")
+		p.cfg.OTPValiditySeconds = 300
+		identifiers := map[string]interface{}{identifierKeyIndividualID: "ind-1"}
+		credentials := map[string]interface{}{credentialPassword: "secret"}
+		// Metadata carries an expired OTP timestamp from a prior OTP send in the same session.
+		// The expiry check must be skipped because the current challenge is password, not OTP.
+		result, svcErr := p.Authenticate(context.Background(), identifiers, credentials,
+			metadataWithOTPIssuedAt("client-1", time.Now().Add(-10*time.Minute)))
+		require.Nil(t, svcErr)
+		require.NotNil(t, result)
 	})
 
 	t.Run("password challenge accepted", func(t *testing.T) {
