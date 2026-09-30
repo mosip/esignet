@@ -47,6 +47,11 @@ const (
 	// Unlike the mosip provider, mock's certificate endpoint isn't gated by
 	// an auth token with its own expiry, so a fixed TTL is used instead.
 	signingCertsCacheTTL = 5 * time.Minute
+
+	// otpIssuedAtMetaKey is the AuthnMetadata.RuntimeMetadata key under which
+	// eSignetOtpExecutor stores the OTP-issue timestamp (RFC3339). The key uses
+	// the provider_ext_ prefix so buildRuntimeMetadata forwards it automatically.
+	otpIssuedAtMetaKey = "provider_ext_otpIssuedAt"
 )
 
 type mockAuthnProvider struct {
@@ -99,6 +104,10 @@ func (p *mockAuthnProvider) Authenticate(ctx context.Context, identifiers, crede
 	}
 	if !setChallenge(kycAuthRequest, identifiers, credentials) {
 		return nil, shared.InvalidRequestError
+	}
+
+	if svcErr := p.checkOTPExpiry(ctx, metadata.RuntimeMetadata); svcErr != nil {
+		return nil, svcErr
 	}
 
 	requestBytes, err := json.Marshal(kycAuthRequest)
@@ -521,6 +530,29 @@ func (p *mockAuthnProvider) callSendOtpEndpoint(ctx context.Context, requestBody
 		return nil, errors.New("send otp failed")
 	}
 	return nil, &mockOTPError{code: firstNonEmptyErrorCode(wrapper.Errors)}
+}
+
+// checkOTPExpiry returns InvalidOTPError when runtimeMeta carries an OTP-issue timestamp
+// (injected by eSignetOtpExecutor) and that OTP is older than the configured validity window.
+// When the key is absent (non-OTP flows, or a caller that bypasses the flow) the check is
+// skipped and nil is returned.
+func (p *mockAuthnProvider) checkOTPExpiry(ctx context.Context, runtimeMeta map[string][]string) *common.ServiceError {
+	values := runtimeMeta[otpIssuedAtMetaKey]
+	if len(values) == 0 {
+		return nil
+	}
+	issuedAt, err := time.Parse(time.RFC3339, values[0])
+	if err != nil {
+		applog.GetLogger().Warn(ctx, "mock: unparsable OTP issued-at timestamp; rejecting submission",
+			applog.String("value", values[0]))
+		return shared.InvalidOTPError
+	}
+	if time.Since(issuedAt) > time.Duration(p.cfg.OTPValiditySeconds)*time.Second {
+		applog.GetLogger().Warn(ctx, "mock: OTP submission rejected — OTP has expired",
+			applog.String("issuedAt", values[0]))
+		return shared.InvalidOTPError
+	}
+	return nil
 }
 
 // ---------------------------------------------------------------------------------------------------------

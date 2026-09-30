@@ -8,16 +8,20 @@
 // default MOSIP_ESIGNET_AUTHN_PROVIDER for local development and testing.
 package mock
 
-import "os"
+import (
+	"os"
+	"strconv"
+)
 
 // Config holds mock-identity-system integration settings.
 type Config struct {
-	KycAuthURL       string
-	KycExchangeURL   string
-	KycExchangeV3URL string
-	SendOtpURL       string
-	OtpChannels      []string
-	CertificateURL   string
+	KycAuthURL         string
+	KycExchangeURL     string
+	KycExchangeV3URL   string
+	SendOtpURL         string
+	OtpChannels        []string
+	CertificateURL     string
+	OTPValiditySeconds int
 }
 
 // LoadConfig reads mock-identity-system settings from environment variables.
@@ -43,7 +47,8 @@ func LoadConfig() Config {
 		CertificateURL: envOrDefault(
 			"MOSIP_ESIGNET_MOCK_AUTHENTICATOR_SIGNING_KEYS_URL", base+"/keys.json",
 		),
-		OtpChannels: []string{"email", "phone"},
+		OtpChannels:        []string{"email", "phone"},
+		OTPValiditySeconds: intEnvOrDefault("MOSIP_ESIGNET_MOCK_OTP_VALIDITY_SECONDS", 300),
 	}
 }
 
@@ -59,4 +64,13 @@ func trimTrailingSlash(value string) string {
 		value = value[:len(value)-1]
 	}
 	return value
+}
+
+func intEnvOrDefault(key string, fallback int) int {
+	if value := os.Getenv(key); value != "" {
+		if n, err := strconv.Atoi(value); err == nil && n > 0 {
+			return n
+		}
+	}
+	return fallback
 }

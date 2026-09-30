@@ -22,11 +22,10 @@ func Initialize(
 	resourceSvc providers.ResourceServerProvider,
 ) map[string]providers.Executor {
 	executors := map[string]providers.Executor{
-		ExecutorNameEsignetClearInputs:    NewClearInputsExecutor(),
-		ExecutorNameEsignetOTP:            NewOtpExecutor(authnProvider),
-		ExecutorNameEsignetOTPExpiryCheck: NewOtpExpiryCheckExecutor(),
-		ExecutorNameEsignetAuthorization:  NewAuthorizationExecutor(clientSvc, resourceSvc),
-		ExecutorNameEsignetTransactionID:  NewTransactionIDExecutor(appConfig),
+		ExecutorNameEsignetClearInputs:   NewClearInputsExecutor(),
+		ExecutorNameEsignetOTP:           NewOtpExecutor(authnProvider),
+		ExecutorNameEsignetAuthorization: NewAuthorizationExecutor(clientSvc, resourceSvc),
+		ExecutorNameEsignetTransactionID: NewTransactionIDExecutor(appConfig),
 	}
 	return executors
 }

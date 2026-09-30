@@ -20,8 +20,8 @@ func (ts *InitTestSuite) TestInitializeRegistersAllExecutors() {
 	clientSvc := clientmgmt.NewServiceWithQuerier(&stubClientQuerier{}, nil, 0, nil)
 	registered := Initialize(&config.AppConfig{}, &fakeAuthnProvider{}, clientSvc, passthroughResourceServerProvider())
 
-	if len(registered) != 5 {
-		t.Fatalf("len(registered) = %d, want 5", len(registered))
+	if len(registered) != 4 {
+		t.Fatalf("len(registered) = %d, want 4", len(registered))
 	}
 
 	clearInputs, ok := registered[ExecutorNameEsignetClearInputs]
@@ -38,14 +38,6 @@ func (ts *InitTestSuite) TestInitializeRegistersAllExecutors() {
 	}
 	if otp.GetName() != ExecutorNameEsignetOTP {
 		t.Errorf("GetName() = %q, want %q", otp.GetName(), ExecutorNameEsignetOTP)
-	}
-
-	otpExpiryCheck, ok := registered[ExecutorNameEsignetOTPExpiryCheck]
-	if !ok {
-		t.Fatal("expected otp-expiry-check executor to be registered")
-	}
-	if otpExpiryCheck.GetName() != ExecutorNameEsignetOTPExpiryCheck {
-		t.Errorf("GetName() = %q, want %q", otpExpiryCheck.GetName(), ExecutorNameEsignetOTPExpiryCheck)
 	}
 
 	authz, ok := registered[ExecutorNameEsignetAuthorization]

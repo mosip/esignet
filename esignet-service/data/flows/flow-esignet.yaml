@@ -596,7 +596,7 @@ nodes:
                 message: "validation.otp.required"
         action:
           ref: action_submit_otp
-          nextNode: check_otp_expiry
+          nextNode: basic_auth
       - action:
           ref: RESEND_OTP
           nextNode: send_mosip_otp
@@ -617,15 +617,6 @@ nodes:
           type: CUSTOM
           required: true
     onSuccess: prompt_uin_otp
-
-  - id: check_otp_expiry
-    type: TASK_EXECUTION
-    properties:
-      otpValiditySeconds: "300"
-    executor:
-      name: eSignetOtpExpiryCheckExecutor
-    onSuccess: basic_auth
-    onFailure: prompt_otp
 
   - id: basic_auth
     type: TASK_EXECUTION

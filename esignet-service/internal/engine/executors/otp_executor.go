@@ -32,8 +32,10 @@ const (
 	// node executions within a flow session.
 	otpAttemptCountKey = "otpAttemptCount"
 	// otpIssuedAtKey stores the UTC RFC3339 timestamp of the most recent successful OTP send
-	// in RuntimeData so the expiry-check executor can enforce the OTP validity window.
-	otpIssuedAtKey = "otpIssuedAt"
+	// in RuntimeData. The provider_ext_ prefix causes buildRuntimeMetadata to forward it
+	// automatically into AuthnMetadata.RuntimeMetadata so identity-system providers can
+	// enforce the OTP validity window without any engine changes.
+	otpIssuedAtKey = "provider_ext_otpIssuedAt"
 	// defaultMaxOTPAttempts is used when the maxAttempts node property is absent or invalid.
 	defaultMaxOTPAttempts = 3
 )
