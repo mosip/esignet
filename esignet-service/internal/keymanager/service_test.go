@@ -512,9 +512,9 @@ func (ts *KeymanagerTestSuite) TestUploadCertificate_ThumbprintMismatch() {
 // TestUploadCertificate_RejectsDuplicateCertificate covers the new check: a
 // matching public key alone isn't enough to allow the upload through — if
 // the uploaded certificate is byte-identical to the one already on file
-// (same thumbprint), it must be rejected as already existing rather than
-// silently "replacing" the cert with itself.
-func (ts *KeymanagerTestSuite) TestUploadCertificate_RejectsDuplicateCertificate() {
+// (same thumbprint) is idempotent: it must return success rather than an error
+// so that automated provisioning scripts are not broken by retries or reruns.
+func (ts *KeymanagerTestSuite) TestUploadCertificate_IdempotentOnDuplicateCertificate() {
 	ks := newFakeKeyStore()
 	ts.Require().NoError(ks.GenerateAndStoreAsymmetricKey("root-alias", "root-alias", testCertTemplateParams(), "RSA", ""))
 	existingCert, err := ks.GetCertificate("root-alias")
@@ -532,10 +532,11 @@ func (ts *KeymanagerTestSuite) TestUploadCertificate_RejectsDuplicateCertificate
 	}
 	svc := keymanager.NewServiceWithQuerier(q, ks, testConfig())
 
-	_, err = svc.UploadCertificate(context.Background(), keymanager.UploadCertificateRequest{
+	resp, err := svc.UploadCertificate(context.Background(), keymanager.UploadCertificateRequest{
 		ApplicationID: "ROOT", ReferenceID: "", CertificateData: certPEM,
 	})
-	ts.Assert().ErrorIs(err, keymanager.ErrCertificateAlreadyExists)
+	ts.Require().NoError(err)
+	ts.Assert().Equal("success", resp.Status)
 }
 
 // TestUploadCertificate_UpdatesKeyGenAndExpiryFromCertificate covers the
@@ -768,7 +769,7 @@ func (ts *KeymanagerTestSuite) TestUploadOtherDomainCertificate_AllowsSigningRef
 	ts.Assert().WithinDuration(wantCert.NotAfter, *insertedAlias.KeyExpireDtimes, time.Second)
 }
 
-func (ts *KeymanagerTestSuite) TestUploadOtherDomainCertificate_RejectsDuplicateThumbprint() {
+func (ts *KeymanagerTestSuite) TestUploadOtherDomainCertificate_IdempotentOnDuplicateThumbprint() {
 	certPEM := generateUnrelatedSelfSignedCertPEM(ts.T())
 	thumbprint := thumbprintFromPEM(ts.T(), certPEM)
 	q := &fakeQuerier{
@@ -776,15 +777,13 @@ func (ts *KeymanagerTestSuite) TestUploadOtherDomainCertificate_RejectsDuplicate
 		getKeyAliasesByAppRefFn: func(_ context.Context, _, _ string) ([]db.KeyAlias, error) {
 			return []db.KeyAlias{{ID: "existing", CertThumbprint: &thumbprint}}, nil
 		},
-		getKeyStoreRecordFn: func(_ context.Context, _ string) (db.KeyStoreRecord, error) {
-			return db.KeyStoreRecord{PrivateKey: keymanager.ForeignDomainPrivateKeyMarker}, nil
-		},
 	}
 	svc := keymanager.NewServiceWithQuerier(q, newFakeKeyStore(), testConfig())
-	_, err := svc.UploadOtherDomainCertificate(context.Background(), keymanager.UploadCertificateRequest{
+	resp, err := svc.UploadOtherDomainCertificate(context.Background(), keymanager.UploadCertificateRequest{
 		ApplicationID: "PARTNER", ReferenceID: "RSA_2048", CertificateData: certPEM,
 	})
-	ts.Assert().ErrorIs(err, keymanager.ErrCertificateAlreadyExists)
+	ts.Require().NoError(err)
+	ts.Assert().Equal("success", resp.Status)
 }
 
 func (ts *KeymanagerTestSuite) TestUploadOtherDomainCertificate_RejectsWhenPrivateKeyExists() {

@@ -39,7 +39,7 @@ import (
 
 // ── suite wiring ─────────────────────────────────────────────────────────────
 
-type Finding7HTTPSuite struct {
+type UploadCertificateSecuritySuite struct {
 	suite.Suite
 	server      *httptest.Server
 	ks          *fakeKeyStore
@@ -50,9 +50,11 @@ type Finding7HTTPSuite struct {
 	thumbprint  string
 }
 
-func TestFinding7HTTPSuite(t *testing.T) { suite.Run(t, new(Finding7HTTPSuite)) }
+func TestUploadCertificateSecuritySuite(t *testing.T) {
+	suite.Run(t, new(UploadCertificateSecuritySuite))
+}
 
-func (ts *Finding7HTTPSuite) SetupTest() {
+func (ts *UploadCertificateSecuritySuite) SetupTest() {
 	ts.ks = newFakeKeyStore()
 	ts.rootAlias = "root-alias"
 
@@ -90,7 +92,7 @@ func (ts *Finding7HTTPSuite) SetupTest() {
 	ts.server = httptest.NewServer(mux)
 }
 
-func (ts *Finding7HTTPSuite) TearDownTest() {
+func (ts *UploadCertificateSecuritySuite) TearDownTest() {
 	ts.server.Close()
 }
 
@@ -106,7 +108,7 @@ type uploadResponse struct {
 	} `json:"errors"`
 }
 
-func (ts *Finding7HTTPSuite) upload(certPEM string) uploadResponse {
+func (ts *UploadCertificateSecuritySuite) upload(certPEM string) uploadResponse {
 	payload := map[string]interface{}{
 		"id":          "mosip.keymanager.uploadcertificate",
 		"version":     "1.0",
@@ -131,7 +133,7 @@ func (ts *Finding7HTTPSuite) upload(certPEM string) uploadResponse {
 	return ur
 }
 
-func (ts *Finding7HTTPSuite) makeCertPEM(notBefore, notAfter time.Time, pubKey interface{}, signerPriv interface{}) string {
+func (ts *UploadCertificateSecuritySuite) makeCertPEM(notBefore, notAfter time.Time, pubKey interface{}, signerPriv interface{}) string {
 	template := &x509.Certificate{
 		SerialNumber: big.NewInt(time.Now().UnixNano()),
 		Subject:      ts.rootCert.Subject,
@@ -143,7 +145,7 @@ func (ts *Finding7HTTPSuite) makeCertPEM(notBefore, notAfter time.Time, pubKey i
 	return string(pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: certDER}))
 }
 
-func (ts *Finding7HTTPSuite) assertRejectedWith(ur uploadResponse, wantCode string, label string) {
+func (ts *UploadCertificateSecuritySuite) assertRejectedWith(ur uploadResponse, wantCode string, label string) {
 	ts.T().Helper()
 	isSuccess := ur.Response != nil && ur.Response.Status == "success"
 	hasError := len(ur.Errors) > 0 && ur.Errors[0].ErrorCode == wantCode
@@ -157,7 +159,7 @@ func (ts *Finding7HTTPSuite) assertRejectedWith(ur uploadResponse, wantCode stri
 	}
 }
 
-func (ts *Finding7HTTPSuite) assertSuccess(ur uploadResponse, label string) {
+func (ts *UploadCertificateSecuritySuite) assertSuccess(ur uploadResponse, label string) {
 	ts.T().Helper()
 	isSuccess := ur.Response != nil && ur.Response.Status == "success"
 	ts.Assert().True(isSuccess, "[%s] upload must succeed, got errors=%+v", label, ur.Errors)
@@ -168,7 +170,7 @@ func (ts *Finding7HTTPSuite) assertSuccess(ur uploadResponse, label string) {
 
 // ── Scenario 1 — provenance gate ─────────────────────────────────────────────
 
-func (ts *Finding7HTTPSuite) TestScenario1_ThrowawaySigner_Rejected() {
+func (ts *UploadCertificateSecuritySuite) TestScenario1_ThrowawaySigner_Rejected() {
 	ts.T().Log("\n── Scenario 1: cert embeds ROOT pubkey but signed by a throwaway key ──")
 	throwaway, err := rsa.GenerateKey(rand.Reader, 2048)
 	ts.Require().NoError(err)
@@ -191,7 +193,7 @@ func (ts *Finding7HTTPSuite) TestScenario1_ThrowawaySigner_Rejected() {
 
 // ── Scenario 2 — expiry gate ─────────────────────────────────────────────────
 
-func (ts *Finding7HTTPSuite) TestScenario2_AlreadyExpired_Rejected() {
+func (ts *UploadCertificateSecuritySuite) TestScenario2_AlreadyExpired_Rejected() {
 	ts.T().Log("\n── Scenario 2: cert has NotAfter in the past ──")
 	certPEM := ts.makeCertPEM(
 		time.Now().AddDate(-2, 0, 0),
@@ -210,7 +212,7 @@ func (ts *Finding7HTTPSuite) TestScenario2_AlreadyExpired_Rejected() {
 
 // ── Scenario 3 — not-yet-valid gate ──────────────────────────────────────────
 
-func (ts *Finding7HTTPSuite) TestScenario3_NotYetValid_Rejected() {
+func (ts *UploadCertificateSecuritySuite) TestScenario3_NotYetValid_Rejected() {
 	ts.T().Log("\n── Scenario 3: cert has NotBefore in the future ──")
 	certPEM := ts.makeCertPEM(
 		time.Now().Add(24*time.Hour), // not yet valid
@@ -229,16 +231,15 @@ func (ts *Finding7HTTPSuite) TestScenario3_NotYetValid_Rejected() {
 
 // ── Scenario 4 — duplicate guard (pre-existing, unchanged) ───────────────────
 
-func (ts *Finding7HTTPSuite) TestScenario4_DuplicateCert_Rejected() {
-	ts.T().Log("\n── Scenario 4: uploading the cert that's already on file ──")
+func (ts *UploadCertificateSecuritySuite) TestScenario4_DuplicateCert_Idempotent() {
+	ts.T().Log("\n── Scenario 4: uploading the cert already on file is a no-op success ──")
 	ur := ts.upload(ts.rootCertPEM) // identical cert, same thumbprint
-	ts.assertRejectedWith(ur, "invalid_certificate",
-		"duplicate cert (same thumbprint already stored)")
+	ts.assertSuccess(ur, "duplicate cert (same thumbprint — idempotent re-upload)")
 }
 
 // ── Scenario 5 — legitimate renewal (must still succeed) ─────────────────────
 
-func (ts *Finding7HTTPSuite) TestScenario5_LegitimateRenewal_Succeeds() {
+func (ts *UploadCertificateSecuritySuite) TestScenario5_LegitimateRenewal_Succeeds() {
 	ts.T().Log("\n── Scenario 5: cert signed by ROOT key with valid window ──")
 	// Wire updateKeyStoreRecord for the non-resident path (unused for ROOT,
 	// but the querier needs to handle UpdateKeyAlias which is already wired).
@@ -266,7 +267,7 @@ func containsAny(s string, substrs ...string) bool {
 
 // ── summary logger ────────────────────────────────────────────────────────────
 
-func (ts *Finding7HTTPSuite) TestSummary() {
+func (ts *UploadCertificateSecuritySuite) TestSummary() {
 	ts.T().Log(`
 ╔══════════════════════════════════════════════════════════════════════╗
 ║  UploadCertificate security-guard test matrix                       ║
@@ -275,7 +276,7 @@ func (ts *Finding7HTTPSuite) TestSummary() {
 ║  1   Throwaway signer, correct pubkey         REJECT    provenance  ║
 ║  2   Correct signer, NotAfter in the past     REJECT    expiry      ║
 ║  3   Correct signer, NotBefore in the future  REJECT    not-valid   ║
-║  4   Cert already on file (same thumbprint)   REJECT    duplicate   ║
+║  4   Cert already on file (same thumbprint)   ACCEPT    idempotent  ║
 ║  5   Correct signer, valid window             ACCEPT    (none)      ║
 ╚══════════════════════════════════════════════════════════════════════╝`)
 }

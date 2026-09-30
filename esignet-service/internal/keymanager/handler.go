@@ -199,7 +199,7 @@ func (h *Handler) handleServiceError(ctx context.Context, w http.ResponseWriter,
 		errors.Is(err, ErrKeyNotFound):
 		h.logger.Debug(ctx, op+": invalid request", applog.Error(err))
 		common.WriteError(ctx, w, http.StatusOK, errCodeInvalidRequest, err.Error())
-	case errors.Is(err, ErrThumbprintMismatch), errors.Is(err, ErrCertificateAlreadyExists),
+	case errors.Is(err, ErrThumbprintMismatch),
 		errors.Is(err, ErrInvalidCertificateProvenance),
 		errors.Is(err, ErrUploadedCertificateExpired),
 		errors.Is(err, ErrUploadedCertificateNotYetValid):
