@@ -131,7 +131,7 @@ full in [`docs/configuration.md`](../docs/configuration.md) §8.
 
 ## Client management API
 
-When scope enforcement is enabled (`security_config.issuer_url`/`jwks_url` in `data/deployment.yaml` — see [`docs/configuration.md`](../docs/configuration.md) §4), endpoints require `Authorization: Bearer <token>`, validated against the JWKS endpoint with a matching `iss` and unexpired `exp`. The token must also exactly identify a configured `allowed_iam_clients` entry through either `azp` or any `aud` value and carry the scope mapped to the requested endpoint.
+When scope enforcement is enabled (`security_config.issuer_url`/`jwks_url` in `data/deployment.yaml` — see [`docs/configuration.md`](../docs/configuration.md) §4), endpoints require `Authorization: Bearer <token>`, validated against the JWKS endpoint with a matching `iss` and unexpired `exp`. The token must exactly match a configured `allowed_audiences` entry in `aud`; `azp` is checked as a compatibility fallback for existing Keycloak tokens. It must also carry the scope mapped to the requested endpoint. At least one allowed audience is required when enforcement is enabled, otherwise the service rejects the configuration at startup.
 
 Requests and responses use the MOSIP envelope: `{"requestTime": "...", "request": {...}}` in, `{"responseTime": "...", "response": {"clientId", "status"}, "errors": []}` out. Validation failures return HTTP 200 with a populated `errors` array and documented `errorCode` values.
 

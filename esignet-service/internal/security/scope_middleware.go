@@ -23,9 +23,10 @@ import (
 //  1. Requires a Bearer token in the Authorization header.
 //  2. Validates the token's signature using the JWKS cache.
 //  3. Validates standard claims: iss, exp.
-//  4. Requires an allowed IAM client in either the azp or aud claim.
+//  4. Requires an allowed audience in aud, with azp as a compatibility fallback.
 //  5. Checks that the token's scope claim contains requiredScope.
 func ScopeMiddleware(cache *JWKSCache, config config.SecurityConfig) func(http.Handler) http.Handler {
+	allowedAudiences := newAllowedAudienceSet(config.AllowedAudiences)
 	parser := jwt.NewParser(
 		jwt.WithIssuer(config.IssuerURL),
 		jwt.WithExpirationRequired(),
@@ -54,11 +55,11 @@ func ScopeMiddleware(cache *JWKSCache, config config.SecurityConfig) func(http.H
 				return
 			}
 
-			if !claimHasAllowedIAMClient(claims, config.AllowedIAMClients) {
-				logger.Warn(r.Context(), "rejected token with no allowed IAM client",
+			if !claimMatchesAllowedAudienceOrAuthorizedParty(claims, allowedAudiences) {
+				logger.Warn(r.Context(), "rejected token with no allowed audience or authorized party",
 					applog.String("path", r.URL.Path))
 				common.WriteError(r.Context(), w, http.StatusUnauthorized, "unauthorized",
-					"token does not identify an allowed IAM client")
+					"token audience or authorized party is not allowed")
 				return
 			}
 
@@ -148,27 +149,39 @@ func parseAndValidate(ctx context.Context, parser *jwt.Parser, tokenStr string, 
 	return claims, nil
 }
 
-// claimHasAllowedIAMClient reports whether an allowed IAM client exactly matches
-// either the authorized party (azp) or any audience (aud) value in the token.
-func claimHasAllowedIAMClient(claims jwt.MapClaims, allowedIAMClients []string) bool {
-	azp, _ := claims["azp"].(string)
-	audiences, _ := claims.GetAudience()
-
-	for _, allowedIAMClient := range allowedIAMClients {
-		allowedIAMClient = strings.TrimSpace(allowedIAMClient)
-		if allowedIAMClient == "" {
-			continue
-		}
-		if azp == allowedIAMClient {
-			return true
-		}
-		for _, audience := range audiences {
-			if audience == allowedIAMClient {
-				return true
-			}
+// newAllowedAudienceSet constructs the read-only lookup used by the middleware.
+// Configuration loading already normalizes values; the empty check keeps direct
+// callers of ScopeMiddleware fail-closed as well.
+func newAllowedAudienceSet(configured []string) map[string]struct{} {
+	allowed := make(map[string]struct{}, len(configured))
+	for _, audience := range configured {
+		if audience != "" {
+			allowed[audience] = struct{}{}
 		}
 	}
-	return false
+	return allowed
+}
+
+// claimMatchesAllowedAudienceOrAuthorizedParty checks aud first. For existing
+// Keycloak tokens whose expected identifier is only in azp, azp is used as a
+// compatibility fallback. Comparisons are exact.
+func claimMatchesAllowedAudienceOrAuthorizedParty(claims jwt.MapClaims, allowedAudiences map[string]struct{}) bool {
+	audiences, err := claims.GetAudience()
+	if err != nil {
+		return false
+	}
+	for _, audience := range audiences {
+		if _, allowed := allowedAudiences[audience]; allowed {
+			return true
+		}
+	}
+
+	azp, ok := claims["azp"].(string)
+	if !ok {
+		return false
+	}
+	_, allowed := allowedAudiences[azp]
+	return allowed
 }
 
 // claimHasScope checks whether the token's scope claim (space-separated string)

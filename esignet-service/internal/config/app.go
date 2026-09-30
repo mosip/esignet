@@ -192,7 +192,7 @@ type SecurityConfig struct {
 	JwksURL               string                `yaml:"jwks_url"`
 	JwksCacheTTL          int64                 `yaml:"jwks_cache_ttl"`
 	RequestTimeLeewaySecs int                   `yaml:"request_time_leeway_secs"`
-	AllowedIAMClients     []string              `yaml:"allowed_iam_clients,omitempty"`
+	AllowedAudiences      []string              `yaml:"allowed_audiences,omitempty"`
 	ScopeMapping          []AuthorizationConfig `yaml:"scope_mapping,omitempty"`
 }
 
@@ -641,14 +641,13 @@ func ApplyEnvOverrides(cfg *AppConfig) error {
 	if v := os.Getenv("MOSIP_ESIGNET_SECURITY_JWKS_URL"); v != "" {
 		cfg.SecurityConfig.JwksURL = v
 	}
-	if v := os.Getenv("MOSIP_ESIGNET_SECURITY_ALLOWED_IAM_CLIENTS"); v != "" {
-		iamClients := strings.Split(v, ",")
-		cfg.SecurityConfig.AllowedIAMClients = make([]string, 0, len(iamClients))
-		for _, iamClient := range iamClients {
-			if iamClient = strings.TrimSpace(iamClient); iamClient != "" {
-				cfg.SecurityConfig.AllowedIAMClients = append(cfg.SecurityConfig.AllowedIAMClients, iamClient)
-			}
-		}
+	allowedAudiences := cfg.SecurityConfig.AllowedAudiences
+	if v := os.Getenv("MOSIP_ESIGNET_SECURITY_ALLOWED_AUDIENCES"); v != "" {
+		allowedAudiences = strings.Split(v, ",")
+	}
+	cfg.SecurityConfig.AllowedAudiences = normalizeAllowedAudiences(allowedAudiences)
+	if cfg.SecurityConfig.IssuerURL != "" && cfg.SecurityConfig.JwksURL != "" && len(cfg.SecurityConfig.AllowedAudiences) == 0 {
+		return fmt.Errorf("security_config.allowed_audiences must contain at least one value when scope enforcement is enabled")
 	}
 	if v := os.Getenv("MOSIP_ESIGNET_CLIENT_CACHE_TTL_SECS"); v != "" {
 		secs, err := strconv.ParseInt(v, 10, 64)
@@ -670,6 +669,25 @@ func ApplyEnvOverrides(cfg *AppConfig) error {
 		cfg.ResourceServers = resourceServers
 	}
 	return nil
+}
+
+// normalizeAllowedAudiences trims, removes empty values, and deduplicates the
+// configured audiences while preserving their original order.
+func normalizeAllowedAudiences(values []string) []string {
+	normalized := make([]string, 0, len(values))
+	seen := make(map[string]struct{}, len(values))
+	for _, value := range values {
+		value = strings.TrimSpace(value)
+		if value == "" {
+			continue
+		}
+		if _, exists := seen[value]; exists {
+			continue
+		}
+		seen[value] = struct{}{}
+		normalized = append(normalized, value)
+	}
+	return normalized
 }
 
 func envOrDefault(key, fallback string) string {

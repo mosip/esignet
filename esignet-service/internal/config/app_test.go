@@ -788,37 +788,73 @@ func (ts *AppConfigTestSuite) TestApplyEnvOverridesInvalidAccessTokenLifetime() 
 func (ts *AppConfigTestSuite) TestApplyEnvOverridesSecurityConfig() {
 	t := ts.T()
 	cfg := &AppConfig{SecurityConfig: SecurityConfig{
-		IssuerURL:         "https://yaml-issuer",
-		JwksURL:           "https://yaml-jwks",
-		AllowedIAMClients: []string{"yaml-iam-client"},
+		IssuerURL:        "https://yaml-issuer",
+		JwksURL:          "https://yaml-jwks",
+		AllowedAudiences: []string{"yaml-audience"},
 	}}
 	t.Setenv("MOSIP_ESIGNET_SECURITY_ISSUER_URL", "https://issuer.example.com")
 	t.Setenv("MOSIP_ESIGNET_SECURITY_JWKS_URL", "https://issuer.example.com/jwks.json")
-	t.Setenv("MOSIP_ESIGNET_SECURITY_ALLOWED_IAM_CLIENTS", " iam-client-a,iam-client-b, ,iam-client-c ")
+	t.Setenv("MOSIP_ESIGNET_SECURITY_ALLOWED_AUDIENCES", " audience-a,audience-b, ,audience-a,audience-c ")
 
 	ts.Require().NoError(ApplyEnvOverrides(cfg))
 
 	ts.Require().Equal("https://issuer.example.com", cfg.SecurityConfig.IssuerURL, "env var takes precedence over yaml-set value")
 	ts.Require().Equal("https://issuer.example.com/jwks.json", cfg.SecurityConfig.JwksURL, "env var takes precedence over yaml-set value")
-	ts.Require().Equal([]string{"iam-client-a", "iam-client-b", "iam-client-c"}, cfg.SecurityConfig.AllowedIAMClients, "env var takes precedence over yaml-set value")
+	ts.Require().Equal([]string{"audience-a", "audience-b", "audience-c"}, cfg.SecurityConfig.AllowedAudiences, "env var takes precedence over yaml-set value and is normalized")
 }
 
 func (ts *AppConfigTestSuite) TestApplyEnvOverridesSecurityConfigNoEnvSetPreservesYAML() {
 	t := ts.T()
 	t.Setenv("MOSIP_ESIGNET_SECURITY_ISSUER_URL", "")
 	t.Setenv("MOSIP_ESIGNET_SECURITY_JWKS_URL", "")
-	t.Setenv("MOSIP_ESIGNET_SECURITY_ALLOWED_IAM_CLIENTS", "")
+	t.Setenv("MOSIP_ESIGNET_SECURITY_ALLOWED_AUDIENCES", "")
 	cfg := &AppConfig{SecurityConfig: SecurityConfig{
-		IssuerURL:         "https://yaml-issuer",
-		JwksURL:           "https://yaml-jwks",
-		AllowedIAMClients: []string{"yaml-iam-client"},
+		IssuerURL:        "https://yaml-issuer",
+		JwksURL:          "https://yaml-jwks",
+		AllowedAudiences: []string{" yaml-audience ", "", "yaml-audience", "second-audience"},
 	}}
 
 	ts.Require().NoError(ApplyEnvOverrides(cfg))
 
 	ts.Require().Equal("https://yaml-issuer", cfg.SecurityConfig.IssuerURL, "yaml value preserved when env var unset")
 	ts.Require().Equal("https://yaml-jwks", cfg.SecurityConfig.JwksURL, "yaml value preserved when env var unset")
-	ts.Require().Equal([]string{"yaml-iam-client"}, cfg.SecurityConfig.AllowedIAMClients, "yaml value preserved when env var unset")
+	ts.Require().Equal([]string{"yaml-audience", "second-audience"}, cfg.SecurityConfig.AllowedAudiences, "yaml value normalized when env var unset")
+}
+
+func (ts *AppConfigTestSuite) TestApplyEnvOverridesSecurityConfigRejectsEmptyAudiencesWhenEnforcementEnabled() {
+	t := ts.T()
+	cfg := &AppConfig{SecurityConfig: SecurityConfig{
+		IssuerURL: "https://yaml-issuer",
+		JwksURL:   "https://yaml-jwks",
+	}}
+	t.Setenv("MOSIP_ESIGNET_SECURITY_ALLOWED_AUDIENCES", "")
+
+	err := ApplyEnvOverrides(cfg)
+
+	ts.Require().EqualError(err, "security_config.allowed_audiences must contain at least one value when scope enforcement is enabled")
+}
+
+func (ts *AppConfigTestSuite) TestApplyEnvOverridesSecurityConfigRejectsBlankAudienceOverride() {
+	t := ts.T()
+	cfg := &AppConfig{SecurityConfig: SecurityConfig{
+		IssuerURL:        "https://yaml-issuer",
+		JwksURL:          "https://yaml-jwks",
+		AllowedAudiences: []string{"yaml-audience"},
+	}}
+	t.Setenv("MOSIP_ESIGNET_SECURITY_ALLOWED_AUDIENCES", ", ,")
+
+	err := ApplyEnvOverrides(cfg)
+
+	ts.Require().EqualError(err, "security_config.allowed_audiences must contain at least one value when scope enforcement is enabled")
+	ts.Require().Empty(cfg.SecurityConfig.AllowedAudiences)
+}
+
+func (ts *AppConfigTestSuite) TestApplyEnvOverridesSecurityConfigAllowsEmptyAudiencesWhenEnforcementDisabled() {
+	cfg := &AppConfig{}
+	ts.T().Setenv("MOSIP_ESIGNET_SECURITY_ALLOWED_AUDIENCES", ", ,")
+
+	ts.Require().NoError(ApplyEnvOverrides(cfg))
+	ts.Require().Empty(cfg.SecurityConfig.AllowedAudiences)
 }
 
 func (ts *AppConfigTestSuite) TestApplyEnvOverridesClientCacheTTLSecs() {

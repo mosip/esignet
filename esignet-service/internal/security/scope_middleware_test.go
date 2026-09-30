@@ -54,8 +54,8 @@ func newTestMiddleware(t *testing.T, key *rsa.PrivateKey, kid, issuer string) fu
 	srv := newTestJWKSServer(t, key, kid)
 	cache := NewJWKSCache(srv.URL, time.Minute, http.DefaultClient)
 	return ScopeMiddleware(cache, config.SecurityConfig{
-		IssuerURL:         issuer,
-		AllowedIAMClients: []string{"allowed-iam-client"},
+		IssuerURL:        issuer,
+		AllowedAudiences: []string{"allowed-audience"},
 		ScopeMapping: []config.AuthorizationConfig{
 			{Method: http.MethodGet, Endpoint: "/", Scope: "test"},
 		},
@@ -81,7 +81,7 @@ func (ts *ScopeMiddlewareTestSuite) TestScopeMiddleware_Success() {
 	claims := jwt.MapClaims{
 		"iss":   "https://issuer.example.com",
 		"exp":   time.Now().Add(time.Hour).Unix(),
-		"azp":   "allowed-iam-client",
+		"aud":   "allowed-audience",
 		"scope": "test other",
 	}
 	tokenStr := signTestToken(t, key, "kid-1", claims)
@@ -100,7 +100,7 @@ func (ts *ScopeMiddlewareTestSuite) TestScopeMiddleware_Success() {
 	}
 }
 
-func (ts *ScopeMiddlewareTestSuite) TestScopeMiddleware_AllowedIAMClientFromAZPOrAudience() {
+func (ts *ScopeMiddlewareTestSuite) TestScopeMiddleware_AllowedAudienceWithAuthorizedPartyFallback() {
 	t := ts.T()
 	key, err := rsa.GenerateKey(rand.Reader, 2048)
 	if err != nil {
@@ -113,12 +113,12 @@ func (ts *ScopeMiddlewareTestSuite) TestScopeMiddleware_AllowedIAMClientFromAZPO
 		clientClaims jwt.MapClaims
 		wantStatus   int
 	}{
-		{name: "allowed azp", clientClaims: jwt.MapClaims{"azp": "allowed-iam-client", "aud": "other-iam-client"}, wantStatus: http.StatusOK},
-		{name: "allowed string audience", clientClaims: jwt.MapClaims{"azp": "other-iam-client", "aud": "allowed-iam-client"}, wantStatus: http.StatusOK},
-		{name: "allowed array audience", clientClaims: jwt.MapClaims{"azp": "other-iam-client", "aud": []string{"other-iam-client", "allowed-iam-client"}}, wantStatus: http.StatusOK},
+		{name: "allowed string audience", clientClaims: jwt.MapClaims{"azp": "other-party", "aud": "allowed-audience"}, wantStatus: http.StatusOK},
+		{name: "allowed array audience", clientClaims: jwt.MapClaims{"azp": "other-party", "aud": []string{"other-audience", "allowed-audience"}}, wantStatus: http.StatusOK},
+		{name: "allowed authorized party fallback", clientClaims: jwt.MapClaims{"azp": "allowed-audience", "aud": "other-audience"}, wantStatus: http.StatusOK},
 		{name: "neither claim allowed", clientClaims: jwt.MapClaims{"azp": "other-client", "aud": "another-client"}, wantStatus: http.StatusUnauthorized},
 		{name: "claims missing", clientClaims: jwt.MapClaims{}, wantStatus: http.StatusUnauthorized},
-		{name: "exact match required", clientClaims: jwt.MapClaims{"azp": "allowed-iam-client-extra", "aud": "other-iam-client"}, wantStatus: http.StatusUnauthorized},
+		{name: "exact match required", clientClaims: jwt.MapClaims{"azp": "allowed-audience-extra", "aud": "other-audience"}, wantStatus: http.StatusUnauthorized},
 	}
 
 	for _, tc := range tests {
@@ -274,7 +274,7 @@ func (ts *ScopeMiddlewareTestSuite) TestScopeMiddleware_MissingScope() {
 	claims := jwt.MapClaims{
 		"iss":   "https://issuer.example.com",
 		"exp":   time.Now().Add(time.Hour).Unix(),
-		"azp":   "allowed-iam-client",
+		"aud":   "allowed-audience",
 		"scope": "other",
 	}
 	tokenStr := signTestToken(t, key, "kid-1", claims)
@@ -302,14 +302,14 @@ func (ts *ScopeMiddlewareTestSuite) TestScopeMiddleware_NoScopeMappingConfigured
 	srv := newTestJWKSServer(t, key, "kid-1")
 	cache := NewJWKSCache(srv.URL, time.Minute, http.DefaultClient)
 	mw := ScopeMiddleware(cache, config.SecurityConfig{
-		IssuerURL:         "https://issuer.example.com",
-		AllowedIAMClients: []string{"allowed-iam-client"},
+		IssuerURL:        "https://issuer.example.com",
+		AllowedAudiences: []string{"allowed-audience"},
 	})
 
 	claims := jwt.MapClaims{
 		"iss":   "https://issuer.example.com",
 		"exp":   time.Now().Add(time.Hour).Unix(),
-		"azp":   "allowed-iam-client",
+		"aud":   "allowed-audience",
 		"scope": "test",
 	}
 	tokenStr := signTestToken(t, key, "kid-1", claims)
@@ -437,6 +437,15 @@ func (ts *ScopeMiddlewareTestSuite) TestClaimHasScope() {
 			t.Error("expected false when scope is not present")
 		}
 	})
+}
+
+func (ts *ScopeMiddlewareTestSuite) TestNewAllowedAudienceSet() {
+	allowed := newAllowedAudienceSet([]string{"audience-a", "", "audience-a", "audience-b"})
+
+	ts.Require().Equal(map[string]struct{}{
+		"audience-a": {},
+		"audience-b": {},
+	}, allowed)
 }
 
 func (ts *ScopeMiddlewareTestSuite) TestParseAndValidate_MissingKid() {
