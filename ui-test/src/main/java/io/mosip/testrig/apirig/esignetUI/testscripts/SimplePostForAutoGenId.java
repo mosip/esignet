@@ -87,12 +87,15 @@ public class SimplePostForAutoGenId extends EsignetUtil implements ITest {
 			if (isSunbirdClientVariant && !sunbirdActive) {
 				throw new SkipException("Skipped: " + testCaseName + " is only needed on a Sunbird RC-backed server");
 			}
-			if (!isSunbirdClientVariant && (sunbirdActive || !"mock".equalsIgnoreCase(getPluginName()))) {
-				throw new SkipException("Skipped: " + testCaseName + " is only needed for the non-Sunbird mock plugin");
+			if (!isSunbirdClientVariant && sunbirdActive) {
+				throw new SkipException("Skipped: " + testCaseName
+						+ " V3 client-mgmt is not used on a Sunbird RC-backed server");
 			}
 		}
 
-		if ("clientId".equals(idKeyName) && testCaseName.contains("CreateOIDCClient_all_Valid_Smoke_sid")) {
+		if ("clientId".equals(idKeyName) && testCaseName.contains("CreateOIDCClient_")
+				&& !testCaseName.contains("CreateOIDCClient_par_required_")
+				&& !testCaseName.contains("CreateOIDCClient_secondary_")) {
 			writeConfigValueAndSkipIfProvided("oidcClientId", testCaseName, idKeyName);
 		}
 
@@ -120,7 +123,8 @@ public class SimplePostForAutoGenId extends EsignetUtil implements ITest {
 			}
 
 			inputJson = EsignetUtil.inputstringKeyWordHandler(inputJson, testCaseName);
-			if (isSunbirdPolicy || getPluginName().equals("mock") == true) {
+			boolean isV3ClientMgmt = testCaseDTO.getEndPoint().contains("/v1/esignet/client-mgmt/client");
+			if (isSunbirdPolicy || isV3ClientMgmt || getPluginName().equals("mock") == true) {
 				if (!isSunbirdPolicy) {
 					inputJson = inputJsonKeyWordHandeler(inputJson, testCaseName);
 				}
