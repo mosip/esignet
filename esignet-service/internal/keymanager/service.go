@@ -109,7 +109,6 @@ var (
 	// never share an ApplicationID with the real key hierarchy.
 	ErrForeignDomainAppIDRegistered = errors.New("application id is already registered in key_policy_def and cannot be used for a foreign-domain upload")
 
-
 	// ErrInvalidCertificateProvenance is returned when UploadCertificate's
 	// signature-provenance check fails: the uploaded certificate's signature
 	// cannot be verified by the key that is authoritative for this position in
