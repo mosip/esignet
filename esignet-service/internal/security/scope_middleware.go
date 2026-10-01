@@ -23,8 +23,10 @@ import (
 //  1. Requires a Bearer token in the Authorization header.
 //  2. Validates the token's signature using the JWKS cache.
 //  3. Validates standard claims: iss, exp.
-//  4. Checks that the token's scope claim contains requiredScope.
+//  4. Requires an allowed audience in aud, or in azp only when aud is absent.
+//  5. Checks that the token's scope claim contains requiredScope.
 func ScopeMiddleware(cache *JWKSCache, config config.SecurityConfig) func(http.Handler) http.Handler {
+	allowedAudiences := newAllowedAudienceSet(config.AllowedAudiences)
 	parser := jwt.NewParser(
 		jwt.WithIssuer(config.IssuerURL),
 		jwt.WithExpirationRequired(),
@@ -50,6 +52,14 @@ func ScopeMiddleware(cache *JWKSCache, config config.SecurityConfig) func(http.H
 				logger.Warn(r.Context(), "rejected request with invalid or expired token",
 					applog.String("path", r.URL.Path), applog.Error(err))
 				common.WriteError(r.Context(), w, http.StatusUnauthorized, "unauthorized", "invalid or expired token")
+				return
+			}
+
+			if !claimMatchesAllowedAudienceOrAuthorizedParty(claims, allowedAudiences) {
+				logger.Warn(r.Context(), "rejected token with no allowed audience or authorized party",
+					applog.String("path", r.URL.Path))
+				common.WriteError(r.Context(), w, http.StatusUnauthorized, "unauthorized",
+					"token audience or authorized party is not allowed")
 				return
 			}
 
@@ -137,6 +147,44 @@ func parseAndValidate(ctx context.Context, parser *jwt.Parser, tokenStr string, 
 		return nil, fmt.Errorf("invalid token claims")
 	}
 	return claims, nil
+}
+
+// newAllowedAudienceSet constructs the read-only lookup used by the middleware.
+// Configuration loading already normalizes values; the empty check keeps direct
+// callers of ScopeMiddleware fail-closed as well.
+func newAllowedAudienceSet(configured []string) map[string]struct{} {
+	allowed := make(map[string]struct{}, len(configured))
+	for _, audience := range configured {
+		if audience != "" {
+			allowed[audience] = struct{}{}
+		}
+	}
+	return allowed
+}
+
+// claimMatchesAllowedAudienceOrAuthorizedParty requires a present aud claim to
+// contain an allowed audience. The azp claim is used as a compatibility fallback
+// only when aud is absent. Comparisons are exact.
+func claimMatchesAllowedAudienceOrAuthorizedParty(claims jwt.MapClaims, allowedAudiences map[string]struct{}) bool {
+	if _, hasAudience := claims["aud"]; hasAudience {
+		audiences, err := claims.GetAudience()
+		if err != nil {
+			return false
+		}
+		for _, audience := range audiences {
+			if _, allowed := allowedAudiences[audience]; allowed {
+				return true
+			}
+		}
+		return false
+	}
+
+	azp, ok := claims["azp"].(string)
+	if !ok {
+		return false
+	}
+	_, allowed := allowedAudiences[azp]
+	return allowed
 }
 
 // claimHasScope checks whether the token's scope claim (space-separated string)
