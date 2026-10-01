@@ -23,7 +23,7 @@ import (
 //  1. Requires a Bearer token in the Authorization header.
 //  2. Validates the token's signature using the JWKS cache.
 //  3. Validates standard claims: iss, exp.
-//  4. Requires an allowed audience in aud, with azp as a compatibility fallback.
+//  4. Requires an allowed audience in aud, or in azp only when aud is absent.
 //  5. Checks that the token's scope claim contains requiredScope.
 func ScopeMiddleware(cache *JWKSCache, config config.SecurityConfig) func(http.Handler) http.Handler {
 	allowedAudiences := newAllowedAudienceSet(config.AllowedAudiences)
@@ -162,18 +162,21 @@ func newAllowedAudienceSet(configured []string) map[string]struct{} {
 	return allowed
 }
 
-// claimMatchesAllowedAudienceOrAuthorizedParty checks aud first. For existing
-// Keycloak tokens whose expected identifier is only in azp, azp is used as a
-// compatibility fallback. Comparisons are exact.
+// claimMatchesAllowedAudienceOrAuthorizedParty requires a present aud claim to
+// contain an allowed audience. The azp claim is used as a compatibility fallback
+// only when aud is absent. Comparisons are exact.
 func claimMatchesAllowedAudienceOrAuthorizedParty(claims jwt.MapClaims, allowedAudiences map[string]struct{}) bool {
-	audiences, err := claims.GetAudience()
-	if err != nil {
-		return false
-	}
-	for _, audience := range audiences {
-		if _, allowed := allowedAudiences[audience]; allowed {
-			return true
+	if _, hasAudience := claims["aud"]; hasAudience {
+		audiences, err := claims.GetAudience()
+		if err != nil {
+			return false
 		}
+		for _, audience := range audiences {
+			if _, allowed := allowedAudiences[audience]; allowed {
+				return true
+			}
+		}
+		return false
 	}
 
 	azp, ok := claims["azp"].(string)

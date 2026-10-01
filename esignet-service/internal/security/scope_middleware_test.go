@@ -115,7 +115,10 @@ func (ts *ScopeMiddlewareTestSuite) TestScopeMiddleware_AllowedAudienceWithAutho
 	}{
 		{name: "allowed string audience", clientClaims: jwt.MapClaims{"azp": "other-party", "aud": "allowed-audience"}, wantStatus: http.StatusOK},
 		{name: "allowed array audience", clientClaims: jwt.MapClaims{"azp": "other-party", "aud": []string{"other-audience", "allowed-audience"}}, wantStatus: http.StatusOK},
-		{name: "allowed authorized party fallback", clientClaims: jwt.MapClaims{"azp": "allowed-audience", "aud": "other-audience"}, wantStatus: http.StatusOK},
+		{name: "allowed authorized party fallback when audience absent", clientClaims: jwt.MapClaims{"azp": "allowed-audience"}, wantStatus: http.StatusOK},
+		{name: "mismatched audience does not fall back to allowed authorized party", clientClaims: jwt.MapClaims{"azp": "allowed-audience", "aud": "other-audience"}, wantStatus: http.StatusUnauthorized},
+		{name: "empty audience does not fall back to allowed authorized party", clientClaims: jwt.MapClaims{"azp": "allowed-audience", "aud": []string{}}, wantStatus: http.StatusUnauthorized},
+		{name: "malformed audience does not fall back to allowed authorized party", clientClaims: jwt.MapClaims{"azp": "allowed-audience", "aud": 123}, wantStatus: http.StatusUnauthorized},
 		{name: "neither claim allowed", clientClaims: jwt.MapClaims{"azp": "other-client", "aud": "another-client"}, wantStatus: http.StatusUnauthorized},
 		{name: "claims missing", clientClaims: jwt.MapClaims{}, wantStatus: http.StatusUnauthorized},
 		{name: "exact match required", clientClaims: jwt.MapClaims{"azp": "allowed-audience-extra", "aud": "other-audience"}, wantStatus: http.StatusUnauthorized},
