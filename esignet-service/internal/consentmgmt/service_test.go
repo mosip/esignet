@@ -8,8 +8,11 @@ package consentmgmt
 import (
 	"context"
 	"database/sql"
+	"database/sql/driver"
 	"encoding/json"
 	"errors"
+	"slices"
+	"strings"
 	"testing"
 	"time"
 
@@ -242,5 +245,81 @@ func TestDeleteRecord_Error(t *testing.T) {
 
 	if err := s.DeleteRecord(context.Background(), "client-1", "user-1"); err == nil {
 		t.Fatal("expected an error when delete fails")
+	}
+}
+
+// recordingConn is a minimal database/sql driver connection that records the statement and
+// transaction lifecycle events SaveRecord issues, so tests can assert on transactional behaviour
+// without a live Postgres. Exec fails for any query containing failOn (when set).
+type recordingConn struct {
+	events []string
+	failOn string
+}
+
+var (
+	_ driver.Connector     = (*recordingConn)(nil)
+	_ driver.ExecerContext = (*recordingConn)(nil)
+)
+
+func (c *recordingConn) Connect(context.Context) (driver.Conn, error) { return c, nil }
+func (c *recordingConn) Driver() driver.Driver                        { return nil }
+func (c *recordingConn) Prepare(string) (driver.Stmt, error) {
+	return nil, errors.New("prepare not supported")
+}
+func (c *recordingConn) Close() error { return nil }
+func (c *recordingConn) Begin() (driver.Tx, error) {
+	c.events = append(c.events, "begin")
+	return c, nil
+}
+func (c *recordingConn) Commit() error {
+	c.events = append(c.events, "commit")
+	return nil
+}
+func (c *recordingConn) Rollback() error {
+	c.events = append(c.events, "rollback")
+	return nil
+}
+
+func (c *recordingConn) ExecContext(_ context.Context, query string, _ []driver.NamedValue) (driver.Result, error) {
+	table := "consent_detail"
+	if strings.Contains(query, "INSERT INTO consent_history") {
+		table = "consent_history"
+	}
+	c.events = append(c.events, "exec "+table)
+	if c.failOn != "" && strings.Contains(query, c.failOn) {
+		return nil, errors.New("exec failed")
+	}
+	return driver.RowsAffected(1), nil
+}
+
+func TestNewService_SaveRecordCommitsInSingleTransaction(t *testing.T) {
+	conn := &recordingConn{}
+	sqlDB := sql.OpenDB(conn)
+	defer func() { _ = sqlDB.Close() }()
+	s := NewService(sqlDB)
+
+	if err := s.SaveRecord(context.Background(), &ConsentRecord{ID: "c1", ClientID: "client-1", UserID: "user-1"}); err != nil {
+		t.Fatalf("save: %v", err)
+	}
+
+	want := []string{"begin", "exec consent_history", "exec consent_detail", "commit"}
+	if !slices.Equal(conn.events, want) {
+		t.Errorf("events = %v, want %v", conn.events, want)
+	}
+}
+
+func TestNewService_SaveRecordRollsBackWhenUpsertFails(t *testing.T) {
+	conn := &recordingConn{failOn: "INSERT INTO consent_detail"}
+	sqlDB := sql.OpenDB(conn)
+	defer func() { _ = sqlDB.Close() }()
+	s := NewService(sqlDB)
+
+	if err := s.SaveRecord(context.Background(), &ConsentRecord{ID: "c1", ClientID: "client-1", UserID: "user-1"}); err == nil {
+		t.Fatal("expected an error when upserting consent fails")
+	}
+
+	want := []string{"begin", "exec consent_history", "exec consent_detail", "rollback"}
+	if !slices.Equal(conn.events, want) {
+		t.Errorf("events = %v, want %v", conn.events, want)
 	}
 }
