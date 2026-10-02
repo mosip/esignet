@@ -7,12 +7,23 @@
 package clientmgmt
 
 import (
+	"encoding/base64"
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/suite"
 
 	"github.com/stretchr/testify/assert"
 )
+
+// rsaModulus returns a base64url RSA modulus of exactly bits bits (top bit set).
+func rsaModulus(bits int) string {
+	b := make([]byte, bits/8)
+	b[0] = 0x80
+	return base64.RawURLEncoding.EncodeToString(b)
+}
+
+var testRSAN = rsaModulus(minRSAKeyBits)
 
 func (ts *JwkValidateTestSuite) TestValidateJWK() {
 	t := ts.T()
@@ -33,9 +44,24 @@ func (ts *JwkValidateTestSuite) TestValidateJWK() {
 		assert.Equal(t, "invalid_public_key", errCode(t, err))
 	})
 
-	t.Run("rsa valid", func(t *testing.T) {
-		assert.NoError(t, validateJWK(map[string]string{"kty": "RSA", "n": "abc", "e": "AQAB"}))
+	for _, bits := range []int{512, 1024, 2040} {
+		t.Run(fmt.Sprintf("rsa %d-bit modulus rejected", bits), func(t *testing.T) {
+			err := validateJWK(map[string]string{"kty": "RSA", "n": rsaModulus(bits), "e": "AQAB"})
+			assert.Equal(t, "invalid_public_key", errCode(t, err))
+		})
+	}
+
+	t.Run("rsa modulus with leading zero bytes counted by bit length", func(t *testing.T) {
+		n := base64.RawURLEncoding.EncodeToString(append([]byte{0, 0}, make([]byte, 255)...))
+		err := validateJWK(map[string]string{"kty": "RSA", "n": n, "e": "AQAB"})
+		assert.Equal(t, "invalid_public_key", errCode(t, err))
 	})
+
+	for _, bits := range []int{2048, 3072, 4096} {
+		t.Run(fmt.Sprintf("rsa %d-bit modulus accepted", bits), func(t *testing.T) {
+			assert.NoError(t, validateJWK(map[string]string{"kty": "RSA", "n": rsaModulus(bits), "e": "AQAB"}))
+		})
+	}
 
 	t.Run("ec missing fields", func(t *testing.T) {
 		assert.Equal(t, "invalid_public_key", errCode(t, validateJWK(map[string]string{"kty": "EC"})))
@@ -66,11 +92,11 @@ func (ts *JwkValidateTestSuite) TestValidateJWK() {
 func (ts *JwkValidateTestSuite) TestValidateEncJWK() {
 	t := ts.T()
 	key := func(alg string) map[string]string {
-		return map[string]string{"kty": "RSA", "n": "abc", "e": "AQAB", "alg": alg}
+		return map[string]string{"kty": "RSA", "n": testRSAN, "e": "AQAB", "alg": alg}
 	}
 
 	t.Run("missing alg rejected regardless of supported list", func(t *testing.T) {
-		err := validateEncJWK(map[string]string{"kty": "RSA", "n": "abc", "e": "AQAB"}, nil)
+		err := validateEncJWK(map[string]string{"kty": "RSA", "n": testRSAN, "e": "AQAB"}, nil)
 		assert.Equal(t, "invalid_public_key", errCode(t, err))
 	})
 
@@ -107,6 +133,30 @@ func (ts *JwkValidateTestSuite) TestHashJWK() {
 	assert.NotEmpty(t, h1)
 	assert.Equal(t, h1, h2)
 	assert.NotEqual(t, h1, h3)
+}
+
+func (ts *JwkValidateTestSuite) TestRSAKeyBits() {
+	t := ts.T()
+	for _, bits := range []int{1024, 2048, 4096} {
+		t.Run(fmt.Sprintf("rsa %d-bit", bits), func(t *testing.T) {
+			got, ok := rsaKeyBits(`{"kty":"RSA","n":"` + rsaModulus(bits) + `","e":"AQAB"}`)
+			assert.True(t, ok)
+			assert.Equal(t, bits, got)
+		})
+	}
+
+	for name, jwk := range map[string]string{
+		"invalid json":    `not json`,
+		"ec key":          `{"kty":"EC","crv":"P-256","x":"AA","y":"AA"}`,
+		"missing modulus": `{"kty":"RSA","e":"AQAB"}`,
+		"invalid modulus": `{"kty":"RSA","n":"not base64!","e":"AQAB"}`,
+		"non-string n":    `{"kty":"RSA","n":123,"e":"AQAB"}`,
+	} {
+		t.Run(name, func(t *testing.T) {
+			_, ok := rsaKeyBits(jwk)
+			assert.False(t, ok)
+		})
+	}
 }
 
 type JwkValidateTestSuite struct {

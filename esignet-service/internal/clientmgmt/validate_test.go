@@ -33,7 +33,7 @@ func validCreateRequest() CreateClientRequest {
 		RedirectURIs: []string{"https://example.com/callback"},
 		Claims:       []string{"name", "email"},
 		AcrValues:    []string{"mosip:idp:acr:static-code"},
-		PublicKey:    map[string]string{"kty": "RSA", "n": "abc", "e": "AQAB"},
+		PublicKey:    map[string]string{"kty": "RSA", "n": testRSAN, "e": "AQAB"},
 		GrantTypes:   []string{"authorization_code"},
 		AuthMethods:  []string{"private_key_jwt"},
 	}
@@ -195,26 +195,26 @@ func (ts *ValidateTestSuite) TestValidateCreate() {
 
 	t.Run("enc public key missing alg", func(t *testing.T) {
 		req := validCreateRequest()
-		req.EncPublicKey = map[string]string{"kty": "RSA", "n": "abc", "e": "AQAB"}
+		req.EncPublicKey = map[string]string{"kty": "RSA", "n": testRSAN, "e": "AQAB"}
 		assert.Equal(t, "invalid_public_key", errCode(t, ValidateCreate(ProfileOIDC, req, nil)))
 	})
 
 	t.Run("enc public key with alg accepted", func(t *testing.T) {
 		req := validCreateRequest()
-		req.EncPublicKey = map[string]string{"kty": "RSA", "n": "abc", "e": "AQAB", "alg": "RSA-OAEP-256"}
+		req.EncPublicKey = map[string]string{"kty": "RSA", "n": testRSAN, "e": "AQAB", "alg": "RSA-OAEP-256"}
 		assert.NoError(t, ValidateCreate(ProfileOIDC, req, nil))
 	})
 
 	t.Run("enc public key alg not in supported list rejected", func(t *testing.T) {
 		req := validCreateRequest()
-		req.EncPublicKey = map[string]string{"kty": "RSA", "n": "abc", "e": "AQAB", "alg": "RSA-OAEP"}
+		req.EncPublicKey = map[string]string{"kty": "RSA", "n": testRSAN, "e": "AQAB", "alg": "RSA-OAEP"}
 		err := ValidateCreate(ProfileOIDC, req, []string{"RSA-OAEP-256", "AES-GCM"})
 		assert.Equal(t, "invalid_public_key", errCode(t, err))
 	})
 
 	t.Run("enc public key alg in supported list accepted", func(t *testing.T) {
 		req := validCreateRequest()
-		req.EncPublicKey = map[string]string{"kty": "RSA", "n": "abc", "e": "AQAB", "alg": "RSA-OAEP-256"}
+		req.EncPublicKey = map[string]string{"kty": "RSA", "n": testRSAN, "e": "AQAB", "alg": "RSA-OAEP-256"}
 		assert.NoError(t, ValidateCreate(ProfileOIDC, req, []string{"RSA-OAEP-256", "AES-GCM"}))
 	})
 }
@@ -379,13 +379,13 @@ func (ts *ValidateTestSuite) TestValidatePatch() {
 
 	t.Run("patched enc public key missing alg rejected", func(t *testing.T) {
 		err := ValidatePatch(ProfileOIDC, base, PatchFields{EncPublicKey: true},
-			NullableJWK{Value: map[string]string{"kty": "RSA", "n": "abc", "e": "AQAB"}}, nil)
+			NullableJWK{Value: map[string]string{"kty": "RSA", "n": testRSAN, "e": "AQAB"}}, nil)
 		assert.Equal(t, "invalid_public_key", errCode(t, err))
 	})
 
 	t.Run("patched enc public key alg not in supported list rejected", func(t *testing.T) {
 		err := ValidatePatch(ProfileOIDC, base, PatchFields{EncPublicKey: true},
-			NullableJWK{Value: map[string]string{"kty": "RSA", "n": "abc", "e": "AQAB", "alg": "RSA-OAEP"}},
+			NullableJWK{Value: map[string]string{"kty": "RSA", "n": testRSAN, "e": "AQAB", "alg": "RSA-OAEP"}},
 			[]string{"RSA-OAEP-256"})
 		assert.Equal(t, "invalid_public_key", errCode(t, err))
 	})

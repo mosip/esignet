@@ -26,6 +26,10 @@ import (
 
 var logger = applog.GetLogger().Named("security")
 
+// minRSAKeyBits is the smallest RSA modulus accepted from the JWKS endpoint;
+// weaker keys are skipped so tokens signed with them never verify.
+const minRSAKeyBits = 2048
+
 type jwkKey struct {
 	Kty string `json:"kty"`
 	Kid string `json:"kid"`
@@ -178,12 +182,16 @@ func parseRSAKey(k jwkKey) (*rsa.PublicKey, error) {
 	if err != nil {
 		return nil, fmt.Errorf("decode RSA n: %w", err)
 	}
+	n := new(big.Int).SetBytes(nBytes)
+	if n.BitLen() < minRSAKeyBits {
+		return nil, fmt.Errorf("RSA modulus is %d bits, minimum is %d", n.BitLen(), minRSAKeyBits)
+	}
 	eBytes, err := base64.RawURLEncoding.DecodeString(k.E)
 	if err != nil {
 		return nil, fmt.Errorf("decode RSA e: %w", err)
 	}
 	return &rsa.PublicKey{
-		N: new(big.Int).SetBytes(nBytes),
+		N: n,
 		E: int(new(big.Int).SetBytes(eBytes).Int64()),
 	}, nil
 }

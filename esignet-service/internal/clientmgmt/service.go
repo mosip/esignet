@@ -15,11 +15,13 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/providers"
 
 	"github.com/mosip/esignet/internal/clientmgmt/db"
 	applog "github.com/mosip/esignet/internal/log"
+	"github.com/mosip/esignet/internal/reqcontext"
 )
 
 // ErrClientNotFound is returned when a client ID does not exist.
@@ -41,6 +43,12 @@ const clientCacheNamespace providers.RuntimeStoreNamespace = "client:detail"
 // authentication engine. It matches the value stored by normalizeStatus.
 const statusActive = "ACTIVE"
 
+// eventWeakRSAKey is the audit event type published when an active client is
+// loaded with an RSA key below minRSAKeyBits. Such clients predate the
+// registration-time key size check and are still served, so the event is how
+// operators trace them and notify the relying party to rotate the key.
+const eventWeakRSAKey = "CLIENT_WEAK_RSA_KEY"
+
 // Service handles client management business logic.
 type Service struct {
 	q                db.Querier
@@ -48,6 +56,7 @@ type Service struct {
 	cacheTTLSecs     int64
 	logger           *applog.Logger
 	supportedEncAlgs []string
+	auditor          providers.ObservabilityProvider
 }
 
 // NewService creates a Service backed by the given database connection. Client
@@ -69,6 +78,14 @@ func NewServiceWithQuerier(q db.Querier, cache providers.RuntimeStoreProvider, c
 		q: q, cache: cache, cacheTTLSecs: cacheTTLSecs,
 		logger: applog.GetLogger().Named("clientmgmt"), supportedEncAlgs: supportedEncAlgs,
 	}
+}
+
+// SetAuditor sets the observability provider that weak client key events are
+// published to. The auditor is built after the Service (the ID system
+// providers depend on it), so it can't be a constructor argument. A nil
+// auditor disables publishing.
+func (s *Service) SetAuditor(auditor providers.ObservabilityProvider) {
+	s.auditor = auditor
 }
 
 // CreateClient registers a new OIDC client.
@@ -341,22 +358,70 @@ func (s *Service) GetClient(ctx context.Context, clientID string) (ClientRespons
 // deactivated client, so a missing row and a non-ACTIVE row are both reported
 // as ErrClientNotFound.
 func (s *Service) GetActiveClient(ctx context.Context, clientID string) (ClientResponse, error) {
+	row, err := s.getActiveRow(ctx, clientID)
+	if err != nil {
+		return ClientResponse{}, err
+	}
+	s.auditWeakRSAKeys(ctx, row)
+	return toResponse(row)
+}
+
+// getActiveRow returns the ACTIVE row for clientID from cache, falling back to
+// Postgres and populating the cache on a miss.
+func (s *Service) getActiveRow(ctx context.Context, clientID string) (db.ClientDetail, error) {
 	if row, ok := s.getCachedRow(ctx, clientID); ok {
 		if row.Status != statusActive {
-			return ClientResponse{}, ErrClientNotFound
+			return db.ClientDetail{}, ErrClientNotFound
 		}
-		return toResponse(row)
+		return row, nil
 	}
 
 	row, err := s.q.GetActiveClient(ctx, clientID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return ClientResponse{}, ErrClientNotFound
+			return db.ClientDetail{}, ErrClientNotFound
 		}
-		return ClientResponse{}, fmt.Errorf("get active client: %w", err)
+		return db.ClientDetail{}, fmt.Errorf("get active client: %w", err)
 	}
 	s.cacheRow(ctx, clientID, row)
-	return toResponse(row)
+	return row, nil
+}
+
+// auditWeakRSAKeys logs and publishes an eventWeakRSAKey event for each of
+// row's RSA keys (signing and encryption) whose modulus is below
+// minRSAKeyBits. It never fails the lookup.
+func (s *Service) auditWeakRSAKeys(ctx context.Context, row db.ClientDetail) {
+	keys := []struct{ field, jwk string }{{"public_key", row.PublicKey}}
+	if row.EncPublicKey.Valid {
+		keys = append(keys, struct{ field, jwk string }{"enc_public_key", row.EncPublicKey.String})
+	}
+	for _, k := range keys {
+		bits, ok := rsaKeyBits(k.jwk)
+		if !ok || bits >= minRSAKeyBits {
+			continue
+		}
+		s.logger.Warn(ctx, "client registered with weak RSA key",
+			applog.String("client_id", row.ID),
+			applog.String("rp_id", row.RpID),
+			applog.String("key_field", k.field),
+			applog.Int("key_bits", bits))
+		s.auditor.PublishEvent(ctx, &providers.Event{
+			TraceID:   reqcontext.TraceIDFromContext(ctx),
+			EventID:   uuid.NewString(),
+			Type:      eventWeakRSAKey,
+			Timestamp: time.Now().UTC(),
+			Component: "clientmgmt",
+			Status:    providers.StatusFailure,
+			Data: map[string]any{
+				"client_id":    row.ID,
+				"rp_id":        row.RpID,
+				"key_field":    k.field,
+				"key_bits":     bits,
+				"min_key_bits": minRSAKeyBits,
+				"error":        fmt.Sprintf("%s RSA modulus is %d bits, minimum is %d", k.field, bits, minRSAKeyBits),
+			},
+		})
+	}
 }
 
 // getCachedRow returns the cached row for clientID, if present. Any cache
