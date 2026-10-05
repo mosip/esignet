@@ -7,15 +7,18 @@
 package pkcs11
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"strconv"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/miekg/pkcs11"
 
 	"github.com/mosip/esignet/internal/keymanager/keystore"
+	applog "github.com/mosip/esignet/internal/log"
 )
 
 func init() {
@@ -27,6 +30,12 @@ const (
 	maxRetries             = 3
 	defaultSessionPoolSize = 4
 )
+
+// errObjectNotFound is wrapped by every "<kind> alias %q not found" error in
+// this package, so withSession can tell a lookup that came back empty apart
+// from every other failure — see needsLogin. Its text completes those
+// messages ("... alias %q " + "not found"), leaving them unchanged.
+var errObjectNotFound = errors.New("not found")
 
 // Store implements keystore.KeyStore against a PKCS#11 module. Every
 // withSession call is served by one session checked out of a fixed-size
@@ -57,6 +66,27 @@ type Store struct {
 	// of one.
 	reloadMu   sync.Mutex
 	lastReload time.Time
+
+	// loginMu serializes ensureLoggedIn's re-login so that every pooled
+	// session noticing a lost login at once re-authenticates the token
+	// once, not poolSize times. It is taken only once a session has been
+	// seen logged out; the logged-in case never touches it.
+	loginMu sync.Mutex
+
+	// loginGen counts ensureLoggedIn's re-login attempts. It is bumped
+	// before C_Login, not after, so a goroutine that finds the session
+	// already logged in is guaranteed to also see the bump of whichever
+	// goroutine logged it in. A caller that read it before its operation
+	// can thus tell a re-login started since — by any goroutine — and that
+	// the operation is worth retrying.
+	loginGen atomic.Uint64
+
+	// pinRejected latches the first login failure that means the token
+	// refused s.pin (see isPINRejected). Once set, login fails fast with it
+	// instead of calling C_Login again — see login.
+	pinRejected atomic.Pointer[error]
+
+	logger *applog.Logger
 }
 
 // New constructs a PKCS#11-backed keystore.KeyStore from config params:
@@ -76,6 +106,7 @@ func New(params map[string]string) (keystore.KeyStore, error) {
 		tokenLabel: params["token-label"],
 		pin:        params["pin"],
 		poolSize:   defaultSessionPoolSize,
+		logger:     applog.GetLogger().Named("keystore.pkcs11"),
 	}
 	if v := params["slot-id"]; v != "" {
 		id, err := strconv.ParseUint(v, 10, 32)
@@ -178,15 +209,128 @@ func (s *Store) openSession() (pkcs11.SessionHandle, error) {
 		return 0, fmt.Errorf("pkcs11: open session: %w", err)
 	}
 	if s.pin != "" {
-		if err := s.ctx.Login(sh, pkcs11.CKU_USER, s.pin); err != nil {
-			var perr pkcs11.Error
-			if !errors.As(err, &perr) || uint(perr) != pkcs11.CKR_USER_ALREADY_LOGGED_IN {
-				_ = s.ctx.CloseSession(sh)
-				return 0, fmt.Errorf("pkcs11: login: %w", err)
-			}
+		if err := s.login(sh); err != nil {
+			_ = s.ctx.CloseSession(sh)
+			return 0, err
 		}
 	}
 	return sh, nil
+}
+
+// login logs the token in as CKU_USER via sh, treating
+// CKR_USER_ALREADY_LOGGED_IN as success.
+//
+// A PIN the token has rejected is never tried again: s.pin only changes on
+// restart, so a retry can't succeed, and every failed C_Login counts toward
+// the token's lockout threshold. Without the latch, a rotated or wrong PIN
+// would turn ensureLoggedIn's per-request re-login into one failed attempt
+// per request and lock the user PIN (CKR_PIN_LOCKED) within a few calls,
+// which only an SO-PIN unlock undoes.
+func (s *Store) login(sh pkcs11.SessionHandle) error {
+	if rejected := s.pinRejected.Load(); rejected != nil {
+		return *rejected
+	}
+	if err := s.ctx.Login(sh, pkcs11.CKU_USER, s.pin); err != nil {
+		var perr pkcs11.Error
+		if errors.As(err, &perr) && uint(perr) == pkcs11.CKR_USER_ALREADY_LOGGED_IN {
+			return nil
+		}
+		err = fmt.Errorf("pkcs11: login: %w", err)
+		if isPINRejected(err) {
+			latched := fmt.Errorf("%w (not retrying until restart to avoid locking the token's PIN)", err)
+			if s.pinRejected.CompareAndSwap(nil, &latched) {
+				s.logger.Error(context.Background(), "pkcs11 token rejected the configured PIN; further logins disabled until restart",
+					applog.Error(err))
+			}
+		}
+		return err
+	}
+	return nil
+}
+
+// isPINRejected reports whether a C_Login failure means the token refused
+// the PIN itself, so retrying the same PIN can only add failed attempts.
+func isPINRejected(err error) bool {
+	var perr pkcs11.Error
+	if !errors.As(err, &perr) {
+		return false
+	}
+	switch uint(perr) {
+	case pkcs11.CKR_PIN_INCORRECT, pkcs11.CKR_PIN_INVALID, pkcs11.CKR_PIN_LEN_RANGE,
+		pkcs11.CKR_PIN_EXPIRED, pkcs11.CKR_PIN_LOCKED:
+		return true
+	default:
+		return false
+	}
+}
+
+// ensureLoggedIn re-authenticates the token if sh reports a public
+// (logged-out) session state. It returns true if a re-login has happened
+// since the caller read loginGen as seenGen — by this call or a concurrent
+// one — meaning an operation that failed under the old login state is
+// worth retrying. Login state is
+// token-wide and not owned by this process: another client of the same
+// token — notably another esignet pod sharing one SoftHSM through
+// pkcs11-proxy — can log it out from under every pooled session, or a
+// token/proxy restart can drop it. Nothing about the sessions themselves
+// signals that: private objects (private keys, the AES keys — see
+// GenerateAndStoreSymmetricKey) simply stop matching C_FindObjects, so
+// without this check a live key reads as "not found" until restart.
+//
+// The session-state check runs without loginMu, so lookups of a genuinely
+// missing alias on a logged-in token — the common case that lands here —
+// cost one C_GetSessionInfo and never queue behind each other. The one
+// case it can't see is another *client* logging the token back in between
+// the failed operation and this check; that operation's "not found"
+// surfaces, and the next call succeeds.
+func (s *Store) ensureLoggedIn(sh pkcs11.SessionHandle, seenGen uint64) (bool, error) {
+	if s.pin == "" {
+		return false, nil
+	}
+	if s.loginGen.Load() != seenGen {
+		return true, nil
+	}
+	loggedOut, state, err := s.sessionLoggedOut(sh)
+	if err != nil {
+		return false, err
+	}
+	if !loggedOut {
+		// Logged in — possibly by a concurrent re-login that completed
+		// after the check above; its loginGen bump precedes its C_Login.
+		return s.loginGen.Load() != seenGen, nil
+	}
+
+	s.loginMu.Lock()
+	defer s.loginMu.Unlock()
+	if s.loginGen.Load() != seenGen {
+		// Another goroutine re-logged in (or tried to) while this one waited.
+		return true, nil
+	}
+	// Re-check under the lock: login state is token-wide, so another
+	// client may have logged the token back in since the check above.
+	if loggedOut, _, err = s.sessionLoggedOut(sh); err != nil {
+		return false, err
+	}
+	if !loggedOut {
+		return true, nil
+	}
+	s.loginGen.Add(1)
+	if err := s.login(sh); err != nil {
+		return false, err
+	}
+	s.logger.Warn(context.Background(), "pkcs11 token was logged out externally; re-authenticated",
+		applog.Int("previousSessionState", int(state)))
+	return true, nil
+}
+
+// sessionLoggedOut reports whether sh is in a public (not logged-in)
+// session state, along with that state.
+func (s *Store) sessionLoggedOut(sh pkcs11.SessionHandle) (bool, uint, error) {
+	info, err := s.ctx.GetSessionInfo(sh)
+	if err != nil {
+		return false, 0, fmt.Errorf("pkcs11: get session info: %w", err)
+	}
+	return info.State == pkcs11.CKS_RO_PUBLIC_SESSION || info.State == pkcs11.CKS_RW_PUBLIC_SESSION, info.State, nil
 }
 
 // acquire checks out one session from the pool, blocking if every session
@@ -220,15 +364,17 @@ func (s *Store) reloadSession(bad pkcs11.SessionHandle) (pkcs11.SessionHandle, e
 
 // withSession runs fn against a pooled session, retrying up to maxRetries
 // times with a session reload (rate-limited by the cooldown) on transient
-// PKCS#11 errors. The session — the original or, after a reload, its
-// replacement — is always returned to the pool before withSession returns.
+// PKCS#11 errors, and once more after a re-login if fn failed because the
+// token had been logged out (see runWithRelogin). The session — the
+// original or, after a reload, its replacement — is always returned to the
+// pool before withSession returns.
 func (s *Store) withSession(fn func(sh pkcs11.SessionHandle) error) error {
 	sh := s.acquire()
 	defer func() { s.release(sh) }()
 
 	var lastErr error
 	for attempt := 0; attempt < maxRetries; attempt++ {
-		err := fn(sh)
+		err := s.runWithRelogin(sh, fn)
 		if err == nil {
 			return nil
 		}
@@ -246,6 +392,44 @@ func (s *Store) withSession(fn func(sh pkcs11.SessionHandle) error) error {
 	return fmt.Errorf("pkcs11: exhausted %d retries: %w", maxRetries, lastErr)
 }
 
+// runWithRelogin runs fn once and, if it failed in a way a lost login
+// explains (needsLogin), re-authenticates via ensureLoggedIn and runs fn
+// exactly once more. If the session turns out to be logged in after all,
+// with no re-login since fn started, fn's error is genuine (e.g. the alias
+// really doesn't exist) and is returned as is. A failed re-login check is joined onto fn's error, so a
+// dead session (CKR_SESSION_HANDLE_INVALID from GetSessionInfo) still
+// reaches withSession's isTransient reload path.
+func (s *Store) runWithRelogin(sh pkcs11.SessionHandle, fn func(sh pkcs11.SessionHandle) error) error {
+	gen := s.loginGen.Load()
+	err := fn(sh)
+	if err == nil || !needsLogin(err) {
+		return err
+	}
+	relogged, lerr := s.ensureLoggedIn(sh, gen)
+	if lerr != nil {
+		return fmt.Errorf("%w (re-login attempt: %w)", err, lerr)
+	}
+	if !relogged {
+		return err
+	}
+	return fn(sh)
+}
+
+// needsLogin reports whether err is what an operation returns when the
+// token has been logged out: an empty lookup (private objects are invisible
+// to a public session) or an explicit CKR_USER_NOT_LOGGED_IN (e.g. from
+// generating a private object). A private-key handle held across the logout
+// fails differently (CKR_OBJECT_HANDLE_INVALID on SoftHSM2);
+// privateKey.withKeyHandle turns that into a fresh lookup, which lands here
+// as not-found.
+func needsLogin(err error) bool {
+	if errors.Is(err, errObjectNotFound) {
+		return true
+	}
+	var perr pkcs11.Error
+	return errors.As(err, &perr) && uint(perr) == pkcs11.CKR_USER_NOT_LOGGED_IN
+}
+
 func isTransient(err error) bool {
 	var perr pkcs11.Error
 	if !errors.As(err, &perr) {
@@ -260,24 +444,22 @@ func isTransient(err error) bool {
 	}
 }
 
-// Close implements keystore.KeyStore. It logs out (once — logout is
-// token-wide) and closes every pooled session, then finalizes and destroys
-// the module context, releasing the token sessions so a graceful restart
-// doesn't leave them open until the HSM reclaims them. Safe to call once
-// during service shutdown; not safe to call concurrently with in-flight
-// withSession callers — it drains exactly poolSize sessions from the pool,
-// which only holds all of them when nothing is currently checked out.
+// Close implements keystore.KeyStore. It closes every pooled session, then
+// finalizes and destroys the module context, releasing the token sessions
+// so a graceful restart doesn't leave them open until the HSM reclaims
+// them. It deliberately never calls C_Logout: login state is token-wide,
+// not per-process, so on a token shared with other clients (e.g. every
+// esignet pod behind one pkcs11-proxy/SoftHSM, including the incoming pod
+// of a rolling update) a logout here would deauthenticate all of them.
+// This process's own login ends with its last session anyway. Safe to call
+// once during service shutdown; not safe to call concurrently with
+// in-flight withSession callers — it drains exactly poolSize sessions from
+// the pool, which only holds all of them when nothing is currently checked
+// out.
 func (s *Store) Close() error {
 	var errs []error
-	loggedOut := false
 	for i := 0; i < s.poolSize; i++ {
 		sh := <-s.sessions
-		if !loggedOut {
-			if err := s.ctx.Logout(sh); err != nil {
-				errs = append(errs, fmt.Errorf("pkcs11: logout: %w", err))
-			}
-			loggedOut = true
-		}
 		if err := s.ctx.CloseSession(sh); err != nil {
 			errs = append(errs, fmt.Errorf("pkcs11: close session: %w", err))
 		}

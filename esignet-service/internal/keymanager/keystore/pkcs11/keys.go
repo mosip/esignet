@@ -293,6 +293,12 @@ func (s *Store) GenerateAndStoreSymmetricKey(alias string) error {
 			pkcs11.NewAttribute(pkcs11.CKA_CLASS, pkcs11.CKO_SECRET_KEY),
 			pkcs11.NewAttribute(pkcs11.CKA_KEY_TYPE, pkcs11.CKK_AES),
 			pkcs11.NewAttribute(pkcs11.CKA_TOKEN, true),
+			// Private (visible only to a logged-in session) is most
+			// tokens' default for secret keys, set explicitly so the key's
+			// visibility doesn't depend on the vendor: CKA_SENSITIVE is
+			// false below, so a public secret key would hand its raw bytes
+			// to anyone who can open a session, PIN or not.
+			pkcs11.NewAttribute(pkcs11.CKA_PRIVATE, true),
 			pkcs11.NewAttribute(pkcs11.CKA_LABEL, alias),
 			pkcs11.NewAttribute(pkcs11.CKA_VALUE_LEN, 32),
 			pkcs11.NewAttribute(pkcs11.CKA_ENCRYPT, true),
@@ -344,7 +350,7 @@ func (s *Store) GetPrivateKey(alias string) (crypto.PrivateKey, error) {
 			return err
 		}
 		if !ok {
-			return fmt.Errorf("pkcs11: private key alias %q not found", alias)
+			return fmt.Errorf("pkcs11: private key alias %q %w", alias, errObjectNotFound)
 		}
 		attrs, err := s.ctx.GetAttributeValue(sh, h, []*pkcs11.Attribute{pkcs11.NewAttribute(pkcs11.CKA_KEY_TYPE, nil)})
 		if err != nil {
@@ -416,7 +422,7 @@ func (s *Store) GetCertificate(alias string) (*x509.Certificate, error) {
 			return err
 		}
 		if !ok {
-			return fmt.Errorf("pkcs11: certificate alias %q not found", alias)
+			return fmt.Errorf("pkcs11: certificate alias %q %w", alias, errObjectNotFound)
 		}
 		attrs, err := s.ctx.GetAttributeValue(sh, h, []*pkcs11.Attribute{pkcs11.NewAttribute(pkcs11.CKA_VALUE, nil)})
 		if err != nil {
@@ -437,7 +443,7 @@ func (s *Store) GetSymmetricKey(alias string) ([]byte, error) {
 			return err
 		}
 		if !ok {
-			return fmt.Errorf("pkcs11: symmetric key alias %q not found", alias)
+			return fmt.Errorf("pkcs11: symmetric key alias %q %w", alias, errObjectNotFound)
 		}
 		attrs, err := s.ctx.GetAttributeValue(sh, h, []*pkcs11.Attribute{pkcs11.NewAttribute(pkcs11.CKA_VALUE, nil)})
 		if err != nil {
@@ -491,9 +497,16 @@ func (s *Store) GetAllAlias() ([]string, error) {
 	return aliases, err
 }
 
-// DeleteKey implements keystore.KeyStore.
+// DeleteKey implements keystore.KeyStore. It re-authenticates up front
+// (ensureLoggedIn) rather than relying on withSession's not-found recovery:
+// a logged-out search here isn't empty, it silently omits the private
+// objects, so the certificate and public key would be destroyed while the
+// private key survived as an orphan — and DeleteKey would report success.
 func (s *Store) DeleteKey(alias string) error {
 	return s.withSession(func(sh pkcs11.SessionHandle) error {
+		if _, err := s.ensureLoggedIn(sh, s.loginGen.Load()); err != nil {
+			return err
+		}
 		handles, err := s.findAllObjectsWithLabel(sh, alias)
 		if err != nil {
 			return err

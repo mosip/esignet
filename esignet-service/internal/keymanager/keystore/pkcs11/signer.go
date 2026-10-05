@@ -6,9 +6,11 @@ import (
 	"crypto"
 	"crypto/rsa"
 	"encoding/asn1"
+	"errors"
 	"fmt"
 	"io"
 	"math/big"
+	"sync"
 
 	"github.com/miekg/pkcs11"
 )
@@ -36,12 +38,56 @@ var digestInfoPrefixes = map[crypto.Hash][]byte{
 type privateKey struct {
 	store   *Store
 	alias   string
-	handle  pkcs11.ObjectHandle
 	keyType uint // pkcs11.CKK_RSA, pkcs11.CKK_EC, or ckkECEdwards
 	pub     crypto.PublicKey
+
+	// handleMu guards handle, which withKeyHandle re-resolves by alias
+	// when the token stops honoring it.
+	handleMu sync.Mutex
+	handle   pkcs11.ObjectHandle
 }
 
 var _ crypto.Signer = (*privateKey)(nil)
+
+// withKeyHandle runs fn against a pooled session with k's private-key
+// handle. Object handles aren't stable for a key's lifetime: SoftHSM2 drops
+// every private object's handle when the token is logged out, and after
+// the re-login (Store.ensureLoggedIn) the same key is reachable only under
+// a new handle. So if the token rejects the handle, it is looked up again
+// by alias and fn runs once more. During a logout that lookup comes back
+// not-found, which withSession's re-login path turns into a re-login and a
+// second pass through here that finds the new handle.
+func (k *privateKey) withKeyHandle(fn func(sh pkcs11.SessionHandle, h pkcs11.ObjectHandle) error) error {
+	return k.store.withSession(func(sh pkcs11.SessionHandle) error {
+		k.handleMu.Lock()
+		h := k.handle
+		k.handleMu.Unlock()
+
+		err := fn(sh, h)
+		if !isHandleInvalid(err) {
+			return err
+		}
+		nh, ok, ferr := k.store.findObject(sh, pkcs11.CKO_PRIVATE_KEY, k.alias)
+		if ferr != nil {
+			return fmt.Errorf("pkcs11: re-resolve private key alias %q: %w", k.alias, ferr)
+		}
+		if !ok {
+			return fmt.Errorf("pkcs11: private key alias %q %w", k.alias, errObjectNotFound)
+		}
+		k.handleMu.Lock()
+		k.handle = nh
+		k.handleMu.Unlock()
+		return fn(sh, nh)
+	})
+}
+
+func isHandleInvalid(err error) bool {
+	var perr pkcs11.Error
+	if !errors.As(err, &perr) {
+		return false
+	}
+	return uint(perr) == pkcs11.CKR_OBJECT_HANDLE_INVALID || uint(perr) == pkcs11.CKR_KEY_HANDLE_INVALID
+}
 
 func (k *privateKey) Public() crypto.PublicKey { return k.pub }
 
@@ -72,9 +118,9 @@ func (k *privateKey) signRSA(digest []byte, opts crypto.SignerOpts) ([]byte, err
 	digestInfo := append(append([]byte{}, prefix...), digest...)
 
 	var sig []byte
-	err := k.store.withSession(func(sh pkcs11.SessionHandle) error {
+	err := k.withKeyHandle(func(sh pkcs11.SessionHandle, h pkcs11.ObjectHandle) error {
 		mech := []*pkcs11.Mechanism{pkcs11.NewMechanism(pkcs11.CKM_RSA_PKCS, nil)}
-		if err := k.store.ctx.SignInit(sh, mech, k.handle); err != nil {
+		if err := k.store.ctx.SignInit(sh, mech, h); err != nil {
 			return err
 		}
 		out, err := k.store.ctx.Sign(sh, digestInfo)
@@ -119,9 +165,9 @@ func (k *privateKey) signRSAPSS(digest []byte, opts *rsa.PSSOptions) ([]byte, er
 	}
 
 	var sig []byte
-	err = k.store.withSession(func(sh pkcs11.SessionHandle) error {
+	err = k.withKeyHandle(func(sh pkcs11.SessionHandle, h pkcs11.ObjectHandle) error {
 		mech := []*pkcs11.Mechanism{pkcs11.NewMechanism(pkcs11.CKM_RSA_X_509, nil)}
-		if err := k.store.ctx.SignInit(sh, mech, k.handle); err != nil {
+		if err := k.store.ctx.SignInit(sh, mech, h); err != nil {
 			return err
 		}
 		out, err := k.store.ctx.Sign(sh, em)
@@ -147,9 +193,9 @@ func (k *privateKey) signRSAPSS(digest []byte, opts *rsa.PSSOptions) ([]byte, er
 
 func (k *privateKey) signECDSA(digest []byte) ([]byte, error) {
 	var raw []byte
-	err := k.store.withSession(func(sh pkcs11.SessionHandle) error {
+	err := k.withKeyHandle(func(sh pkcs11.SessionHandle, h pkcs11.ObjectHandle) error {
 		mech := []*pkcs11.Mechanism{pkcs11.NewMechanism(pkcs11.CKM_ECDSA, nil)}
-		if err := k.store.ctx.SignInit(sh, mech, k.handle); err != nil {
+		if err := k.store.ctx.SignInit(sh, mech, h); err != nil {
 			return err
 		}
 		out, err := k.store.ctx.Sign(sh, digest)
@@ -175,9 +221,9 @@ func (k *privateKey) signECDSA(digest []byte) ([]byte, error) {
 
 func (k *privateKey) signEdDSA(message []byte) ([]byte, error) {
 	var sig []byte
-	err := k.store.withSession(func(sh pkcs11.SessionHandle) error {
+	err := k.withKeyHandle(func(sh pkcs11.SessionHandle, h pkcs11.ObjectHandle) error {
 		mech := []*pkcs11.Mechanism{pkcs11.NewMechanism(ckmEDDSA, nil)}
-		if err := k.store.ctx.SignInit(sh, mech, k.handle); err != nil {
+		if err := k.store.ctx.SignInit(sh, mech, h); err != nil {
 			return err
 		}
 		out, err := k.store.ctx.Sign(sh, message)
@@ -223,9 +269,9 @@ func (k *privateKey) Decrypt(_ io.Reader, ciphertext []byte, opts crypto.Decrypt
 	modulusSize := (rsaPub.N.BitLen() + 7) / 8
 
 	var raw []byte
-	err := k.store.withSession(func(sh pkcs11.SessionHandle) error {
+	err := k.withKeyHandle(func(sh pkcs11.SessionHandle, h pkcs11.ObjectHandle) error {
 		mech := []*pkcs11.Mechanism{pkcs11.NewMechanism(pkcs11.CKM_RSA_X_509, nil)}
-		if err := k.store.ctx.DecryptInit(sh, mech, k.handle); err != nil {
+		if err := k.store.ctx.DecryptInit(sh, mech, h); err != nil {
 			return err
 		}
 		out, err := k.store.ctx.Decrypt(sh, ciphertext)
