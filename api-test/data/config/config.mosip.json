@@ -64,7 +64,7 @@
     "identity": { "individual_id": "", "id_type": "uin" },
     "credentials": { "username": "", "password": "", "biometric": "" },
     "otp": { "source": "dynamic", "ws_url": "", "recipient_email": "" },
-    "pms": { "base_url": "", "auth_partner_id": "", "policy_id": "" }
+    "pms": { "base_url": "", "auth_partner_id": "", "policy_id": "", "client_api": "oidc-clients" }
   },
 
   "api": {
