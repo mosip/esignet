@@ -117,6 +117,11 @@ paths:
                         This field will not be allowed to udpate later, if the private key is compromised, then new OIDC client to be created.
                         Format : Json Web Key (JWK).
                         The JWK must contain a non-empty "kid": the client assertion verifier resolves the signing key by "kid", so a key registered without one is rejected with "invalid_public_key".
+                      properties:
+                        kid:
+                          type: string
+                          minLength: 1
+                          description: Key ID (required). Resolved by the client assertion verifier; a key registered without a non-empty "kid" is rejected with "invalid_public_key".
                     userClaims:
                       type: array
                       description: 'Allowed user info claims, that can be requested by OIDC client in the authorize API'
@@ -177,6 +182,7 @@ paths:
                       e: AQAB
                       use: sig
                       alg: RS256
+                      kid: example-sign-key-1
                       'n': g7KPXZdZ18H2JoW9FhYz8WrSbLeKA5mO8ROW5YQVyzYDfjbRA9sy0FwpF7pa7mBmU1_G0RvD0xbEhSaFtCL5hyNVVZCfgVqNl41C7-F2yUWhfVQPhT5YnT3eH3gV9ZczhP1trNjIzGuH-8D7EDJcoxuwdGaaY-wTmEtHykHRyab08qr62hfwLuSjHAGN6VgV-Na81XIdXmR7Dwnd1U4MxWJxzRvnVlHFCBaZIG6jNJ21vbzM-DBMq1d8tvtrGQx4w3niK_sctUZ5NP1BLkQhYSEGLr-e_mbmHFCnGtuKfnfIm-PVD-6ihfEwX3j_YQT3LhphBZj7AdXg6iyyQn9EJQ
                     authContextRefs:
                       - 'mosip:idp:acr:generated-code'
@@ -356,6 +362,11 @@ paths:
                         This field will not be allowed to udpate later, if the private key is compromised, then new OAuth/OIDC client to be created.
                         Format : Json Web Key (JWK).
                         The JWK must contain a non-empty "kid": the client assertion verifier resolves the signing key by "kid", so a key registered without one is rejected with "invalid_public_key".
+                      properties:
+                        kid:
+                          type: string
+                          minLength: 1
+                          description: Key ID (required). Resolved by the client assertion verifier; a key registered without a non-empty "kid" is rejected with "invalid_public_key".
                     userClaims:
                       type: array
                       description: 'Allowed user info claims, that can be requested by OIDC client in the authorize API'
@@ -407,6 +418,7 @@ paths:
                       e: AQAB
                       use: sig
                       alg: RS256
+                      kid: example-sign-key-1
                       'n': g7KPXZdZ18H2JoW9FhYz8WrSbLeKA5mO8ROW5YQVyzYDfjbRA9sy0FwpF7pa7mBmU1_G0RvD0xbEhSaFtCL5hyNVVZCfgVqNl41C7-F2yUWhfVQPhT5YnT3eH3gV9ZczhP1trNjIzGuH-8D7EDJcoxuwdGaaY-wTmEtHykHRyab08qr62hfwLuSjHAGN6VgV-Na81XIdXmR7Dwnd1U4MxWJxzRvnVlHFCBaZIG6jNJ21vbzM-DBMq1d8tvtrGQx4w3niK_sctUZ5NP1BLkQhYSEGLr-e_mbmHFCnGtuKfnfIm-PVD-6ihfEwX3j_YQT3LhphBZj7AdXg6iyyQn9EJQ
                     authContextRefs:
                       - 'mosip:idp:acr:generated-code'
@@ -589,6 +601,11 @@ paths:
                         This field will not be allowed to udpate later, if the private key is compromised, then new OAuth/OIDC client to be created.
                         Format : Json Web Key (JWK).
                         The JWK must contain a non-empty "kid": the client assertion verifier resolves the signing key by "kid", so a key registered without one is rejected with "invalid_public_key".
+                      properties:
+                        kid:
+                          type: string
+                          minLength: 1
+                          description: Key ID (required). Resolved by the client assertion verifier; a key registered without a non-empty "kid" is rejected with "invalid_public_key".
                     userClaims:
                       type: array
                       description: 'Allowed user info claims, that can be requested by OIDC client in the authorize API'
@@ -682,6 +699,7 @@ paths:
                       e: AQAB
                       use: sig
                       alg: RS256
+                      kid: example-sign-key-1
                       'n': g7KPXZdZ18H2JoW9FhYz8WrSbLeKA5mO8ROW5YQVyzYDfjbRA9sy0FwpF7pa7mBmU1_G0RvD0xbEhSaFtCL5hyNVVZCfgVqNl41C7-F2yUWhfVQPhT5YnT3eH3gV9ZczhP1trNjIzGuH-8D7EDJcoxuwdGaaY-wTmEtHykHRyab08qr62hfwLuSjHAGN6VgV-Na81XIdXmR7Dwnd1U4MxWJxzRvnVlHFCBaZIG6jNJ21vbzM-DBMq1d8tvtrGQx4w3niK_sctUZ5NP1BLkQhYSEGLr-e_mbmHFCnGtuKfnfIm-PVD-6ihfEwX3j_YQT3LhphBZj7AdXg6iyyQn9EJQ
                     authContextRefs:
                       - 'mosip:idp:acr:generated-code'
@@ -1651,6 +1669,7 @@ paths:
                                 - RSA-OAEP
                             kid:
                               type: string
+                              minLength: 1
                               description: Key ID (required). Identifies which key the client uses to decrypt a JWE response; a key registered without a non-empty "kid" is rejected with "invalid_public_key".
                           required:
                             - kty
@@ -1696,6 +1715,7 @@ paths:
                                 - ECDH-ES+A256KW
                             kid:
                               type: string
+                              minLength: 1
                               description: Key ID (required). Identifies which key the client uses to decrypt a JWE response; a key registered without a non-empty "kid" is rejected with "invalid_public_key".
                           required:
                             - kty
