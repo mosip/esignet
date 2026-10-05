@@ -123,7 +123,7 @@ resources:
     cpu: "2"
     memory: 512Mi
   requests:
-    cpu: "1"
+    cpu: 150m
     memory: 256Mi
 
 additionalResources:

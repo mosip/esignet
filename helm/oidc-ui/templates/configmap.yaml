@@ -25,7 +25,7 @@ data:
                       'rt=$request_time uct=$upstream_connect_time '
                       'uht=$upstream_header_time urt=$upstream_response_time';
       access_log /var/log/nginx/access1.log perf buffer=256k flush=10s;
-      error_log /var/log/nginx/error1.log warn;
+      error_log /var/log/nginx/error.log warn;
 
       sendfile        on;
       tcp_nopush      on;
@@ -33,7 +33,7 @@ data:
       keepalive_timeout 65;
 
       upstream esignet_backend {
-        server {{ .Values.oidc_ui.oidc_service_host }}:80;
+        server {{ .Values.oidc_ui.oidc_service_host }};
         keepalive           256;
         keepalive_requests  100000;
         keepalive_timeout   60s;
