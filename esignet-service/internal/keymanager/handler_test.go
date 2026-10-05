@@ -79,8 +79,8 @@ func TestRegisterRoutes_NilMiddlewarePanics(t *testing.T) {
 func TestRegisterRoutes_AppliesMiddleware(t *testing.T) {
 	called := 0
 	mux := http.NewServeMux()
-	keymanager.NewHandler(nil, applog.GetLogger()).RegisterRoutes(mux, func(next http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	keymanager.NewHandler(nil, applog.GetLogger()).RegisterRoutes(mux, func(_ http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 			called++
 			w.WriteHeader(http.StatusForbidden)
 		})
