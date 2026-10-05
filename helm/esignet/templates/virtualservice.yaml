@@ -36,5 +36,5 @@ spec:
           Cache-control: no-store
           Pragma: no-cache
           Strict-Transport-Security: max-age=31536000; includeSubDomains
-          X-Frame-Options: SAMEORIGIN    
+          X-Frame-Options: SAMEORIGIN
 {{- end }}
