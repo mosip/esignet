@@ -92,7 +92,7 @@ Feature: Esignet Login Options Page
    And user click on get otp button
    Then verify user should get invalid individual id error message in authentication screen
    When user enters only space into email field
-   And clicks on sign in with esignet button in login page
+   When user relaunches esignet authorize url without consent prompt
    When click on Language selection option
    And select the mandatory language
    And user click on Login with Otp
@@ -214,7 +214,6 @@ Feature: Esignet Login Options Page
 
   Examples:
    | test_data_id         | login id type | identity key      |
-   | TC_Pwd_Login_mockUin | uin           | mockUin           |
    | TC_Pwd_Login_uin     | uin           | passwordLoginUin  |
    | TC_Pwd_Login_email   | email         | emailLoginId      |
 

@@ -83,6 +83,7 @@ public class SignUpPage extends BasePage {
 	}
 
 	public void clickOnContinueButton() {
+		markOtpRequestStart();
 		clickOnElement(continueButton,"Clicked on continue button");
 	}
 
