@@ -12,19 +12,37 @@ metadata:
   {{- end }}
 data:
   nginx.conf: |-
-    worker_processes  1;
-    
+    worker_processes  2;
+    worker_rlimit_nofile 65535;
+
     events {
-      worker_connections  1024;
+      worker_connections  16384;
+      multi_accept on;
     }
-    
+
     http {
-      access_log /var/log/nginx/access1.log;
-      error_log /var/log/nginx/error1.log;
-      
+      log_format perf '$remote_addr [$time_local] "$request" $status $body_bytes_sent '
+                      'rt=$request_time uct=$upstream_connect_time '
+                      'uht=$upstream_header_time urt=$upstream_response_time';
+      access_log /var/log/nginx/access1.log perf buffer=256k flush=10s;
+      error_log /var/log/nginx/error1.log warn;
+
+      sendfile        on;
+      tcp_nopush      on;
+      tcp_nodelay     on;
+      keepalive_timeout 65;
+
+      upstream esignet_backend {
+        server {{ .Values.oidc_ui.oidc_service_host }}:80;
+        keepalive           256;
+        keepalive_requests  100000;
+        keepalive_timeout   60s;
+      }
+
       server {
-        listen {{ .Values.oidc_ui.oidc_ui_port }};
+        listen {{ .Values.oidc_ui.oidc_ui_port }} reuseport;
         server_name  localhost;
+        server_tokens off;
 
         root   /usr/share/nginx/html;
         index  index.html index.htm;
@@ -36,7 +54,7 @@ data:
         gzip_types text/plain text/css application/json application/javascript application/x-javascript text/xml application/xml application/xml+rss text/javascript;
 
         location /v1/esignet/ {
-          proxy_pass         http://{{ .Values.oidc_ui.oidc_service_host }}/;
+          proxy_pass         http://esignet_backend/;
           proxy_http_version 1.1;
           proxy_set_header   Connection "";
           proxy_redirect     off;
@@ -49,7 +67,7 @@ data:
         }
     
         location /v1/esignet/actuator/ {
-          proxy_pass         http://{{ .Values.oidc_ui.oidc_service_host }}/;
+          proxy_pass         http://esignet_backend/;
           proxy_http_version 1.1;
           proxy_set_header   Connection "";
           proxy_redirect     off;
@@ -62,7 +80,7 @@ data:
         }
     
         location /.well-known/jwks.json {
-          proxy_pass         http://{{ .Values.oidc_ui.oidc_service_host }}/oauth2/jwks;
+          proxy_pass         http://esignet_backend/oauth2/jwks;
           proxy_http_version 1.1;
           proxy_set_header   Connection "";
           proxy_redirect     off;
@@ -78,7 +96,7 @@ data:
         }
         
         location /.well-known/openid-configuration {
-          proxy_pass         http://{{ .Values.oidc_ui.oidc_service_host }}/.well-known/openid-configuration;
+          proxy_pass         http://esignet_backend/.well-known/openid-configuration;
           proxy_http_version 1.1;
           proxy_set_header   Connection "";
           proxy_redirect     off;
@@ -94,7 +112,7 @@ data:
         }
     
         location /.well-known/oauth-authorization-server {
-          proxy_pass         http://{{ .Values.oidc_ui.oidc_service_host }}/.well-known/oauth-authorization-server;
+          proxy_pass         http://esignet_backend/.well-known/oauth-authorization-server;
           proxy_http_version 1.1;
           proxy_set_header   Connection "";
           proxy_redirect     off;
