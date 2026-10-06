@@ -326,42 +326,27 @@ func (ts *RuntimeCryptoProviderTestSuite) TestIdSystemPublicKeys_ConvertsEachCer
 	ts.Assert().NotEmpty(keys[0].Thumbprint)
 	ts.Assert().NotNil(keys[0].PublicKey)
 	ts.Assert().NotEmpty(keys[0].CertificateDER)
-	ts.Assert().Equal("PS256", keys[0].Algorithm, "an RSA certificate must resolve to PS256")
 }
 
-// TestIdSystemPublicKeys_AlgorithmReflectsActualKeyType_NotKeyIDString
-// guards the fix from computing Algorithm via
-// signature.AlgorithmForPublicKey(cert.PublicKey) instead of
-// signature.AlgorithmForRefID(certData.KeyID): an ID system's KeyID is an
-// arbitrary external string with no relation to esignet's own refID
-// constants, so matching it against those constants could silently report
-// the wrong algorithm for a real key. Here the KeyID happens to collide with
-// keymanager.RefIDECSECP256R1Sign ("EC_SECP256R1_SIGN") even though the
-// certificate is RSA — the resolved algorithm must follow the certificate,
-// not the KeyID.
-func (ts *RuntimeCryptoProviderTestSuite) TestIdSystemPublicKeys_AlgorithmReflectsActualKeyType_NotKeyIDString() {
-	rsaCertPEM := testCertPEM(ts.T(), "id-system-key")
+// TestIdSystemPublicKeys_OmitsAlgorithm guards against re-deriving Algorithm
+// from the certificate's key type: the ID system's certificate does not say
+// which JWS algorithm it signs with (e.g. MOSIP IDA signs userinfo RS256 with
+// an RSA key that a key-type default would publish as PS256), so the JWK must
+// carry no "alg" rather than a guessed one.
+func (ts *RuntimeCryptoProviderTestSuite) TestIdSystemPublicKeys_OmitsAlgorithm() {
 	p := &runtimeCryptoProvider{authnProvider: &fakeAuthnProviderForCrypto{
-		certs: []shared.CertificateData{{KeyID: keymanager.RefIDECSECP256R1Sign, Certificate: rsaCertPEM}},
+		certs: []shared.CertificateData{
+			{KeyID: keymanager.RefIDECSECP256R1Sign, Certificate: testCertPEM(ts.T(), "id-system-rsa-key")},
+			{KeyID: "id-system-ec-ref", Certificate: testECCertPEM(ts.T(), "id-system-ec-key")},
+		},
 	}}
 
 	keys := p.idSystemPublicKeys(context.Background())
 
-	ts.Require().Len(keys, 1)
-	ts.Assert().Equal("PS256", keys[0].Algorithm,
-		"algorithm must be derived from the RSA certificate's key, not misread from the EC_SECP256R1_SIGN-shaped KeyID")
-}
-
-func (ts *RuntimeCryptoProviderTestSuite) TestIdSystemPublicKeys_ECCertificate_ResolvesES256() {
-	ecCertPEM := testECCertPEM(ts.T(), "id-system-ec-key")
-	p := &runtimeCryptoProvider{authnProvider: &fakeAuthnProviderForCrypto{
-		certs: []shared.CertificateData{{KeyID: "arbitrary-id-system-key-id", Certificate: ecCertPEM}},
-	}}
-
-	keys := p.idSystemPublicKeys(context.Background())
-
-	ts.Require().Len(keys, 1)
-	ts.Assert().Equal("ES256", keys[0].Algorithm)
+	ts.Require().Len(keys, 2)
+	for _, key := range keys {
+		ts.Assert().Empty(key.Algorithm, "ID system key %q must not advertise an algorithm", key.KeyID)
+	}
 }
 
 func (ts *RuntimeCryptoProviderTestSuite) TestIdSystemPublicKeys_SkipsUnparsableCertificatesButKeepsOthers() {
