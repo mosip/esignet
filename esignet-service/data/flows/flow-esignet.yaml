@@ -138,6 +138,19 @@ prompt_password: &prompt_password
   placeholder: "{{t(input:password_placeholder)}}"
   required: true
   resourceType: ELEMENT
+  validation:
+    - type: minLength
+      value: 5
+      message: "validation.password.length"
+    - type: regex
+      value: "[a-z]"
+      message: "validation.password.format"
+    - type: regex
+      value: "[A-Z]"
+      message: "validation.password.format"
+    - type: regex
+      value: "[0-9]"
+      message: "validation.password.format"
 
 # Anchor for Captcha component
 captcha_box: &captcha_box
@@ -174,6 +187,19 @@ password_inputs: &password_inputs
     identifier: password
     type: PASSWORD_INPUT
     required: true
+    validation:
+      - type: minLength
+        value: 5
+        message: "validation.password.length"
+      - type: regex
+        value: "[a-z]"
+        message: "validation.password.format"
+      - type: regex
+        value: "[A-Z]"
+        message: "validation.password.format"
+      - type: regex
+        value: "[0-9]"
+        message: "validation.password.format"
   - ref: CAPTCHA_BOX
     identifier: captcha_token
     type: CUSTOM
