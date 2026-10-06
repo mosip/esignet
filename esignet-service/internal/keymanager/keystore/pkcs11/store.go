@@ -37,6 +37,33 @@ const (
 // messages ("... alias %q " + "not found"), leaving them unchanged.
 var errObjectNotFound = errors.New("not found")
 
+// module is the subset of *pkcs11.Ctx the store uses. It exists so the
+// session, re-login and handle-recovery logic can be unit-tested against a
+// fake token; *pkcs11.Ctx is the only production implementation.
+type module interface {
+	Initialize(opts ...pkcs11.InitializeOption) error
+	Finalize() error
+	Destroy()
+	GetSlotList(tokenPresent bool) ([]uint, error)
+	GetTokenInfo(slotID uint) (pkcs11.TokenInfo, error)
+	OpenSession(slotID uint, flags uint) (pkcs11.SessionHandle, error)
+	CloseSession(sh pkcs11.SessionHandle) error
+	GetSessionInfo(sh pkcs11.SessionHandle) (pkcs11.SessionInfo, error)
+	Login(sh pkcs11.SessionHandle, userType uint, pin string) error
+	CreateObject(sh pkcs11.SessionHandle, temp []*pkcs11.Attribute) (pkcs11.ObjectHandle, error)
+	DestroyObject(sh pkcs11.SessionHandle, oh pkcs11.ObjectHandle) error
+	GetAttributeValue(sh pkcs11.SessionHandle, o pkcs11.ObjectHandle, a []*pkcs11.Attribute) ([]*pkcs11.Attribute, error)
+	FindObjectsInit(sh pkcs11.SessionHandle, temp []*pkcs11.Attribute) error
+	FindObjects(sh pkcs11.SessionHandle, limit int) ([]pkcs11.ObjectHandle, bool, error)
+	FindObjectsFinal(sh pkcs11.SessionHandle) error
+	DecryptInit(sh pkcs11.SessionHandle, m []*pkcs11.Mechanism, o pkcs11.ObjectHandle) error
+	Decrypt(sh pkcs11.SessionHandle, cipher []byte) ([]byte, error)
+	SignInit(sh pkcs11.SessionHandle, m []*pkcs11.Mechanism, o pkcs11.ObjectHandle) error
+	Sign(sh pkcs11.SessionHandle, message []byte) ([]byte, error)
+	GenerateKey(sh pkcs11.SessionHandle, m []*pkcs11.Mechanism, temp []*pkcs11.Attribute) (pkcs11.ObjectHandle, error)
+	GenerateKeyPair(sh pkcs11.SessionHandle, m []*pkcs11.Mechanism, public, private []*pkcs11.Attribute) (pkcs11.ObjectHandle, pkcs11.ObjectHandle, error)
+}
+
 // Store implements keystore.KeyStore against a PKCS#11 module. Every
 // withSession call is served by one session checked out of a fixed-size
 // pool (poolSize), rather than a single session serialized behind a mutex —
@@ -52,7 +79,7 @@ type Store struct {
 	pin        string
 	poolSize   int
 
-	ctx *pkcs11.Ctx
+	ctx module
 
 	// sessions holds exactly poolSize open, logged-in session handles when
 	// none are checked out — acquire()/release() are the only way sessions
@@ -80,6 +107,12 @@ type Store struct {
 	// can thus tell a re-login started since — by any goroutine — and that
 	// the operation is worth retrying.
 	loginGen atomic.Uint64
+
+	// lastLoginErr is the outcome of the latest ensureLoggedIn re-login
+	// attempt (nil on success), guarded by loginMu. A caller that waited
+	// out a concurrent attempt reads it to report that attempt's failure
+	// instead of retrying its operation into a misleading "not found".
+	lastLoginErr error
 
 	// pinRejected latches the first login failure that means the token
 	// refused s.pin (see isPINRejected). Once set, login fails fast with it
@@ -126,10 +159,11 @@ func New(params map[string]string) (keystore.KeyStore, error) {
 		}
 		s.poolSize = n
 	}
-	s.ctx = pkcs11.New(modulePath)
-	if s.ctx == nil {
+	ctx := pkcs11.New(modulePath)
+	if ctx == nil {
 		return nil, fmt.Errorf("pkcs11: failed to load module %q", modulePath)
 	}
+	s.ctx = ctx
 	if err := s.ctx.Initialize(); err != nil {
 		s.ctx.Destroy()
 		return nil, fmt.Errorf("pkcs11: initialize: %w", err)
@@ -287,9 +321,6 @@ func (s *Store) ensureLoggedIn(sh pkcs11.SessionHandle, seenGen uint64) (bool, e
 	if s.pin == "" {
 		return false, nil
 	}
-	if s.loginGen.Load() != seenGen {
-		return true, nil
-	}
 	loggedOut, state, err := s.sessionLoggedOut(sh)
 	if err != nil {
 		return false, err
@@ -300,23 +331,30 @@ func (s *Store) ensureLoggedIn(sh pkcs11.SessionHandle, seenGen uint64) (bool, e
 		return s.loginGen.Load() != seenGen, nil
 	}
 
+	// Under loginMu every earlier re-login attempt has finished, so the
+	// session state and lastLoginErr read below are its final outcome.
 	s.loginMu.Lock()
 	defer s.loginMu.Unlock()
-	if s.loginGen.Load() != seenGen {
-		// Another goroutine re-logged in (or tried to) while this one waited.
-		return true, nil
-	}
-	// Re-check under the lock: login state is token-wide, so another
-	// client may have logged the token back in since the check above.
 	if loggedOut, _, err = s.sessionLoggedOut(sh); err != nil {
 		return false, err
 	}
 	if !loggedOut {
+		// Logged back in while this goroutine waited — by a concurrent
+		// re-login or by another client of the token.
 		return true, nil
 	}
+	if s.loginGen.Load() != seenGen && s.lastLoginErr != nil {
+		// A re-login started since the caller read seenGen has already
+		// failed, and the token is still logged out: retrying the
+		// operation could only fail again as "not found", hiding the real
+		// cause (and keeping a transient one away from withSession's
+		// session reload).
+		return false, s.lastLoginErr
+	}
 	s.loginGen.Add(1)
-	if err := s.login(sh); err != nil {
-		return false, err
+	s.lastLoginErr = s.login(sh)
+	if s.lastLoginErr != nil {
+		return false, s.lastLoginErr
 	}
 	s.logger.Warn(context.Background(), "pkcs11 token was logged out externally; re-authenticated",
 		applog.Int("previousSessionState", int(state)))
@@ -396,9 +434,11 @@ func (s *Store) withSession(fn func(sh pkcs11.SessionHandle) error) error {
 // explains (needsLogin), re-authenticates via ensureLoggedIn and runs fn
 // exactly once more. If the session turns out to be logged in after all,
 // with no re-login since fn started, fn's error is genuine (e.g. the alias
-// really doesn't exist) and is returned as is. A failed re-login check is joined onto fn's error, so a
-// dead session (CKR_SESSION_HANDLE_INVALID from GetSessionInfo) still
-// reaches withSession's isTransient reload path.
+// really doesn't exist) and is returned as is. A failed re-login — this
+// goroutine's or a concurrent one it waited out — is joined onto fn's
+// error, so a dead session (CKR_SESSION_HANDLE_INVALID from GetSessionInfo)
+// or a transient login failure still reaches withSession's isTransient
+// reload path.
 func (s *Store) runWithRelogin(sh pkcs11.SessionHandle, fn func(sh pkcs11.SessionHandle) error) error {
 	gen := s.loginGen.Load()
 	err := fn(sh)

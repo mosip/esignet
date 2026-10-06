@@ -227,7 +227,7 @@ func pkcs11KeyType(algoName, curveName string) uint {
 
 // readPublicKey reads a freshly generated public-key object's attributes and
 // reconstructs the corresponding Go crypto.PublicKey.
-func readPublicKey(ctx *pkcs11.Ctx, sh pkcs11.SessionHandle, handle pkcs11.ObjectHandle, algoName, curveName string) (crypto.PublicKey, error) {
+func readPublicKey(ctx module, sh pkcs11.SessionHandle, handle pkcs11.ObjectHandle, algoName, curveName string) (crypto.PublicKey, error) {
 	switch algoName {
 	case keystore.AlgoRSA:
 		attrs, err := ctx.GetAttributeValue(sh, handle, []*pkcs11.Attribute{
@@ -382,7 +382,7 @@ func (s *Store) GetPrivateKey(alias string) (crypto.PrivateKey, error) {
 // algoAndCurveFor determines (algoName, curveName) for a public-key object,
 // reading CKA_EC_PARAMS to disambiguate SECP256K1 vs SECP256R1 (both report
 // CKK_EC) rather than guessing.
-func algoAndCurveFor(ctx *pkcs11.Ctx, sh pkcs11.SessionHandle, pubHandle pkcs11.ObjectHandle, keyType uint) (algoName, curveName string, err error) {
+func algoAndCurveFor(ctx module, sh pkcs11.SessionHandle, pubHandle pkcs11.ObjectHandle, keyType uint) (algoName, curveName string, err error) {
 	if keyType == pkcs11.CKK_RSA {
 		return keystore.AlgoRSA, "", nil
 	}
