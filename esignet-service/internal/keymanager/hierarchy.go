@@ -13,7 +13,8 @@ const (
 	RefIDECSECP256R1Sign = "EC_SECP256R1_SIGN"
 	RefIDED25519Sign     = "ED25519_SIGN"
 
-	AppIDRoot = "ROOT"
+	AppIDRoot    = "ROOT"
+	AppIDService = "OIDC_SERVICE"
 )
 
 var (

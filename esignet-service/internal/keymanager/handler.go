@@ -166,6 +166,10 @@ func (h *Handler) uploadCertificate(w http.ResponseWriter, r *http.Request) {
 		common.WriteError(r.Context(), w, http.StatusOK, errCodeInvalidRequest, "certificateData is required")
 		return
 	}
+	if strings.TrimSpace(req.Request.ApplicationID) == AppIDRoot || strings.TrimSpace(req.Request.ApplicationID) == AppIDService {
+		common.WriteError(r.Context(), w, http.StatusOK, errCodeInvalidRequest, "applicationId is reserved and cannot be used")
+		return
+	}
 
 	resp, err := h.svc.UploadCertificate(r.Context(), UploadCertificateRequest{
 		ApplicationID:   req.Request.ApplicationID,
