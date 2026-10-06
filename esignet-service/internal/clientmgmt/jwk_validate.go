@@ -19,6 +19,10 @@ import (
 // minRSAKeyBits is the smallest RSA modulus accepted for a client JWK.
 const minRSAKeyBits = 2048
 
+// validateJWK validates a public key JWK's structure. A non-empty "kid" is
+// always mandatory — the client assertion verifier and JWKS lookups resolve
+// keys by kid, so a signing key registered without one can never be matched
+// at authentication time.
 func validateJWK(key map[string]string) error {
 	if len(key) == 0 {
 		return validationErr("invalid_public_key")
