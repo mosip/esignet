@@ -624,6 +624,51 @@ func (ts *KeymanagerTestSuite) TestUploadCertificate_UnrelatedSignerRejected() {
 	ts.Assert().ErrorIs(err, keymanager.ErrInvalidCertificateProvenance)
 }
 
+// TestUploadCertificate_MissingSigningHierarchy verifies that when the
+// signing parent (ROOT for a Component Master Key) has not been generated
+// yet, UploadCertificate returns ErrInvalidCertificateProvenance rather
+// than a generic server error — the hierarchy being incomplete is a
+// certificate-validation failure, not an unexpected system fault.
+func (ts *KeymanagerTestSuite) TestUploadCertificate_MissingSigningHierarchy() {
+	ks := newFakeKeyStore()
+	// Generate a Component Master Key in the keystore but give the querier
+	// no ROOT row — simulates a hierarchy that hasn't had ROOT provisioned yet.
+	ts.Require().NoError(ks.GenerateAndStoreAsymmetricKey("master-alias", "master-alias", testCertTemplateParams(), "RSA", ""))
+	masterCert, err := ks.GetCertificate("master-alias")
+	ts.Require().NoError(err)
+	masterPriv, err := ks.GetPrivateKey("master-alias")
+	ts.Require().NoError(err)
+
+	template := &x509.Certificate{
+		SerialNumber: big.NewInt(1),
+		Subject:      masterCert.Subject,
+		NotBefore:    time.Now().UTC().AddDate(0, 0, -1),
+		NotAfter:     time.Now().UTC().AddDate(5, 0, 0),
+	}
+	certDER, err := x509.CreateCertificate(rand.Reader, template, template, masterCert.PublicKey, masterPriv)
+	ts.Require().NoError(err)
+	certPEM := string(pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: certDER}))
+
+	q := &fakeQuerier{
+		getKeyPolicyFn: func(_ context.Context, _ string) (db.KeyPolicy, error) { return alwaysActivePolicy(), nil },
+		getKeyAliasesByAppRefFn: func(_ context.Context, appID, refID string) ([]db.KeyAlias, error) {
+			if appID == "ESIGNET" && refID == "RSA_2048" {
+				return []db.KeyAlias{validAliasRow("master-alias")}, nil
+			}
+			return nil, nil // ROOT not provisioned
+		},
+	}
+	svc := keymanager.NewServiceWithQuerier(q, ks, testConfig())
+
+	_, err = svc.UploadCertificate(context.Background(), keymanager.UploadCertificateRequest{
+		ApplicationID: "ESIGNET", ReferenceID: "RSA_2048", CertificateData: certPEM,
+	})
+	ts.Assert().ErrorIs(err, keymanager.ErrInvalidCertificateProvenance,
+		"missing signing hierarchy parent must surface as ErrInvalidCertificateProvenance, not a generic error")
+	ts.Assert().ErrorIs(err, keymanager.ErrRootKeyNotFound,
+		"underlying ErrRootKeyNotFound must remain unwrappable for diagnostics")
+}
+
 // TestUploadCertificate_AlreadyExpiredRejected verifies that a cert whose
 // NotAfter is in the past cannot be uploaded — writing an expired validity
 // window into the DB would immediately mark the key as expired.

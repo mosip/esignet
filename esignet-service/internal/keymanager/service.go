@@ -1271,7 +1271,7 @@ func (s *Service) publicKeyForAlias(ctx context.Context, alias string, keystoreR
 func (s *Service) verifyUploadedCertSignature(ctx context.Context, appID, refID string, current *db.KeyAlias, newCert *x509.Certificate) error {
 	signAlias, err := s.resolveSignKeyAlias(ctx, appID, refID)
 	if err != nil {
-		return fmt.Errorf("resolve signing key for provenance check: %w", err)
+		return fmt.Errorf("%w: signing hierarchy incomplete — %w", ErrInvalidCertificateProvenance, err)
 	}
 
 	resident := isKeystoreResident(appID, refID)

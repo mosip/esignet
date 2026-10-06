@@ -114,8 +114,8 @@ func (ts *UploadCertificateSecuritySuite) upload(certPEM string) uploadResponse 
 		"version":     "1.0",
 		"requesttime": time.Now().UTC().Format(time.RFC3339),
 		"request": map[string]string{
-			"applicationId":   "ROOT",
-			"referenceId":     "",
+			"applicationId":   "ESIGNET",
+			"referenceId":     "RSA_2048",
 			"certificateData": certPEM,
 		},
 	}
