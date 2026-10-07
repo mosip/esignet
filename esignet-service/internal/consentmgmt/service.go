@@ -31,7 +31,7 @@ type Service struct {
 
 // NewService creates a Service backed by the given database connection.
 func NewService(conn *sql.DB) *Service {
-	return &Service{q: db.New(conn), logger: applog.GetLogger().Named("consentmgmt")}
+	return &Service{db: conn, q: db.New(conn), logger: applog.GetLogger().Named("consentmgmt")}
 }
 
 // NewServiceWithQuerier creates a Service with an explicit Querier; use in tests
