@@ -132,6 +132,7 @@ func main() {
 		logger.Fatal("plugin providers", applog.Error(err))
 	}
 	logger.Info(context.Background(), "authn provider selected", applog.String("provider", appCfg.Provider))
+	clientSvc.SetAuditor(observabilityProvider)
 
 	logLevel, err := applog.ConfiguredLevel()
 	if err != nil {

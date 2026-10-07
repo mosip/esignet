@@ -37,6 +37,7 @@ const (
 var descriptionDataKeys = []string{
 	"client_id", "flow_type", "app_id", "error",
 	"duration_ms", "redirect_to", "failed_step", "node_id",
+	"rp_id", "key_field", "key_bits", "min_key_bits",
 }
 
 // auditor maps ThunderID flow lifecycle events to MOSIP audit records and
