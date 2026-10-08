@@ -204,6 +204,7 @@ func (h *Handler) handleServiceError(ctx context.Context, w http.ResponseWriter,
 		h.logger.Debug(ctx, op+": invalid request", applog.Error(err))
 		common.WriteError(ctx, w, http.StatusOK, errCodeInvalidRequest, err.Error())
 	case errors.Is(err, ErrThumbprintMismatch),
+		errors.Is(err, ErrCertificateAlreadyExists),
 		errors.Is(err, ErrInvalidCertificateProvenance),
 		errors.Is(err, ErrUploadedCertificateExpired),
 		errors.Is(err, ErrUploadedCertificateNotYetValid):

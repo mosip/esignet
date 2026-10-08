@@ -231,10 +231,10 @@ func (ts *UploadCertificateSecuritySuite) TestScenario3_NotYetValid_Rejected() {
 
 // ── Scenario 4 — duplicate guard (pre-existing, unchanged) ───────────────────
 
-func (ts *UploadCertificateSecuritySuite) TestScenario4_DuplicateCert_Idempotent() {
-	ts.T().Log("\n── Scenario 4: uploading the cert already on file is a no-op success ──")
+func (ts *UploadCertificateSecuritySuite) TestScenario4_DuplicateCert_Rejected() {
+	ts.T().Log("\n── Scenario 4: uploading the cert already on file is rejected as a duplicate ──")
 	ur := ts.upload(ts.rootCertPEM) // identical cert, same thumbprint
-	ts.assertSuccess(ur, "duplicate cert (same thumbprint — idempotent re-upload)")
+	ts.assertRejectedWith(ur, "invalid_certificate", "duplicate cert (same thumbprint)")
 }
 
 // ── Scenario 5 — legitimate renewal (must still succeed) ─────────────────────

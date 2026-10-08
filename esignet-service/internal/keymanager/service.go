@@ -109,6 +109,12 @@ var (
 	// never share an ApplicationID with the real key hierarchy.
 	ErrForeignDomainAppIDRegistered = errors.New("application id is already registered in key_policy_def and cannot be used for a foreign-domain upload")
 
+	// ErrCertificateAlreadyExists is returned by UploadCertificate and
+	// UploadOtherDomainCertificate, any existing row for the same
+	// (ApplicationID, ReferenceID). The same certificate has already been
+	// uploaded, so this is a caller mistake, not a benign re-upload.
+	ErrCertificateAlreadyExists = errors.New("a certificate with this thumbprint already exists for this application/reference id")
+
 	// ErrInvalidCertificateProvenance is returned when UploadCertificate's
 	// signature-provenance check fails: the uploaded certificate's signature
 	// cannot be verified by the key that is authoritative for this position in
@@ -837,9 +843,7 @@ func (s *Service) UploadCertificate(ctx context.Context, req UploadCertificateRe
 	}
 	newThumbprint := thumbprintForCert(newCert)
 	if current.CertThumbprint != nil && *current.CertThumbprint == newThumbprint {
-		// Idempotent: same cert already on file — treat as success rather than an error
-		// so that automated provisioning scripts are not broken by retries or reruns.
-		return UploadCertificateResponse{Status: statusSuccess, Timestamp: time.Now().UTC()}, nil
+		return UploadCertificateResponse{}, ErrCertificateAlreadyExists
 	}
 
 	resident := isKeystoreResident(req.ApplicationID, req.ReferenceID)
@@ -942,8 +946,7 @@ func (s *Service) UploadOtherDomainCertificate(ctx context.Context, req UploadCe
 	}
 	for _, a := range existing {
 		if a.CertThumbprint != nil && *a.CertThumbprint == thumbprint {
-			// Idempotent: same cert already on file — treat as success.
-			return UploadCertificateResponse{Status: statusSuccess, Timestamp: time.Now().UTC()}, nil
+			return UploadCertificateResponse{}, ErrCertificateAlreadyExists
 		}
 		rec, err := s.q.GetKeyStoreRecord(ctx, a.ID)
 		if errors.Is(err, sql.ErrNoRows) {
