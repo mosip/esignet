@@ -201,11 +201,14 @@ func ValidateUpdate(profile Profile, req UpdateClientRequest, hasEncPublicKey bo
 // ValidatePatch validates a merged client state after applying PATCH fields.
 // supportedEncAlgs restricts encPublicKey's alg to the runtime crypto
 // provider's supported encryption algorithms; pass nil/empty to skip that
-// restriction. hasEncPublicKey reports whether the client will have an
-// encPublicKey after this patch is applied (i.e. the existing value, unless
-// this patch changes it) — required when additionalConfig requests a JWE
-// response type.
+// restriction. hasEncPublicKey reports whether the client currently has a
+// stored encPublicKey; this function derives the post-patch value from
+// encPublicKey when this patch changes it, which is required when
+// additionalConfig requests a JWE response type.
 func ValidatePatch(profile Profile, merged UpdateClientRequest, fields PatchFields, encPublicKey NullableJWK, supportedEncAlgs []string, hasEncPublicKey bool) error {
+	if fields.EncPublicKey {
+		hasEncPublicKey = !encPublicKey.IsNull
+	}
 	if fields.ClientName {
 		if err := validateClientName(merged.ClientName); err != nil {
 			return err

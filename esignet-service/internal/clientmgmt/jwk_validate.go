@@ -63,7 +63,9 @@ func validateJWK(key map[string]string) error {
 // validateEncJWK validates an encryption key JWK, additionally requiring the
 // alg field so the JWE key-management algorithm is always known, and — when
 // supportedAlgs is non-empty — that alg is one of the configured supported
-// encryption algorithms (config.AppConfig.SupportedEncAlgorithms).
+// encryption algorithms (config.AppConfig.SupportedEncAlgorithms). A non-empty
+// "kid" is mandatory: when a client maintains multiple encryption keys, the
+// "kid" in the JWE header tells it which key to decrypt the response with.
 func validateEncJWK(key map[string]string, supportedAlgs []string) error {
 	if err := validateJWK(key); err != nil {
 		return err
