@@ -33,7 +33,7 @@ func validCreateRequest() CreateClientRequest {
 		RedirectURIs: []string{"https://example.com/callback"},
 		Claims:       []string{"name", "email"},
 		AcrValues:    []string{"mosip:idp:acr:static-code"},
-		PublicKey:    map[string]string{"kty": "RSA", "n": "abc", "e": "AQAB", "kid": "key-1"},
+		PublicKey:    map[string]string{"kty": "RSA", "n": testRSAN, "e": "AQAB", "kid": "key-1"},
 		GrantTypes:   []string{"authorization_code"},
 		AuthMethods:  []string{"private_key_jwt"},
 	}
@@ -158,7 +158,7 @@ func (ts *ValidateTestSuite) TestValidateCreate() {
 
 	t.Run("public key without kid rejected", func(t *testing.T) {
 		req := validCreateRequest()
-		req.PublicKey = map[string]string{"kty": "RSA", "n": "abc", "e": "AQAB"}
+		req.PublicKey = map[string]string{"kty": "RSA", "n": testRSAN, "e": "AQAB"}
 		assert.Equal(t, "invalid_public_key", errCode(t, ValidateCreate(ProfileOIDC, req, nil)))
 	})
 
@@ -204,7 +204,7 @@ func (ts *ValidateTestSuite) TestValidateCreate() {
 		req := validCreateRequest()
 		req.ClientNameLangMap = map[string]string{"eng": "x"}
 		req.AdditionalConfig = json.RawMessage(`{"userinfo_response_type":"JWE"}`)
-		req.EncPublicKey = map[string]string{"kty": "RSA", "n": "abc", "e": "AQAB", "alg": "RSA-OAEP-256", "kid": "enc-1"}
+		req.EncPublicKey = map[string]string{"kty": "RSA", "n": testRSAN, "e": "AQAB", "alg": "RSA-OAEP-256", "kid": "enc-1"}
 		assert.NoError(t, ValidateCreate(ProfileClient, req, nil))
 	})
 
@@ -216,26 +216,26 @@ func (ts *ValidateTestSuite) TestValidateCreate() {
 
 	t.Run("enc public key missing alg", func(t *testing.T) {
 		req := validCreateRequest()
-		req.EncPublicKey = map[string]string{"kty": "RSA", "n": "abc", "e": "AQAB", "kid": "enc-1"}
+		req.EncPublicKey = map[string]string{"kty": "RSA", "n": testRSAN, "e": "AQAB", "kid": "enc-1"}
 		assert.Equal(t, "invalid_public_key", errCode(t, ValidateCreate(ProfileOIDC, req, nil)))
 	})
 
 	t.Run("enc public key with alg accepted", func(t *testing.T) {
 		req := validCreateRequest()
-		req.EncPublicKey = map[string]string{"kty": "RSA", "n": "abc", "e": "AQAB", "alg": "RSA-OAEP-256", "kid": "enc-1"}
+		req.EncPublicKey = map[string]string{"kty": "RSA", "n": testRSAN, "e": "AQAB", "alg": "RSA-OAEP-256", "kid": "enc-1"}
 		assert.NoError(t, ValidateCreate(ProfileOIDC, req, nil))
 	})
 
 	t.Run("enc public key alg not in supported list rejected", func(t *testing.T) {
 		req := validCreateRequest()
-		req.EncPublicKey = map[string]string{"kty": "RSA", "n": "abc", "e": "AQAB", "alg": "RSA-OAEP", "kid": "enc-1"}
+		req.EncPublicKey = map[string]string{"kty": "RSA", "n": testRSAN, "e": "AQAB", "alg": "RSA-OAEP", "kid": "enc-1"}
 		err := ValidateCreate(ProfileOIDC, req, []string{"RSA-OAEP-256", "AES-GCM"})
 		assert.Equal(t, "invalid_public_key", errCode(t, err))
 	})
 
 	t.Run("enc public key alg in supported list accepted", func(t *testing.T) {
 		req := validCreateRequest()
-		req.EncPublicKey = map[string]string{"kty": "RSA", "n": "abc", "e": "AQAB", "alg": "RSA-OAEP-256", "kid": "enc-1"}
+		req.EncPublicKey = map[string]string{"kty": "RSA", "n": testRSAN, "e": "AQAB", "alg": "RSA-OAEP-256", "kid": "enc-1"}
 		assert.NoError(t, ValidateCreate(ProfileOIDC, req, []string{"RSA-OAEP-256", "AES-GCM"}))
 	})
 }
@@ -400,13 +400,13 @@ func (ts *ValidateTestSuite) TestValidatePatch() {
 
 	t.Run("patched enc public key missing alg rejected", func(t *testing.T) {
 		err := ValidatePatch(ProfileOIDC, base, PatchFields{EncPublicKey: true},
-			NullableJWK{Value: map[string]string{"kty": "RSA", "n": "abc", "e": "AQAB", "kid": "enc-1"}}, nil, false)
+			NullableJWK{Value: map[string]string{"kty": "RSA", "n": testRSAN, "e": "AQAB", "kid": "enc-1"}}, nil, false)
 		assert.Equal(t, "invalid_public_key", errCode(t, err))
 	})
 
 	t.Run("patched enc public key alg not in supported list rejected", func(t *testing.T) {
 		err := ValidatePatch(ProfileOIDC, base, PatchFields{EncPublicKey: true},
-			NullableJWK{Value: map[string]string{"kty": "RSA", "n": "abc", "e": "AQAB", "alg": "RSA-OAEP", "kid": "enc-1"}},
+			NullableJWK{Value: map[string]string{"kty": "RSA", "n": testRSAN, "e": "AQAB", "alg": "RSA-OAEP", "kid": "enc-1"}},
 			[]string{"RSA-OAEP-256"}, false)
 		assert.Equal(t, "invalid_public_key", errCode(t, err))
 	})
@@ -491,7 +491,7 @@ func (ts *ValidateTestSuite) TestValidatePatch() {
 		// stored hasEncPublicKey=false, but this patch supplies one, so
 		// ValidatePatch must derive the post-patch presence and accept.
 		err := ValidatePatch(ProfileClient, merged, PatchFields{AdditionalConfig: true, EncPublicKey: true},
-			NullableJWK{Value: map[string]string{"kty": "RSA", "n": "abc", "e": "AQAB", "alg": "RSA-OAEP-256", "kid": "enc-1"}}, nil, false)
+			NullableJWK{Value: map[string]string{"kty": "RSA", "n": testRSAN, "e": "AQAB", "alg": "RSA-OAEP-256", "kid": "enc-1"}}, nil, false)
 		assert.NoError(t, err)
 	})
 
