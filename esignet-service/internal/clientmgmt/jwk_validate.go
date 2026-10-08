@@ -54,6 +54,9 @@ func validateJWK(key map[string]string) error {
 	default:
 		return validationErr("invalid_public_key")
 	}
+	if key["kid"] == "" {
+		return validationErr("invalid_public_key")
+	}
 	return nil
 }
 

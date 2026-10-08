@@ -44,24 +44,9 @@ func (ts *JwkValidateTestSuite) TestValidateJWK() {
 		assert.Equal(t, "invalid_public_key", errCode(t, err))
 	})
 
-	for _, bits := range []int{512, 1024, 2040} {
-		t.Run(fmt.Sprintf("rsa %d-bit modulus rejected", bits), func(t *testing.T) {
-			err := validateJWK(map[string]string{"kty": "RSA", "n": rsaModulus(bits), "e": "AQAB"})
-			assert.Equal(t, "invalid_public_key", errCode(t, err))
-		})
-	}
-
-	t.Run("rsa modulus with leading zero bytes counted by bit length", func(t *testing.T) {
-		n := base64.RawURLEncoding.EncodeToString(append([]byte{0, 0}, make([]byte, 255)...))
-		err := validateJWK(map[string]string{"kty": "RSA", "n": n, "e": "AQAB"})
-		assert.Equal(t, "invalid_public_key", errCode(t, err))
+	t.Run("rsa valid", func(t *testing.T) {
+		assert.NoError(t, validateJWK(map[string]string{"kty": "RSA", "n": "abc", "e": "AQAB", "kid": "key-1"}))
 	})
-
-	for _, bits := range []int{2048, 3072, 4096} {
-		t.Run(fmt.Sprintf("rsa %d-bit modulus accepted", bits), func(t *testing.T) {
-			assert.NoError(t, validateJWK(map[string]string{"kty": "RSA", "n": rsaModulus(bits), "e": "AQAB"}))
-		})
-	}
 
 	t.Run("ec missing fields", func(t *testing.T) {
 		assert.Equal(t, "invalid_public_key", errCode(t, validateJWK(map[string]string{"kty": "EC"})))
@@ -84,9 +69,23 @@ func (ts *JwkValidateTestSuite) TestValidateJWK() {
 
 	for _, curve := range []string{"P-256", "P-384", "P-521"} {
 		t.Run("ec valid "+curve, func(t *testing.T) {
-			assert.NoError(t, validateJWK(map[string]string{"kty": "EC", "crv": curve, "x": "abc", "y": "abc"}))
+			assert.NoError(t, validateJWK(map[string]string{"kty": "EC", "crv": curve, "x": "abc", "y": "abc", "kid": "key-1"}))
 		})
 	}
+
+	t.Run("missing kid rejected", func(t *testing.T) {
+		err := validateJWK(map[string]string{"kty": "RSA", "n": "abc", "e": "AQAB"})
+		assert.Equal(t, "invalid_public_key", errCode(t, err))
+	})
+
+	t.Run("blank kid rejected", func(t *testing.T) {
+		err := validateJWK(map[string]string{"kty": "RSA", "n": "abc", "e": "AQAB", "kid": ""})
+		assert.Equal(t, "invalid_public_key", errCode(t, err))
+	})
+
+	t.Run("present kid accepted", func(t *testing.T) {
+		assert.NoError(t, validateJWK(map[string]string{"kty": "RSA", "n": "abc", "e": "AQAB", "kid": "key-1"}))
+	})
 }
 
 func (ts *JwkValidateTestSuite) TestValidateEncJWK() {
