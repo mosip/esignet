@@ -256,11 +256,9 @@ func (s *Service) PatchClient(ctx context.Context, clientID string, req PatchCli
 	if err != nil {
 		return ClientResponse{}, err
 	}
-	hasEncPublicKey := existing.EncPublicKey.Valid
-	if fields.EncPublicKey {
-		hasEncPublicKey = !req.EncPublicKey.IsNull
-	}
-	if err := ValidatePatch(ProfileClient, merged, fields, req.EncPublicKey, s.supportedEncAlgs, hasEncPublicKey); err != nil {
+	// Pass the stored encPublicKey state; ValidatePatch derives the post-patch
+	// value from req.EncPublicKey when this patch changes it.
+	if err := ValidatePatch(ProfileClient, merged, fields, req.EncPublicKey, s.supportedEncAlgs, existing.EncPublicKey.Valid); err != nil {
 		return ClientResponse{}, err
 	}
 

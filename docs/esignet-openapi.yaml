@@ -113,9 +113,10 @@ paths:
                     publicKey:
                       type: object
                       description: |-
-                        OIDC client's public key used to verify the client's private_key_jwt when OIDC token endpoint is invoked. 
+                        OIDC client's public key used to verify the client's private_key_jwt when OIDC token endpoint is invoked.
                         This field will not be allowed to udpate later, if the private key is compromised, then new OIDC client to be created.
                         Format : Json Web Key (JWK).
+                        The JWK must contain a non-empty "kid": the client assertion verifier resolves the signing key by "kid", so a key registered without one is rejected with "invalid_public_key".
                     userClaims:
                       type: array
                       description: 'Allowed user info claims, that can be requested by OIDC client in the authorize API'
@@ -351,9 +352,10 @@ paths:
                     publicKey:
                       type: object
                       description: |-
-                        OAuth/OIDC client's public key used to verify the client's private_key_jwt when token endpoint is invoked. 
+                        OAuth/OIDC client's public key used to verify the client's private_key_jwt when token endpoint is invoked.
                         This field will not be allowed to udpate later, if the private key is compromised, then new OAuth/OIDC client to be created.
                         Format : Json Web Key (JWK).
+                        The JWK must contain a non-empty "kid": the client assertion verifier resolves the signing key by "kid", so a key registered without one is rejected with "invalid_public_key".
                     userClaims:
                       type: array
                       description: 'Allowed user info claims, that can be requested by OIDC client in the authorize API'
@@ -583,9 +585,10 @@ paths:
                     publicKey:
                       type: object
                       description: |-
-                        OAuth/OIDC client's public key used to verify the client's private_key_jwt when token endpoint is invoked. 
+                        OAuth/OIDC client's public key used to verify the client's private_key_jwt when token endpoint is invoked.
                         This field will not be allowed to udpate later, if the private key is compromised, then new OAuth/OIDC client to be created.
                         Format : Json Web Key (JWK).
+                        The JWK must contain a non-empty "kid": the client assertion verifier resolves the signing key by "kid", so a key registered without one is rejected with "invalid_public_key".
                     userClaims:
                       type: array
                       description: 'Allowed user info claims, that can be requested by OIDC client in the authorize API'
@@ -1445,9 +1448,10 @@ paths:
         API to partially update existing OAuth/Open ID Connect (OIDC) client. Only provided fields will be updated.
         
         **Special handling for encPublicKey:**
-        - When set/updated: validates format and computes enc_public_key_hash
+        - When set/updated: validates format (including a mandatory non-empty "kid") and computes enc_public_key_hash
         - When explicitly set to null: clears both enc_public_key and enc_public_key_hash
         - When not present in request: leaves both fields unchanged
+        - A JWE response type in additionalConfig (userinfo_response_type/id_token_response_type) requires the client to have an encPublicKey after the patch; otherwise the request is rejected with "invalid_additional_config"
 
         **Authentication and authorization** is based on a valid JWT issued by a trusted IAM system including "**update_oidc_client**" scope.
       operationId: patch-client-client_id
@@ -1647,11 +1651,12 @@ paths:
                                 - RSA-OAEP
                             kid:
                               type: string
-                              description: Key ID
+                              description: Key ID (required). Identifies which key the client uses to decrypt a JWE response; a key registered without a non-empty "kid" is rejected with "invalid_public_key".
                           required:
                             - kty
                             - n
                             - e
+                            - kid
                         - title: EC Encryption Key
                           type: object
                           description: Elliptic Curve public key for encryption
@@ -1691,12 +1696,13 @@ paths:
                                 - ECDH-ES+A256KW
                             kid:
                               type: string
-                              description: Key ID
+                              description: Key ID (required). Identifies which key the client uses to decrypt a JWE response; a key registered without a non-empty "kid" is rejected with "invalid_public_key".
                           required:
                             - kty
                             - crv
                             - x
                             - y
+                            - kid
             examples:
               Update Status Only:
                 value:

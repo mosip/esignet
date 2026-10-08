@@ -91,11 +91,16 @@ func (ts *JwkValidateTestSuite) TestValidateJWK() {
 func (ts *JwkValidateTestSuite) TestValidateEncJWK() {
 	t := ts.T()
 	key := func(alg string) map[string]string {
-		return map[string]string{"kty": "RSA", "n": testRSAN, "e": "AQAB", "alg": alg}
+		return map[string]string{"kty": "RSA", "n": "abc", "e": "AQAB", "alg": alg, "kid": "enc-1"}
 	}
 
 	t.Run("missing alg rejected regardless of supported list", func(t *testing.T) {
-		err := validateEncJWK(map[string]string{"kty": "RSA", "n": testRSAN, "e": "AQAB"}, nil)
+		err := validateEncJWK(map[string]string{"kty": "RSA", "n": "abc", "e": "AQAB", "kid": "enc-1"}, nil)
+		assert.Equal(t, "invalid_public_key", errCode(t, err))
+	})
+
+	t.Run("missing kid rejected", func(t *testing.T) {
+		err := validateEncJWK(map[string]string{"kty": "RSA", "n": "abc", "e": "AQAB", "alg": "RSA-OAEP-256"}, nil)
 		assert.Equal(t, "invalid_public_key", errCode(t, err))
 	})
 
