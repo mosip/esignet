@@ -27,11 +27,3 @@ clients:
 ```
 
 The same script change belongs in [mosip/keycloak](https://github.com/mosip/keycloak) `keycloak-init/keycloak_init.py`, which is the copy the published chart runs.
-
-## Tests
-
-```bash
-python3 -m unittest test_mapper_payload
-```
-
-`test_mapper_payload.py` checks that the user-attribute mappers currently shipped in the Keycloak init chart (`phoneNumber`, `organizationName`, `partnerType`, `addressTest`, `individual_id`, `ida_token`, `langCode`) still produce the historical payload.
