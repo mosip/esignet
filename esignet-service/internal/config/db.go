@@ -15,6 +15,7 @@ import (
 	"strings"
 	"time"
 
+	_ "github.com/go-sql-driver/mysql" // registers the "mysql" database/sql driver used by openMySQL
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/jackc/pgx/v5/stdlib"
 
@@ -40,6 +41,20 @@ const (
 	defaultDBConnMaxLifetimeSecs = 1800
 	defaultDBConnMaxIdleTimeSecs = 300
 	dbPingTimeout                = 5 * time.Second
+)
+
+const (
+	// driverPostgres and driverMySQL are the supported DB_DRIVER values.
+	// defaultDBDriver applies when DB_DRIVER is unset, preserving the
+	// Postgres-only behavior this service shipped with.
+	driverPostgres  = "postgres"
+	driverMySQL     = "mysql"
+	defaultDBDriver = driverPostgres
+
+	// MySQL connection defaults. The Postgres equivalents are
+	// defaultDBPort/defaultDBUser above; defaultDBName is shared by both.
+	defaultMySQLPort = "3306"
+	defaultMySQLUser = "root"
 )
 
 // dbUnlimitedConnLifetime approximates "no limit" for pgxpool.Config.MaxConnLifetime.
@@ -70,10 +85,12 @@ type DBPool struct {
 	ConnMaxIdleTimeSecs int `yaml:"conn_max_idle_time_secs"`
 }
 
-// DB holds Postgres connection settings.
+// DB holds database connection settings. Driver selects the backend
+// ("postgres" or "mysql"); DSN and Pool are interpreted per driver.
 type DB struct {
-	DSN  string `yaml:"dsn"`
-	Pool DBPool `yaml:"pool"`
+	Driver string `yaml:"driver"`
+	DSN    string `yaml:"dsn"`
+	Pool   DBPool `yaml:"pool"`
 }
 
 func hasDBEnvConfig() bool {
@@ -131,6 +148,52 @@ func resolveDBDSN(yamlDSN string) string {
 	)
 }
 
+// resolveMySQLDSN resolves the MySQL DSN using the same precedence as
+// resolveDBDSN: env var (DATABASE_URL) > yamlDSN (already parsed from
+// deployment.yaml) > compiled-in default construction from the individual
+// DATABASE_* vars. The built DSN uses go-sql-driver's form
+// (user:pass@tcp(host:port)/dbname?...); parseTime=true&loc=UTC are required so
+// DATE/DATETIME/TIMESTAMP columns scan into time.Time as UTC.
+func resolveMySQLDSN(yamlDSN string) string {
+	if dsn := os.Getenv("DATABASE_URL"); dsn != "" {
+		return ensureMySQLParseTime(dsn)
+	}
+	if !hasDBEnvConfig() && yamlDSN != "" {
+		return ensureMySQLParseTime(yamlDSN)
+	}
+
+	host := envOrDefault("DATABASE_HOST", defaultDBHost)
+	port := envOrDefault("DATABASE_PORT", defaultMySQLPort)
+	dbname := envOrDefault("DATABASE_NAME", defaultDBName)
+	user := envOrDefault("DATABASE_USERNAME", defaultMySQLUser)
+	password := os.Getenv("DATABASE_PASSWORD")
+	if password == "" {
+		password = os.Getenv("DB_DBUSER_PASSWORD")
+	}
+
+	cred := user
+	if password != "" {
+		cred = user + ":" + password
+	}
+	return fmt.Sprintf("%s@tcp(%s:%s)/%s?parseTime=true&loc=UTC", cred, host, port, dbname)
+}
+
+// ensureMySQLParseTime appends parseTime=true&loc=UTC to a caller-supplied DSN
+// (DATABASE_URL or yaml) when parseTime is absent, mirroring
+// ensurePostgresSSLMode: without parseTime, go-sql-driver scans temporal
+// columns into []byte rather than time.Time, breaking every time.Time /
+// sql.NullTime destination in the query layer.
+func ensureMySQLParseTime(dsn string) string {
+	if strings.Contains(strings.ToLower(dsn), "parsetime=") {
+		return dsn
+	}
+	sep := "?"
+	if strings.Contains(dsn, "?") {
+		sep = "&"
+	}
+	return dsn + sep + "parseTime=true&loc=UTC"
+}
+
 // loadDB resolves Postgres connection config and pool settings using env var
 // > yamlDB (already parsed from deployment.yaml) > compiled-in default.
 // Accepts POSTGRES_URL or DATABASE_URL (full DSN), or individual vars:
@@ -143,7 +206,20 @@ func resolveDBDSN(yamlDSN string) string {
 //	DB_CONN_MAX_LIFETIME_SECS — default 1800 (0 = no limit, explicit env-var-only opt-out)
 //	DB_CONN_MAX_IDLE_TIME_SECS — default 300
 func loadDB(yamlDB DB) DB {
-	dsn := resolveDBDSN(yamlDB.DSN)
+	// Resolve the driver first (env > yaml > default), then build the DSN with
+	// the matching resolver. An unrecognized driver falls through to the
+	// Postgres DSN here and is rejected with a clear error in Open().
+	driver := strings.ToLower(strings.TrimSpace(envOrDefault("DB_DRIVER", yamlDB.Driver)))
+	if driver == "" {
+		driver = defaultDBDriver
+	}
+
+	var dsn string
+	if driver == driverMySQL {
+		dsn = resolveMySQLDSN(yamlDB.DSN)
+	} else {
+		dsn = resolveDBDSN(yamlDB.DSN)
+	}
 
 	maxOpenRaw, maxOpenSrc := envIntOrConfigOrDefaultSourced("DB_MAX_OPEN_CONNS", yamlDB.Pool.MaxOpenConns, defaultDBMaxOpenConns)
 	maxOpen := clampPositiveInt32("DB_MAX_OPEN_CONNS", maxOpenRaw)
@@ -170,7 +246,8 @@ func loadDB(yamlDB DB) DB {
 		resolvedSetting{"connMaxIdleTimeSecs", idleSecs, idleSrc})
 
 	return DB{
-		DSN: dsn,
+		Driver: driver,
+		DSN:    dsn,
 		Pool: DBPool{
 			MaxOpenConns:        maxOpen,
 			MaxIdleConns:        maxIdle,
@@ -235,13 +312,36 @@ func buildPoolConfig(dsn string, pool DBPool) (*pgxpool.Config, error) {
 	return poolCfg, nil
 }
 
-// Open opens a pgx connection pool, configures its sizing, pings it, and
-// returns a *sql.DB (via the pgx stdlib adapter) so existing database/sql and
-// sqlx call sites are unaffected. The returned closeFn releases both the
+// Open opens a connection to the configured database (Postgres or MySQL, per
+// d.Driver), pings it, and returns the resolved driver name alongside the
+// *sql.DB and a closeFn. The returned driver name is suitable for
+// sqlx.BindType / dbutil.Rebind. closeFn must be called (e.g. via defer) once
+// the connection is no longer needed.
+func (d DB) Open() (conn *sql.DB, driverName string, closeFn func() error, err error) {
+	driverName = d.Driver
+	if driverName == "" {
+		driverName = defaultDBDriver
+	}
+	switch driverName {
+	case driverPostgres:
+		conn, closeFn, err = d.openPostgres()
+	case driverMySQL:
+		conn, closeFn, err = d.openMySQL()
+	default:
+		return nil, "", nil, fmt.Errorf("unsupported database driver %q: must be %q or %q", driverName, driverPostgres, driverMySQL)
+	}
+	if err != nil {
+		return nil, "", nil, err
+	}
+	return conn, driverName, closeFn, nil
+}
+
+// openPostgres opens a pgx connection pool, configures its sizing, pings it,
+// and returns a *sql.DB (via the pgx stdlib adapter) so existing database/sql
+// and sqlx call sites are unaffected. The returned closeFn releases both the
 // *sql.DB and the underlying pgxpool.Pool — sql.DB.Close alone does not close
-// the pool — and must be called (e.g. via defer) once the connection is no
-// longer needed.
-func (d DB) Open() (conn *sql.DB, closeFn func() error, err error) {
+// the pool — and must be called once the connection is no longer needed.
+func (d DB) openPostgres() (conn *sql.DB, closeFn func() error, err error) {
 	poolCfg, err := buildPoolConfig(d.DSN, d.Pool)
 	if err != nil {
 		return nil, nil, err
@@ -272,5 +372,33 @@ func (d DB) Open() (conn *sql.DB, closeFn func() error, err error) {
 		pool.Close()
 		return err
 	}
+	return conn, closeFn, nil
+}
+
+// openMySQL opens a database/sql connection to MySQL, applies the pool
+// settings, and pings it. Unlike openPostgres, pool sizing uses database/sql's
+// own setters: SetMaxIdleConns here is a passive ceiling (idle connections are
+// kept up to it, not opened eagerly), not pgxpool's eagerly-maintained MinConns
+// floor. SetConnMaxLifetime uses the raw duration because database/sql already
+// treats 0 as "no limit" — the opposite of pgxpool, which is why
+// effectiveMaxConnLifetime exists only on the Postgres path.
+func (d DB) openMySQL() (conn *sql.DB, closeFn func() error, err error) {
+	conn, err = sql.Open("mysql", d.DSN)
+	if err != nil {
+		return nil, nil, fmt.Errorf("open mysql: %w", err)
+	}
+	conn.SetMaxOpenConns(d.Pool.MaxOpenConns)
+	conn.SetMaxIdleConns(d.Pool.MaxIdleConns)
+	conn.SetConnMaxLifetime(time.Duration(d.Pool.ConnMaxLifetimeSecs) * time.Second)
+	conn.SetConnMaxIdleTime(time.Duration(d.Pool.ConnMaxIdleTimeSecs) * time.Second)
+
+	ctx, cancel := context.WithTimeout(context.Background(), dbPingTimeout)
+	defer cancel()
+	if err := conn.PingContext(ctx); err != nil {
+		_ = conn.Close()
+		return nil, nil, fmt.Errorf("ping mysql: %w", err)
+	}
+
+	closeFn = func() error { return conn.Close() }
 	return conn, closeFn, nil
 }

@@ -52,8 +52,9 @@ func main() {
 		logger.Fatal("failed to load app config", applog.Error(err))
 	}
 
-	// Setup DB connection
-	pgConn, closeDB, err := appCfg.DB.Open()
+	// Setup DB connection. The resolved driver name is threaded to the query
+	// layer in a later change; ignored here for now.
+	pgConn, _, closeDB, err := appCfg.DB.Open()
 	if err != nil {
 		logger.Fatal("postgres connection failed", applog.Error(err))
 	}
