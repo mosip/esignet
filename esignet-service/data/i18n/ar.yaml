@@ -1284,6 +1284,8 @@ validation:
   policy.numeric: يجب أن يحتوي رقم الوثيقة على أرقام فقط
   policy.length: يجب أن يكون رقم الوثيقة بين 8 و 50 رقمًا
   otp.required: يُرجى إدخال رمز OTP صالح
+  password.length: يجب أن تتكون كلمة المرور من 5 أحرف على الأقل
+  password.format: يجب أن تحتوي كلمة المرور على حرف كبير واحد وحرف صغير واحد ورقم واحد على الأقل
 
 validations:
   required.field.error: هذا الحقل مطلوب

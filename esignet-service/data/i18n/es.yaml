@@ -1284,6 +1284,8 @@ validation:
   policy.numeric: El número de póliza debe contener solo números
   policy.length: El número de póliza debe tener entre 8 y 50 dígitos
   otp.required: Introduce un OTP válido
+  password.length: La contraseña debe tener al menos 5 caracteres
+  password.format: La contraseña debe contener al menos una letra mayúscula, una letra minúscula y un número
 
 validations:
   required.field.error: Este campo es obligatorio

@@ -1284,6 +1284,8 @@ validation:
   policy.numeric: पॉलिसी नंबर में केवल संख्याएँ होनी चाहिए
   policy.length: पॉलिसी नंबर 8 से 50 अंकों के बीच होना चाहिए
   otp.required: कृपया एक मान्य OTP दर्ज करें
+  password.length: पासवर्ड कम से कम 5 वर्णों का होना चाहिए
+  password.format: पासवर्ड में कम से कम एक बड़ा अक्षर, एक छोटा अक्षर और एक संख्या होनी चाहिए
 
 validations:
   required.field.error: यह फ़ील्ड आवश्यक है
