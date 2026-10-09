@@ -1,8 +1,6 @@
 # Keycloak init audience mappers
 
-`keycloak_init.py` here is the MOSIP Keycloak init script with support for audience protocol mappers. Issue [#2667](https://github.com/mosip/esignet/issues/2667).
-
-`deploy/keycloak/keycloak-init.sh` still installs chart `mosip/keycloak-init` `12.0.2`. This directory is not read by that install. Existing realm YAML in `keycloak-init-values.yaml` is unchanged, so current eSignet installs keep the same mappers.
+`keycloak_init.py` is the eSignet Keycloak init script with support for audience protocol mappers. Issue [#2667](https://github.com/mosip/esignet/issues/2667). This change stays in eSignet. `keycloak-init-values.yaml` is unchanged.
 
 ## Mapper YAML
 
@@ -25,5 +23,3 @@ clients:
         included_custom_audience: https://api.example.org
     saroles: []
 ```
-
-The same script change belongs in [mosip/keycloak](https://github.com/mosip/keycloak) `keycloak-init/keycloak_init.py`, which is the copy the published chart runs.
