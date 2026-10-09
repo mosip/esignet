@@ -42,7 +42,8 @@ func (e *clearInputsExecutor) GetType() providers.ExecutorType {
 func (e *clearInputsExecutor) Execute(ctx *providers.NodeContext) (*providers.ExecutorResponse, error) {
 	for _, input := range ctx.NodeInputs {
 		delete(ctx.UserInputs, input.Identifier)
-		applog.GetLogger().Debug(ctx.Context, "cleared input from engine userinput context",
+		delete(ctx.RuntimeData, input.Identifier)
+		applog.GetLogger().Debug(ctx.Context, "cleared input from engine context",
 			applog.String("identifier", input.Identifier))
 	}
 	// Reset the selected action so the target PROMPT node re-renders its inputs
