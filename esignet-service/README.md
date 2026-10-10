@@ -195,7 +195,7 @@ The `public_key` hash is stored for uniqueness enforcement. `enc_public_key` and
 PUT /client-mgmt/client/{client_id}
 ```
 
-Mutable fields: `clientName`, `clientNameLangMap`, `logoUri`, `redirectUris`, `userClaims`, `authContextRefs`, `grantTypes`, `clientAuthMethods`, `status`, `additionalConfig`. `relyingPartyId` and `publicKey` are immutable after creation.
+Mutable fields: `clientName`, `clientNameLangMap`, `logoUri`, `redirectUris`, `userClaims`, `authContextRefs`, `grantTypes`, `clientAuthMethods`, `status`, `additionalConfig`. `clientId`, `relyingPartyId` and `publicKey` are immutable after creation; sending any of them, or any field not listed above, fails the request with `invalid_request`.
 
 ### Database schema
 
