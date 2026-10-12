@@ -105,8 +105,13 @@ func (h *Handler) updateClient(profile Profile) http.HandlerFunc {
 			writeSpecError(r.Context(), w, "invalid_input", "requestTime is required")
 			return
 		}
+		updateReq, err := DecodeUpdateRequest(body)
+		if err != nil {
+			writeSpecError(r.Context(), w, "invalid_request", err.Error())
+			return
+		}
 
-		resp, err := h.svc.UpdateClient(r.Context(), profile, clientID, req.Request)
+		resp, err := h.svc.UpdateClient(r.Context(), profile, clientID, updateReq)
 		if err != nil {
 			h.handleServiceError(r.Context(), w, err, "update client")
 			return

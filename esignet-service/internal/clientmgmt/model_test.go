@@ -174,6 +174,47 @@ func (ts *ModelTestSuite) TestDecodePatchRequest() {
 	}
 }
 
+func (ts *ModelTestSuite) TestDecodeUpdateRequest() {
+	t := ts.T()
+	t.Run("mutable fields decoded", func(t *testing.T) {
+		req, err := DecodeUpdateRequest([]byte(`{"requestTime":"x","request":{"clientName":"App","status":"active","additionalConfig":{"a":1}}}`))
+		require.NoError(t, err)
+		assert.Equal(t, "App", req.ClientName)
+		assert.Equal(t, "active", req.Status)
+		assert.JSONEq(t, `{"a":1}`, string(req.AdditionalConfig))
+	})
+
+	t.Run("missing or null request", func(t *testing.T) {
+		for _, body := range []string{`{}`, `{"request":null}`} {
+			req, err := DecodeUpdateRequest([]byte(body))
+			require.NoError(t, err)
+			assert.Equal(t, UpdateClientRequest{}, req)
+		}
+	})
+
+	for _, field := range []string{"clientId", "relyingPartyId", "publicKey", "unknownField"} {
+		t.Run(field+" rejected", func(t *testing.T) {
+			_, err := DecodeUpdateRequest([]byte(`{"request":{"clientName":"App","` + field + `":"x"}}`))
+			require.Error(t, err)
+			assert.Equal(t, `unknown field "`+field+`"`, err.Error())
+		})
+	}
+
+	for _, tt := range []struct {
+		name string
+		body string
+	}{
+		{"invalid top-level json", `not-json`},
+		{"request not an object", `{"request":"x"}`},
+		{"field wrong type", `{"request":{"clientName":123}}`},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			_, err := DecodeUpdateRequest([]byte(tt.body))
+			assert.Error(t, err)
+		})
+	}
+}
+
 func (ts *ModelTestSuite) TestResponseWrapper_successResponse() {
 	t := ts.T()
 	resp := ClientResponse{ClientID: "c1", Status: "ACTIVE"}
