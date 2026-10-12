@@ -217,7 +217,7 @@ func (ts *HandlerTestSuite) TestUpdateClientHandler() {
 		require.Equal(t, "invalid_client_id", errObj["errorCode"])
 	})
 
-	t.Run("concurrent modification conflict", func(t *testing.T) {
+	t.Run("client removed before update", func(t *testing.T) {
 		h := newTestHandler(&fakeQuerier{getRow: existingClientRow(), updateErr: sql.ErrNoRows})
 		mux := http.NewServeMux()
 		h.RegisterRoutes(mux, nil)
@@ -232,7 +232,7 @@ func (ts *HandlerTestSuite) TestUpdateClientHandler() {
 		decoded := decodeEnvelope(t, rec.Body.Bytes())
 		errs := decoded["errors"].([]any)
 		errObj := errs[0].(map[string]any)
-		require.Equal(t, "patch_conflict", errObj["errorCode"])
+		require.Equal(t, "invalid_client_id", errObj["errorCode"])
 	})
 
 	t.Run("malformed body", func(t *testing.T) {

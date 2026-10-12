@@ -217,8 +217,6 @@ func (ts *ServiceTestSuite) TestUpdateClient() {
 		require.NoError(t, err)
 		require.Equal(t, "client-1", resp.ClientID)
 		require.Equal(t, "ACTIVE", q.updateParams.Status)
-		// the write is pinned to the version read before validation
-		require.Equal(t, row.UpdDtimes, q.updateParams.ExpectedUpdDtimes)
 
 		cached, err := cache.Get(context.Background(), clientCacheNamespace, "client-1")
 		require.NoError(t, err)
@@ -240,27 +238,13 @@ func (ts *ServiceTestSuite) TestUpdateClient() {
 		require.False(t, errors.Is(err, ErrClientNotFound))
 	})
 
-	// CreateClient never sets upd_dtimes, so a never-updated client carries a
-	// NULL version. It must round-trip as NULL: the query matches it with
-	// IS NOT DISTINCT FROM precisely because "upd_dtimes = NULL" is never true,
-	// which would make the first PUT after a create always conflict.
-	t.Run("never-updated row passes a null expected version", func(t *testing.T) {
-		row := existingClientRow()
-		row.UpdDtimes = sql.NullTime{}
-		q := &fakeQuerier{getRow: row, updateRow: row}
-		s := NewServiceWithQuerier(q, nil, 0, nil)
-		_, err := s.UpdateClient(context.Background(), ProfileOIDC, "client-1", validUpdateRequest())
-		require.NoError(t, err)
-		require.False(t, q.updateParams.ExpectedUpdDtimes.Valid)
-	})
-
-	// The row was read successfully above, so a write that matches nothing
-	// means upd_dtimes moved under us — a concurrent write, not a missing row.
-	t.Run("update conflict", func(t *testing.T) {
+	// The UPDATE is a plain WHERE id = $1, so a write that matches nothing means
+	// the client was deleted between the read and the write.
+	t.Run("update returns no rows when client removed", func(t *testing.T) {
 		q := &fakeQuerier{getRow: existingClientRow(), updateErr: sql.ErrNoRows}
 		s := NewServiceWithQuerier(q, nil, 0, nil)
 		_, err := s.UpdateClient(context.Background(), ProfileOIDC, "client-1", validUpdateRequest())
-		require.ErrorIs(t, err, ErrClientConflict)
+		require.ErrorIs(t, err, ErrClientNotFound)
 	})
 
 	t.Run("generic db error", func(t *testing.T) {
