@@ -43,8 +43,8 @@ jobs:
     uses: mosip/kattu/.github/workflows/go-sonar-analysis.yml@develop
     with:
       SERVICE_LOCATION: ./esignet-service
-      GO_VERSION: '1.26'
-      SONAR_EXCLUSIONS: '**/vendor/**,**/*_test.go,internal/clientmgmt/db/**,internal/consentmgmt/db/**,internal/keymanager/db/**'
+      GO_VERSION: "1.26"
+      SONAR_EXCLUSIONS: "**/vendor/**,**/*_test.go,internal/clientmgmt/db/**,internal/consentmgmt/db/**,internal/keymanager/db/**"
 
     secrets:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -224,8 +224,8 @@ jobs:
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
-          java-version: '21'
+          distribution: "temurin"
+          java-version: "21"
           server-id: ossrh
           settings-path: ${{ github.workspace }}
 
@@ -262,9 +262,9 @@ jobs:
     strategy:
       matrix:
         include:
-          - SERVICE_LOCATION: 'ui-test'
-            SERVICE_NAME: 'uitest-esignet'
-            BUILD_ARTIFACT: 'uitest-esignet-local'
+          - SERVICE_LOCATION: "ui-test"
+            SERVICE_NAME: "uitest-esignet"
+            BUILD_ARTIFACT: "uitest-esignet-local"
             PLATFORMS: "linux/amd64"
       fail-fast: false
     name: ${{ matrix.SERVICE_NAME }}
@@ -279,3 +279,150 @@ jobs:
       ACTOR_DOCKER_HUB: ${{ secrets.ACTOR_DOCKER_HUB }}
       RELEASE_DOCKER_HUB: ${{ secrets.RELEASE_DOCKER_HUB }}
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+
+  run-apitest-pr:
+    if: github.event_name == 'pull_request' || github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: 21
+
+      - name: Setup the settings file for ossrh server
+        run: echo "<settings> <servers>  <server>  <id>ossrh</id>    <username>${{secrets.ossrh_user}}</username> <password>${{secrets.ossrh_secret}}</password> </server> </servers> <profiles> <profile>     <id>ossrh</id> <activation> <activeByDefault>true</activeByDefault> </activation>  <properties> <gpg.executable>gpg2</gpg.executable> <gpg.passphrase>${{secrets.gpg_secret}}</gpg.passphrase> </properties> </profile> <profile> <id>allow-snapshots</id>       <activation><activeByDefault>true</activeByDefault></activation> <repositories> <repository>        <id>snapshots-repo</id> <url>https://central.sonatype.com/repository/maven-snapshots</url> <releases><enabled>false</enabled></releases> <snapshots><enabled>true</enabled></snapshots> </repository>  <repository>         <id>releases-repo</id>  <url>https://central.sonatype.com/api/v1/publisher</url>         <releases><enabled>true</enabled></releases>         <snapshots><enabled>false</enabled></snapshots> </repository> <repository> <id>danubetech-maven-public</id> <url>https://repo.danubetech.com/repository/maven-public/</url> </repository> <repository> <id>nexus-snapshots</id> <url>https://oss.sonatype.org/content/repositories/snapshots</url> </repository> </repositories>  </profile> <profile> <id>sonar</id> <properties>  <sonar.sources>.</sonar.sources> <sonar.host.url>https://sonarcloud.io</sonar.host.url>  </properties> <activation> <activeByDefault>false</activeByDefault> </activation> </profile> </profiles> </settings>" > "$GITHUB_WORKSPACE/settings.xml"
+
+      - name: Build jar files for ui-test
+        run: |
+          cd ui-test
+          mvn -B -U package -DskipTests -Dgpg.skip=true -Dmaven.gitcommitid.skip=true -s "$GITHUB_WORKSPACE/settings.xml"
+
+      - name: Start Full Stack
+        run: docker compose -f docker-compose/docker-compose-ci.yaml up -d database mock-identity-system esignet esignet-ui mock-relying-party-service mock-relying-party-ui
+
+      - name: Wait for esignet Service
+        run: |
+          for _ in {1..30}; do
+            if curl -fsS --max-time 5 http://localhost:8080/health | grep -qw ok; then
+              echo "Service is UP"
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "::error::esignet did not become healthy"
+          exit 1
+
+      - name: Run API Tests
+        id: apitest
+        run: |
+          set +e
+          docker compose -f docker-compose/docker-compose-ci.yaml up --exit-code-from apitest apitest
+          echo "apitest exited with code $? (not failing the job; see the report)"
+
+      - name: Copy reports from api test container
+        if: always()
+        run: |
+          mkdir -p ci-reports
+          CONTAINER_ID=$(docker ps -a --filter "name=apitest" --format "{{.ID}}" | head -n 1)
+          if [ -n "$CONTAINER_ID" ]; then
+            docker cp "$CONTAINER_ID":/home/esignet/test-report/. ci-reports || echo "No reports found"
+          else
+            echo "Apitest container not found"
+          fi
+          ls -R ci-reports || true
+
+      - name: Sanitize api test report filenames
+        if: always()
+        run: |
+          find ci-reports -depth -name "*:*" -exec bash -c '
+            for f; do
+              mv "$f" "${f//:/_}"
+            done
+          ' _ {} +
+
+      - name: List API test report files and zip them
+        if: always()
+        run: |
+          echo "## API test report files" >> "$GITHUB_STEP_SUMMARY"
+          if [ -d ci-reports ] && [ -n "$(ls -A ci-reports)" ]; then
+            find ci-reports -type f | sort | sed 's/^/- /' | tee -a "$GITHUB_STEP_SUMMARY"
+            (cd ci-reports && zip -qr "../esignet-api-test-report.zip" .)
+          else
+            echo "No API test report files found" | tee -a "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload api Test Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: esignet-api-test-report
+          path: esignet-api-test-report.zip
+          if-no-files-found: warn
+      
+      - name: Run UI Tests
+        id: uitest
+        run: |
+          set +e
+          docker compose -f docker-compose/docker-compose-ci.yaml up --exit-code-from ui-test ui-test
+          echo "ui-test exited with code $? (not failing the job; see the report)"
+
+      - name: Copy reports from ui test container
+        if: always()
+        run: |
+          mkdir -p ui-reports
+          CONTAINER_ID=$(docker ps -a --filter "name=uitest" --format "{{.ID}}" | head -n 1)
+          if [ -n "$CONTAINER_ID" ]; then
+            docker cp "$CONTAINER_ID":/home/mosip/test-output/. ui-reports || echo "No reports found"
+          else
+            echo "Uitest container not found"
+          fi
+          ls -R ui-reports || true
+
+      - name: Sanitize ui test report filenames
+        if: always()
+        run: |
+          find ui-reports -depth -name "*:*" -exec bash -c '
+            for f; do
+              mv "$f" "${f//:/_}"
+            done
+          ' _ {} +
+
+      - name: List UI test report files and zip them
+        if: always()
+        run: |
+          echo "## UI test report files" >> "$GITHUB_STEP_SUMMARY"
+          if [ -d ui-reports ] && [ -n "$(ls -A ui-reports)" ]; then
+            find ui-reports -type f | sort | sed 's/^/- /' | tee -a "$GITHUB_STEP_SUMMARY"
+            (cd ui-reports && zip -qr "../esignet-ui-test-report.zip" .)
+          else
+            echo "No UI test report files found" | tee -a "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload Ui Test Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: esignet-ui-test-report
+          path: esignet-ui-test-report.zip
+          if-no-files-found: warn
+
+      - name: Print esignet-service logs
+        if: always()
+        run: docker logs esignet-service
+
+      - name: Print all service logs
+        if: always()
+        run: docker compose -f docker-compose/docker-compose-ci.yaml logs
+
+      - name: Shutdown
+        if: always()
+        run: docker compose -f docker-compose/docker-compose-ci.yaml down
+
