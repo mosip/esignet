@@ -305,8 +305,16 @@ jobs:
           cd ui-test
           mvn -B -U package -DskipTests -Dgpg.skip=true -Dmaven.gitcommitid.skip=true -s "$GITHUB_WORKSPACE/settings.xml"
 
+      - name: Remove residual containers and volumes
+        run: |
+          # Stale Postgres data (e.g. key aliases from an earlier esignet container) breaks
+          # esignet startup, so start every run from empty volumes.
+          docker compose -f docker-compose/docker-compose-ci.yaml down -v --remove-orphans
+          docker volume prune -af
+          docker volume ls
+
       - name: Start Full Stack
-        run: docker compose -f docker-compose/docker-compose-ci.yaml up -d database mock-identity-system esignet esignet-ui mock-relying-party-service mock-relying-party-ui
+        run: docker compose -f docker-compose/docker-compose-ci.yaml up -d --renew-anon-volumes database mock-identity-system esignet esignet-ui mock-relying-party-service mock-relying-party-ui
 
       - name: Wait for esignet Service
         run: |
@@ -424,5 +432,5 @@ jobs:
 
       - name: Shutdown
         if: always()
-        run: docker compose -f docker-compose/docker-compose-ci.yaml down
+        run: docker compose -f docker-compose/docker-compose-ci.yaml down -v --remove-orphans
 
