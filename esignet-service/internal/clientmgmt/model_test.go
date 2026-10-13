@@ -126,10 +126,19 @@ func (ts *ModelTestSuite) TestDecodePatchRequest() {
 		assert.Equal(t, PatchClientRequest{}, req)
 	})
 
-	t.Run("unknown field ignored", func(t *testing.T) {
-		_, fields, err := DecodePatchRequest([]byte(`{"request":{"unknownField":"x"}}`))
+	for _, field := range []string{"clientId", "relyingPartyId", "publicKey", "encPublicKeyCert", "unknownField"} {
+		t.Run(field+" rejected", func(t *testing.T) {
+			_, fields, err := DecodePatchRequest([]byte(`{"request":{"logoUri":"https://example.com/logo.png","` + field + `":"x"}}`))
+			require.ErrorIs(t, err, ErrUnknownField)
+			assert.Equal(t, `unknown field "`+field+`"`, err.Error())
+			assert.Equal(t, PatchFields{}, fields)
+		})
+	}
+
+	t.Run("envelope metadata ignored", func(t *testing.T) {
+		_, fields, err := DecodePatchRequest([]byte(`{"id":"x","version":"1.0","requestTime":"t","request":{"status":"ACTIVE"}}`))
 		require.NoError(t, err)
-		assert.Equal(t, PatchFields{}, fields)
+		assert.True(t, fields.Status)
 	})
 
 	t.Run("missing request key", func(t *testing.T) {
@@ -192,10 +201,16 @@ func (ts *ModelTestSuite) TestDecodeUpdateRequest() {
 		}
 	})
 
+	t.Run("extensible additionalConfig and envelope metadata accepted", func(t *testing.T) {
+		req, err := DecodeUpdateRequest([]byte(`{"id":"x","version":"1.0","request":{"additionalConfig":{"anyKey":{"nested":true}}}}`))
+		require.NoError(t, err)
+		assert.JSONEq(t, `{"anyKey":{"nested":true}}`, string(req.AdditionalConfig))
+	})
+
 	for _, field := range []string{"clientId", "relyingPartyId", "publicKey", "unknownField"} {
 		t.Run(field+" rejected", func(t *testing.T) {
 			_, err := DecodeUpdateRequest([]byte(`{"request":{"clientName":"App","` + field + `":"x"}}`))
-			require.Error(t, err)
+			require.ErrorIs(t, err, ErrUnknownField)
 			assert.Equal(t, `unknown field "`+field+`"`, err.Error())
 		})
 	}
@@ -211,6 +226,74 @@ func (ts *ModelTestSuite) TestDecodeUpdateRequest() {
 		t.Run(tt.name, func(t *testing.T) {
 			_, err := DecodeUpdateRequest([]byte(tt.body))
 			assert.Error(t, err)
+		})
+	}
+}
+
+func (ts *ModelTestSuite) TestDecodeCreateRequest() {
+	t := ts.T()
+	t.Run("all fields decoded", func(t *testing.T) {
+		body, err := json.Marshal(map[string]any{"id": "x", "version": "1.0", "requestTime": "t", "request": validCreateRequest()})
+		require.NoError(t, err)
+		req, err := DecodeCreateRequest(body)
+		require.NoError(t, err)
+		assert.Equal(t, validCreateRequest(), req)
+	})
+
+	t.Run("extensible maps accept arbitrary keys", func(t *testing.T) {
+		req, err := DecodeCreateRequest([]byte(`{"request":{"publicKey":{"kty":"RSA","kid":"k1"},"clientNameLangMap":{"fra":"App"},"additionalConfig":{"anyKey":1}}}`))
+		require.NoError(t, err)
+		assert.Equal(t, map[string]string{"kty": "RSA", "kid": "k1"}, req.PublicKey)
+		assert.Equal(t, map[string]string{"fra": "App"}, req.ClientNameLangMap)
+		assert.JSONEq(t, `{"anyKey":1}`, string(req.AdditionalConfig))
+	})
+
+	t.Run("missing or null request", func(t *testing.T) {
+		for _, body := range []string{`{}`, `{"request":null}`} {
+			req, err := DecodeCreateRequest([]byte(body))
+			require.NoError(t, err)
+			assert.Equal(t, CreateClientRequest{}, req)
+		}
+	})
+
+	for _, field := range []string{"status", "unknownField"} {
+		t.Run(field+" rejected", func(t *testing.T) {
+			_, err := DecodeCreateRequest([]byte(`{"request":{"clientId":"c1","` + field + `":"x"}}`))
+			require.ErrorIs(t, err, ErrUnknownField)
+			assert.Equal(t, `unknown field "`+field+`"`, err.Error())
+		})
+	}
+
+	for _, tt := range []struct {
+		name string
+		body string
+	}{
+		{"invalid top-level json", `not-json`},
+		{"request not an object", `{"request":"x"}`},
+		{"field wrong type", `{"request":{"clientId":123}}`},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			_, err := DecodeCreateRequest([]byte(tt.body))
+			require.Error(t, err)
+			assert.NotErrorIs(t, err, ErrUnknownField)
+		})
+	}
+}
+
+func (ts *ModelTestSuite) TestHasRequestObject() {
+	t := ts.T()
+	for _, tt := range []struct {
+		name string
+		body string
+		want bool
+	}{
+		{"object present", `{"request":{"clientId":"c1"}}`, true},
+		{"request missing", `{}`, false},
+		{"request null", `{"request":null}`, false},
+		{"invalid json", `not-json`, false},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equal(t, tt.want, hasRequestObject([]byte(tt.body)))
 		})
 	}
 }

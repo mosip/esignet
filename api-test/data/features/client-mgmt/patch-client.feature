@@ -319,10 +319,10 @@ Feature: PATCH /client-mgmt/client/{clientId} — partially update a client
       }
       """
     Then the response status should be 200
-    And the JSON value at "errors.0.errorCode" should be "invalid_input"
+    And the JSON value at "errors.0.errorCode" should be "invalid_request"
 
   # An envelope with no "request" at all is distinct from an empty one: there is
-  # nothing to merge, which the decoder reports rather than treating as a no-op
+  # nothing to merge, which is reported rather than treating as a no-op
   # patch that would rewrite the record with itself.
   Scenario: Patch with no request object is rejected
     When I send a "PATCH" request to "/client-mgmt/client/{{cid}}" with body:
@@ -332,7 +332,7 @@ Feature: PATCH /client-mgmt/client/{clientId} — partially update a client
       }
       """
     Then the response status should be 200
-    And the JSON value at "errors.0.errorCode" should be "invalid_input"
+    And the JSON value at "errors.0.errorCode" should be "invalid_request"
 
   Scenario: Patch with a malformed JSON body is rejected
     When I send a "PATCH" request to "/client-mgmt/client/{{cid}}" with body:

@@ -7,6 +7,7 @@
 package security
 
 import (
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -25,39 +26,39 @@ func (ts *RequesttimeTestSuite) TestRequestTimeMiddleware() {
 	})
 
 	tests := []struct {
-		name       string
-		body       string
-		wantStatus int
+		name     string
+		body     string
+		wantCode string
 	}{
 		{
-			name:       "within leeway",
-			body:       `{"requestTime":"` + time.Now().UTC().Format(common.MOSIPTimeLayout) + `"}`,
-			wantStatus: http.StatusOK,
+			name:     "within leeway",
+			body:     `{"requestTime":"` + time.Now().UTC().Format(common.MOSIPTimeLayout) + `"}`,
+			wantCode: "",
 		},
 		{
-			name:       "too old",
-			body:       `{"requestTime":"` + time.Now().Add(-time.Hour).UTC().Format(common.MOSIPTimeLayout) + `"}`,
-			wantStatus: http.StatusBadRequest,
+			name:     "too old",
+			body:     `{"requestTime":"` + time.Now().Add(-time.Hour).UTC().Format(common.MOSIPTimeLayout) + `"}`,
+			wantCode: "invalid_request",
 		},
 		{
-			name:       "too far in future",
-			body:       `{"requestTime":"` + time.Now().Add(time.Hour).UTC().Format(common.MOSIPTimeLayout) + `"}`,
-			wantStatus: http.StatusBadRequest,
+			name:     "too far in future",
+			body:     `{"requestTime":"` + time.Now().Add(time.Hour).UTC().Format(common.MOSIPTimeLayout) + `"}`,
+			wantCode: "invalid_request",
 		},
 		{
-			name:       "malformed timestamp",
-			body:       `{"requestTime":"not-a-time"}`,
-			wantStatus: http.StatusBadRequest,
+			name:     "malformed timestamp",
+			body:     `{"requestTime":"not-a-time"}`,
+			wantCode: "invalid_request",
 		},
 		{
-			name:       "missing requestTime passes through",
-			body:       `{"request":{}}`,
-			wantStatus: http.StatusOK,
+			name:     "missing requestTime passes through",
+			body:     `{"request":{}}`,
+			wantCode: "",
 		},
 		{
-			name:       "no body passes through",
-			body:       "",
-			wantStatus: http.StatusOK,
+			name:     "no body passes through",
+			body:     "",
+			wantCode: "",
 		},
 	}
 
@@ -79,8 +80,21 @@ func (ts *RequesttimeTestSuite) TestRequestTimeMiddleware() {
 
 			mw(next).ServeHTTP(rec, req)
 
-			if rec.Code != tt.wantStatus {
-				t.Errorf("got status %d, want %d (body: %s)", rec.Code, tt.wantStatus, rec.Body.String())
+			if rec.Code != http.StatusOK {
+				t.Fatalf("got status %d, want %d (body: %s)", rec.Code, http.StatusOK, rec.Body.String())
+			}
+			var resp common.ResponseWrapper
+			if rec.Body.Len() > 0 {
+				if err := json.Unmarshal(rec.Body.Bytes(), &resp); err != nil {
+					t.Fatalf("decode response: %v", err)
+				}
+			}
+			gotCode := ""
+			if len(resp.Errors) > 0 {
+				gotCode = resp.Errors[0].ErrorCode
+			}
+			if gotCode != tt.wantCode {
+				t.Errorf("got errorCode %q, want %q (body: %s)", gotCode, tt.wantCode, rec.Body.String())
 			}
 		})
 	}

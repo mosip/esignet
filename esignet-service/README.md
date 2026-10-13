@@ -136,7 +136,9 @@ full in [`docs/configuration.md`](../docs/configuration.md) §8.
 
 When scope enforcement is enabled (`security_config.issuer_url`/`jwks_url` in `data/deployment.yaml` — see [`docs/configuration.md`](../docs/configuration.md) §4), endpoints require `Authorization: Bearer <token>`, validated against the JWKS endpoint with a matching `iss` and unexpired `exp`. When `aud` is present, it must contain an exact match with a configured `allowed_audiences` entry; `azp` is checked as a compatibility fallback only when `aud` is absent. The token must also carry the scope mapped to the requested endpoint. At least one allowed audience is required when enforcement is enabled, otherwise the service rejects the configuration at startup.
 
-Requests and responses use the MOSIP envelope: `{"requestTime": "...", "request": {...}}` in, `{"responseTime": "...", "response": {"clientId", "status"}, "errors": []}` out. Validation failures return HTTP 200 with a populated `errors` array and documented `errorCode` values.
+Requests and responses use the MOSIP envelope: `{"requestTime": "...", "request": {...}}` in, `{"responseTime": "...", "response": {"clientId", "status"}, "errors": []}` out. Validation failures return HTTP 200 with a populated `errors` array and documented `errorCode` values. A missing, blank, malformed or out-of-leeway `requestTime`, or a missing or `null` `request`, fails with `invalid_request`.
+
+The `request` object of every POST, PUT and PATCH is decoded strictly: a field outside that endpoint's accepted fields (listed below) fails the request with `invalid_request` and an `unknown field "<name>"` message, before anything is stored. Envelope members other than `requestTime` and `request` (e.g. `id`, `version`) are ignored. Map-valued fields — `publicKey`, `encPublicKey`, `clientNameLangMap`, `additionalConfig` — accept arbitrary keys at this stage; their contents are validated separately (e.g. `additionalConfig` keys against its supported set).
 
 ### Current API (`/client-mgmt/client`)
 
@@ -147,7 +149,7 @@ Requests and responses use the MOSIP envelope: `{"requestTime": "...", "request"
 | PATCH | `/client-mgmt/client/{client_id}` | Partial update; all fields optional; `status` is `ACTIVE` or `INACTIVE`; supports nullable `encPublicKey` for JWE userinfo |
 | GET | `/client-mgmt/client/{client_id}` | Fetch client metadata (engine use) |
 
-v3 create requires `clientId`, `clientName`, `clientNameLangMap`, `relyingPartyId`, `logoUri`, `authContextRefs`, `publicKey`, `userClaims`, `grantTypes`, and `clientAuthMethods`. `redirectUris` and `additionalConfig` are optional. `clientNameLangMap` is stored in `client_detail.name` as JSON with `@none` set to `clientName`.
+v3 create requires `clientId`, `clientName`, `clientNameLangMap`, `relyingPartyId`, `logoUri`, `authContextRefs`, `publicKey`, `userClaims`, `grantTypes`, and `clientAuthMethods`. `redirectUris`, `encPublicKey`, `encPublicKeyCert` and `additionalConfig` are optional; `status` is not accepted. `clientNameLangMap` is stored in `client_detail.name` as JSON with `@none` set to `clientName`.
 
 `additionalConfig` supports `userinfo_response_type` (`JWS`/`JWE`), `id_token_response_type` (`JWS`/`JWE`), `purpose`, consent/UI flags, PAR, and DPoP settings. The JSON object is validated and persisted verbatim. For either response type, `JWE` requires the client's `encPublicKey` JWK to carry an `alg`; the id_token/userinfo is then encrypted with that algorithm and a fixed `A256GCM` content encryption.
 
@@ -196,6 +198,14 @@ PUT /client-mgmt/client/{client_id}
 ```
 
 Mutable fields: `clientName`, `clientNameLangMap`, `logoUri`, `redirectUris`, `userClaims`, `authContextRefs`, `grantTypes`, `clientAuthMethods`, `status`, `additionalConfig`. `clientId`, `relyingPartyId` and `publicKey` are immutable after creation; sending any of them, or any field not listed above, fails the request with `invalid_request`.
+
+### Partial update (PATCH)
+
+```http
+PATCH /client-mgmt/client/{client_id}
+```
+
+Accepted fields: the PUT mutable fields above plus `encPublicKey` (a JWK, or `null` to clear it). As with PUT, `clientId`, `relyingPartyId`, `publicKey` or any other field fails the request with `invalid_request`.
 
 ### Database schema
 

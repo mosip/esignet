@@ -231,6 +231,7 @@ paths:
                             - duplicate_client_id
                             - invalid_public_key
                             - invalid_input
+                            - invalid_request
                             - invalid_client_id
                             - invalid_client_name
                             - invalid_rp_id
@@ -467,6 +468,7 @@ paths:
                             - duplicate_client_id
                             - invalid_public_key
                             - invalid_input
+                            - invalid_request
                             - invalid_client_id
                             - invalid_client_name
                             - invalid_rp_id
@@ -761,6 +763,7 @@ paths:
                             - duplicate_client_id
                             - invalid_public_key
                             - invalid_input
+                            - invalid_request
                             - invalid_client_id
                             - invalid_client_name
                             - invalid_rp_id

@@ -105,6 +105,42 @@ func (ts *HandlerTestSuite) TestCreateClientHandler() {
 		require.Len(t, errs, 1)
 	})
 
+	for _, extra := range []string{`"status":"ACTIVE"`, `"unknownField":"x"`} {
+		t.Run("rejects "+extra, func(t *testing.T) {
+			q := &fakeQuerier{createRow: existingClientRow()}
+			h := newTestHandler(q)
+			mux := http.NewServeMux()
+			h.RegisterRoutes(mux, nil)
+			createJSON := validCreateRequestJSON()
+			reqJSON := createJSON[:len(createJSON)-1] + `,` + extra + `}`
+			body := []byte(`{"requestTime":"2026-07-27T00:00:00.000Z","request":` + reqJSON + `}`)
+			for _, path := range []string{"/client-mgmt/oidc-client", "/client-mgmt/oauth-client", "/client-mgmt/client"} {
+				req := httptest.NewRequest(http.MethodPost, path, bytes.NewReader(body))
+				rec := httptest.NewRecorder()
+				mux.ServeHTTP(rec, req)
+
+				require.Equal(t, http.StatusOK, rec.Code)
+				decoded := decodeEnvelope(t, rec.Body.Bytes())
+				errs := decoded["errors"].([]any)
+				errObj := errs[0].(map[string]any)
+				require.Equal(t, "invalid_request", errObj["errorCode"], path)
+				require.Nil(t, decoded["response"])
+				require.Empty(t, q.createParams.ID, "create must not reach the database")
+			}
+		})
+	}
+
+	t.Run("envelope metadata accepted", func(t *testing.T) {
+		h := newTestHandler(&fakeQuerier{createRow: existingClientRow()})
+		body := []byte(`{"id":"mosip.oidc.client.create","version":"1.0","requestTime":"2026-07-27T00:00:00.000Z","request":` + validCreateRequestJSON() + `}`)
+		req := httptest.NewRequest(http.MethodPost, "/client-mgmt/oidc-client", bytes.NewReader(body))
+		rec := httptest.NewRecorder()
+		h.createClient(ProfileOIDC).ServeHTTP(rec, req)
+
+		decoded := decodeEnvelope(t, rec.Body.Bytes())
+		require.Nil(t, decoded["errors"])
+	})
+
 	t.Run("missing request time", func(t *testing.T) {
 		h := newTestHandler(&fakeQuerier{})
 		body := []byte(`{"request":` + validCreateRequestJSON() + `}`)
@@ -117,6 +153,7 @@ func (ts *HandlerTestSuite) TestCreateClientHandler() {
 		errs, ok := decoded["errors"].([]any)
 		require.True(t, ok)
 		require.Len(t, errs, 1)
+		require.Equal(t, "invalid_request", errs[0].(map[string]any)["errorCode"])
 	})
 
 	t.Run("validation error returns 200 with populated errors", func(t *testing.T) {
@@ -292,7 +329,7 @@ func (ts *HandlerTestSuite) TestUpdateClientHandler() {
 		decoded := decodeEnvelope(t, rec.Body.Bytes())
 		errs := decoded["errors"].([]any)
 		errObj := errs[0].(map[string]any)
-		require.Equal(t, "invalid_input", errObj["errorCode"])
+		require.Equal(t, "invalid_request", errObj["errorCode"])
 	})
 }
 
@@ -352,7 +389,7 @@ func (ts *HandlerTestSuite) TestPatchClientHandler() {
 		decoded := decodeEnvelope(t, rec.Body.Bytes())
 		errs := decoded["errors"].([]any)
 		errObj := errs[0].(map[string]any)
-		require.Equal(t, "invalid_input", errObj["errorCode"])
+		require.Equal(t, "invalid_request", errObj["errorCode"])
 	})
 
 	t.Run("decode patch request error", func(t *testing.T) {
@@ -371,6 +408,32 @@ func (ts *HandlerTestSuite) TestPatchClientHandler() {
 		require.Equal(t, "invalid_input", errObj["errorCode"])
 	})
 
+	for _, extra := range []string{
+		`"clientId":"hacked-id"`,
+		`"relyingPartyId":"bogus-rp"`,
+		`"publicKey":{"kty":"RSA","n":"ZZZZ","e":"AQAB"}`,
+		`"unknownField":"x"`,
+	} {
+		t.Run("rejects "+extra, func(t *testing.T) {
+			q := &fakeQuerier{getRow: existingClientRow(), patchRow: existingClientRow()}
+			h := newTestHandler(q)
+			mux := http.NewServeMux()
+			h.RegisterRoutes(mux, nil)
+			body := []byte(`{"requestTime":"2026-07-27T00:00:00.000Z","request":{"logoUri":"https://example.com/new-logo.png",` + extra + `}}`)
+			req := httptest.NewRequest(http.MethodPatch, "/client-mgmt/client/client-1", bytes.NewReader(body))
+			rec := httptest.NewRecorder()
+			mux.ServeHTTP(rec, req)
+
+			require.Equal(t, http.StatusOK, rec.Code)
+			decoded := decodeEnvelope(t, rec.Body.Bytes())
+			errs := decoded["errors"].([]any)
+			errObj := errs[0].(map[string]any)
+			require.Equal(t, "invalid_request", errObj["errorCode"])
+			require.Nil(t, decoded["response"])
+			require.Empty(t, q.patchParams.ID, "patch must not reach the database")
+		})
+	}
+
 	t.Run("patch conflict", func(t *testing.T) {
 		h := newTestHandler(&fakeQuerier{getRow: existingClientRow(), patchErr: sql.ErrNoRows})
 		mux := http.NewServeMux()
@@ -385,6 +448,55 @@ func (ts *HandlerTestSuite) TestPatchClientHandler() {
 		errObj := errs[0].(map[string]any)
 		require.Equal(t, "patch_conflict", errObj["errorCode"])
 	})
+}
+
+func (ts *HandlerTestSuite) TestEnvelopeErrorsAreInvalidRequest() {
+	t := ts.T()
+	endpoints := []struct {
+		method string
+		path   string
+	}{
+		{http.MethodPost, "/client-mgmt/oidc-client"},
+		{http.MethodPost, "/client-mgmt/oauth-client"},
+		{http.MethodPost, "/client-mgmt/client"},
+		{http.MethodPut, "/client-mgmt/oidc-client/client-1"},
+		{http.MethodPut, "/client-mgmt/oauth-client/client-1"},
+		{http.MethodPut, "/client-mgmt/client/client-1"},
+		{http.MethodPatch, "/client-mgmt/client/client-1"},
+	}
+	for _, tt := range []struct {
+		name    string
+		body    string
+		message string
+	}{
+		{"blank request time", `{"requestTime":"  ","request":{}}`, "requestTime is required"},
+		{"missing request", `{"requestTime":"2026-07-27T00:00:00.000Z"}`, "request is required"},
+		{"null request", `{"requestTime":"2026-07-27T00:00:00.000Z","request":null}`, "request is required"},
+	} {
+		for _, ep := range endpoints {
+			t.Run(tt.name+" "+ep.method+" "+ep.path, func(t *testing.T) {
+				q := &fakeQuerier{getRow: existingClientRow()}
+				h := newTestHandler(q)
+				mux := http.NewServeMux()
+				h.RegisterRoutes(mux, nil)
+				req := httptest.NewRequest(ep.method, ep.path, bytes.NewReader([]byte(tt.body)))
+				rec := httptest.NewRecorder()
+				mux.ServeHTTP(rec, req)
+
+				require.Equal(t, http.StatusOK, rec.Code)
+				decoded := decodeEnvelope(t, rec.Body.Bytes())
+				errs := decoded["errors"].([]any)
+				require.Len(t, errs, 1)
+				errObj := errs[0].(map[string]any)
+				require.Equal(t, "invalid_request", errObj["errorCode"])
+				require.Equal(t, tt.message, errObj["errorMessage"])
+				require.Nil(t, decoded["response"])
+				require.Empty(t, q.createParams.ID)
+				require.Empty(t, q.updateParams.ID)
+				require.Empty(t, q.patchParams.ID)
+			})
+		}
+	}
 }
 
 func (ts *HandlerTestSuite) TestGetClientHandler() {

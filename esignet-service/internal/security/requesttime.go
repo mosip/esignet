@@ -51,7 +51,7 @@ func RequestTimeMiddleware(leeway time.Duration) func(http.Handler) http.Handler
 			if err != nil {
 				logger.Debug(r.Context(), "rejected request with unparseable requestTime",
 					applog.String("path", r.URL.Path), applog.Error(err))
-				common.WriteError(r.Context(), w, http.StatusBadRequest, "invalid_input", "requestTime must match format "+common.MOSIPTimeLayout)
+				common.WriteError(r.Context(), w, http.StatusOK, "invalid_request", "requestTime must match format "+common.MOSIPTimeLayout)
 				return
 			}
 			if drift := time.Since(reqTime); drift > leeway || drift < -leeway {
@@ -59,7 +59,7 @@ func RequestTimeMiddleware(leeway time.Duration) func(http.Handler) http.Handler
 					applog.String("path", r.URL.Path),
 					applog.String("drift", time.Since(reqTime).String()),
 					applog.String("leeway", leeway.String()))
-				common.WriteError(r.Context(), w, http.StatusBadRequest, "invalid_input", "requestTime is not within the allowed leeway of server time")
+				common.WriteError(r.Context(), w, http.StatusOK, "invalid_request", "requestTime is not within the allowed leeway of server time")
 				return
 			}
 
