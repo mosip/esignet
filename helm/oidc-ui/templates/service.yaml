@@ -23,6 +23,6 @@ spec:
   ports:
     - name: http
       port: {{ .Values.service.port }}
-      protocol: TCP 
+      protocol: TCP
       targetPort: {{ .Values.oidc_ui.oidc_ui_port }}
   selector: {{- include "common.labels.matchLabels" . | nindent 4 }}
