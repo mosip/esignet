@@ -11,6 +11,7 @@ import (
 	"database/sql"
 	"fmt"
 	"math"
+	"net"
 	"os"
 	"strings"
 	"time"
@@ -175,7 +176,10 @@ func resolveMySQLDSN(yamlDSN string) string {
 	if password != "" {
 		cred = user + ":" + password
 	}
-	return fmt.Sprintf("%s@tcp(%s:%s)/%s?parseTime=true&loc=UTC", cred, host, port, dbname)
+	// net.JoinHostPort brackets IPv6 literals (e.g. [::1]:3306) as go-sql-driver
+	// requires; it is a no-op for hostnames/IPv4.
+	addr := net.JoinHostPort(host, port)
+	return fmt.Sprintf("%s@tcp(%s)/%s?parseTime=true&loc=UTC", cred, addr, dbname)
 }
 
 // ensureMySQLParseTime appends parseTime=true&loc=UTC to a caller-supplied DSN
