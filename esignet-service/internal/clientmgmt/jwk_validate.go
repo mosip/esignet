@@ -19,6 +19,10 @@ import (
 // minRSAKeyBits is the smallest RSA modulus accepted for a client JWK.
 const minRSAKeyBits = 2048
 
+// validateJWK validates a public key JWK's structure. A non-empty "kid" is
+// always mandatory — the client assertion verifier and JWKS lookups resolve
+// keys by kid, so a signing key registered without one can never be matched
+// at authentication time.
 func validateJWK(key map[string]string) error {
 	if len(key) == 0 {
 		return validationErr("invalid_public_key")
@@ -54,13 +58,18 @@ func validateJWK(key map[string]string) error {
 	default:
 		return validationErr("invalid_public_key")
 	}
+	if key["kid"] == "" {
+		return validationErr("invalid_public_key")
+	}
 	return nil
 }
 
 // validateEncJWK validates an encryption key JWK, additionally requiring the
 // alg field so the JWE key-management algorithm is always known, and — when
 // supportedAlgs is non-empty — that alg is one of the configured supported
-// encryption algorithms (config.AppConfig.SupportedEncAlgorithms).
+// encryption algorithms (config.AppConfig.SupportedEncAlgorithms). A non-empty
+// "kid" is mandatory: when a client maintains multiple encryption keys, the
+// "kid" in the JWE header tells it which key to decrypt the response with.
 func validateEncJWK(key map[string]string, supportedAlgs []string) error {
 	if err := validateJWK(key); err != nil {
 		return err
