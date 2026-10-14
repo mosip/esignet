@@ -1,0 +1,224 @@
+# Shared healthcheck timings (merged into each service with <<: *health)
+x-health: &health
+  interval: 10s
+  timeout: 5s
+  retries: 30
+  start_period: 30s
+
+# esignet, esignet-ui and ui-test are built from this repo. pull_policy: build rebuilds them on
+# every `up` (unchanged layers come from cache), so a stale local image is never reused.
+
+services:
+  database:
+    container_name: postgres-db
+    image: "postgres:16-bookworm"
+    ports:
+      - 5455:5432
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - ./init-ci.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  mock-identity-system:
+    container_name: mock-id
+    image: "mosipqa/mock-identity-system:0.14.x"
+    user: root
+    ports:
+      - 8082:8082
+    environment:
+      - container_user=mosip
+      - active_profile_env=default,local
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://database:5432/mosip_mockidentitysystem?currentSchema=mockidentitysystem
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+      - MOSIP_ESIGNET_HOST=localhost:8080
+    depends_on:
+      database:
+        condition: service_healthy
+    healthcheck:
+      <<: *health
+      test: ["CMD-SHELL", "curl -fs http://localhost:8082/v1/mock-identity-system/actuator/health || exit 1"]
+
+  esignet:
+    container_name: esignet-service
+    image: "esignet:ci"
+    pull_policy: build
+    build: ./../esignet-service
+    user: root
+    ports:
+      - 8080:8080
+    environment:
+      - container_user=mosip
+      - PORT=8080
+      - LOG_LEVEL=debug
+      - DATABASE_HOST=database
+      - DATABASE_PORT=5432
+      - DATABASE_USERNAME=postgres
+      - DATABASE_PASSWORD=postgres
+      - KEYMANAGER_KEYSTORE_TYPE=PKCS12
+      - KEYMANAGER_DB_SCHEMA=esignet
+      - KEYMANAGER_PKCS12_FILE_PATH=/opt/mosip/test.pfx
+      - KEYMANAGER_PKCS12_PASSWORD=localtest
+      - KEYMANAGER_PKCS12_ALLOW_INSECURE_SOFTWARE_KEYSTORE=true
+      - MOSIP_ESIGNET_CACHE_TYPE=inmemory
+      - MOSIP_ESIGNET_HOST=http://localhost:3000
+      - MOSIP_ESIGNET_BASE_URL=http://esignet-ui:3000/v1/esignet
+      - MOSIP_ESIGNET_OIDC_UI_HOSTNAME=localhost
+      - MOSIP_ESIGNET_CAPTCHA_SITE_PROVIDER=hcaptcha
+      - MOSIP_ESIGNET_CAPTCHA_SITE_KEY=10000000-ffff-ffff-ffff-000000000001
+      - MOSIP_ESIGNET_AUTHN_PROVIDER=mock
+      - MOSIP_ESIGNET_MOCK_DOMAIN_URL=http://mock-identity-system:8082
+    depends_on:
+      database:
+        condition: service_healthy
+      mock-identity-system:
+        condition: service_healthy
+    healthcheck:
+      <<: *health
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:8080/health || exit 1"]
+
+  esignet-ui:
+    container_name: esignet-ui
+    image: oidc-ui:ci
+    pull_policy: build
+    build: ./../oidc-ui
+    user: root
+    ports:
+      - 3000:3000
+    environment:
+      - container_user=mosip
+      - DEFAULT_LANG=en
+      - DEFAULT_WELLKNOWN=%5B%7B%22name%22%3A%22OpenID%20Configuration%22%2C%22value%22%3A%22%2F.well-known%2Fopenid-configuration%22%7D%2C%7B%22name%22%3A%22Jwks%20Json%22%2C%22value%22%3A%22%2F.well-known%2Fjwks.json%22%7D%2C%7B%22name%22%3A%22Authorization%20Server%22%2C%22value%22%3A%22%2F.well-known%2Foauth-authorization-server%22%7D%5D
+    volumes:
+      - ./nginx-ci.conf:/etc/nginx/nginx.conf
+    depends_on:
+      esignet:
+        condition: service_healthy
+    healthcheck:
+      <<: *health
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:3000/ || exit 1"]
+
+  mock-relying-party-service:
+    container_name: mock-rp-service
+    image: 'mosipqa/mock-relying-party-service:0.14.x'
+    user: root
+    ports:
+      - 8888:8888
+    environment:
+      - container_user=mosip
+      - ESIGNET_SERVICE_URL=http://esignet-ui:3000/v1/esignet
+      - TOKEN_ENDPOINT=/oauth2/token
+      - USERINFO_ENDPOINT=/oauth2/userinfo
+      - ESIGNET_AUD_URL=http://localhost:3000
+      - ESIGNET_PAR_ENDPOINT=http://esignet-ui:3000/v1/esignet/oauth2/par
+      - ESIGNET_PAR_AUD_URL=http://localhost:3000
+      - REDIRECT_URI=http://localhost:5000/userprofile
+      - CLAIMS_USER_PROFILE={"userinfo":{"given_name":{"essential":true},"phone_number":{"essential":true},"email":{"essential":true},"picture":{"essential":true},"gender":{"essential":false},"birthdate":{"essential":false},"address":{"essential":false}},"id_token":{}}
+      - CLIENT_PRIVATE_KEY=eyJwIjogIjNSUV80bmZIUjZrSk1BWnBvUGc3NEpYTWkzR3pvTXIzNHNFQ1psYUo5bGdveGVtak8yemV0YmhMVndDc19xYXYwdGMzcjBKYW51S1hFWWlPVzAwWDQwRkRwNWgzYU1zaDV2b3BnblN4X21fVnJHd0d5Skxva1pJRGVhSHllVElmYWx3QnMtcDZ0Um9WSWJqaEVYLUlteDk4SE9iOExfUzlIRlY2eVR1MDVTcyIsImt0eSI6ICJSU0EiLCJxIjogIjhCdHZOYkM4NDVmYnNNOWoyakdtanJZUmpxeXo2YU54MVJfRDVQTHRVb0NSQU1SWFRMVHNVZnpOMVFDeTBJdmpyRzBGVnR6VWRtWkFCR0ZpeHpYdzBPdUdRd1oxSnIxV2lvMHF1M1A3SWc1UkRyQlJGM0h3QWZqUE1QRVpnVU10djhzMEF2dGVEVzV1bjJuVEVITVZ4bVdJTlN0QUVxdnp6NWd6cVFBRy1RcyIsImQiOiAiQXZ4YmxMSkhIalcxOUlJdlhodDlxTDhYTnJBN3BNdF8zbTJxajBMSnk4dldDNEYzR2lPTlEwSFI4azlaLUgtSXJrRVpwZWRIZnRxeFVyWk9xTHdVZVh6WGNHTEFGN25iUXlEYm5ZcTFZdGM2eDByN0xmYlZ5RWFqeXJPR2xFa2I4cDZjOUM2TFlSMF9zUDBTT3UzelBfUmhBZ3JPN2xybkxwS1daYTQxLTZGdnNEMVJ0ZWZjaUEyeWVfa0VjUFdDQlY3blp4SHdKQmVSRGlrUVlqZHJ1RkZYZy1PdVF6OVFJYmJmNWE5c3hZckF0cGNFM1lLU1Z6SWxkZFBzbEtTTDFidUlDYS0yejFDaEw0UlBRU09fM1ZhMTFYdEs2MGR3dTU2c1FIQnJTVHZaMTZCUFhzbkpRVDNIQTRpdGNHdEJDZEhLYl9xX05TYXJKWnQwMUtSdjhRIiwiZSI6ICJBUUFCIiwidXNlIjogInNpZyIsImtpZCI6ICJMMDdjWkxfZVFyVklzZWh3N3pSNGRSWERnbkNZRWJGUU1kQWtYRnhJNkZzIiwicWkiOiAiV0N6WFIzTFA4eXAwVzRJWDV4a0FsRFNsM2NWb09LOUI3YzE2dDdTc3hvQ2gzS0xLaXk3VDhDN0M4d3lBUTN0cVMtOTBiUjBqV25KUlJFTUJxXzA4WmlDT21Ob2FDdVhnSnJyLWR1QlpGWWNFcWpZRXpyMmlxc3hEd2dxRzFyckpHUjIwX0dJRzhFbHdGNFhINWVLb3g1V2R3d0hoR2xCUzRHc1JQUzFTUlhBIiwiZHAiOiAiSXNhZHFmMFhidEZMTGFfRWk5cWdhSnFIdTJPZVV1dTZoSVBCNGVFNUFIUXJyYjRydkJ4TENDQy1VU2c5RGkyZ09MVThBQ2lhNHFWWUNCMEg3NXEzNkRxSzd1RVAzMzhjalIzS3k4ZVpmQ0dSWmZiME5qYk51S0JVUlp6UTdIbVM4WU1aalhpVDVzcjhpZnB3QlBXZndtNzRjZjl2cWdlQWUtV0NWQWM5VkZNIiwiYWxnIjogIlJTMjU2IiwiZHEiOiAiVm93ZEJ3WmczOHpTUktaTXdNNmEwZUF3N2ZPMG1pZnZGVHB3LXlyUmZxYVhIZWFuN1I5ZC02T2JjZ2JoYmFpdTlXMEt1cWU0OGNDam5MQ1owV0xSSGcxM2hOdGtDUVhBbHdxUmQ2WXp4S19TYWZBR0d1Ulg5ZTRBaVF5dS05Z0NPcHI5Y1lHNEFqRm5NSkVOb21WSldRMHFEcmc3VFQtc0Q0MDJPZG1ucWNjIiwibiI6ICJ6MXF0RVRLeTdGdnh2cGtoNG1TRVhQQUw2dnVLZ1BwV1ZFMlBmQkVsd3UwTkY5S2g2QU5YNTJEUklDZGozeV83RDBIVXFOdjhwOTJvcDZ3OEtfcm5EUFg4RTNVOHI2V3BpdXpnN3NTYzdNMWJLalpDQjdtUkZDV3B1UWh4b2tOVzVyeGJrcHBNaURtbE5Vc1R5RXFnM0d6RlpNZnNIYlkyZlFRYVNETG9pejQzSlZ0Unlzb2NDZjNiTWVhaVdKSmNpNk4zVGhoZGFHaEcxQlB4WE1jYkNOZHlJQjBCQ2RqM3l3Z1VubkpCT25YUFFxbk5yRmd4Wkc4Q3RYdEREVHNVOHh0SFJLQm5pZElrUnFEeldNRnVsTTFjZ2pzYWVpME01dVVwWDZVUjNGR1dtdEJ4eW9nNVMtZG5BcndUWXoxZUkxX0pfdkVBUGZTSGJFSlk0cTZyMlEifQ==
+      - JWE_USERINFO_PRIVATE_KEY=eyJwIjogIjVVOEk3Z2NtY2R2a192LUhDc2gtZWphRmYwSndyd2J5RkxNSEpyTmtzbEk1eWVaRXRFZHV6MFYwd0pmRTNpNFgySENKUVIwekFoaFRyeGVtUnhBY1oyeGthcjNHNVlxVXAxYjFMMW1ObndpQjFQU3gxNGlMVF9pRE1jUFVZVmdFZlZ0UUhUbnhLdnEzZ0VHLVpSYXJiUUxfYzBRcjU2ZUMxWGNPc0dzeDNyRSIsImt0eSI6ICJSU0EiLCJxIjogIi1LV0VxaHFrRHFLeVpueUYzeHZZQVRSV3hLMlR6RDM3VW1hZVRUZW5LWWJXMkdvMU80elQ5cGRoUVA0SnQyQ3h0Zmd2ZlNkc21BWWJuemxsbEdrTnc0ak11MTBDS29LVGhKR1QtODNMQkF1MEtuRm9yR2lUQllCZWtTQ21uVmpnMlpDRXYzRHVsMmV4WWpURXhha0dLTEJWRmpibWhBNjB6dHdLMkNpZWRIYyIsImQiOiAiREkzQ2JRUzBYcWF6TkRlYnpLbDlRUjNjWnpEYWp6bFFLZklqRVNBbjFNRko1TlFkRk9EVFZKWVdUWjF2YmU0RXZnTjlXYnN0U2ZsalVQVmJzR1F3dEpXYU9ZR1BVY3pIM085VWhhNFp5UmxxSzVTRzVjb3lGTzZabFpmVWVTYUxCbU1fQl9OLU5fZUtNZ2dtWDFla1cwSDUyMTlPVVh2TlBpb1p5QjcwMlJnNlRZMXRYdy15eWtOSnhSNU14TlhZaHlmUkVYMmczb1VJbWNTaDlveUxqNDN1T2JjYmcwdi10M0twNk9qZW91QUJHUjBKR1E3NUZkV21vV2Uzc1VxMDZrckFweU9rV05LREFXeF9GeUl6N1g5MDJrVURtVTRzTUwtT2dVcC1uMmF2S3NEaUFhSHhLSkhjNEZWYU52bTA5UWZCeG1aT0tnazhpNEsxUHFvendRIiwiZSI6ICJBUUFCIiwidXNlIjogImVuYyIsImtpZCI6ICJIY2tESENRbWJpeHZ3Q2I1cmdlQk5Dc1BtaUMtbkl2UjBwYWxGdzFIVkJRIiwicWkiOiAiVC1xUlFGejN0enhEZFMyaWxud1F1SThZVXZaOXFBMGRzWHBqNDNsMWw3VENTR1ZLa0c5WE9KSVZSYkRVbzRfak52UmZrajJDMjVYakF3UTZtSzdyMmdxaHZPUmMyQm1XVlN5clNzWVAwc1VTS3pOenMwRmVwTTYyWV9VT1ZMeWU0Smdmd3R0VVZTSTUyTE14b1FRekZ4dlNlcG01eTdGcGFqb0NObWhqQ09rIiwiZHAiOiAiYXJzbXhPT19HU19vbm1nQlN4dVhBdnR0bDVZdExNcG0wd3VoUUhvdlhIQzVSU2hRd2ppZGN3dzVFNHVRcm5sMXotQlJnbVU4NExUQl9yVmJSNmhRRURON2FkTjdTRXdBZFFNY2pEVjZuWk13R3hicDBCQldCNXI4TmFXWXJOWnpBSVlIX0JLRUZpVXNWQjVGcUhlc3dzaXFiZFJGTzBYVXQ5YjZsMUxObTRFIiwiYWxnIjogIlJTQS1PQUVQIiwiZHEiOiAidVpKT3dPWEJLMnNoMm50MUxsNkpoOXlZSlpHbWpQaDFhYnBNeXpTTl9lQTAyS19ycXRZZ0hCby02MUt0emI3TTR4S24zckJkeTloREpVS2hIWEtLWXpUbUY3QUN2ZGRXWWNxRXQ1bVB1eVZCQWF4Q2d1cEpVQUhPa21IYjlfTXRYVE1PNEJKWV80YlVUSWMxbElfaG1OeUJwR0sxQ0RveGwzR0NabkZxVVdFIiwibiI6ICIzcmpUYkhkTGZucnVVb1p5T2sxNUxsN283UmsxWGhwS3kxb0dEQ1NvVThzOHQxOWFUS1FlM2lQMXVRUmVlN3YtRDlFYnFxZ3lRUTFCdU00Q1ZzSFgyOWlOM2lwNFExNDZEaFRrTmZXMDBsZ1oyV0RITWRXVUd6YWxPbk12RGU1RlhiYnFkZnpTNnFOc29wcjhmLTZEMzdwX203dGV1SDAxZjV1bHlPTVpYakdCTnV6ZzdyaDVKVllkMnR3ZUZkeWJGcDBUN3RHQUlYQXU0Z05vT0FHY0dPel9ibDVOSXhlSGwxcFQ0c2tscl9VMjQ2d0JvcjFwWXZTc285RUc3UkNLWXMzVl9Ba3pTZXl5NTBEOThZVHN5NHBLNnlkQl9Ta19vdl9zenpSd25aVDlOTDE5bnhiVzd1S3RxektKdHZUTmVGV3pvSUFZUzk0QmhJZF9obFM0UncifQ==
+      - USERINFO_RESPONSE_TYPE=jws
+    depends_on:
+      esignet:
+        condition: service_healthy
+    healthcheck:
+      <<: *health
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:8888/ || exit 1"]
+
+  mock-relying-party-ui:
+    container_name: mock-rp-ui
+    image: 'mosipqa/mock-relying-party-ui:0.14.x'
+    user: root
+    ports:
+      - 5000:5000
+    depends_on:
+      mock-relying-party-service:
+        condition: service_healthy
+    environment:
+      - container_user=mosip
+      - ESIGNET_UI_BASE_URL=http://localhost:3000
+      - AUTHORIZE_ENDPOINT=/v1/esignet/oauth2/authorize
+      - MOCK_RELYING_PARTY_SERVER_URL=http://localhost:5000/mock-relying-party-service
+      - REDIRECT_URI=http://localhost:5000/userprofile
+      - CLIENT_ID=esignet-mock-client
+      - ACRS=mosip:idp:acr:password%20mosip:idp:acr:generated-code%20mosip:idp:acr:biometrics%20mosip:idp:acr:knowledge
+      - CLAIMS_LOCALES=en
+      - DISPLAY=page
+      - GRANT_TYPE=authorization_code
+      - SCOPE_USER_PROFILE=openid profile
+      - CLAIMS_USER_PROFILE=%7B%22userinfo%22%3A%7B%22name%22%3A%7B%22essential%22%3Afalse%7D%2C%22phone_number%22%3A%7B%22essential%22%3Atrue%7D%20%7D%2C%22id_token%22%3A%7B%7D%7D
+      - CLAIMS_REGISTRATION=%7B%22userinfo%22%3A%7B%22name%22%3A%7B%22essential%22%3Afalse%7D%2C%22phone_number%22%3A%7B%22essential%22%3Atrue%7D%20%7D%2C%22id_token%22%3A%7B%7D%7D
+      - PAR_CALLBACK_NAME=get_requestUri
+      - PAR_CALLBACK_TIMEOUT=4000
+      - DPOP_CALLBACK_NAME=get_dpop_jkt
+      - CODE_CHALLENGE=get_code_challenge
+    volumes:
+      - ./nginx-ci-mock.conf:/etc/nginx/nginx.conf
+    healthcheck:
+      <<: *health
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:5000/ || exit 1"]
+
+  apitest:
+    container_name: apitest
+    build: ./../api-test
+    image: apitest-esignet:ci
+    user: root
+    depends_on:
+      esignet:
+        condition: service_healthy
+    environment:
+      MOSIP_ESIGNET_BASE_URL: http://esignet:8080
+      CONFIG: /app/data/config/config.mock.json
+      REPORT_DIR: /home/esignet/test-report
+      ADMIN_TOKEN: local-no-scope
+      INDIVIDUAL_ID: 1774231323
+      ID_TYPE: uin
+      SURFACES: api,e2e
+      TEST_PROFILE: full
+      FLOW_CLIENT_ID: 'esignet-mock-client'
+      GODOG_TAGS: '@client-mgmt,@flow-execute,@inactive-client'
+
+  ui-test:
+    container_name: uitest
+    image: ui-test:ci
+    pull_policy: build
+    build: ./../ui-test
+    user: root
+    # The browser in this container must open the same localhost:5000 / localhost:3000
+    # URLs the RP UI redirects to, so it shares the host network.
+    network_mode: host
+    depends_on:
+      esignet-ui:
+        condition: service_healthy
+      mock-relying-party-ui:
+        condition: service_healthy
+    environment:
+      CHROME_DRIVER_CPU_LIMIT: '2'
+      CHROME_DRIVER_MEMORY: 3g
+      NS: uitestrig
+      # Host networking bypasses Docker DNS, so service names don't resolve here.
+      baseurl: http://localhost:5000/
+      eSignetbaseurl: http://localhost:3000/
+      emailLoginId: mosiptest4@gmail.com
+      esignetDbHost: localhost
+      esignetDbName: mosip_esignet
+      esignetDbPassword: postgres
+      esignetDbPort: '5455'
+      esignetDbUsername: postgres
+      mockUin: '1774231323'
+      mosip_testrig_client_secret: 6NUqyav5CYpt5y5p
+      oidcClientId: esignet-mock-client
+      passwordLoginPassword: 12341234_Aa
+      passwordLoginUin: '1774231323'
+      pluginToExecute: mock
+      push-reports-to-s3: 'no'
+      runLanguage: en
+      runOnBrowserStack: 'false'
+      runPrerequisiteSuite: 'false'
+      s3-account: uitestrig
+      vid: ''

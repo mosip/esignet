@@ -1,4 +1,15 @@
-FROM eclipse-temurin:21-jre-jammy
+# Debian (not Ubuntu) base: Ubuntu ships Chromium only as a snap, which does not run in Docker.
+# The Temurin JRE is copied in so Java stays on 21.
+FROM eclipse-temurin:21-jre AS jre
+
+FROM debian:trixie-slim
+
+COPY --from=jre /opt/java/openjdk /opt/java/openjdk
+ENV JAVA_HOME=/opt/java/openjdk
+ENV PATH=${JAVA_HOME}/bin:${PATH}
+
+# Set automatically by BuildKit (amd64 / arm64).
+ARG TARGETARCH
 
 ARG SOURCE
 ARG COMMIT_HASH
@@ -17,36 +28,26 @@ ARG KUBECTL_VERSION=1.22.9
 
 ENV work_dir=/home/${container_user}
 ENV RUN_DOCKER=yes
-ENV CHROME_BIN=/usr/bin/google-chrome
+ENV CHROME_BIN=/usr/bin/chromium
+ENV CHROMEDRIVER_PATH=/usr/bin/chromedriver
 ENV MODULES=esignet
 ENV ENV_USER=
 ENV ENV_ENDPOINT=
 ENV ENV_TESTLEVEL=smokeAndRegression
-ENV DISPLAY=:99
+# Do not set DISPLAY. Headless Chrome talks to X when DISPLAY is set. :99 has no
+# X server here, so the GPU process crash-loops and ChromeDriver reports
+# "session deleted ... Unable to receive message from renderer".
 
 WORKDIR ${work_dir}
 
-# Google Chrome + matching ChromeDriver (amd64). Alpine apk Chromium / Ubuntu snaps
-# cannot start a ChromeDriver session in testriq pods (SessionNotCreatedException).
+# Debian Chromium + matching chromium-driver, native on amd64 and arm64. Google Chrome has no
+# linux/arm64 build, and running the amd64 one under emulation crashes the renderer.
+# Alpine apk Chromium / Ubuntu snaps cannot start a ChromeDriver session in testriq pods.
 # kubectl is used by MOSIP testriq jobs on Rancher to pull env config / push reports.
-# Use curl only (not wget) to satisfy Dockerfile DS-0014.
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
-        gnupg unzip curl ca-certificates bash \
-        fonts-liberation libasound2 libatk-bridge2.0-0 libatk1.0-0 \
-        libcups2 libdrm2 libgbm1 libgtk-3-0 libnspr4 libnss3 \
-        libxcomposite1 libxdamage1 libxrandr2 xdg-utils \
-    && curl -fsSL -o /tmp/google-chrome.deb https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb \
-    && apt-get install -y --no-install-recommends /tmp/google-chrome.deb \
-    && rm -f /tmp/google-chrome.deb \
-    && CHROME_MAJOR=$(google-chrome --version | grep -oE '[0-9]+' | head -1) \
-    && DRIVER_VERSION=$(curl -fsSL "https://googlechromelabs.github.io/chrome-for-testing/LATEST_RELEASE_${CHROME_MAJOR}") \
-    && curl -fsSL -o /tmp/chromedriver.zip "https://storage.googleapis.com/chrome-for-testing-public/${DRIVER_VERSION}/linux64/chromedriver-linux64.zip" \
-    && unzip -q /tmp/chromedriver.zip -d /tmp \
-    && mv /tmp/chromedriver-linux64/chromedriver /usr/bin/chromedriver \
-    && chmod +x /usr/bin/chromedriver \
-    && rm -rf /tmp/chromedriver.zip /tmp/chromedriver-linux64 \
-    && curl -fsSLO "https://storage.googleapis.com/kubernetes-release/release/v${KUBECTL_VERSION}/bin/linux/amd64/kubectl" \
+        chromium chromium-driver curl ca-certificates bash fonts-liberation \
+    && curl -fsSLO "https://storage.googleapis.com/kubernetes-release/release/v${KUBECTL_VERSION}/bin/linux/${TARGETARCH:-amd64}/kubectl" \
     && chmod +x kubectl \
     && mv kubectl /usr/local/bin/ \
     && groupadd -g ${container_user_gid} ${container_user_group} \
@@ -73,9 +74,5 @@ RUN chmod +x ${work_dir}/entrypoint.sh \
 USER ${container_user_uid}:${container_user_gid}
 
 WORKDIR ${work_dir}
-
-# Batch test runner has no HTTP listener; verify Java + ChromeDriver stay available (DS-0026).
-HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
-    CMD java -version >/dev/null 2>&1 && test -x /usr/bin/chromedriver || exit 1
 
 ENTRYPOINT ["./entrypoint.sh"]
