@@ -9,8 +9,8 @@ Feature: Client status — the ACTIVE/INACTIVE lifecycle
   the caller's side and neither announces itself:
 
     - create has no status field at all. A status sent in a create request is
-      silently dropped and the client is registered ACTIVE, so a caller who
-      believes they registered a disabled client did not.
+      rejected with invalid_request rather than dropped, so a caller cannot
+      believe they registered a disabled client; every client starts ACTIVE.
     - update is a full replace and status is mandatory in it. A PUT that only
       means to rename a client, and leaves status out, is rejected outright
       rather than preserving the stored value.
@@ -24,10 +24,9 @@ Feature: Client status — the ACTIVE/INACTIVE lifecycle
     And a generated RSA public key as "pubjwk"
     And a new client id as "cid"
 
-  # CreateClientRequest carries no status member, so this one is dropped during
-  # decoding — no invalid_input, no echo of what was asked for. Asserted so a
-  # future create that did honour it could not land unnoticed.
-  Scenario: Create ignores a status in the request and always registers ACTIVE
+  # CreateClientRequest carries no status member, and the request object is
+  # decoded strictly, so the field is an unknown one and fails the request.
+  Scenario: Create rejects a status in the request
     When I send a "POST" request to "/client-mgmt/client" with body:
       """
       {
@@ -49,12 +48,12 @@ Feature: Client status — the ACTIVE/INACTIVE lifecycle
       }
       """
     Then the response status should be 200
-    And the JSON value at "response.status" should be "ACTIVE"
+    And the JSON value at "errors.0.errorCode" should be "invalid_request"
 
-    # and the drop is durable, not just a response-shaping artifact
+    # and nothing was registered
     When I send a "GET" request to "/client-mgmt/client/{{cid}}"
     Then the response status should be 200
-    And the JSON value at "response.status" should be "ACTIVE"
+    And the JSON value at "errors.0.errorCode" should be "invalid_client_id"
 
   # normalizeStatus upper-cases before matching, so any casing is the same word.
   Scenario Outline: Patch accepts <sent> and stores it as INACTIVE

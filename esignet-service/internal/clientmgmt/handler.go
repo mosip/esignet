@@ -64,11 +64,20 @@ func (h *Handler) createClient(profile Profile) http.HandlerFunc {
 			return
 		}
 		if strings.TrimSpace(req.RequestTime) == "" {
-			writeSpecError(r.Context(), w, "invalid_input", "requestTime is required")
+			writeSpecError(r.Context(), w, "invalid_request", "requestTime is required")
+			return
+		}
+		if !hasRequestObject(body) {
+			writeSpecError(r.Context(), w, "invalid_request", "request is required")
+			return
+		}
+		createReq, err := DecodeCreateRequest(body)
+		if err != nil {
+			writeSpecError(r.Context(), w, "invalid_request", err.Error())
 			return
 		}
 
-		resp, err := h.svc.CreateClient(r.Context(), profile, req.Request)
+		resp, err := h.svc.CreateClient(r.Context(), profile, createReq)
 		if err != nil {
 			h.handleServiceError(r.Context(), w, err, "create client")
 			return
@@ -102,7 +111,11 @@ func (h *Handler) updateClient(profile Profile) http.HandlerFunc {
 			return
 		}
 		if strings.TrimSpace(req.RequestTime) == "" {
-			writeSpecError(r.Context(), w, "invalid_input", "requestTime is required")
+			writeSpecError(r.Context(), w, "invalid_request", "requestTime is required")
+			return
+		}
+		if !hasRequestObject(body) {
+			writeSpecError(r.Context(), w, "invalid_request", "request is required")
 			return
 		}
 		updateReq, err := DecodeUpdateRequest(body)
@@ -144,12 +157,20 @@ func (h *Handler) patchClient(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if strings.TrimSpace(wrapper.RequestTime) == "" {
-		writeSpecError(r.Context(), w, "invalid_input", "requestTime is required")
+		writeSpecError(r.Context(), w, "invalid_request", "requestTime is required")
+		return
+	}
+	if !hasRequestObject(body) {
+		writeSpecError(r.Context(), w, "invalid_request", "request is required")
 		return
 	}
 	req, fields, err := DecodePatchRequest(body)
 	if err != nil {
-		writeSpecError(r.Context(), w, "invalid_input", err.Error())
+		code := "invalid_input"
+		if errors.Is(err, ErrUnknownField) {
+			code = "invalid_request"
+		}
+		writeSpecError(r.Context(), w, code, err.Error())
 		return
 	}
 
