@@ -477,8 +477,15 @@ public class EsignetUtil extends AdminTestUtil {
 		}
 		
 		if (jsonString.contains("$IDPREDIRECTURI$")) {
-			jsonString = replaceKeywordValue(jsonString, "$IDPREDIRECTURI$",
-					ApplnURI.replace(GlobalConstants.API_INTERNAL, "healthservices") + "/userprofile");
+			String esignetBaseUrl = EsignetConfigManager.getEsignetBaseUrl();
+			String baseUrl = (esignetBaseUrl == null || esignetBaseUrl.isBlank()) ? BaseTestCase.ApplnURI
+					: esignetBaseUrl;
+			baseUrl = baseUrl.replace(GlobalConstants.API_INTERNAL, "healthservices");
+			while (baseUrl.endsWith("/")) {
+				baseUrl = baseUrl.substring(0, baseUrl.length() - 1);
+			}
+			String idpRedirectUri = baseUrl + "/userprofile";
+			jsonString = replaceKeywordValue(jsonString, "$IDPREDIRECTURI$", idpRedirectUri);
 		}
 		
 		if (jsonString.contains("$DPOP_JKT$")) {
