@@ -53,9 +53,9 @@ if [[ -n "${FEATURE_FILES_TO_EXECUTE:-}" ]]; then
   JAVA_ARGS+=(-DfeatureFilesToExecute="${FEATURE_FILES_TO_EXECUTE}")
 fi
 
-# JAVA_EXTRA_OPTS: extra JVM flags from Rancher, space-separated (e.g. -Xmx2g)
-# shellcheck disable=SC2206
 EXTRA=( ${JAVA_EXTRA_OPTS:-} )
+
+unset DISPLAY
 
 echo "Starting ${JAR}"
 exec java "${JAVA_ARGS[@]}" "${EXTRA[@]}" -jar "${JAR}"
