@@ -509,11 +509,9 @@ func (ts *KeymanagerTestSuite) TestUploadCertificate_ThumbprintMismatch() {
 	ts.Assert().ErrorIs(err, keymanager.ErrThumbprintMismatch)
 }
 
-// TestUploadCertificate_RejectsDuplicateCertificate covers the new check: a
-// matching public key alone isn't enough to allow the upload through — if
-// the uploaded certificate is byte-identical to the one already on file
-// (same thumbprint), it must be rejected as already existing rather than
-// silently "replacing" the cert with itself.
+// TestUploadCertificate_RejectsDuplicateCertificate verifies that uploading the
+// exact same certificate a second time (same thumbprint) is rejected with
+// ErrCertificateAlreadyExists — it is a caller mistake, not a benign re-upload.
 func (ts *KeymanagerTestSuite) TestUploadCertificate_RejectsDuplicateCertificate() {
 	ks := newFakeKeyStore()
 	ts.Require().NoError(ks.GenerateAndStoreAsymmetricKey("root-alias", "root-alias", testCertTemplateParams(), "RSA", ""))
@@ -584,6 +582,158 @@ func (ts *KeymanagerTestSuite) TestUploadCertificate_UpdatesKeyGenAndExpiryFromC
 	ts.Require().NotNil(updated.KeyExpireDtimes)
 	ts.Assert().WithinDuration(renewedNotBefore, *updated.KeyGenDtimes, time.Second)
 	ts.Assert().WithinDuration(renewedNotAfter, *updated.KeyExpireDtimes, time.Second)
+}
+
+// TestUploadCertificate_UnrelatedSignerRejected verifies the provenance check:
+// a cert that embeds the correct public key but is signed by a throwaway,
+// unrelated private key must be rejected — publicKeysEqual alone is not enough.
+func (ts *KeymanagerTestSuite) TestUploadCertificate_UnrelatedSignerRejected() {
+	ks := newFakeKeyStore()
+	ts.Require().NoError(ks.GenerateAndStoreAsymmetricKey("root-alias", "root-alias", testCertTemplateParams(), "RSA", ""))
+	existingCert, err := ks.GetCertificate("root-alias")
+	ts.Require().NoError(err)
+
+	// Throwaway signer — different key, not the ROOT private key.
+	throwawayPriv, err := rsa.GenerateKey(rand.Reader, 2048)
+	ts.Require().NoError(err)
+	template := &x509.Certificate{
+		SerialNumber: big.NewInt(999),
+		Subject:      existingCert.Subject,
+		NotBefore:    time.Now().UTC().AddDate(0, 0, -1),
+		NotAfter:     time.Now().UTC().AddDate(5, 0, 0),
+	}
+	// Cert embeds the correct ROOT public key, but the signature comes from the throwaway key.
+	certDER, err := x509.CreateCertificate(rand.Reader, template, template, existingCert.PublicKey, throwawayPriv)
+	ts.Require().NoError(err)
+	spoofedPEM := string(pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: certDER}))
+
+	q := &fakeQuerier{
+		getKeyPolicyFn: func(_ context.Context, _ string) (db.KeyPolicy, error) { return alwaysActivePolicy(), nil },
+		getKeyAliasesByAppRefFn: func(_ context.Context, _, _ string) ([]db.KeyAlias, error) {
+			return []db.KeyAlias{validAliasRow("root-alias")}, nil
+		},
+	}
+	svc := keymanager.NewServiceWithQuerier(q, ks, testConfig())
+
+	_, err = svc.UploadCertificate(context.Background(), keymanager.UploadCertificateRequest{
+		ApplicationID: "ROOT", ReferenceID: "", CertificateData: spoofedPEM,
+	})
+	ts.Assert().ErrorIs(err, keymanager.ErrInvalidCertificateProvenance)
+}
+
+// TestUploadCertificate_MissingSigningHierarchy verifies that when the
+// signing parent (ROOT for a Component Master Key) has not been generated
+// yet, UploadCertificate returns ErrInvalidCertificateProvenance rather
+// than a generic server error — the hierarchy being incomplete is a
+// certificate-validation failure, not an unexpected system fault.
+func (ts *KeymanagerTestSuite) TestUploadCertificate_MissingSigningHierarchy() {
+	ks := newFakeKeyStore()
+	// Generate a Component Master Key in the keystore but give the querier
+	// no ROOT row — simulates a hierarchy that hasn't had ROOT provisioned yet.
+	ts.Require().NoError(ks.GenerateAndStoreAsymmetricKey("master-alias", "master-alias", testCertTemplateParams(), "RSA", ""))
+	masterCert, err := ks.GetCertificate("master-alias")
+	ts.Require().NoError(err)
+	masterPriv, err := ks.GetPrivateKey("master-alias")
+	ts.Require().NoError(err)
+
+	template := &x509.Certificate{
+		SerialNumber: big.NewInt(1),
+		Subject:      masterCert.Subject,
+		NotBefore:    time.Now().UTC().AddDate(0, 0, -1),
+		NotAfter:     time.Now().UTC().AddDate(5, 0, 0),
+	}
+	certDER, err := x509.CreateCertificate(rand.Reader, template, template, masterCert.PublicKey, masterPriv)
+	ts.Require().NoError(err)
+	certPEM := string(pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: certDER}))
+
+	q := &fakeQuerier{
+		getKeyPolicyFn: func(_ context.Context, _ string) (db.KeyPolicy, error) { return alwaysActivePolicy(), nil },
+		getKeyAliasesByAppRefFn: func(_ context.Context, appID, refID string) ([]db.KeyAlias, error) {
+			if appID == "ESIGNET" && refID == "RSA_2048" {
+				return []db.KeyAlias{validAliasRow("master-alias")}, nil
+			}
+			return nil, nil // ROOT not provisioned
+		},
+	}
+	svc := keymanager.NewServiceWithQuerier(q, ks, testConfig())
+
+	_, err = svc.UploadCertificate(context.Background(), keymanager.UploadCertificateRequest{
+		ApplicationID: "ESIGNET", ReferenceID: "RSA_2048", CertificateData: certPEM,
+	})
+	ts.Assert().ErrorIs(err, keymanager.ErrInvalidCertificateProvenance,
+		"missing signing hierarchy parent must surface as ErrInvalidCertificateProvenance, not a generic error")
+	ts.Assert().ErrorIs(err, keymanager.ErrRootKeyNotFound,
+		"underlying ErrRootKeyNotFound must remain unwrappable for diagnostics")
+}
+
+// TestUploadCertificate_AlreadyExpiredRejected verifies that a cert whose
+// NotAfter is in the past cannot be uploaded — writing an expired validity
+// window into the DB would immediately mark the key as expired.
+func (ts *KeymanagerTestSuite) TestUploadCertificate_AlreadyExpiredRejected() {
+	ks := newFakeKeyStore()
+	ts.Require().NoError(ks.GenerateAndStoreAsymmetricKey("root-alias", "root-alias", testCertTemplateParams(), "RSA", ""))
+	priv, err := ks.GetPrivateKey("root-alias")
+	ts.Require().NoError(err)
+	existingCert, err := ks.GetCertificate("root-alias")
+	ts.Require().NoError(err)
+
+	expiredTemplate := &x509.Certificate{
+		SerialNumber: big.NewInt(2),
+		Subject:      existingCert.Subject,
+		NotBefore:    time.Now().UTC().AddDate(-2, 0, 0),
+		NotAfter:     time.Now().UTC().Add(-1 * time.Hour), // already expired
+	}
+	certDER, err := x509.CreateCertificate(rand.Reader, expiredTemplate, expiredTemplate, existingCert.PublicKey, priv)
+	ts.Require().NoError(err)
+	expiredPEM := string(pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: certDER}))
+
+	q := &fakeQuerier{
+		getKeyPolicyFn: func(_ context.Context, _ string) (db.KeyPolicy, error) { return alwaysActivePolicy(), nil },
+		getKeyAliasesByAppRefFn: func(_ context.Context, _, _ string) ([]db.KeyAlias, error) {
+			return []db.KeyAlias{validAliasRow("root-alias")}, nil
+		},
+	}
+	svc := keymanager.NewServiceWithQuerier(q, ks, testConfig())
+
+	_, err = svc.UploadCertificate(context.Background(), keymanager.UploadCertificateRequest{
+		ApplicationID: "ROOT", ReferenceID: "", CertificateData: expiredPEM,
+	})
+	ts.Assert().ErrorIs(err, keymanager.ErrUploadedCertificateExpired)
+}
+
+// TestUploadCertificate_NotYetValidRejected verifies that a cert whose
+// NotBefore is in the future cannot be uploaded — it cannot be the live
+// replacement for the current active key.
+func (ts *KeymanagerTestSuite) TestUploadCertificate_NotYetValidRejected() {
+	ks := newFakeKeyStore()
+	ts.Require().NoError(ks.GenerateAndStoreAsymmetricKey("root-alias", "root-alias", testCertTemplateParams(), "RSA", ""))
+	priv, err := ks.GetPrivateKey("root-alias")
+	ts.Require().NoError(err)
+	existingCert, err := ks.GetCertificate("root-alias")
+	ts.Require().NoError(err)
+
+	futureTemplate := &x509.Certificate{
+		SerialNumber: big.NewInt(3),
+		Subject:      existingCert.Subject,
+		NotBefore:    time.Now().UTC().Add(24 * time.Hour), // not yet valid
+		NotAfter:     time.Now().UTC().AddDate(5, 0, 0),
+	}
+	certDER, err := x509.CreateCertificate(rand.Reader, futureTemplate, futureTemplate, existingCert.PublicKey, priv)
+	ts.Require().NoError(err)
+	futurePEM := string(pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: certDER}))
+
+	q := &fakeQuerier{
+		getKeyPolicyFn: func(_ context.Context, _ string) (db.KeyPolicy, error) { return alwaysActivePolicy(), nil },
+		getKeyAliasesByAppRefFn: func(_ context.Context, _, _ string) ([]db.KeyAlias, error) {
+			return []db.KeyAlias{validAliasRow("root-alias")}, nil
+		},
+	}
+	svc := keymanager.NewServiceWithQuerier(q, ks, testConfig())
+
+	_, err = svc.UploadCertificate(context.Background(), keymanager.UploadCertificateRequest{
+		ApplicationID: "ROOT", ReferenceID: "", CertificateData: futurePEM,
+	})
+	ts.Assert().ErrorIs(err, keymanager.ErrUploadedCertificateNotYetValid)
 }
 
 func (ts *KeymanagerTestSuite) TestUploadOtherDomainCertificate_RejectsAppIDNotInAllowList() {
@@ -668,9 +818,6 @@ func (ts *KeymanagerTestSuite) TestUploadOtherDomainCertificate_RejectsDuplicate
 		getKeyPolicyFn: func(_ context.Context, _ string) (db.KeyPolicy, error) { return db.KeyPolicy{}, sql.ErrNoRows },
 		getKeyAliasesByAppRefFn: func(_ context.Context, _, _ string) ([]db.KeyAlias, error) {
 			return []db.KeyAlias{{ID: "existing", CertThumbprint: &thumbprint}}, nil
-		},
-		getKeyStoreRecordFn: func(_ context.Context, _ string) (db.KeyStoreRecord, error) {
-			return db.KeyStoreRecord{PrivateKey: keymanager.ForeignDomainPrivateKeyMarker}, nil
 		},
 	}
 	svc := keymanager.NewServiceWithQuerier(q, newFakeKeyStore(), testConfig())
