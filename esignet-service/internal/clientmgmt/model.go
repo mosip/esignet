@@ -9,6 +9,7 @@ package clientmgmt
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strings"
 
@@ -37,6 +38,10 @@ func (e *ValidationError) Error() string {
 	}
 	return e.Code
 }
+
+// ErrUnknownField is wrapped by the request decoders when the request object
+// carries a field outside the endpoint's supported request schema.
+var ErrUnknownField = errors.New("unknown field")
 
 func validationErr(code string) error {
 	return &ValidationError{Code: code}
@@ -255,32 +260,61 @@ func DecodePatchRequest(data []byte) (PatchClientRequest, PatchFields, error) {
 				}
 				req.EncPublicKey = NullableJWK{Defined: true, Value: jwk}
 			}
+		default:
+			return PatchClientRequest{}, PatchFields{}, fmt.Errorf("%w %q", ErrUnknownField, k)
 		}
 	}
 	return req, fields, nil
+}
+
+// hasRequestObject reports whether the envelope carries a non-null request
+// member.
+func hasRequestObject(data []byte) bool {
+	var envelope struct {
+		Request json.RawMessage `json:"request"`
+	}
+	if err := json.Unmarshal(data, &envelope); err != nil {
+		return false
+	}
+	return len(envelope.Request) > 0 && string(envelope.Request) != "null"
+}
+
+// DecodeCreateRequest strictly unmarshals the request object of a POST body.
+// Fields outside CreateClientRequest are rejected instead of silently dropped.
+func DecodeCreateRequest(data []byte) (CreateClientRequest, error) {
+	return decodeStrictRequest[CreateClientRequest](data)
 }
 
 // DecodeUpdateRequest strictly unmarshals the request object of a PUT body.
 // Fields outside UpdateClientRequest — including the immutable clientId,
 // relyingPartyId and publicKey — are rejected instead of silently dropped.
 func DecodeUpdateRequest(data []byte) (UpdateClientRequest, error) {
+	return decodeStrictRequest[UpdateClientRequest](data)
+}
+
+// decodeStrictRequest decodes the envelope's request object into T, rejecting
+// unknown fields. Only the request object is strict: envelope metadata such as
+// id or version is ignored, and map-typed fields (publicKey, additionalConfig,
+// clientNameLangMap) keep accepting arbitrary keys.
+func decodeStrictRequest[T any](data []byte) (T, error) {
+	var req T
 	var envelope struct {
 		Request json.RawMessage `json:"request"`
 	}
 	if err := json.Unmarshal(data, &envelope); err != nil {
-		return UpdateClientRequest{}, err
+		return req, err
 	}
-	var req UpdateClientRequest
 	if len(envelope.Request) == 0 || string(envelope.Request) == "null" {
 		return req, nil
 	}
 	dec := json.NewDecoder(bytes.NewReader(envelope.Request))
 	dec.DisallowUnknownFields()
 	if err := dec.Decode(&req); err != nil {
+		var zero T
 		if field, found := strings.CutPrefix(err.Error(), "json: unknown field "); found {
-			return UpdateClientRequest{}, fmt.Errorf("unknown field %s", field)
+			return zero, fmt.Errorf("%w %s", ErrUnknownField, field)
 		}
-		return UpdateClientRequest{}, err
+		return zero, err
 	}
 	return req, nil
 }
