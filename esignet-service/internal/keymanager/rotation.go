@@ -3,12 +3,10 @@ package keymanager
 import (
 	"crypto/sha1" //nolint:gosec // sha1 used for value identification only, not for any sensitive data — mirrors KeymanagerUtil.getUniqueIdentifier in the Java service.
 	"encoding/hex"
-	"errors"
 	"strings"
 	"time"
 
-	"github.com/jackc/pgx/v5/pgconn"
-
+	"github.com/mosip/esignet/internal/dbutil"
 	"github.com/mosip/esignet/internal/keymanager/db"
 )
 
@@ -39,19 +37,11 @@ func uniqueIdentifier(appID, refID string, now time.Time) string {
 	return strings.ToUpper(hex.EncodeToString(sum[:]))
 }
 
-// IsDuplicateUniIdent reports whether err is a Postgres unique-violation on
-// the uni_ident_const constraint — the expected, benign outcome when two
+// IsDuplicateUniIdent reports whether err is a unique-violation on the
+// uni_ident_const constraint — the expected, benign outcome when two
 // concurrent requests decide "no current key, must generate" for the same
-// (appID, refID) on the same calendar day. Mirrors the isDuplicateClientID
-// helper convention in internal/clientmgmt/service.go.
+// (appID, refID) on the same calendar day. Classification is delegated to the
+// shared dbutil helper so it works across Postgres and MySQL.
 func IsDuplicateUniIdent(err error) bool {
-	if err == nil {
-		return false
-	}
-	var pgErr *pgconn.PgError
-	if errors.As(err, &pgErr) {
-		return pgErr.Code == "23505" && pgErr.ConstraintName == "uni_ident_const"
-	}
-	msg := err.Error() // string-match fallback for non-*pgconn.PgError errors (e.g. in tests)
-	return strings.Contains(msg, "23505") && strings.Contains(msg, "uni_ident_const")
+	return dbutil.IsUniqueViolation(err, "uni_ident_const")
 }

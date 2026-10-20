@@ -273,3 +273,122 @@ func TestLoadDB_NegativeLifetimeFallsBackToDefault(t *testing.T) {
 
 	require.Equal(t, defaultDBConnMaxLifetimeSecs, db.Pool.ConnMaxLifetimeSecs)
 }
+
+func clearDBEnv(t *testing.T) {
+	t.Helper()
+	for _, envVar := range []string{
+		"DATABASE_URL", "DATABASE_HOST", "DATABASE_PORT", "DATABASE_NAME",
+		"DATABASE_USERNAME", "DATABASE_PASSWORD", "DB_DBUSER_PASSWORD",
+	} {
+		t.Setenv(envVar, "")
+	}
+}
+
+func TestEnsureMySQLParseTime(t *testing.T) {
+	cases := []struct {
+		name string
+		dsn  string
+		want string
+	}{
+		{"appends with no query", "user:pass@tcp(h:3306)/db", "user:pass@tcp(h:3306)/db?parseTime=true&loc=UTC"},
+		{"appends with existing query", "user:pass@tcp(h:3306)/db?charset=utf8mb4", "user:pass@tcp(h:3306)/db?charset=utf8mb4&parseTime=true&loc=UTC"},
+		{"leaves existing parseTime alone", "user:pass@tcp(h:3306)/db?parseTime=true", "user:pass@tcp(h:3306)/db?parseTime=true"},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			require.Equal(t, tc.want, ensureMySQLParseTime(tc.dsn))
+		})
+	}
+}
+
+func TestResolveMySQLDSN_FullURLPassedThrough(t *testing.T) {
+	t.Setenv("DATABASE_URL", "esignet:secret@tcp(dbhost:3306)/mosip_esignet?parseTime=true&loc=UTC")
+
+	dsn := resolveMySQLDSN("")
+
+	require.Equal(t, "esignet:secret@tcp(dbhost:3306)/mosip_esignet?parseTime=true&loc=UTC", dsn)
+}
+
+func TestResolveMySQLDSN_FullURLGetsParseTimeAppended(t *testing.T) {
+	t.Setenv("DATABASE_URL", "esignet:secret@tcp(dbhost:3306)/mosip_esignet")
+
+	dsn := resolveMySQLDSN("")
+
+	require.Equal(t, "esignet:secret@tcp(dbhost:3306)/mosip_esignet?parseTime=true&loc=UTC", dsn)
+}
+
+func TestResolveMySQLDSN_IndividualVars(t *testing.T) {
+	t.Setenv("DATABASE_URL", "")
+	t.Setenv("DATABASE_HOST", "dbhost")
+	t.Setenv("DATABASE_PORT", "3307")
+	t.Setenv("DATABASE_NAME", "mydb")
+	t.Setenv("DATABASE_USERNAME", "myuser")
+	t.Setenv("DATABASE_PASSWORD", "mypass")
+
+	dsn := resolveMySQLDSN("")
+
+	require.Equal(t, "myuser:mypass@tcp(dbhost:3307)/mydb?parseTime=true&loc=UTC", dsn)
+}
+
+func TestResolveMySQLDSN_DBUserPasswordFallback(t *testing.T) {
+	t.Setenv("DATABASE_URL", "")
+	t.Setenv("DATABASE_HOST", "dbhost")
+	t.Setenv("DATABASE_PASSWORD", "")
+	t.Setenv("DB_DBUSER_PASSWORD", "fallback-pass")
+
+	dsn := resolveMySQLDSN("")
+
+	require.Contains(t, dsn, ":fallback-pass@tcp(")
+}
+
+func TestResolveMySQLDSN_NoPasswordOmitsCredentialColon(t *testing.T) {
+	clearDBEnv(t)
+
+	dsn := resolveMySQLDSN("")
+
+	require.Equal(t,
+		defaultMySQLUser+"@tcp("+defaultDBHost+":"+defaultMySQLPort+")/"+defaultDBName+"?parseTime=true&loc=UTC",
+		dsn)
+}
+
+func TestResolveMySQLDSN_YAMLUsedWhenNoEnvConfig(t *testing.T) {
+	clearDBEnv(t)
+
+	dsn := resolveMySQLDSN("esignet:secret@tcp(yamlhost:3306)/yamldb?parseTime=true&loc=UTC")
+
+	require.Equal(t, "esignet:secret@tcp(yamlhost:3306)/yamldb?parseTime=true&loc=UTC", dsn)
+}
+
+func TestLoadDB_DriverDefaultsToPostgres(t *testing.T) {
+	t.Setenv("DB_DRIVER", "")
+
+	db := loadDB(DB{})
+
+	require.Equal(t, driverPostgres, db.Driver)
+}
+
+func TestLoadDB_DriverFromEnvBuildsMySQLDSN(t *testing.T) {
+	clearDBEnv(t)
+	t.Setenv("DB_DRIVER", "mysql")
+
+	db := loadDB(DB{})
+
+	require.Equal(t, driverMySQL, db.Driver)
+	require.Contains(t, db.DSN, "@tcp(")
+	require.Contains(t, db.DSN, "parseTime=true")
+}
+
+func TestLoadDB_DriverNormalizedAndEnvOverridesYAML(t *testing.T) {
+	t.Setenv("DB_DRIVER", "MySQL")
+
+	db := loadDB(DB{Driver: "postgres"})
+
+	require.Equal(t, driverMySQL, db.Driver)
+}
+
+func TestOpen_UnsupportedDriver(t *testing.T) {
+	_, _, _, err := DB{Driver: "oracle"}.Open()
+
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "unsupported database driver")
+}
