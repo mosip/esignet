@@ -430,11 +430,18 @@ func validateGrantTypes(grants []string, minItems, maxItems int) error {
 		return validationErr("invalid_grant_type")
 	}
 	for _, g := range grants {
-		if g != "authorization_code" {
+		if !supportedGrantTypes[g] {
 			return validationErr("invalid_grant_type")
 		}
 	}
 	return nil
+}
+
+// supportedGrantTypes lists the grant types a client may register. token_exchange lets a native
+// app redeem a sibling app's device secret (OpenID Connect Native SSO for Mobile Apps 1.0).
+var supportedGrantTypes = map[string]bool{
+	"authorization_code": true,
+	"token_exchange":     true,
 }
 
 func validateAuthMethods(methods []string, minItems, maxItems int) error {

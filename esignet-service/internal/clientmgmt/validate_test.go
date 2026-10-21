@@ -816,3 +816,12 @@ type ValidateTestSuite struct {
 func TestValidateTestSuite(t *testing.T) {
 	suite.Run(t, new(ValidateTestSuite))
 }
+
+func TestValidateGrantTypes_TokenExchangeIsSupported(t *testing.T) {
+	assert.NoError(t, validateGrantTypes([]string{"authorization_code", "token_exchange"}, 0, 0))
+	assert.NoError(t, validateGrantTypes([]string{"token_exchange"}, 1, 0))
+	assert.Equal(t, "invalid_grant_type", errCode(t, validateGrantTypes([]string{"implicit"}, 0, 0)))
+	assert.Equal(t, "invalid_grant_type",
+		errCode(t, validateGrantTypes([]string{"urn:ietf:params:oauth:grant-type:token-exchange"}, 0, 0)),
+		"clients register the short name; the URN is the engine identifier")
+}
