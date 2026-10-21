@@ -634,7 +634,8 @@
                 "exec": [
                   "// Dynamic PKCE (code_verifier/code_challenge), a fresh DPoP key (dpop_*), and a PS256",
                   "// private_key_jwt (par_client_assertion) signed with client_private_key.",
-                  "// The PAR audience (DPoP htu AND assertion aud) comes from the par_audience env var.",
+                  "// The PAR client_assertion aud comes from the par_audience env var (must equal the issuer).",
+                  "// The DPoP htu is always the PAR endpoint URL and is not read from par_audience.",
                   "function b64url(bytes) {",
                   "  const arr = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);",
                   "  let s = ''; for (let i = 0; i < arr.length; i++) s += String.fromCharCode(arr[i]);",
@@ -646,7 +647,7 @@
                   "  return b64url(new Uint8Array(await crypto.subtle.digest('SHA-256', data)));",
                   "}",
                   "async function generateJKT(jwk) { return await sha256b64url(JSON.stringify({ e: jwk.e, kty: jwk.kty, n: jwk.n })); }",
-                  "const parAudience = pm.environment.get('par_audience') || `${pm.environment.get('baseUrl')}/oauth2/par`;",
+                  "const parAudience = pm.environment.get('par_audience') || pm.environment.get('baseUrl');",
                   "",
                   "const pkceBytes = new Uint8Array(32);",
                   "crypto.getRandomValues(pkceBytes);",
@@ -1342,7 +1343,8 @@
                 "exec": [
                   "// DPoP proof for the token endpoint (reuses the key from Initiate PAR) + PS256",
                   "// private_key_jwt (client_assertion) signed with client_private_key.",
-                  "// The token audience (DPoP htu AND assertion aud) comes from the audience env var.",
+                  "// The token client_assertion aud comes from the audience env var (must equal the issuer).",
+                  "// The DPoP htu is always the token endpoint URL and is not read from audience.",
                   "function b64url(bytes) {",
                   "  const arr = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);",
                   "  let s = ''; for (let i = 0; i < arr.length; i++) s += String.fromCharCode(arr[i]);",
@@ -1354,7 +1356,7 @@
                   "  return b64url(new Uint8Array(await crypto.subtle.digest('SHA-256', data)));",
                   "}",
                   "async function generateJKT(jwk) { return await sha256b64url(JSON.stringify({ e: jwk.e, kty: jwk.kty, n: jwk.n })); }",
-                  "const tokenAudience = pm.environment.get('audience') || `${pm.environment.get('baseUrl')}/oauth2/token`;",
+                  "const tokenAudience = pm.environment.get('audience') || pm.environment.get('baseUrl');",
                   "",
                   "await (async () => {",
                   "  const privateJwk = JSON.parse(pm.environment.get('dpop_private_key'));",
@@ -1467,7 +1469,7 @@
               "script": {
                 "exec": [
                   "// DPoP proof for userinfo (ath = SHA-256 of the access token).",
-                  "// The userinfo audience (DPoP htu) comes from the userinfo_audience env var.",
+                  "// The DPoP htu is always the userinfo endpoint URL.",
                   "function b64url(bytes) {",
                   "  const arr = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);",
                   "  let s = ''; for (let i = 0; i < arr.length; i++) s += String.fromCharCode(arr[i]);",
@@ -1478,7 +1480,6 @@
                   "  const data = typeof input === 'string' ? new TextEncoder().encode(input) : input;",
                   "  return b64url(new Uint8Array(await crypto.subtle.digest('SHA-256', data)));",
                   "}",
-                  "const userinfoAudience = pm.environment.get('userinfo_audience') || `${pm.environment.get('baseUrl')}/oauth2/userinfo`;",
                   "await (async () => {",
                   "  const privateJwk = JSON.parse(pm.environment.get('dpop_private_key'));",
                   "  const publicJwk = JSON.parse(pm.environment.get('dpop_public_key'));",
@@ -1552,7 +1553,7 @@
                   "  return b64url(new Uint8Array(await crypto.subtle.digest('SHA-256', data)));",
                   "}",
                   "async function generateJKT(jwk) { return await sha256b64url(JSON.stringify({ e: jwk.e, kty: jwk.kty, n: jwk.n })); }",
-                  "const introspectAudience = pm.environment.get('introspect_audience') || `${pm.environment.get('baseUrl')}/oauth2/introspect`;",
+                  "const introspectAudience = pm.environment.get('introspect_audience') || pm.environment.get('baseUrl');",
                   "",
                   "async function buildClientAssertion() {",
                   "  const privateJwk = JSON.parse(pm.environment.get('client_private_key'));",
@@ -1636,7 +1637,7 @@
           "response": []
         }
       ],
-      "description": "Run Client Management > Create client first with additionalConfig require_pushed_authorization_requests=true AND dpop_bound_access_tokens=true. Then run this folder top-to-bottom. The PAR/token/userinfo/introspect audiences (DPoP htu + client_assertion aud) are read from the par_audience / audience / userinfo_audience / introspect_audience environment variables.",
+      "description": "Run Client Management > Create client first with additionalConfig require_pushed_authorization_requests=true AND dpop_bound_access_tokens=true. Then run this folder top-to-bottom. The PAR/token/introspect client_assertion aud (must equal the issuer) is read from par_audience / audience / introspect_audience. DPoP htu values are always derived from baseUrl and are not read from these variables.",
       "auth": {
         "type": "noauth"
       }
