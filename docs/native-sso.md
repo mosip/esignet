@@ -200,7 +200,7 @@ Errors:
 
 | Error | When |
 |---|---|
-| `invalid_request` | subject_token_type is not `id_token`, or actor/subject tokens are missing |
+| `invalid_request` | subject_token_type is not `id_token`, the subject token is not a self-issued ID token, or actor/subject tokens are missing |
 | `unauthorized_client` | the presenting client is not registered for `device_sso` |
 | `invalid_grant` | device secret cannot be decrypted/verified, expired, foreign issuer, vendor mismatch, `ds_hash`/`sid`/`sub` mismatch, DPoP key differs from `cnf.jkt` |
 | `invalid_dpop_proof` | no DPoP proof although the secret is key-bound |
@@ -228,6 +228,10 @@ sibling clients of another relying party in `additionalConfig.allowed_child_clie
 
 ## 8. Security notes and limits
 
+- **Expired ID tokens are fine, expired device secrets are not.** eSignet ID tokens live minutes while
+  a device secret lives up to 30 days, so the exchange validates the ID token's signature, issuer,
+  `nbf` and revocation status but tolerates a past `exp` (Native SSO 1.0 §5.2); the device secret's
+  `exp` bounds the exchange.
 - **Key binding.** The code, the super app's tokens, the device secret and the child's token are all
   bound to Key A through `dpop_jkt`/`cnf.jkt`. A stolen `id_token + device_secret` pair is useless
   without the hardware key, and the child app never holds that key: the super app signs each proof.
