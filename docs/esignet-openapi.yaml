@@ -2599,8 +2599,38 @@ paths:
               type: object
               properties:
                 grant_type:
-                  const: authorization_code
-                  description: Authorization code grant type.
+                  type: string
+                  enum:
+                    - authorization_code
+                    - 'urn:ietf:params:oauth:grant-type:token-exchange'
+                  description: |-
+                    `authorization_code` redeems a code. `urn:ietf:params:oauth:grant-type:token-exchange`
+                    is the Native SSO silent sign-in of a sibling app: it presents the first app's
+                    `id_token` as `subject_token` (`subject_token_type=urn:ietf:params:oauth:token-type:id_token`)
+                    and the `device_secret` as `actor_token`
+                    (`actor_token_type=urn:openid:params:token-type:device-secret`), with a DPoP proof
+                    signed by the first app's key and a `scope` that is a subset of the first app's
+                    grant (never containing `device_sso`). The response is a DPoP-bound access token whose
+                    `act.sub` is the first app's client id. Errors: `invalid_scope` (scope exceeds the
+                    grant or contains device_sso), `invalid_grant` (secret invalid, expired, vendor
+                    mismatch, ds_hash/sid/sub mismatch, DPoP key differs), `unauthorized_client` (client
+                    not registered for device_sso), `interaction_required` (the first app's consent does
+                    not cover the requested claims; the app must run an interactive authorization).
+                subject_token:
+                  type: string
+                  description: Token exchange only. The first app's ID token.
+                subject_token_type:
+                  type: string
+                  description: Token exchange only. Must be `urn:ietf:params:oauth:token-type:id_token`.
+                actor_token:
+                  type: string
+                  description: Token exchange only. The `device_secret` issued to the first app.
+                actor_token_type:
+                  type: string
+                  description: Token exchange only. `urn:openid:params:token-type:device-secret`.
+                scope:
+                  type: string
+                  description: Token exchange only. Scopes for the new token; a subset of the first app's grant.
                 code:
                   type: string
                   description: 'Authorization code, sent as query param in the client''s redirect URI.'
@@ -2680,6 +2710,15 @@ paths:
                   c_nonce_expires_in:
                     type: number
                     description: JSON integer denoting the lifetime in seconds of the c_nonce.
+                  device_secret:
+                    type: string
+                    description: |-
+                      OpenID Connect Native SSO for Mobile Apps: an opaque, signed-then-encrypted
+                      JWT returned only when the authorization request carried the `device_sso`
+                      scope and the client is registered for it. The ID token then also carries
+                      `ds_hash` (BASE64URL(SHA-256(device_secret))) and `sid`. A sibling app of the
+                      same vendor presents it as `actor_token` on a token exchange (see the
+                      `urn:ietf:params:oauth:grant-type:token-exchange` grant below).
                 required:
                   - access_token
                   - token_type
