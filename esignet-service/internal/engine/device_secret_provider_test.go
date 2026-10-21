@@ -594,3 +594,36 @@ func (ts *DeviceSecretProviderTestSuite) TestDeviceSecretHash() {
 	sum := sha256.Sum256([]byte("abc"))
 	ts.Require().Equal(base64.RawURLEncoding.EncodeToString(sum[:]), DeviceSecretHash("abc"))
 }
+
+func (ts *DeviceSecretProviderTestSuite) TestGenerateDeviceSecret_UnpacksSignedKycToken() {
+	// The mock identity system's KYC token is a signed JWS the engine stores under the raw key.
+	payload := base64.RawURLEncoding.EncodeToString([]byte(`{"iss":"mock","aud":"super-app-id","exp":1,"sub":"psut","name":"Alice","email":"alice@example.com"}`))
+	kyc := "eyJhbGciOiJQUzI1NiJ9." + payload + ".c2ln"
+	params := ts.superParams(time.Hour)
+	params.Claims = map[string]any{providers.RawJWTAttributeKey: kyc, "extra": "kept"}
+
+	p := ts.newProvider()
+	res, svcErr := p.GenerateDeviceSecret(context.Background(), params)
+	ts.Require().Nil(svcErr)
+	claims, valErr := p.ValidateDeviceSecret(context.Background(), dsSuperClient, res.DeviceSecret)
+	ts.Require().Nil(valErr)
+	ts.Require().Equal("Alice", claims.Claims["name"])
+	ts.Require().Equal("alice@example.com", claims.Claims["email"])
+	ts.Require().Equal("kept", claims.Claims["extra"])
+	ts.Require().NotContains(claims.Claims, providers.RawJWTAttributeKey)
+	ts.Require().NotContains(claims.Claims, "aud", "token-level claims are not user attributes")
+	ts.Require().NotContains(claims.Claims, "sub")
+}
+
+func (ts *DeviceSecretProviderTestSuite) TestGenerateDeviceSecret_KeepsEncryptedKycTokenOpaque() {
+	kyc := "h.k.i.c.t" // a compact JWE has five segments and cannot be unpacked here
+	params := ts.superParams(time.Hour)
+	params.Claims = map[string]any{providers.RawJWTAttributeKey: kyc}
+
+	p := ts.newProvider()
+	res, svcErr := p.GenerateDeviceSecret(context.Background(), params)
+	ts.Require().Nil(svcErr)
+	claims, valErr := p.ValidateDeviceSecret(context.Background(), dsSuperClient, res.DeviceSecret)
+	ts.Require().Nil(valErr)
+	ts.Require().Equal(kyc, claims.Claims[providers.RawJWTAttributeKey])
+}

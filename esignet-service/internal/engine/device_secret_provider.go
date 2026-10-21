@@ -156,7 +156,7 @@ func (p *deviceSecretProvider) GenerateDeviceSecret(
 		ClientID:  params.ClientID,
 		Scope:     params.Scope,
 		ACR:       params.ACR,
-		Claims:    params.Claims,
+		Claims:    expandKycClaims(params.Claims),
 		Cnf:       deviceSecretCnf{JKT: params.CnfJKT},
 		Iat:       now.Unix(),
 		Exp:       now.Add(expiry).Unix(),
@@ -435,6 +435,50 @@ func (p *deviceSecretProvider) issuer() string {
 		return p.cfg.Issuer
 	}
 	return p.cfg.Server.Identifier
+}
+
+// reservedJWTClaims are registered claims of the identity system's KYC token that describe the
+// token itself, not the user, and so are not carried into the device secret.
+var reservedJWTClaims = map[string]bool{"iss": true, "aud": true, "exp": true, "iat": true, "nbf": true, "jti": true, "sub": true}
+
+// expandKycClaims turns the attribute set the engine resolved for the user into the claim snapshot
+// the device secret carries. eSignet's authenticators hand the identity system's KYC token through
+// as one opaque attribute (providers.RawJWTAttributeKey). When that token is a plain signed JWS
+// (mock identity system) its payload is unpacked into individual claims so a sibling app's userinfo
+// can be served from the device secret; an encrypted KYC token (MOSIP IDA, encrypted to the
+// relying party's key) stays opaque, and sibling apps of that relying party decrypt it themselves.
+func expandKycClaims(attrs map[string]any) map[string]any {
+	if len(attrs) == 0 {
+		return attrs
+	}
+	raw, ok := attrs[providers.RawJWTAttributeKey].(string)
+	if !ok {
+		return attrs
+	}
+	parts := strings.Split(raw, ".")
+	if len(parts) != 3 {
+		return attrs
+	}
+	payloadBytes, err := base64.RawURLEncoding.DecodeString(parts[1])
+	if err != nil {
+		return attrs
+	}
+	var payload map[string]any
+	if err := json.Unmarshal(payloadBytes, &payload); err != nil {
+		return attrs
+	}
+	out := make(map[string]any, len(attrs)+len(payload))
+	for k, v := range attrs {
+		if k != providers.RawJWTAttributeKey {
+			out[k] = v
+		}
+	}
+	for k, v := range payload {
+		if !reservedJWTClaims[k] {
+			out[k] = v
+		}
+	}
+	return out
 }
 
 // DeviceSecretHash computes ds_hash = BASE64URL(SHA-256(device_secret)).
