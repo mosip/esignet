@@ -120,7 +120,14 @@ keycloak:
             display.on.consent.screen: "false",
             include.in.token.scope: "true"
           }
-      clients:   
+      clients:
+        # A mapper without protocol_mapper stays oidc-usermodel-attribute-mapper
+        # (mapper_name, mapper_user_attribute, token_claim_name).
+        # Add an audience on the client that needs it:
+        # - mapper_name: esignet-audience
+        #   protocol_mapper: oidc-audience-mapper
+        #   included_client_audience: target-client-id
+        #   # or included_custom_audience: https://api.example.org
         - name: mosip-pms-client
           mappers: []
           saroles:

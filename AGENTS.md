@@ -41,6 +41,12 @@ own `README.md`/`AGENTS.md` over guessing conventions from a sibling.
   is the sqlc-facing source of truth for the `client_detail` table
   specifically; keep it in sync if you change that table elsewhere.
 
+## Keycloak init mappers
+
+Protocol mappers are created by `mosip/keycloak` `keycloak-init/keycloak_init.py`. `deploy/keycloak/keycloak-init.sh` installs that chart. `deploy/keycloak/keycloak-init-values.yaml` is the eSignet realm input. Do not copy `keycloak_init.py` into this repo.
+
+A client `mappers` entry without `protocol_mapper` stays `oidc-usermodel-attribute-mapper` (`mapper_name`, `mapper_user_attribute`, `token_claim_name`). Set `protocol_mapper: oidc-audience-mapper` and `included_client_audience` or `included_custom_audience` to add that value to the access token `aud`. Add that entry only on the client that needs it. A re-run skips a mapper name that already exists.
+
 ## Conventions
 
 - Only commit generated/build artifacts if a subproject's own docs say to;
