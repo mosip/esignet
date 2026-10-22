@@ -6,7 +6,7 @@ A Go service that embeds the ThunderID authorization engine with PostgreSQL-back
 
 ## Prerequisites
 
-- Go 1.26+
+- Go 1.27+
 - Bash (Git Bash on Windows) to run `make.sh`
 - OpenSSL (for local TLS signing-key generation; bundled with Git Bash)
 - PostgreSQL 14+ (client management persistence, and keymanager's key/certificate store)
