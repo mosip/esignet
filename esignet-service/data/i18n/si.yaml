@@ -1246,9 +1246,15 @@ consent:
   essential_claims: අත්‍යවශ්‍ය තොරතුරු
   optional_claims: කැමැත්ත මත ලබාදෙන තොරතුරු
   authorize_scope: විෂය පථ අවසර දෙන්න
+  essential_scope: අත්‍යවශ්‍ය අවසර
+  optional_scope: කැමැත්ත මත ලබාදෙන අවසර
   essential_claims.info: සේවා සපයන්නා විසින් අවශ්‍ය කරන අනිවාර්ය පරිශීලක තොරතුරු
   optional_claims.info: වැසියාට සේවා සපයන්නා සමඟ බෙදාගැනීමට තෝරාගත හැකි අමතර පරිශීලක තොරතුරු
+  optional_claims.toggle_all: සියලුම විකල්ප ගුණාංග ටොගල් කරන්න
   authorize_scope.info: ඔබ වෙනුවෙන් මෙම ආරක්ෂිත සේවාවන් වෙත ප්‍රවේශ වීමට සේවා සපයන්නාට ඉඩ දෙයි
+  essential_scope.info: සේවා සපයන්නා විසින් අවශ්‍ය කරන අනිවාර්ය ප්‍රවේශ අවසර
+  optional_scope.info: වැසියාට සේවා සපයන්නාට ලබාදීමට තෝරාගත හැකි අමතර ප්‍රවේශ අවසර
+  optional_scope.toggle_all: සියලුම විකල්ප අවසර ටොගල් කරන්න
   name: සම්පූර්ණ නම
   given_name: නම
   middle_name: මැද නම
@@ -1268,6 +1274,7 @@ consent:
   zoneinfo: වේලා කලාපය
   profile: පැතිකඩ
   required: අවශ්‍යයි
+  mosip_identity_vc_ldp: Mosip VC අනන්‍යතාවය
 
 signin:
   images.app_logo.alt: යෙදුම් ලාංඡනය

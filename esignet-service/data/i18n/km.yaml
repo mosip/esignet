@@ -1246,9 +1246,15 @@ consent:
   essential_claims: ព័ត៌មានចាំបាច់
   optional_claims: ព័ត៌មានស្ម័គ្រចិត្ត
   authorize_scope: អនុញ្ញាតវិសាលភាព
+  essential_scope: សិទ្ធិចាំបាច់
+  optional_scope: សិទ្ធិស្ម័គ្រចិត្ត
   essential_claims.info: ព័ត៌មានអ្នកប្រើប្រាស់ចាំបាច់ដែលតម្រូវដោយអ្នកផ្តល់សេវា
   optional_claims.info: ព័ត៌មានអ្នកប្រើប្រាស់បន្ថែមដែលអ្នករស់នៅអាចជ្រើសរើសចែករំលែកជាមួយអ្នកផ្តល់សេវា
+  optional_claims.toggle_all: បិទ/បើកលក្ខណៈជាជម្រើសទាំងអស់
   authorize_scope.info: អនុញ្ញាតឱ្យអ្នកផ្តល់សេវាចូលប្រើសេវាកម្មដែលបានការពារទាំងនេះក្នុងនាមអ្នក
+  essential_scope.info: សិទ្ធិចូលប្រើចាំបាច់ដែលតម្រូវដោយអ្នកផ្តល់សេវា
+  optional_scope.info: សិទ្ធិចូលប្រើបន្ថែមដែលអ្នករស់នៅអាចជ្រើសរើសផ្តល់ឱ្យអ្នកផ្តល់សេវា
+  optional_scope.toggle_all: បិទ/បើកសិទ្ធិជាជម្រើសទាំងអស់
   name: ឈ្មោះពេញ
   given_name: ឈ្មោះ
   middle_name: ឈ្មោះកណ្តាល
@@ -1268,6 +1274,7 @@ consent:
   zoneinfo: តំបន់ពេលវេលា
   profile: ទម្រង់
   required: ចាំបាច់
+  mosip_identity_vc_ldp: អត្តសញ្ញាណ VC របស់ Mosip
 
 signin:
   images.app_logo.alt: រូបសញ្ញាកម្មវិធី
