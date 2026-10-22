@@ -218,7 +218,7 @@ func parseECKey(k jwkKey) (*ecdsa.PublicKey, error) {
 	}
 	return &ecdsa.PublicKey{
 		Curve: curve,
-		X:     new(big.Int).SetBytes(xBytes),
-		Y:     new(big.Int).SetBytes(yBytes),
+		X:     new(big.Int).SetBytes(xBytes), //nolint:staticcheck // SA1019: kept to preserve existing parse/verify behaviour
+		Y:     new(big.Int).SetBytes(yBytes), //nolint:staticcheck // SA1019: kept to preserve existing parse/verify behaviour
 	}, nil
 }

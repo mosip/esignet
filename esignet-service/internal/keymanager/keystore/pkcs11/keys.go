@@ -268,7 +268,7 @@ func readPublicKey(ctx module, sh pkcs11.SessionHandle, handle pkcs11.ObjectHand
 		if x == nil {
 			return nil, fmt.Errorf("pkcs11: failed to unmarshal EC point for curve %q", curveName)
 		}
-		return &ecdsa.PublicKey{Curve: curve, X: x, Y: y}, nil
+		return &ecdsa.PublicKey{Curve: curve, X: x, Y: y}, nil //nolint:staticcheck // SA1019: ecdsa.ParseUncompressedPublicKey rejects SECP256K1, see above
 	default:
 		return nil, fmt.Errorf("pkcs11: unsupported algorithm %q", algoName)
 	}
