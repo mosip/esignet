@@ -272,7 +272,6 @@ func extractJWKs(jwk string) []json.RawMessage {
 	return []json.RawMessage{json.RawMessage(jwk)}
 }
 
-// getAllowedScopes combines both OIDC scopes and authorization scopes
 // engineGrantTypes maps the grant types a client registered (clientmgmt names) to the engine's
 // identifiers. token_exchange is accepted by its short name and by its RFC 8693 URN. A client
 // with no recognised grant type keeps the authorization code grant, as before.
@@ -294,6 +293,7 @@ func engineGrantTypes(registered []string) []providers.GrantType {
 	return out
 }
 
+// getAllowedScopes combines both OIDC scopes and authorization scopes
 func getAllowedScopes(standardScopeClaims map[string][]string, additionalConfig map[string]any) []string {
 	scopes := make([]string, 0, len(standardScopeClaims))
 	for k := range standardScopeClaims {
