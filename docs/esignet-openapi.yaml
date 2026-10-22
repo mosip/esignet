@@ -2610,12 +2610,17 @@ paths:
                     and the `device_secret` as `actor_token`
                     (`actor_token_type=urn:openid:params:token-type:device-secret`), with a DPoP proof
                     signed by the first app's key and a `scope` that is a subset of the first app's
-                    grant (never containing `device_sso`). The response is a DPoP-bound access token whose
-                    `act.sub` is the first app's client id. Errors: `invalid_scope` (scope exceeds the
-                    grant or contains device_sso), `invalid_grant` (secret invalid, expired, vendor
-                    mismatch, ds_hash/sid/sub mismatch, DPoP key differs), `unauthorized_client` (client
-                    not registered for device_sso), `interaction_required` (the first app's consent does
-                    not cover the requested claims; the app must run an interactive authorization).
+                    grant (never containing `device_sso`; omitted, the first app's scopes minus
+                    `device_sso` are inherited) and `audience` equal to the issuer URL. The response is
+                    a DPoP-bound access token whose `act.sub` is the first app's client id. Errors:
+                    `invalid_request` (audience missing), `invalid_target` (audience is not the issuer),
+                    `invalid_scope` (scope exceeds the grant, lacks openid or contains device_sso),
+                    `invalid_grant` (secret invalid, expired, vendor mismatch, ds_hash/sid/sub mismatch,
+                    DPoP key differs or the secret is not key-bound), `unauthorized_client` (client not
+                    registered for device_sso), `interaction_required` (the first app's consent does not
+                    cover the requested claims; the app must run an interactive authorization).
+                    For `authorization_code`, a request whose grant included `device_sso` must carry a
+                    DPoP proof (`invalid_request` otherwise) and `openid` (`invalid_scope` otherwise).
                 subject_token:
                   type: string
                   description: Token exchange only. The first app's ID token.
@@ -2630,7 +2635,10 @@ paths:
                   description: Token exchange only. `urn:openid:params:token-type:device-secret`.
                 scope:
                   type: string
-                  description: Token exchange only. Scopes for the new token; a subset of the first app's grant.
+                  description: Token exchange only. Scopes for the new token; a subset of the first app's grant, including `openid`.
+                audience:
+                  type: string
+                  description: Token exchange only. Required; must equal the issuer URL (Native SSO 1.0 §4.1).
                 code:
                   type: string
                   description: 'Authorization code, sent as query param in the client''s redirect URI.'
@@ -3103,6 +3111,9 @@ paths:
                     type: array
                     items: {}
                     description: JSON array containing a list of the JWS algorithms supported for DPoP proof JWTs
+                  native_sso_supported:
+                    type: boolean
+                    description: 'OpenID Connect Native SSO for Mobile Apps 1.0 §5: true when the server issues device secrets for the `device_sso` scope and accepts them on the token-exchange grant.'
               examples:
                 Example 1:
                   value:

@@ -8,6 +8,19 @@ All OAuth clients are **confidential** and must use `clientAuthMethods: ["privat
 
 Variable names follow the standard eSignet Postman convention (snake_case: `baseUrl`, `client_id`, `client_private_key`, `redirect_uri`, `code`, `access_token`, `dpop_*`, …).
 
+## Native SSO for Mobile Apps
+
+`Go-eSignet-NativeSSO.postman_collection.json` plays the whole Native SSO protocol against a local
+stack: super-app login with `device_sso` (PAR, PKCE, DPoP, private_key_jwt, OTP login and consent
+through the login-flow API), the child app's token exchange with `actor_token_type=device-secret`,
+userinfo, and the negative cases (scope escalation, `device_sso` on exchange, foreign vendor, wrong
+DPoP key, tampered secret, `interaction_required`). It needs an environment with the three demo
+clients' ids and PKCS#8 private keys (`client_id`/`client_private_key`, `child_client_*`,
+`other_client_*`, `baseUrl`, `audience` = issuer); the generator in the submission repository
+(`postman/build_collection.py`) writes one after registering the clients. Run it in the Postman app:
+the scripts use WebCrypto and top-level `await`, which newman does not provide. See
+[`../docs/native-sso.md`](../docs/native-sso.md).
+
 ## Files
 
 | File | Purpose |

@@ -1,5 +1,4 @@
 # Native SSO for Mobile Apps in eSignet (Go)
-
 eSignet implements **OpenID Connect Native SSO for Mobile Apps 1.0** on top of its FAPI 2.0
 authorization flow. A user who signs in once in a vendor's first native app (the *super app*) is
 signed in silently in every other app of the same vendor on the same device (the *child apps*),
@@ -86,11 +85,11 @@ sequenceDiagram
 ### 2.3 Bonus: re-consent in the child app
 
 When the child app asks for a claim the user never released to the super app (for example the
-child requests `profile`, which releases `picture`, and the user unticked `picture` on the super
-app's consent screen), the exchange answers:
+child requests `email` and the user unticked `email` on the super app's consent screen), the
+exchange answers:
 
 ```json
-{"error":"interaction_required","error_description":"The consent granted to the originating application does not cover this request; claims not consented: picture"}
+{"error":"interaction_required","error_description":"The consent granted to the originating application does not cover this request; claims not consented: email"}
 ```
 
 The child app then runs an ordinary interactive authorization for its own client with
@@ -230,7 +229,7 @@ sibling clients of another relying party in `additionalConfig.allowed_child_clie
 
 - **Expired ID tokens are fine, expired device secrets are not.** eSignet ID tokens live minutes while
   a device secret lives up to 30 days, so the exchange validates the ID token's signature, issuer,
-  `nbf` and revocation status but tolerates a past `exp` (Native SSO 1.0 §5.2); the device secret's
+  `nbf` and revocation status but tolerates a past `exp` (Native SSO 1.0 §6.3); the device secret's
   `exp` bounds the exchange.
 - **Key binding.** The code, the super app's tokens, the device secret and the child's token are all
   bound to Key A through `dpop_jkt`/`cnf.jkt`. A stolen `id_token + device_secret` pair is useless
@@ -240,10 +239,11 @@ sibling clients of another relying party in `additionalConfig.allowed_child_clie
 - **Opaque secret.** The JWE hides `sub`, `sid` and the claim snapshot from the apps and from
   anyone who reads app storage.
 - **Consent.** Nothing is released to the child that the user did not accept for the super app.
-- **Claims in the secret.** With the mock identity system the KYC token is a signed JWS and its
-  claims are unpacked into the secret; with MOSIP IDA the KYC token is encrypted to the relying
-  party's key and stays opaque, so sibling apps of that relying party decrypt it with the shared
-  relying-party key (`userinfo` passes it through unchanged).
+- **Claims in the secret: mock identity only.** With the mock identity system the KYC token is a
+  signed JWS and its claims are unpacked into the secret, so the child's `userinfo` is complete.
+  With MOSIP IDA the KYC token is encrypted to the relying party's key; eSignet cannot unpack it and
+  the exchange does not forward it, so the child's `userinfo` would be empty. Carrying the encrypted
+  KYC token in the secret for same-relying-party children is the follow-up for a production deployment.
 - **Not yet covered.** Single-use `jti` tracking and revoking a device secret on super-app
   sign-out are natural follow-ups (the `jti` is signed and available to a revocation store).
 
@@ -259,3 +259,63 @@ sibling clients of another relying party in `additionalConfig.allowed_child_clie
 4. Child app: fetch the credentials and a DPoP proof over IPC, call the token exchange, call
    userinfo with DPoP proofs from the super app; on `interaction_required` or `invalid_scope` fall
    back to an interactive authorization with `prompt=consent`.
+
+## 10. Spec-conformance matrix
+
+Status against OpenID Connect Native SSO for Mobile Apps 1.0 (draft 07), RFC 8693 and RFC 9449 as
+implemented on the branches in this submission. "Deviation" entries are deliberate and explained.
+
+| Requirement | Section | Status | Notes |
+|---|---|---|---|
+| `device_sso` scope requested on the authorization request | Native SSO §3.1 | implemented | protocol scope in ThunderID; the client must list it in `allowed_authorization_scopes` (PS task 2) |
+| `device_secret` returned with the token response when `device_sso` was granted | §3.3 | implemented | signed-then-encrypted JWE, 30 days by default |
+| `device_secret` and `id_token` issued together or not at all | §3.4 | implemented | `device_sso` without `openid` is refused with `invalid_scope` |
+| `ds_hash` in the ID token = BASE64URL(SHA-256(device_secret)) | §3.5 | implemented | checked on every exchange |
+| `sid` in the ID token, shared with the device secret | §3.5 | implemented | SSO session id, or the authorization id when no session exists |
+| Exchange: `subject_token_type = id_token`, `actor_token_type = device-secret` | §4.1 | implemented | any other combination is `invalid_request` |
+| Exchange: `audience` REQUIRED and equal to the issuer | §4.1 | implemented | missing → `invalid_request`, mismatch → `invalid_target` |
+| Exchange: `scope`, when present, includes `openid`; ⊆ the originally granted scope | §4.1, PS 10.a | implemented | `device_sso` is refused explicitly and never inherited when `scope` is omitted (PS 10.b) |
+| Exchange: validate the ID token's signature and `sub`; expiry may be ignored | §4.3, §6.3 | implemented | signature, issuer, `nbf`, `typ` and revocation are still enforced |
+| Exchange: validate the device secret and its binding (`ds_hash`, `sid`, `sub`) | §4.3 | implemented | plus vendor family and client enablement |
+| Exchange: `sid` refers to a live session | §4.3 | deviation | equality is checked; session liveness is not tracked by the embedded engine. The device secret's own `exp` bounds the exchange. Marked out of scope in the PS. |
+| Exchange: key binding of the device secret (`cnf.jkt`) to the DPoP proof | §4.3, RFC 9449 | implemented | `device_sso` without a DPoP proof is refused; a secret without `cnf.jkt` is never issued and would be refused |
+| Exchange response: access token; `issued_token_type` | §4.4, RFC 8693 §2.2 | implemented | `token_type` is `DPoP` (RFC 9449 §5) rather than `bearer` because every token is key-bound |
+| Exchange response: ID token for the child client (SHOULD) | §4.4 | not covered | the child reads identity through `userinfo`; adding a child ID token is a follow-up |
+| Exchange response: new `device_secret` (MAY) | §4.4 | deviation (deliberate) | never issued on an exchange; a child app cannot become a super app |
+| `act` claim naming the super app | RFC 8693 §4.1 | implemented | `act.sub` = super app client id |
+| Discovery: `native_sso_supported: true` | §5 | implemented | present when a device-secret provider is configured |
+| Device secret rotation / revocation on sign-out | §6 | not covered | `jti` is signed and available to a revocation store; no store is wired yet |
+| Single-use `jti` | PS sequence diagram | not covered | secrets are reusable by design for repeated silent sign-ins; a deployment can add a used-`jti` cache |
+| DPoP proof `htu`/`htm`/`ath`/`iat`/`jti` checks | RFC 9449 §4.3 | implemented (engine) | unchanged ThunderID DPoP validation |
+
+## 11. Threat model and demo-only shortcuts
+
+Assets: the device secret (30-day sign-in capability), Key A, the super app's tokens, the user's
+consent decisions. Adversaries: another app on the phone, a thief with a copy of app storage, a
+rogue relying party, a network attacker.
+
+| Threat | Control | Residual risk |
+|---|---|---|
+| Another app reads the device secret from storage | EncryptedSharedPreferences; the secret is opaque (JWE) and useless without Key A | a rooted device exposes storage; the secret is still key-bound |
+| A foreign app calls the Wallet's IPC | `signature`-level permission plus a certificate re-check on every call | the certificate is the trust anchor (see shortcuts) |
+| Stolen `id_token + device_secret` pair replayed from another device | `cnf.jkt` must equal the DPoP proof key; Key A is non-exportable | none for the exchange; a stolen bearer token of 120 s remains usable until it expires |
+| Child widens what the user consented to | scope ⊆ grant, derived consent, `interaction_required` | derived consent currently writes a consent row per child; it never narrows an existing richer consent |
+| Rogue relying party redeems another vendor's secret | vendor family (`relyingPartyId` or `allowed_child_clients`) | cross-RP children share the pairwise subject of the super app's RP; restrict `allowed_child_clients` to one RP in deployments with pairwise subjects |
+| Network attacker | TLS in deployment; DPoP binds tokens to Key A | the demo runs cleartext over `adb reverse` |
+| Secret outlives the user's intent | 30-day expiry (configurable) | no revocation on super-app sign-out yet (§10) |
+
+Demo-only shortcuts, listed so that nobody mistakes them for the design:
+
+- The vendor signing keystore and its password are committed (`mobile-sample/keystore/`) so judges
+  can build apps that pass the signature permission. A real vendor keeps its keystore private.
+- Client private keys are generated by `register_clients.py` and shipped as APK resources; a real app
+  generates them in the Keystore or uses attestation-based registration.
+- Key A is an Android Keystore EC P-256 key; StrongBox is not requested and key attestation is not
+  verified by eSignet.
+- The SDK verifies the ID token's `nonce` but not its signature (the exchange is server-validated);
+  a production SDK validates the JWS against the JWKS.
+- The Wallet's `SIGN_DPOP` IPC signs any `htu`/`ath` a sibling asks for; restrict it to the token and
+  userinfo endpoints in production.
+- Cleartext HTTP is permitted in the apps' network security configuration for `localhost`.
+- The mock identity system's KYC token is a signed JWS; with MOSIP IDA the KYC token is encrypted to
+  the relying party and the child's `userinfo` would be empty (§8).
