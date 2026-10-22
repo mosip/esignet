@@ -288,7 +288,9 @@ func (p *deviceSecretProvider) ValidateDeviceSecret(
 // The child app's required claims (its registered claims released by the requested scopes) must all
 // have been accepted by the user for the super app, and any requested authorization scope must have
 // been permitted. When they are, a consent record is written for the child app so the audit trail
-// shows the derived consent and a later interactive login of the child app skips the prompt.
+// shows the derived consent and a later interactive login of the child app skips the prompt. A
+// consent the child app already holds is only ever widened, and it is not rewritten (nor a history
+// row added) when it already covers the derived consent, so repeated exchanges leave one audit row.
 func (p *deviceSecretProvider) ResolveDerivedConsent(
 	ctx context.Context,
 	req *providers.DerivedConsentRequest,
@@ -349,9 +351,26 @@ func (p *deviceSecretProvider) ResolveDerivedConsent(
 		}, nil
 	}
 
+	// A consent the child app already holds that covers the derived one is left as it is: the
+	// exchange neither narrows it nor adds an audit row for a consent that did not change.
+	now := time.Now().UTC()
+	existing, err := p.consentSvc.FetchRecord(ctx, req.ClientID, req.Sub)
+	if err != nil {
+		p.logger.Error(ctx, "failed to read the child app's consent record", applog.Error(err))
+		return nil, deviceSecretServerError("Failed to read consent record")
+	}
+	if existing != nil && existing.IsExpired(now) {
+		existing = nil
+	}
+	if existing != nil && len(difference(requiredClaims, existing.AcceptedClaims)) == 0 &&
+		len(difference(authorizationScopes, existing.PermittedScopes)) == 0 {
+		p.logger.Debug(ctx, "the child app's consent already covers the exchange",
+			applog.String("clientId", req.ClientID))
+		return &providers.DerivedConsentResult{Allowed: true}, nil
+	}
+
 	// Record the derived consent for the child app: the claims request mirrors what an interactive
 	// authorization with the same scopes would hash to, so a later interactive login skips consent.
-	now := time.Now().UTC()
 	record := &consentmgmt.ConsentRecord{
 		ID:                  uuid.NewString(),
 		ClientID:            req.ClientID,
@@ -362,6 +381,15 @@ func (p *deviceSecretProvider) ResolveDerivedConsent(
 		PermittedScopes:     authorizationScopes,
 		CreatedAt:           now,
 		ExpiresAt:           sql.NullTime{Time: origin.ExpiresAt.Time, Valid: origin.ExpiresAt.Valid},
+	}
+	// An existing consent that the derived one extends is widened, never narrowed: what the user
+	// already granted the child app is kept and the derived claims and scopes are added to it.
+	if existing != nil {
+		record.ID = existing.ID
+		record.Claims = mergeScopeClaims(existing.Claims, requiredClaims)
+		record.AuthorizationScopes = union(existing.AuthorizationScopes, authorizationScopes)
+		record.AcceptedClaims = union(existing.AcceptedClaims, requiredClaims)
+		record.PermittedScopes = union(existing.PermittedScopes, authorizationScopes)
 	}
 	if err := p.consentSvc.SaveRecord(ctx, record); err != nil {
 		p.logger.Error(ctx, "failed to record derived consent", applog.Error(err))
@@ -530,6 +558,17 @@ func difference(want, have []string) []string {
 	for _, w := range want {
 		if !haveSet[w] {
 			out = append(out, w)
+		}
+	}
+	return out
+}
+
+// union returns the members of a followed by the members of b not already in a.
+func union(a, b []string) []string {
+	out := slices.Clone(a)
+	for _, v := range b {
+		if !slices.Contains(out, v) {
+			out = append(out, v)
 		}
 	}
 	return out

@@ -217,13 +217,19 @@ func (ts *DeviceSecretProviderTestSuite) mintSuperSecret() string {
 
 // seedSuperConsent stores the consent the user gave the super app.
 func (ts *DeviceSecretProviderTestSuite) seedSuperConsent(acceptedClaims, permittedScopes []string, expiresAt sql.NullTime) {
+	ts.seedConsent(dsSuperClient, "consent-super", acceptedClaims, permittedScopes, expiresAt)
+}
+
+// seedConsent stores a consent the user gave clientID and clears the audit trail.
+func (ts *DeviceSecretProviderTestSuite) seedConsent(clientID, id string, acceptedClaims, permittedScopes []string,
+	expiresAt sql.NullTime) {
 	claims := map[string]any{"userinfo": map[string]any{}}
 	for _, c := range acceptedClaims {
 		claims["userinfo"].(map[string]any)[c] = nil
 	}
 	ts.Require().NoError(ts.consentSvc.SaveRecord(context.Background(), &consentmgmt.ConsentRecord{
-		ID:                  "consent-super",
-		ClientID:            dsSuperClient,
+		ID:                  id,
+		ClientID:            clientID,
 		UserID:              dsTestUser,
 		Claims:              claims,
 		AuthorizationScopes: permittedScopes,
@@ -610,6 +616,69 @@ func (ts *DeviceSecretProviderTestSuite) TestResolveDerivedConsent_InheritsOrigi
 	ts.Require().NoError(err)
 	ts.Require().True(record.ExpiresAt.Valid)
 	ts.Require().WithinDuration(expiresAt.Time, record.ExpiresAt.Time, time.Second)
+}
+
+func (ts *DeviceSecretProviderTestSuite) TestResolveDerivedConsent_RepeatedExchangeWritesOnce() {
+	ts.seedSuperConsent([]string{"name", "email"}, nil, sql.NullTime{})
+	p := ts.newProvider().(providers.DeviceSSOConsentProvider)
+
+	for i := 0; i < 3; i++ {
+		res, svcErr := p.ResolveDerivedConsent(context.Background(), ts.derivedRequest("openid", "profile"))
+		ts.Require().Nil(svcErr)
+		ts.Require().True(res.Allowed)
+	}
+	ts.Require().Len(ts.consentQ.history, 1, "one audit row per consent change, not per exchange")
+}
+
+func (ts *DeviceSecretProviderTestSuite) TestResolveDerivedConsent_ExistingSupersetKept() {
+	// The user consented interactively to more for the child app than the exchange derives.
+	ts.seedSuperConsent([]string{"name", "email"}, []string{"read"}, sql.NullTime{})
+	ts.seedConsent(dsChildClient, "consent-child", []string{"name", "email"}, []string{"read"}, sql.NullTime{})
+	before, err := ts.consentSvc.FetchRecord(context.Background(), dsChildClient, dsTestUser)
+	ts.Require().NoError(err)
+	p := ts.newProvider().(providers.DeviceSSOConsentProvider)
+
+	res, svcErr := p.ResolveDerivedConsent(context.Background(), ts.derivedRequest("openid", "profile"))
+	ts.Require().Nil(svcErr)
+	ts.Require().True(res.Allowed)
+
+	after, err := ts.consentSvc.FetchRecord(context.Background(), dsChildClient, dsTestUser)
+	ts.Require().NoError(err)
+	ts.Require().Equal(before, after, "a covering consent is not narrowed to the derived one")
+	ts.Require().Empty(ts.consentQ.history)
+}
+
+func (ts *DeviceSecretProviderTestSuite) TestResolveDerivedConsent_ExistingNarrowerWidened() {
+	ts.seedSuperConsent([]string{"name", "email"}, nil, sql.NullTime{})
+	ts.seedConsent(dsChildClient, "consent-child", []string{"email"}, nil, sql.NullTime{})
+	p := ts.newProvider().(providers.DeviceSSOConsentProvider)
+
+	res, svcErr := p.ResolveDerivedConsent(context.Background(), ts.derivedRequest("openid", "profile"))
+	ts.Require().Nil(svcErr)
+	ts.Require().True(res.Allowed)
+
+	record, err := ts.consentSvc.FetchRecord(context.Background(), dsChildClient, dsTestUser)
+	ts.Require().NoError(err)
+	ts.Require().Equal("consent-child", record.ID)
+	ts.Require().ElementsMatch([]string{"email", "name"}, record.AcceptedClaims)
+	ts.Require().Len(ts.consentQ.history, 1)
+}
+
+func (ts *DeviceSecretProviderTestSuite) TestResolveDerivedConsent_ExpiredChildConsentReplaced() {
+	ts.seedSuperConsent([]string{"name", "email"}, nil, sql.NullTime{})
+	expired := sql.NullTime{Time: time.Now().UTC().Add(-time.Hour), Valid: true}
+	ts.seedConsent(dsChildClient, "consent-child", []string{"name", "email"}, nil, expired)
+	p := ts.newProvider().(providers.DeviceSSOConsentProvider)
+
+	res, svcErr := p.ResolveDerivedConsent(context.Background(), ts.derivedRequest("openid", "profile"))
+	ts.Require().Nil(svcErr)
+	ts.Require().True(res.Allowed)
+
+	record, err := ts.consentSvc.FetchRecord(context.Background(), dsChildClient, dsTestUser)
+	ts.Require().NoError(err)
+	ts.Require().False(record.IsExpired(time.Now().UTC()))
+	ts.Require().Equal([]string{"name"}, record.AcceptedClaims)
+	ts.Require().Len(ts.consentQ.history, 1)
 }
 
 func (ts *DeviceSecretProviderTestSuite) TestResolveDerivedConsent_UnknownChild() {
