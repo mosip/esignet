@@ -42,6 +42,14 @@ describe("LoginPage", () => {
     expect(wrapper).not.toBeNull();
   });
 
+  // Guards the #2567 fix: the card must stay fluid up to the SDK's 420px width.
+  it("keeps the wrapper fluid with a 420px cap", () => {
+    renderLoginPage();
+    const wrapper = document.querySelector(".\\!rounded-lg");
+    expect(wrapper?.className).toContain("w-full");
+    expect(wrapper?.className).toContain("max-w-[420px]");
+  });
+
   it("clears window.onbeforeunload when onSuccess is called", async () => {
     window.onbeforeunload = () => "unsaved changes";
 
