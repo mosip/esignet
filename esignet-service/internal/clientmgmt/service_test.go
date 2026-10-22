@@ -16,6 +16,7 @@ import (
 	"time"
 
 	"github.com/jackc/pgx/v5/pgconn"
+	"github.com/jmoiron/sqlx"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 
@@ -624,7 +625,9 @@ func (ts *ServiceTestSuite) TestToResponse() {
 func (ts *ServiceTestSuite) TestNewService() {
 	t := ts.T()
 	require.NotPanics(t, func() {
-		_ = NewService(nil, nil, 0, nil)
+		// sqlx.NewDb sets the driver name without opening a connection, so
+		// NewService can derive it via conn.DriverName() during construction.
+		_ = NewService(sqlx.NewDb(nil, "postgres"), nil, 0, nil)
 	})
 }
 

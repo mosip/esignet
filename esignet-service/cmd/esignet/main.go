@@ -120,7 +120,7 @@ func main() {
 	// It is applied to the client management and key management endpoints below, so those endpoints are also protected.
 	securityMiddleware := getSecurityMiddleware(appCfg, commonHTTPClient, logger)
 
-	clientSvc := clientmgmt.NewService(pgConn, runtimeStore, appCfg.ClientCacheTTLSecs, appCfg.SupportedEncAlgorithms)
+	clientSvc := clientmgmt.NewService(sqlxConn, runtimeStore, appCfg.ClientCacheTTLSecs, appCfg.SupportedEncAlgorithms)
 	clientHandler := clientmgmt.NewHandler(clientSvc, logger)
 	clientHandler.RegisterRoutes(mux, securityMiddleware)
 	keyMgrSvc, sigSvc, cryptoSvc, ks, err := initializeKeyManager(sqlxConn)

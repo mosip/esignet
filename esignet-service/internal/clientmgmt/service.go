@@ -15,10 +15,11 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/jackc/pgx/v5/pgconn"
+	"github.com/jmoiron/sqlx"
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/providers"
 
 	"github.com/mosip/esignet/internal/clientmgmt/db"
+	"github.com/mosip/esignet/internal/dbutil"
 	applog "github.com/mosip/esignet/internal/log"
 )
 
@@ -55,9 +56,9 @@ type Service struct {
 // supportedEncAlgs restricts which "alg" values an EncPublicKey JWK may
 // declare (config.AppConfig.SupportedEncAlgorithms); pass nil to leave "alg"
 // unrestricted.
-func NewService(conn *sql.DB, cache providers.RuntimeStoreProvider, cacheTTLSecs int64, supportedEncAlgs []string) *Service {
+func NewService(conn *sqlx.DB, cache providers.RuntimeStoreProvider, cacheTTLSecs int64, supportedEncAlgs []string) *Service {
 	return &Service{
-		q: db.New(conn), cache: cache, cacheTTLSecs: cacheTTLSecs,
+		q: db.New(conn, conn.DriverName()), cache: cache, cacheTTLSecs: cacheTTLSecs,
 		logger: applog.GetLogger().Named("clientmgmt"), supportedEncAlgs: supportedEncAlgs,
 	}
 }
@@ -579,16 +580,15 @@ func unmarshalAdditionalConfig(s sql.NullString) (map[string]any, error) {
 	return out, nil
 }
 
+// isDuplicateClientID reports a primary-key violation on client_detail.id.
+// "PRIMARY" covers MySQL, where the named PK constraint is discarded and the
+// index is always reported as PRIMARY.
 func isDuplicateClientID(err error) bool {
-	var pgErr *pgconn.PgError
-	return errors.As(err, &pgErr) && pgErr.Code == "23505" &&
-		(pgErr.ConstraintName == "pk_clntdtl_id" || pgErr.ConstraintName == "client_detail_pkey")
+	return dbutil.IsUniqueViolation(err, "pk_clntdtl_id", "client_detail_pkey", "PRIMARY")
 }
 
 func isDuplicatePublicKeyHash(err error) bool {
-	var pgErr *pgconn.PgError
-	return errors.As(err, &pgErr) && pgErr.Code == "23505" &&
-		pgErr.ConstraintName == "uk_clntdtl_public_key_hash"
+	return dbutil.IsUniqueViolation(err, "uk_clntdtl_public_key_hash")
 }
 
 func toResponse(row db.ClientDetail) (ClientResponse, error) {
