@@ -1,6 +1,6 @@
 module github.com/mosip/esignet
 
-go 1.26
+go 1.27
 
 require (
 	github.com/btcsuite/btcd/btcec/v2 v2.5.0

@@ -1,6 +1,6 @@
 module github.com/mosip/esignet/api-test/api
 
-go 1.24
+go 1.27
 
 require (
 	github.com/cucumber/godog v0.15.1
