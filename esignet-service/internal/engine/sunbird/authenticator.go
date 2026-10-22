@@ -92,7 +92,18 @@ func (p *sunbirdAuthnProvider) Authenticate(ctx context.Context, identifiers, cr
 	for _, id := range p.kbiFieldIDs {
 		val, ok := credentials[id].(string)
 		if !ok || val == "" {
-			return nil, shared.InvalidRequestError
+			return nil, &common.ServiceError{
+				Code: "AUTHN-MGR-1008",
+				Type: common.ClientErrorType,
+				Error: common.I18nMessage{
+					Key:          "missing_required_field",
+					DefaultValue: fmt.Sprintf("Required field '%s' is missing or blank", id),
+				},
+				ErrorDescription: common.I18nMessage{
+					Key:          "missing_required_field_description",
+					DefaultValue: fmt.Sprintf("The required KBI field '%s' must not be blank", id),
+				},
+			}
 		}
 		kbiFields[id] = val
 	}

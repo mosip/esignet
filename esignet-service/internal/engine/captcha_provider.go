@@ -34,7 +34,7 @@ type captchaProvider struct {
 func NewCaptchaProvider(config *config.CaptchaConfig, client *http.Client) providers.CaptchaValidationProvider {
 	logger := applog.GetLogger()
 	if !isEnabled(config) {
-		logger.Warn(context.Background(), "Captcha Validator URL not configured! captch token validation will be ignored.")
+		logger.Warn(context.Background(), "Captcha Validator URL not configured — all captcha tokens will be rejected (fail-closed). Set MOSIP_ESIGNET_CAPTCHA_VALIDATOR_URL to enable validation.")
 	}
 	return &captchaProvider{config: config, client: client, logger: logger}
 }
@@ -66,8 +66,8 @@ func (p captchaProvider) Verify(ctx context.Context, token string) (*providers.C
 	}
 
 	if !isEnabled(p.config) {
-		p.logger.Warn(ctx, "Captcha Validator URL not configured! captch token validation will be ignored.")
-		return &providers.CaptchaVerificationResult{Success: true}, nil
+		p.logger.Warn(ctx, "Captcha Validator URL not configured — rejecting captcha token (fail-closed).")
+		return &providers.CaptchaVerificationResult{Success: false}, nil
 	}
 
 	payload, err := json.Marshal(captchaRequestWrapper{
