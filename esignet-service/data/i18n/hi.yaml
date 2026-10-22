@@ -1246,9 +1246,15 @@ consent:
   essential_claims: आवश्यक जानकारी
   optional_claims: स्वैच्छिक जानकारी
   authorize_scope: दायरे अधिकृत करें
+  essential_scope: आवश्यक अनुमतियाँ
+  optional_scope: स्वैच्छिक अनुमतियाँ
   essential_claims.info: सेवा प्रदाता द्वारा आवश्यक अनिवार्य उपयोगकर्ता जानकारी
   optional_claims.info: अतिरिक्त उपयोगकर्ता जानकारी जिसे निवासी सेवा प्रदाता के साथ साझा करना चुन सकता है
+  optional_claims.toggle_all: सभी वैकल्पिक विशेषताएँ टॉगल करें
   authorize_scope.info: सेवा प्रदाता को आपकी ओर से इन संरक्षित सेवाओं तक पहुंचने की अनुमति देता है
+  essential_scope.info: सेवा प्रदाता द्वारा आवश्यक अनिवार्य पहुँच अनुमतियाँ
+  optional_scope.info: अतिरिक्त पहुँच अनुमतियाँ जिन्हें निवासी सेवा प्रदाता को देना चुन सकता है
+  optional_scope.toggle_all: सभी वैकल्पिक अनुमतियाँ टॉगल करें
   name: पूरा नाम
   given_name: नाम
   middle_name: मध्य नाम
@@ -1268,6 +1274,7 @@ consent:
   zoneinfo: समय क्षेत्र
   profile: प्रोफ़ाइल
   required: आवश्यक
+  mosip_identity_vc_ldp: Mosip VC पहचान
 
 signin:
   images.app_logo.alt: एप्लिकेशन लोगो
