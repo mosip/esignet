@@ -11,6 +11,7 @@ import (
 	"crypto/sha256"
 	"database/sql"
 	"encoding/base64"
+	"encoding/json"
 	"strings"
 	"testing"
 	"time"
@@ -281,6 +282,47 @@ func (ts *DeviceSecretProviderTestSuite) TestGenerateDeviceSecret_MissingSession
 	ts.Require().NotNil(svcErr)
 	ts.Require().Equal("invalid_request", svcErr.Code)
 	ts.Require().Contains(svcErr.ErrorDescription.DefaultValue, "sid")
+}
+
+func (ts *DeviceSecretProviderTestSuite) TestGenerateDeviceSecret_MissingCnfJKT_Fails() {
+	params := ts.superParams(time.Hour)
+	params.CnfJKT = ""
+	res, svcErr := ts.newProvider().GenerateDeviceSecret(context.Background(), params)
+	ts.Require().Nil(res)
+	ts.Require().NotNil(svcErr)
+	ts.Require().Equal("invalid_request", svcErr.Code)
+	ts.Require().Contains(svcErr.ErrorDescription.DefaultValue, "cnf.jkt")
+}
+
+func (ts *DeviceSecretProviderTestSuite) TestValidateDeviceSecret_UnboundSecret_Rejected() {
+	// A device secret minted before cnf.jkt was mandatory (signed and encrypted by this server, but
+	// with no key binding) is refused rather than accepted as a bearer credential.
+	payload := deviceSecretPayload{
+		Iss: ts.appCfg.Issuer, Sub: dsTestUser, SID: dsTestSID, ClientID: dsSuperClient,
+		Scope: "openid profile device_sso", Iat: time.Now().Unix(), Exp: time.Now().Add(time.Hour).Unix(),
+		JTI: "unbound-1", TokenType: DeviceSecretTokenType,
+	}
+	data, err := json.Marshal(payload)
+	ts.Require().NoError(err)
+	signResp, err := ts.sigSvc.JWSSign(context.Background(), signature.JWSSignRequest{
+		ApplicationID: config.OIDCServiceAppID,
+		ReferenceID:   defaultSignReferenceID,
+		DataToSign:    base64.RawURLEncoding.EncodeToString(data),
+		IncludeKeyID:  true,
+	})
+	ts.Require().NoError(err)
+	encResp, err := ts.cryptoSvc.JWTEncrypt(context.Background(), cryptomanager.JWTEncryptRequest{
+		ApplicationID: config.OIDCServiceAppID,
+		ReferenceID:   DeviceSecretEncryptionRefID,
+		Data:          signResp.JWTSignedData,
+	})
+	ts.Require().NoError(err)
+
+	claims, valErr := ts.newProvider().ValidateDeviceSecret(context.Background(), dsSuperClient, encResp.Data)
+	ts.Require().Nil(claims)
+	ts.Require().NotNil(valErr)
+	ts.Require().Equal("invalid_grant", valErr.Code)
+	ts.Require().Contains(valErr.ErrorDescription.DefaultValue, "not bound to a DPoP key")
 }
 
 func (ts *DeviceSecretProviderTestSuite) TestGenerateDeviceSecret_ClientNotEnabled_Fails() {

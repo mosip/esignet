@@ -132,6 +132,11 @@ func (p *deviceSecretProvider) GenerateDeviceSecret(
 	if params.SessionID == "" {
 		return nil, deviceSecretClientError("invalid_request", "A session id (sid) is required to bind the device secret to the ID token")
 	}
+	// A device secret is always bound to the requesting app's DPoP key; an unbound one would be a
+	// long-lived bearer credential.
+	if params.CnfJKT == "" {
+		return nil, deviceSecretClientError("invalid_request", "A DPoP key thumbprint (cnf.jkt) is required to bind the device secret")
+	}
 	if p.cryptoSvc == nil {
 		return nil, deviceSecretServerError("Device secret encryption is not configured")
 	}
@@ -412,6 +417,9 @@ func (p *deviceSecretProvider) openDeviceSecret(ctx context.Context, deviceSecre
 	}
 	if payload.Sub == "" || payload.ClientID == "" {
 		return nil, deviceSecretClientError("invalid_grant", "Device secret is missing required claims")
+	}
+	if payload.Cnf.JKT == "" {
+		return nil, deviceSecretClientError("invalid_grant", "Device secret is not bound to a DPoP key (cnf.jkt)")
 	}
 	return &payload, nil
 }
