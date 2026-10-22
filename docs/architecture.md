@@ -21,7 +21,7 @@ _Figure 1 – System context_
 
 | Component        | Technology                                   | Responsibility                                                                                                                             |
 | ---------------- | -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| esignet-service  | Go 1.26, ThunderID engine                    | OIDC/OAuth protocol endpoints (via engine), client & consent management APIs, MOSIP-specific auth-flow providers, identity-backend plugins |
+| esignet-service  | Go 1.27, ThunderID engine                    | OIDC/OAuth protocol endpoints (via engine), client & consent management APIs, MOSIP-specific auth-flow providers, identity-backend plugins |
 | oidc-ui          | React 19, TypeScript, Vite, @thunderid/react | Login/OTP/biometric/KBI/consent screens, theming, CAPTCHA, error/offline handling                                                          |
 | PostgreSQL       | RDBMS                                        | OAuth client registry, consent records/history, key material tables                                                                        |
 | Redis            | In-memory store                              | Shared runtime store: transient flow/OIDC transaction state, client cache, flow-definition cache                                                    |
@@ -31,7 +31,7 @@ _Figure 1 – System context_
 
 ## 2. esignet-service (Backend)
 
-esignet-service is a Go module (`github.com/mosip/esignet`, Go 1.26). Its entry point, `cmd/esignet/main.go`, is a composition root: it opens the Postgres (via `pgx`) and (optionally) Redis connections, provisions its own cryptographic key hierarchy (see §2.4), builds the client-management and key-management HTTP handlers, constructs an identity-backend provider via a factory, and then calls `thunderidengine.New(mux, ...)` with over two dozen functional-option providers that plug MOSIP-specific behaviour into the generic ThunderID engine. The engine registers its own OIDC/OAuth endpoints (authorize, token, well-known discovery, JWKS, etc.) on the same `*http.ServeMux`; that route-registration code lives in the external module and is outside this repository.
+esignet-service is a Go module (`github.com/mosip/esignet`, Go 1.27). Its entry point, `cmd/esignet/main.go`, is a composition root: it opens the Postgres (via `pgx`) and (optionally) Redis connections, provisions its own cryptographic key hierarchy (see §2.4), builds the client-management and key-management HTTP handlers, constructs an identity-backend provider via a factory, and then calls `thunderidengine.New(mux, ...)` with over two dozen functional-option providers that plug MOSIP-specific behaviour into the generic ThunderID engine. The engine registers its own OIDC/OAuth endpoints (authorize, token, well-known discovery, JWKS, etc.) on the same `*http.ServeMux`; that route-registration code lives in the external module and is outside this repository.
 
 The HTTP server runs with explicit read-header/read/write/idle timeouts and shuts down gracefully on `SIGINT`/`SIGTERM` (a 10s window to drain in-flight requests before forcing closed). Alongside it, a private, unauthenticated `GET /metrics` listener (Prometheus, Postgres/Redis pool stats) runs on its own port, and an optional loopback-only (`127.0.0.1`) pprof debug server can be enabled for profiling.
 

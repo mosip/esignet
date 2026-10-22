@@ -30,7 +30,7 @@ jobs:
     with:
       SERVICE_LOCATION: ./esignet-service
       BUILD_BINARY: esignet
-      GO_VERSION: "1.26"
+      GO_VERSION: "1.27"
 
     secrets:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
@@ -43,7 +43,7 @@ jobs:
     uses: mosip/kattu/.github/workflows/go-sonar-analysis.yml@develop
     with:
       SERVICE_LOCATION: ./esignet-service
-      GO_VERSION: "1.26"
+      GO_VERSION: "1.27"
       SONAR_EXCLUSIONS: "**/vendor/**,**/*_test.go,internal/clientmgmt/db/**,internal/consentmgmt/db/**,internal/keymanager/db/**"
 
     secrets:
