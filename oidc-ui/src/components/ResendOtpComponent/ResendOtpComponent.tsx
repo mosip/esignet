@@ -70,8 +70,9 @@ export default function ResendOtpComponent({
 
   const handleClick = () => {
     if (context.onSubmit) {
-      // resetting the form so nothing
-      context.resetForm && context.resetForm();
+      // Clear only the OTP field ("otp" ref in flow-esignet.yaml). A full
+      // resetForm() would also wipe username and break verification after resend.
+      context.onInputChange("otp", "");
 
       // checking whether captcha has been checked or not
       if (component.captcha && !captchaToken) {
