@@ -314,8 +314,8 @@ Demo-only shortcuts, listed so that nobody mistakes them for the design:
   verified by eSignet.
 - The SDK verifies the ID token's `nonce` but not its signature (the exchange is server-validated);
   a production SDK validates the JWS against the JWKS.
-- The Wallet's `SIGN_DPOP` IPC signs any `htu`/`ath` a sibling asks for; restrict it to the token and
-  userinfo endpoints in production.
+- The Wallet's `SIGN_DPOP` IPC only signs proofs for eSignet's PAR, token and userinfo endpoints
+  (a sibling cannot use Key A as a general signing oracle).
 - Cleartext HTTP is permitted in the apps' network security configuration for `localhost`.
 - The mock identity system's KYC token is a signed JWS; with MOSIP IDA the KYC token is encrypted to
   the relying party and the child's `userinfo` would be empty (§8).
