@@ -817,7 +817,8 @@ func TestValidateTestSuite(t *testing.T) {
 	suite.Run(t, new(ValidateTestSuite))
 }
 
-func TestValidateGrantTypes_TokenExchangeIsSupported(t *testing.T) {
+func (ts *ValidateTestSuite) TestValidateGrantTypes_TokenExchangeIsSupported() {
+	t := ts.T()
 	assert.NoError(t, validateGrantTypes([]string{"authorization_code", "token_exchange"}, 0, 0))
 	assert.NoError(t, validateGrantTypes([]string{"token_exchange"}, 1, 0))
 	assert.Equal(t, "invalid_grant_type", errCode(t, validateGrantTypes([]string{"implicit"}, 0, 0)))

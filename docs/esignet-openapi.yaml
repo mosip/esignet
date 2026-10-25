@@ -146,7 +146,10 @@ paths:
                       minItems: 1
                       uniqueItems: true
                       items:
-                        const: authorization_code
+                        type: string
+                        enum:
+                          - authorization_code
+                          - token_exchange
                     clientAuthMethods:
                       type: array
                       description: Auth method supported for token endpoint. At present only "private_key_jwt" is supported.
@@ -392,7 +395,10 @@ paths:
                       minItems: 1
                       uniqueItems: true
                       items:
-                        const: authorization_code
+                        type: string
+                        enum:
+                          - authorization_code
+                          - token_exchange
                     clientAuthMethods:
                       type: array
                       description: Auth method supported for token endpoint. At present only "private_key_jwt" is supported.
@@ -632,7 +638,10 @@ paths:
                       minItems: 1
                       uniqueItems: true
                       items:
-                        const: authorization_code
+                        type: string
+                        enum:
+                          - authorization_code
+                          - token_exchange
                     clientAuthMethods:
                       type: array
                       description: Auth method supported for token endpoint. At present only "private_key_jwt" is supported.
@@ -888,7 +897,10 @@ paths:
                       description: Form of Authorization Grant presented to token endpoint.
                       minItems: 1
                       items:
-                        const: authorization_code
+                        type: string
+                        enum:
+                          - authorization_code
+                          - token_exchange
                     clientAuthMethods:
                       type: array
                       description: Auth method supported for token endpoint. At present only "private_key_jwt" is supported.
@@ -1091,7 +1103,10 @@ paths:
                       description: Form of Authorization Grant presented to token endpoint.
                       minItems: 1
                       items:
-                        const: authorization_code
+                        type: string
+                        enum:
+                          - authorization_code
+                          - token_exchange
                     clientAuthMethods:
                       type: array
                       description: Auth method supported for token endpoint. At present only "private_key_jwt" is supported.
@@ -1313,7 +1328,10 @@ paths:
                       description: Form of Authorization Grant presented to token endpoint.
                       minItems: 1
                       items:
-                        const: authorization_code
+                        type: string
+                        enum:
+                          - authorization_code
+                          - token_exchange
                     clientAuthMethods:
                       type: array
                       description: Auth method supported for token endpoint. At present only "private_key_jwt" is supported.
@@ -1579,6 +1597,7 @@ paths:
                         type: string
                         enum:
                           - authorization_code
+                          - token_exchange
                     clientAuthMethods:
                       type: array
                       description: Auth method supported for token endpoint. At present only "private_key_jwt" is supported.
@@ -2659,12 +2678,30 @@ paths:
                   description: |-
                     A cryptographically random string that is used to correlate the
                           authorization request to the token request.
-              required:
-                - grant_type
-                - code
-                - client_assertion_type
-                - client_assertion
-                - redirect_uri
+              oneOf:
+                - description: Authorization code redemption.
+                  properties:
+                    grant_type:
+                      const: authorization_code
+                  required:
+                    - grant_type
+                    - code
+                    - redirect_uri
+                    - client_assertion_type
+                    - client_assertion
+                - description: Native SSO token exchange (sibling app silent sign-in).
+                  properties:
+                    grant_type:
+                      const: 'urn:ietf:params:oauth:grant-type:token-exchange'
+                  required:
+                    - grant_type
+                    - audience
+                    - subject_token
+                    - subject_token_type
+                    - actor_token
+                    - actor_token_type
+                    - client_assertion_type
+                    - client_assertion
             examples:
               Example 1:
                 value:
@@ -2767,6 +2804,10 @@ paths:
                       - unsupported_pkce_challenge_method
                       - invalid_dpop_proof
                       - use_dpop_nonce
+                      - invalid_target
+                      - invalid_scope
+                      - unauthorized_client
+                      - interaction_required
                     description: The error code.
                   error_description:
                     type: string

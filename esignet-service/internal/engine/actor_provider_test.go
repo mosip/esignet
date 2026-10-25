@@ -499,7 +499,8 @@ func TestActorProviderTestSuite(t *testing.T) {
 	suite.Run(t, new(ActorProviderTestSuite))
 }
 
-func TestEngineGrantTypes(t *testing.T) {
+func (ts *ActorProviderTestSuite) TestEngineGrantTypes() {
+	t := ts.T()
 	require.Equal(t, []providers.GrantType{providers.GrantTypeAuthorizationCode}, engineGrantTypes([]string{"authorization_code"}))
 	require.Equal(t, []providers.GrantType{providers.GrantTypeAuthorizationCode, providers.GrantTypeTokenExchange},
 		engineGrantTypes([]string{"authorization_code", "token_exchange"}))

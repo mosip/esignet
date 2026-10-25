@@ -182,6 +182,7 @@ Content-Type: application/x-www-form-urlencoded
 DPoP: <proof signed by Key A for POST {token_endpoint}>
 
 grant_type=urn:ietf:params:oauth:grant-type:token-exchange
+&audience=<issuer, exactly as in the discovery document>
 &client_id=<child client>
 &subject_token=<id_token of the super app>
 &subject_token_type=urn:ietf:params:oauth:token-type:id_token
