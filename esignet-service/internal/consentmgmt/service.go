@@ -15,23 +15,30 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
+	"github.com/jmoiron/sqlx"
 
 	"github.com/mosip/esignet/internal/consentmgmt/db"
 	applog "github.com/mosip/esignet/internal/log"
 )
 
-// Service persists consent records in the consent_detail Postgres table via the sqlc-generated
+// Service persists consent records in the consent_detail table via a hand-written sqlx
 // query layer. Each (client_id, psu_token) pair holds at most one record in consent_detail
 // (unique constraint), while consent_history keeps an append-only snapshot of every consent taken.
 type Service struct {
-	db     *sql.DB
+	db     *sqlx.DB
 	q      db.Querier
 	logger *applog.Logger
 }
 
-// NewService creates a Service backed by the given database connection.
-func NewService(conn *sql.DB) *Service {
-	return &Service{q: db.New(conn), logger: applog.GetLogger().Named("consentmgmt")}
+// NewService creates a Service backed by the given database connection. The driver name is
+// derived from the connection (conn.DriverName()) and threaded into db.New so queries are
+// rebound to the active dialect's placeholder style.
+func NewService(conn *sqlx.DB) *Service {
+	return &Service{
+		db:     conn,
+		q:      db.New(conn, conn.DriverName()),
+		logger: applog.GetLogger().Named("consentmgmt"),
+	}
 }
 
 // NewServiceWithQuerier creates a Service with an explicit Querier; use in tests
@@ -91,8 +98,9 @@ func (s *Service) FetchRecord(ctx context.Context, clientID, userID string) (*Co
 
 // SaveRecord persists a new consent for its (client_id, psu_token) pair. Mirroring the Java
 // ConsentServiceImpl.saveUserConsent, it appends a snapshot of the new consent to consent_history
-// (append-only audit trail) and inserts-or-replaces the current row in consent_detail, both within
-// a single transaction so the history snapshot and the current row commit atomically.
+// (append-only audit trail) and replaces the current row in consent_detail (delete-then-insert)
+// both within a single transaction so the history snapshot and the current
+// row commit atomically — a partial failure rolls back and leaves no partial data.
 func (s *Service) SaveRecord(ctx context.Context, c *ConsentRecord) error {
 	normalizedClaims := NormalizeClaims(c.Claims)
 	claimsRequestJSON, err := json.Marshal(normalizedClaims)
@@ -143,15 +151,14 @@ func (s *Service) SaveRecord(ctx context.Context, c *ConsentRecord) error {
 		ExpireDtimes:        c.ExpiresAt,
 	}
 
-	q := s.q
-	var tx *sql.Tx
-	if s.db != nil {
-		if tx, err = s.db.BeginTx(ctx, nil); err != nil {
-			return fmt.Errorf("begin consent tx: %w", err)
-		}
-		defer func() { _ = tx.Rollback() }()
-		q = db.New(tx)
+	// The history snapshot and the consent replace (delete-then-insert) must be all-or-nothing,
+	// so they run in one transaction. A tx-bound Queries is built with the same driver name.
+	tx, err := s.db.BeginTxx(ctx, nil)
+	if err != nil {
+		return fmt.Errorf("begin consent tx: %w", err)
 	}
+	defer func() { _ = tx.Rollback() }()
+	q := db.New(tx, s.db.DriverName())
 
 	if err := q.InsertConsentHistory(ctx, historyParams); err != nil {
 		return fmt.Errorf("insert consent history: %w", err)
@@ -160,10 +167,8 @@ func (s *Service) SaveRecord(ctx context.Context, c *ConsentRecord) error {
 		return fmt.Errorf("upsert consent: %w", err)
 	}
 
-	if tx != nil {
-		if err := tx.Commit(); err != nil {
-			return fmt.Errorf("commit consent tx: %w", err)
-		}
+	if err := tx.Commit(); err != nil {
+		return fmt.Errorf("commit consent tx: %w", err)
 	}
 	s.logger.Debug(ctx, "consent record saved",
 		applog.String("clientId", c.ClientID),

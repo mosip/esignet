@@ -8,10 +8,14 @@ package consentmgmt
 import (
 	"context"
 	"database/sql"
+	"database/sql/driver"
 	"encoding/json"
 	"errors"
 	"testing"
 	"time"
+
+	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/jmoiron/sqlx"
 
 	"github.com/mosip/esignet/internal/consentmgmt/db"
 )
@@ -157,9 +161,40 @@ func TestFetchRecord_MalformedClaimsJSON(t *testing.T) {
 	}
 }
 
+// newMockService builds a Service whose *sqlx.DB is backed by go-sqlmock, so the
+// SaveRecord transaction (Begin → execs → Commit/Rollback) can be scripted and
+// asserted without a real database. The "sqlmock" driver name leaves "?"
+// placeholders in the query text, which the regexp statement matchers below ignore.
+func newMockService(t *testing.T) (*Service, sqlmock.Sqlmock) {
+	t.Helper()
+	mockDB, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("sqlmock.New: %v", err)
+	}
+	t.Cleanup(func() { _ = mockDB.Close() })
+	return NewService(sqlx.NewDb(mockDB, "sqlmock")), mock
+}
+
+// jsonArgHasKey is a sqlmock argument matcher that passes when the bound value is
+// a JSON object with the given top-level key — used to assert the persisted
+// claims were normalized (they keep their "userinfo" section).
+type jsonArgHasKey struct{ key string }
+
+func (m jsonArgHasKey) Match(v driver.Value) bool {
+	s, ok := v.(string)
+	if !ok {
+		return false
+	}
+	var obj map[string]any
+	if json.Unmarshal([]byte(s), &obj) != nil {
+		return false
+	}
+	_, ok = obj[m.key]
+	return ok
+}
+
 func TestSaveRecord_PersistsComputedHashAndNormalizedPayload(t *testing.T) {
-	q := &fakeQuerier{}
-	s := NewServiceWithQuerier(q)
+	s, mock := newMockService(t)
 
 	createdAt := time.Now().UTC()
 	rec := &ConsentRecord{
@@ -172,11 +207,6 @@ func TestSaveRecord_PersistsComputedHashAndNormalizedPayload(t *testing.T) {
 		PermittedScopes:     []string{"resource.read"},
 		CreatedAt:           createdAt,
 	}
-
-	if err := s.SaveRecord(context.Background(), rec); err != nil {
-		t.Fatalf("save: %v", err)
-	}
-
 	wantHash, err := HashRequestedConsent(
 		NormalizeClaims(rec.Claims),
 		NormalizeAuthorizationScopes(rec.AuthorizationScopes),
@@ -184,43 +214,67 @@ func TestSaveRecord_PersistsComputedHashAndNormalizedPayload(t *testing.T) {
 	if err != nil {
 		t.Fatalf("compute expected hash: %v", err)
 	}
+	hashArg := sql.NullString{String: wantHash, Valid: true}
 
-	if !q.upsertParams.Hash.Valid || q.upsertParams.Hash.String != wantHash {
-		t.Errorf("UpsertConsent Hash = %#v, want %q", q.upsertParams.Hash, wantHash)
-	}
-	if !q.insertHistoryParams.Hash.Valid || q.insertHistoryParams.Hash.String != wantHash {
-		t.Errorf("InsertConsentHistory Hash = %#v, want %q", q.insertHistoryParams.Hash, wantHash)
-	}
-	if q.upsertParams.ID != rec.ID || q.upsertParams.ClientID != rec.ClientID || q.upsertParams.PsuToken != rec.UserID {
-		t.Errorf("unexpected upsert identity fields: %#v", q.upsertParams)
-	}
+	mock.ExpectBegin()
+	// consent_history snapshot: fresh UUID id, identity, normalized claims, computed hash.
+	mock.ExpectExec("INSERT INTO consent_history").
+		WithArgs(sqlmock.AnyArg(), "client-1", "user-1", jsonArgHasKey{"userinfo"}, sqlmock.AnyArg(),
+			hashArg, sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg()).
+		WillReturnResult(sqlmock.NewResult(0, 1))
+	// consent_detail replace = delete then insert (portability rule D).
+	mock.ExpectExec("DELETE FROM consent_detail").
+		WithArgs("client-1", "user-1").
+		WillReturnResult(sqlmock.NewResult(0, 0))
+	mock.ExpectExec("INSERT INTO consent_detail").
+		WithArgs("consent-1", "client-1", "user-1", jsonArgHasKey{"userinfo"}, sqlmock.AnyArg(),
+			hashArg, sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg()).
+		WillReturnResult(sqlmock.NewResult(0, 1))
+	mock.ExpectCommit()
 
-	var gotClaims map[string]any
-	if err := json.Unmarshal([]byte(q.upsertParams.Claims), &gotClaims); err != nil {
-		t.Fatalf("decode persisted claims: %v", err)
+	if err := s.SaveRecord(context.Background(), rec); err != nil {
+		t.Fatalf("save: %v", err)
 	}
-	if _, ok := gotClaims["userinfo"]; !ok {
-		t.Errorf("expected normalized claims to include userinfo, got %#v", gotClaims)
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("unmet sqlmock expectations: %v", err)
 	}
 }
 
 func TestSaveRecord_InsertHistoryError(t *testing.T) {
-	q := &fakeQuerier{insertHistoryErr: errors.New("insert failed")}
-	s := NewServiceWithQuerier(q)
+	// The first write failing aborts the transaction before any consent_detail change.
+	s, mock := newMockService(t)
+
+	mock.ExpectBegin()
+	mock.ExpectExec("INSERT INTO consent_history").WillReturnError(errors.New("insert failed"))
+	mock.ExpectRollback()
 
 	err := s.SaveRecord(context.Background(), &ConsentRecord{ID: "c1", ClientID: "client-1", UserID: "user-1"})
 	if err == nil {
 		t.Fatal("expected an error when inserting consent history fails")
 	}
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("unmet sqlmock expectations (rollback not performed?): %v", err)
+	}
 }
 
 func TestSaveRecord_UpsertError(t *testing.T) {
-	q := &fakeQuerier{upsertErr: errors.New("upsert failed")}
-	s := NewServiceWithQuerier(q)
+	// A mid-transaction failure (the consent_detail insert) must roll back the whole
+	// unit, so the history snapshot written moments earlier is never committed — the
+	// acceptance criterion that a partial failure leaves no partial data.
+	s, mock := newMockService(t)
+
+	mock.ExpectBegin()
+	mock.ExpectExec("INSERT INTO consent_history").WillReturnResult(sqlmock.NewResult(0, 1))
+	mock.ExpectExec("DELETE FROM consent_detail").WillReturnResult(sqlmock.NewResult(0, 0))
+	mock.ExpectExec("INSERT INTO consent_detail").WillReturnError(errors.New("insert failed"))
+	mock.ExpectRollback()
 
 	err := s.SaveRecord(context.Background(), &ConsentRecord{ID: "c1", ClientID: "client-1", UserID: "user-1"})
 	if err == nil {
-		t.Fatal("expected an error when upserting consent fails")
+		t.Fatal("expected an error when the consent insert fails")
+	}
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("unmet sqlmock expectations (rollback not performed?): %v", err)
 	}
 }
 

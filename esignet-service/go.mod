@@ -3,6 +3,7 @@ module github.com/mosip/esignet
 go 1.26
 
 require (
+	github.com/DATA-DOG/go-sqlmock v1.5.2
 	github.com/btcsuite/btcd/btcec/v2 v2.5.0
 	github.com/go-jose/go-jose/v4 v4.1.4
 	github.com/go-sql-driver/mysql v1.8.1
