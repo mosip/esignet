@@ -397,6 +397,9 @@ func validateClaims(claims []string, minItems, maxItems int) error {
 	if maxItems > 0 && len(claims) > maxItems {
 		return validationErr("invalid_claim")
 	}
+	if !hasUniqueStrings(claims) {
+		return validationErr("invalid_claim")
+	}
 	if !containsAll(claims, allowedClaims) {
 		return validationErr("invalid_claim")
 	}
