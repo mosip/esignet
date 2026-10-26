@@ -1856,7 +1856,7 @@
           "",
           "const clientId = pm.environment.get('client_id');",
           "const clientJwkRaw = pm.environment.get('client_private_key');",
-          "const audience = pm.environment.get('audience') || (pm.environment.get('baseUrl').replace(/\\/$/, '') + '/oauth2/token');",
+          "const audience = pm.environment.get('audience') || pm.environment.get('baseUrl');",
           "if (!clientId) { throw new Error('client_id is not set \u2014 run Client Management > Create client first'); }",
           "if (!clientJwkRaw) { throw new Error('client_private_key is not set \u2014 run Client Management > Create client first'); }",
           "",
