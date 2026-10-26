@@ -129,6 +129,14 @@ keys on startup) — see [`internal/keymanager/README.md`](internal/keymanager/R
 own configuration (keystore backend, PKCS#11/PKCS#12, cert subject fields, etc.), documented in
 full in [`docs/configuration.md`](../docs/configuration.md) §8.
 
+The JWKS also publishes signing certificates supplied by the configured identity
+backend. For external RSA keys, the optional JWK `alg` is omitted: an RSA
+certificate does not establish whether that backend uses RS256 or PS256.
+For example, mock-identity-system 0.14.0 signs userinfo with RS256 even when
+eSignet's own ID tokens use PS256. Relying parties must configure the expected
+userinfo algorithm and verify its signature; they must not infer it from the
+ID-token algorithm or treat an absent JWK `alg` as permission to skip verification.
+
 ## Client management API
 
 When scope enforcement is enabled (`security_config.issuer_url`/`jwks_url` in `data/deployment.yaml` — see [`docs/configuration.md`](../docs/configuration.md) §4), endpoints require `Authorization: Bearer <token>`, validated against the JWKS endpoint with a matching `iss` and unexpired `exp`.
