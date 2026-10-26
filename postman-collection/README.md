@@ -80,7 +80,7 @@ The `aud` of each `private_key_jwt` client assertion is read from environment va
 | `par_audience` | `{{baseUrl}}` (issuer) | PAR `par_client_assertion` `aud` |
 | `introspect_audience` | `{{baseUrl}}` (issuer) | introspect `client_assertion` `aud` |
 
-> If you change `baseUrl`, update these audience variables to match (or clear them to use the `{{baseUrl}}`-derived issuer fallback). DPoP `htu` values are always `{{baseUrl}}/oauth2/<endpoint>` and update automatically with `baseUrl`.
+> **Strict FAPI 2.0:** If you change `baseUrl`, set each audience variable to the **resolved issuer URL** (e.g. `https://esignet.example.com`) — do not enter the literal `{{baseUrl}}` template string, as Postman will not expand it inside a variable value. Clearing a variable reverts to the collection fallback, which resolves `{{baseUrl}}` automatically. DPoP `htu` values are always `{{baseUrl}}/oauth2/<endpoint>` and update automatically with `baseUrl`.
 
 ## The two client assertions (collection variables)
 
