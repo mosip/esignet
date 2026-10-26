@@ -300,9 +300,15 @@ func (p *runtimeCryptoProvider) idSystemPublicKeys(ctx context.Context) []provid
 				applog.String("keyId", certData.KeyID), applog.Error(err))
 			continue
 		}
+		algorithm := signature.AlgorithmForPublicKey(cert.PublicKey)
+		if _, isRSA := cert.PublicKey.(*rsa.PublicKey); isRSA {
+			// A certificate does not specify the JWT padding/hash used by the ID system.
+			// Omit optional JWK alg rather than incorrectly restricting RS256 keys to PS256.
+			algorithm = ""
+		}
 		keys = append(keys, providers.PublicKeyInfo{
 			KeyID:          certData.KeyID,
-			Algorithm:      signature.AlgorithmForPublicKey(cert.PublicKey),
+			Algorithm:      algorithm,
 			PublicKey:      cert.PublicKey,
 			Thumbprint:     keymanager.ThumbprintForCert(cert),
 			CertificateDER: cert.Raw,

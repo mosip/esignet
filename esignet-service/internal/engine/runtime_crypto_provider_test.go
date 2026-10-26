@@ -326,30 +326,25 @@ func (ts *RuntimeCryptoProviderTestSuite) TestIdSystemPublicKeys_ConvertsEachCer
 	ts.Assert().NotEmpty(keys[0].Thumbprint)
 	ts.Assert().NotNil(keys[0].PublicKey)
 	ts.Assert().NotEmpty(keys[0].CertificateDER)
-	ts.Assert().Equal("PS256", keys[0].Algorithm, "an RSA certificate must resolve to PS256")
 }
 
-// TestIdSystemPublicKeys_AlgorithmReflectsActualKeyType_NotKeyIDString
-// guards the fix from computing Algorithm via
-// signature.AlgorithmForPublicKey(cert.PublicKey) instead of
-// signature.AlgorithmForRefID(certData.KeyID): an ID system's KeyID is an
-// arbitrary external string with no relation to esignet's own refID
-// constants, so matching it against those constants could silently report
-// the wrong algorithm for a real key. Here the KeyID happens to collide with
-// keymanager.RefIDECSECP256R1Sign ("EC_SECP256R1_SIGN") even though the
-// certificate is RSA — the resolved algorithm must follow the certificate,
-// not the KeyID.
-func (ts *RuntimeCryptoProviderTestSuite) TestIdSystemPublicKeys_AlgorithmReflectsActualKeyType_NotKeyIDString() {
-	rsaCertPEM := testCertPEM(ts.T(), "id-system-key")
+// An RSA certificate identifies the key, not whether its owner signs RS256 or PS256.
+// In particular mock-identity-system 0.14.0 signs userinfo with RS256.
+func (ts *RuntimeCryptoProviderTestSuite) TestIdSystemPublicKeys_RSAAlgorithmIsNotInferred() {
 	p := &runtimeCryptoProvider{authnProvider: &fakeAuthnProviderForCrypto{
-		certs: []shared.CertificateData{{KeyID: keymanager.RefIDECSECP256R1Sign, Certificate: rsaCertPEM}},
+		certs: []shared.CertificateData{{
+			KeyID:       keymanager.RefIDECSECP256R1Sign,
+			Certificate: testCertPEM(ts.T(), "external-rsa-key"),
+		}},
 	}}
 
 	keys := p.idSystemPublicKeys(context.Background())
-
 	ts.Require().Len(keys, 1)
-	ts.Assert().Equal("PS256", keys[0].Algorithm,
-		"algorithm must be derived from the RSA certificate's key, not misread from the EC_SECP256R1_SIGN-shaped KeyID")
+	// RFC 7517 section 4.4 makes alg optional. An invented PS256 restriction
+	// makes conforming consumers reject RS256 JWTs signed by this same key.
+	ts.Assert().Empty(keys[0].Algorithm)
+	ts.Assert().IsType(&rsa.PublicKey{}, keys[0].PublicKey)
+	ts.Assert().Equal(keymanager.RefIDECSECP256R1Sign, keys[0].KeyID)
 }
 
 func (ts *RuntimeCryptoProviderTestSuite) TestIdSystemPublicKeys_ECCertificate_ResolvesES256() {
