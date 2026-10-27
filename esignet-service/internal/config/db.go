@@ -8,17 +8,12 @@ package config
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"math"
 	"net"
 	"os"
 	"strings"
 	"time"
-
-	_ "github.com/go-sql-driver/mysql" // registers the "mysql" database/sql driver used by openMySQL
-	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/jackc/pgx/v5/stdlib"
 
 	applog "github.com/mosip/esignet/internal/log"
 )
@@ -31,7 +26,7 @@ const (
 	defaultDBMaxOpenConns = 50
 	// defaultDBMaxIdleConns is intentionally well below defaultDBMaxOpenConns.
 	// Unlike database/sql's MaxIdleConns (a passive ceiling), pgxpool.Config's
-	// MinConns — which this feeds, see buildPoolConfig — is an eagerly
+	// MinConns — which this feeds, see dbconn.buildPoolConfig — is an eagerly
 	// maintained floor: pgxpool's background health check opens connections
 	// up to it immediately at startup. Setting it equal to MaxOpenConns would
 	// make every instance eagerly open its full connection allotment before
@@ -41,39 +36,23 @@ const (
 	defaultDBMaxIdleConns        = 25
 	defaultDBConnMaxLifetimeSecs = 1800
 	defaultDBConnMaxIdleTimeSecs = 300
-	dbPingTimeout                = 5 * time.Second
 )
 
 const (
-	// driverPostgres and driverMySQL are the supported DB_DRIVER values.
-	// defaultDBDriver applies when DB_DRIVER is unset, preserving the
-	// Postgres-only behavior this service shipped with.
-	driverPostgres  = "postgres"
-	driverMySQL     = "mysql"
-	defaultDBDriver = driverPostgres
+	// DriverPostgres and DriverMySQL are the supported DB_DRIVER values.
+	// DefaultDBDriver applies when DB_DRIVER is unset, preserving the
+	// Postgres-only behavior this service shipped with. They are exported so the
+	// connection layer (internal/dbconn) can dispatch on the resolved driver
+	// without duplicating the string literals.
+	DriverPostgres  = "postgres"
+	DriverMySQL     = "mysql"
+	DefaultDBDriver = DriverPostgres
 
 	// MySQL connection defaults. The Postgres equivalents are
 	// defaultDBPort/defaultDBUser above; defaultDBName is shared by both.
 	defaultMySQLPort = "3306"
 	defaultMySQLUser = "root"
 )
-
-// dbUnlimitedConnLifetime approximates "no limit" for pgxpool.Config.MaxConnLifetime.
-// Unlike database/sql (SetConnMaxLifetime) and go-redis (ConnMaxLifetime), pgxpool
-// treats a zero-or-negative MaxConnLifetime as "already expired" — every pooled
-// connection would compute maxAgeTime = time.Now() at creation and get destroyed
-// and replaced continuously by the health check instead of being kept forever, the
-// opposite of the "no limit" opt-out DB_CONN_MAX_LIFETIME_SECS=0 is meant to give.
-const dbUnlimitedConnLifetime = 100 * 365 * 24 * time.Hour
-
-// effectiveMaxConnLifetime translates the operator-facing "0/negative = no
-// limit" convention into a value pgxpool actually treats as unbounded.
-func effectiveMaxConnLifetime(configured time.Duration) time.Duration {
-	if configured <= 0 {
-		return dbUnlimitedConnLifetime
-	}
-	return configured
-}
 
 // DBPool holds connection pool tuning parameters. Seconds fields (not
 // time.Duration) so a plain integer in deployment.yaml decodes correctly —
@@ -87,7 +66,8 @@ type DBPool struct {
 }
 
 // DB holds database connection settings. Driver selects the backend
-// ("postgres" or "mysql"); DSN and Pool are interpreted per driver.
+// ("postgres" or "mysql"); DSN and Pool are interpreted per driver. The live
+// connection is opened from this resolved config by internal/dbconn.Open.
 type DB struct {
 	Driver string `yaml:"driver"`
 	DSN    string `yaml:"dsn"`
@@ -212,14 +192,14 @@ func ensureMySQLParseTime(dsn string) string {
 func loadDB(yamlDB DB) DB {
 	// Resolve the driver first (env > yaml > default), then build the DSN with
 	// the matching resolver. An unrecognized driver falls through to the
-	// Postgres DSN here and is rejected with a clear error in Open().
+	// Postgres DSN here and is rejected with a clear error in dbconn.Open.
 	driver := strings.ToLower(strings.TrimSpace(envOrDefault("DB_DRIVER", yamlDB.Driver)))
 	if driver == "" {
-		driver = defaultDBDriver
+		driver = DefaultDBDriver
 	}
 
 	var dsn string
-	if driver == driverMySQL {
+	if driver == DriverMySQL {
 		dsn = resolveMySQLDSN(yamlDB.DSN)
 	} else {
 		dsn = resolveDBDSN(yamlDB.DSN)
@@ -230,7 +210,7 @@ func loadDB(yamlDB DB) DB {
 	maxIdleRaw, maxIdleSrc := envIntOrConfigOrDefaultSourced("DB_MAX_IDLE_CONNS", yamlDB.Pool.MaxIdleConns, defaultDBMaxIdleConns)
 	maxIdle := clampPositiveInt32("DB_MAX_IDLE_CONNS", maxIdleRaw)
 	// An explicit env var of "0" means "no limit" — same convention as
-	// database/sql and Redis. See effectiveMaxConnLifetime in Open() for why
+	// database/sql and Redis. See dbconn.effectiveMaxConnLifetime for why
 	// pgxpool needs this translated rather than passed through. A yaml value
 	// of 0 (or an omitted field, which decodes to the same zero value) can't
 	// be distinguished from "not configured", so only the env var can opt out.
@@ -264,7 +244,7 @@ func loadDB(yamlDB DB) DB {
 // clampPositiveInt32 clamps a resolved connection-count setting to the range
 // pgxpool.Config's MaxConns/MinConns (both int32) can hold. Without this, a
 // value like 2147483648 would wrap negative on conversion in
-// buildPoolConfig, and pgxpool would reject the pool as too small.
+// dbconn.buildPoolConfig, and pgxpool would reject the pool as too small.
 func clampPositiveInt32(key string, v int) int {
 	if v > math.MaxInt32 {
 		applog.GetLogger().Warn(context.Background(),
@@ -283,7 +263,7 @@ func clampPositiveInt32(key string, v int) int {
 const maxDurationSecs = int(math.MaxInt64 / int64(time.Second))
 
 // clampDurationSecs clamps a resolved seconds setting so its later
-// `time.Duration(v) * time.Second` conversion (in buildPoolConfig) cannot
+// `time.Duration(v) * time.Second` conversion (in dbconn.buildPoolConfig) cannot
 // overflow and wrap into a small or negative duration.
 func clampDurationSecs(key string, v int) int {
 	if v > maxDurationSecs {
@@ -293,116 +273,4 @@ func clampDurationSecs(key string, v int) int {
 		return maxDurationSecs
 	}
 	return v
-}
-
-// buildPoolConfig translates dsn/pool into a pgxpool.Config, applying the
-// same sizing pgxpool needs but *sql.DB doesn't: MinConns is the closest
-// pgxpool analog to database/sql's MaxIdleConns ("keep this many warm"), but
-// unlike MaxIdleConns it's an eagerly-maintained floor pgxpool's background
-// health check enforces — so it's clamped to MaxConns here, since pgxpool
-// was never designed to have MinConns exceed MaxConns.
-func buildPoolConfig(dsn string, pool DBPool) (*pgxpool.Config, error) {
-	poolCfg, err := pgxpool.ParseConfig(dsn)
-	if err != nil {
-		return nil, fmt.Errorf("parse postgres dsn: %w", err)
-	}
-	poolCfg.MaxConns = int32(pool.MaxOpenConns)
-	poolCfg.MinConns = int32(pool.MaxIdleConns)
-	if poolCfg.MinConns > poolCfg.MaxConns {
-		poolCfg.MinConns = poolCfg.MaxConns
-	}
-	poolCfg.MaxConnLifetime = effectiveMaxConnLifetime(time.Duration(pool.ConnMaxLifetimeSecs) * time.Second)
-	poolCfg.MaxConnIdleTime = time.Duration(pool.ConnMaxIdleTimeSecs) * time.Second
-	return poolCfg, nil
-}
-
-// Open opens a connection to the configured database (Postgres or MySQL, per
-// d.Driver), pings it, and returns the resolved driver name alongside the
-// *sql.DB and a closeFn. The returned driver name is suitable for
-// sqlx.BindType / dbutil.Rebind. closeFn must be called (e.g. via defer) once
-// the connection is no longer needed.
-func (d DB) Open() (conn *sql.DB, driverName string, closeFn func() error, err error) {
-	driverName = d.Driver
-	if driverName == "" {
-		driverName = defaultDBDriver
-	}
-	switch driverName {
-	case driverPostgres:
-		conn, closeFn, err = d.openPostgres()
-	case driverMySQL:
-		conn, closeFn, err = d.openMySQL()
-	default:
-		return nil, "", nil, fmt.Errorf("unsupported database driver %q: must be %q or %q", driverName, driverPostgres, driverMySQL)
-	}
-	if err != nil {
-		return nil, "", nil, err
-	}
-	return conn, driverName, closeFn, nil
-}
-
-// openPostgres opens a pgx connection pool, configures its sizing, pings it,
-// and returns a *sql.DB (via the pgx stdlib adapter) so existing database/sql
-// and sqlx call sites are unaffected. The returned closeFn releases both the
-// *sql.DB and the underlying pgxpool.Pool — sql.DB.Close alone does not close
-// the pool — and must be called once the connection is no longer needed.
-func (d DB) openPostgres() (conn *sql.DB, closeFn func() error, err error) {
-	poolCfg, err := buildPoolConfig(d.DSN, d.Pool)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	ctx, cancel := context.WithTimeout(context.Background(), dbPingTimeout)
-	defer cancel()
-
-	pool, err := pgxpool.NewWithConfig(ctx, poolCfg)
-	if err != nil {
-		return nil, nil, fmt.Errorf("open postgres: %w", err)
-	}
-
-	// Pool sizing is governed entirely by poolCfg above, not by *sql.DB's own
-	// SetMaxOpenConns/SetConnMaxLifetime/etc — OpenDBFromPool forces the
-	// returned *sql.DB's MaxIdleConns to 0 (verified in pgx v5's stdlib
-	// package) for exactly this reason, so setting those on conn would fight
-	// the pool instead of tuning it.
-	conn = stdlib.OpenDBFromPool(pool)
-	if err := conn.PingContext(ctx); err != nil {
-		_ = conn.Close()
-		pool.Close()
-		return nil, nil, fmt.Errorf("ping postgres: %w", err)
-	}
-
-	closeFn = func() error {
-		err := conn.Close()
-		pool.Close()
-		return err
-	}
-	return conn, closeFn, nil
-}
-
-// openMySQL opens a database/sql connection to MySQL, applies the pool
-// settings, and pings it. Unlike openPostgres, pool sizing uses database/sql's
-// own setters: SetMaxIdleConns here is a passive ceiling (idle connections are
-// kept up to it, not opened eagerly), not pgxpool's eagerly-maintained MinConns
-// floor. SetConnMaxLifetime uses the raw duration because database/sql already
-// treats 0 as "no limit" — the opposite of pgxpool, which is why
-// effectiveMaxConnLifetime exists only on the Postgres path.
-func (d DB) openMySQL() (conn *sql.DB, closeFn func() error, err error) {
-	conn, err = sql.Open("mysql", d.DSN)
-	if err != nil {
-		return nil, nil, fmt.Errorf("open mysql: %w", err)
-	}
-	conn.SetMaxOpenConns(d.Pool.MaxOpenConns)
-	conn.SetMaxIdleConns(d.Pool.MaxIdleConns)
-	conn.SetConnMaxLifetime(time.Duration(d.Pool.ConnMaxLifetimeSecs) * time.Second)
-	conn.SetConnMaxIdleTime(time.Duration(d.Pool.ConnMaxIdleTimeSecs) * time.Second)
-
-	ctx, cancel := context.WithTimeout(context.Background(), dbPingTimeout)
-	defer cancel()
-	if err := conn.PingContext(ctx); err != nil {
-		_ = conn.Close()
-		return nil, nil, fmt.Errorf("ping mysql: %w", err)
-	}
-
-	closeFn = func() error { return conn.Close() }
-	return conn, closeFn, nil
 }

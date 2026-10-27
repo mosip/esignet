@@ -8,7 +8,6 @@ package config
 
 import (
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/require"
 )
@@ -200,34 +199,6 @@ func TestLoadDB_EnvPoolValuesTakePrecedenceOverYAML(t *testing.T) {
 	require.Equal(t, 77, db.Pool.MaxOpenConns)
 }
 
-func TestBuildPoolConfig_MinConnsClampedToMaxConns(t *testing.T) {
-	poolCfg, err := buildPoolConfig("postgres://localhost/db", DBPool{
-		MaxOpenConns: 5,
-		MaxIdleConns: 25, // e.g. left at the default while MaxOpenConns was lowered
-	})
-
-	require.NoError(t, err)
-	require.EqualValues(t, 5, poolCfg.MaxConns)
-	require.EqualValues(t, 5, poolCfg.MinConns, "MinConns must never exceed MaxConns")
-}
-
-func TestBuildPoolConfig_MinConnsWithinMaxConnsUnaffected(t *testing.T) {
-	poolCfg, err := buildPoolConfig("postgres://localhost/db", DBPool{
-		MaxOpenConns: 25,
-		MaxIdleConns: 10,
-	})
-
-	require.NoError(t, err)
-	require.EqualValues(t, 25, poolCfg.MaxConns)
-	require.EqualValues(t, 10, poolCfg.MinConns)
-}
-
-func TestEffectiveMaxConnLifetime(t *testing.T) {
-	require.Equal(t, dbUnlimitedConnLifetime, effectiveMaxConnLifetime(0))
-	require.Equal(t, dbUnlimitedConnLifetime, effectiveMaxConnLifetime(-time.Second))
-	require.Equal(t, 30*time.Minute, effectiveMaxConnLifetime(30*time.Minute))
-}
-
 // Regression lock for issue #2498: the shipped data/deployment.yaml ships a
 // populated db.pool block, so every deployment has yaml values sitting ready
 // to shadow an operator's env var. They must not win.
@@ -364,7 +335,7 @@ func TestLoadDB_DriverDefaultsToPostgres(t *testing.T) {
 
 	db := loadDB(DB{})
 
-	require.Equal(t, driverPostgres, db.Driver)
+	require.Equal(t, DriverPostgres, db.Driver)
 }
 
 func TestLoadDB_DriverFromEnvBuildsMySQLDSN(t *testing.T) {
@@ -373,7 +344,7 @@ func TestLoadDB_DriverFromEnvBuildsMySQLDSN(t *testing.T) {
 
 	db := loadDB(DB{})
 
-	require.Equal(t, driverMySQL, db.Driver)
+	require.Equal(t, DriverMySQL, db.Driver)
 	require.Contains(t, db.DSN, "@tcp(")
 	require.Contains(t, db.DSN, "parseTime=true")
 }
@@ -383,12 +354,5 @@ func TestLoadDB_DriverNormalizedAndEnvOverridesYAML(t *testing.T) {
 
 	db := loadDB(DB{Driver: "postgres"})
 
-	require.Equal(t, driverMySQL, db.Driver)
-}
-
-func TestOpen_UnsupportedDriver(t *testing.T) {
-	_, _, _, err := DB{Driver: "oracle"}.Open()
-
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "unsupported database driver")
+	require.Equal(t, DriverMySQL, db.Driver)
 }

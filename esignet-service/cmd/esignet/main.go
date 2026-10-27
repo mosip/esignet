@@ -27,6 +27,7 @@ import (
 	"github.com/mosip/esignet/internal/clientmgmt"
 	"github.com/mosip/esignet/internal/config"
 	"github.com/mosip/esignet/internal/consentmgmt"
+	"github.com/mosip/esignet/internal/dbconn"
 	"github.com/mosip/esignet/internal/engine"
 	"github.com/mosip/esignet/internal/engine/executors"
 	"github.com/mosip/esignet/internal/engine/runtimestores"
@@ -63,7 +64,7 @@ func main() {
 	// Setup DB connection. The resolved driver name is threaded to the sqlx
 	// layer (keymanager) below so its queries rebind to the right placeholder
 	// style ($N for Postgres, ? for MySQL).
-	pgConn, driverName, closeDB, err := appCfg.DB.Open()
+	pgConn, driverName, closeDB, err := dbconn.Open(appCfg.DB)
 	if err != nil {
 		logger.Fatal("postgres connection failed", applog.Error(err))
 	}
