@@ -247,6 +247,10 @@ func (p *actorProvider) GetActorRoles(_ string, _ []string) ([]string, *common.S
 	return nil, nil
 }
 
+func (p *actorProvider) GetTransitiveGroupAncestors(_ string) ([]string, *common.ServiceError) {
+	return nil, nil
+}
+
 func getJWKS(publicKey string, encPublicKey string) string {
 	keys := extractJWKs(publicKey)
 	keys = append(keys, extractJWKs(encPublicKey)...)
