@@ -27,6 +27,7 @@ import (
 	"github.com/mosip/esignet/internal/clientmgmt"
 	"github.com/mosip/esignet/internal/config"
 	"github.com/mosip/esignet/internal/consentmgmt"
+	"github.com/mosip/esignet/internal/dbconn"
 	"github.com/mosip/esignet/internal/engine"
 	"github.com/mosip/esignet/internal/engine/executors"
 	"github.com/mosip/esignet/internal/engine/runtimestores"
@@ -52,8 +53,18 @@ func main() {
 		logger.Fatal("failed to load app config", applog.Error(err))
 	}
 
-	// Setup DB connection
-	pgConn, closeDB, err := appCfg.DB.Open()
+	// TEMPORARY : MySQL support is incomplete —
+	// clientmgmt/consentmgmt are still Postgres-only (sqlc), so starting on
+	// MySQL would yield a half-working service (keymanager OK, client/consent
+	// failing at runtime). Fail fast until those packages are converted.
+	if appCfg.DB.Driver == "mysql" {
+		logger.Fatal("DB_DRIVER=mysql is not yet fully supported in this build (client/consent management pending); set DB_DRIVER=postgres")
+	}
+
+	// Setup DB connection. The resolved driver name is threaded to the sqlx
+	// layer (keymanager) below so its queries rebind to the right placeholder
+	// style ($N for Postgres, ? for MySQL).
+	pgConn, driverName, closeDB, err := dbconn.Open(appCfg.DB)
 	if err != nil {
 		logger.Fatal("postgres connection failed", applog.Error(err))
 	}
@@ -68,8 +79,10 @@ func main() {
 		}
 	}()
 	// keymanager's persistence layer is built on sqlx (for GetContext/SelectContext);
-	// wrap the same *sql.DB rather than opening a second connection pool.
-	sqlxConn := sqlx.NewDb(pgConn, "pgx")
+	// wrap the same *sql.DB rather than opening a second connection pool. The
+	// driver name (from Open) sets the bind type so keymanager/db.Rebind emits
+	// the correct placeholders; "postgres" and "pgx" both map to $N.
+	sqlxConn := sqlx.NewDb(pgConn, driverName)
 
 	// Setup Redis client. It is shared by the runtime store provider and the consent enforcer
 	// (which reads the engine's authorization requests), so both resolve the same keys. Created
@@ -333,7 +346,7 @@ func initializeKeyManager(conn *sqlx.DB) (*keymanager.Service, *signature.Servic
 	}
 	svc := keymanager.NewService(conn, ks, kmCfg)
 	sigSvc := signature.NewService(svc)
-	cryptoSvc := cryptomanager.NewService(db.New(conn, kmCfg.DBSchema), svc, cryptomanager.LoadConfig())
+	cryptoSvc := cryptomanager.NewService(db.New(conn, kmCfg.DBSchema, conn.DriverName()), svc, cryptomanager.LoadConfig())
 	return svc, sigSvc, cryptoSvc, ks, nil
 }
 

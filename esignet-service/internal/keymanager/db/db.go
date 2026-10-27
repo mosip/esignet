@@ -12,6 +12,8 @@ import (
 	"regexp"
 
 	"github.com/jmoiron/sqlx"
+
+	"github.com/mosip/esignet/internal/dbutil"
 )
 
 // TX is satisfied by *sqlx.DB and *sqlx.Tx, allowing Queries to run
@@ -55,10 +57,16 @@ var _ Querier = (*Queries)(nil)
 var schemaIdentifier = regexp.MustCompile(`^[A-Za-z_][A-Za-z0-9_]*$`)
 
 // New returns a Queries backed by conn (a *sqlx.DB or *sqlx.Tx), reading
-// from/writing to the given Postgres schema (e.g. "keymgr" for the Java
-// service's schema, or a separate one such as "keymgr_go" to test this
-// library in isolation).
-func New(conn TX, schema string) *Queries {
+// from/writing to the given schema (e.g. "keymgr" for the Java service's
+// schema, or a separate one such as "keymgr_go" to test this library in
+// isolation). driverName selects the placeholder style via dbutil.Rebind and
+// must be the sql/sqlx driver name ("postgres"/"pgx" or "mysql").
+//
+// Queries are written with "?" placeholders and rebound once here. When
+// driverName == "mysql", schema is a MySQL *database* name (MySQL has no
+// schema-within-database; the "%s.table" qualification resolves to
+// database.table there), and the connecting user needs privileges on it.
+func New(conn TX, schema, driverName string) *Queries {
 	if !schemaIdentifier.MatchString(schema) {
 		panic(fmt.Sprintf("keymanager/db: invalid schema identifier %q", schema))
 	}
@@ -66,49 +74,54 @@ func New(conn TX, schema string) *Queries {
 
 	// ref_id is nullable, and ROOT rows are persisted with ref_id NULL (see
 	// persistNewAlias/ensureCurrentKey, which blank ReferenceID for ROOT) —
-	// "ref_id = $2" alone can never match a NULL column value, even when
-	// $2 is the empty string, so the OR clause covers that case
+	// "ref_id = ?" alone can never match a NULL column value, even when the
+	// bound value is the empty string, so the OR clause covers that case
 	// explicitly. Without it, a NULL-stored ROOT row would look like it
-	// doesn't exist yet and a duplicate could be generated.
-	q.selectKeyAlias = fmt.Sprintf(`SELECT %s FROM %s.key_alias
-		WHERE app_id = $1 AND (ref_id = $2 OR (ref_id IS NULL AND $2 = '')) AND (is_deleted IS NULL OR is_deleted = FALSE)
-		ORDER BY key_gen_dtimes DESC`, keyAliasColumns, schema)
+	// doesn't exist yet and a duplicate could be generated. The ref_id value
+	// is bound twice (see GetKeyAliasesByAppRef).
+	q.selectKeyAlias = dbutil.Rebind(driverName, fmt.Sprintf(`SELECT %s FROM %s.key_alias
+		WHERE app_id = ? AND (ref_id = ? OR (ref_id IS NULL AND ? = '')) AND (is_deleted IS NULL OR is_deleted = FALSE)
+		ORDER BY key_gen_dtimes DESC`, keyAliasColumns, schema))
 
-	q.selectKeyAliasByThumbprint = fmt.Sprintf(`SELECT %s FROM %s.key_alias
-		WHERE cert_thumbprint = $1 AND (is_deleted IS NULL OR is_deleted = FALSE)
-		ORDER BY key_gen_dtimes DESC LIMIT 1`, keyAliasColumns, schema)
+	q.selectKeyAliasByThumbprint = dbutil.Rebind(driverName, fmt.Sprintf(`SELECT %s FROM %s.key_alias
+		WHERE cert_thumbprint = ? AND (is_deleted IS NULL OR is_deleted = FALSE)
+		ORDER BY key_gen_dtimes DESC LIMIT 1`, keyAliasColumns, schema))
 
-	q.selectKeyAliasByUniIdent = fmt.Sprintf(`SELECT %s FROM %s.key_alias
-		WHERE uni_ident = $1 AND (is_deleted IS NULL OR is_deleted = FALSE)
-		ORDER BY key_gen_dtimes DESC LIMIT 1`, keyAliasColumns, schema)
+	q.selectKeyAliasByUniIdent = dbutil.Rebind(driverName, fmt.Sprintf(`SELECT %s FROM %s.key_alias
+		WHERE uni_ident = ? AND (is_deleted IS NULL OR is_deleted = FALSE)
+		ORDER BY key_gen_dtimes DESC LIMIT 1`, keyAliasColumns, schema))
 
-	q.insertKeyAlias = fmt.Sprintf(`INSERT INTO %s.key_alias
+	q.insertKeyAlias = dbutil.Rebind(driverName, fmt.Sprintf(`INSERT INTO %s.key_alias
 		(id, app_id, ref_id, key_gen_dtimes, key_expire_dtimes, status_code, cert_thumbprint, uni_ident, cr_by, cr_dtimes)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`, schema)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, schema))
 
-	q.updateKeyAlias = fmt.Sprintf(`UPDATE %s.key_alias SET
-		key_expire_dtimes = $2, status_code = $3, cert_thumbprint = $4, upd_by = $5, upd_dtimes = $6
-		WHERE id = $1`, schema)
+	// Placeholders are positional: SET columns first, then the WHERE id last —
+	// UpdateKeyAlias binds its args in that order.
+	q.updateKeyAlias = dbutil.Rebind(driverName, fmt.Sprintf(`UPDATE %s.key_alias SET
+		key_expire_dtimes = ?, status_code = ?, cert_thumbprint = ?, upd_by = ?, upd_dtimes = ?
+		WHERE id = ?`, schema))
 
-	q.selectKeyPolicy = fmt.Sprintf(`SELECT app_id, key_validity_duration, is_active, pre_expire_days, access_allowed,
+	q.selectKeyPolicy = dbutil.Rebind(driverName, fmt.Sprintf(`SELECT app_id, key_validity_duration, is_active, pre_expire_days, access_allowed,
 		cr_by, cr_dtimes, upd_by, upd_dtimes, is_deleted, del_dtimes
 		FROM %s.key_policy_def
-		WHERE app_id = $1 AND is_active = TRUE`, schema)
+		WHERE app_id = ? AND is_active = TRUE`, schema))
 
-	q.selectKeyPolicyExists = fmt.Sprintf(`SELECT EXISTS(
+	q.selectKeyPolicyExists = dbutil.Rebind(driverName, fmt.Sprintf(`SELECT EXISTS(
 		SELECT 1 FROM %s.key_policy_def
-		WHERE app_id = $1 AND (is_deleted IS NULL OR is_deleted = FALSE))`, schema)
+		WHERE app_id = ? AND (is_deleted IS NULL OR is_deleted = FALSE))`, schema))
 
-	q.selectKeyStore = fmt.Sprintf(`SELECT %s FROM %s.key_store
-		WHERE id = $1 AND (is_deleted IS NULL OR is_deleted = FALSE)`, keyStoreColumns, schema)
+	q.selectKeyStore = dbutil.Rebind(driverName, fmt.Sprintf(`SELECT %s FROM %s.key_store
+		WHERE id = ? AND (is_deleted IS NULL OR is_deleted = FALSE)`, keyStoreColumns, schema))
 
-	q.insertKeyStore = fmt.Sprintf(`INSERT INTO %s.key_store
+	q.insertKeyStore = dbutil.Rebind(driverName, fmt.Sprintf(`INSERT INTO %s.key_store
 		(id, certificate_data, private_key, master_key, cr_by, cr_dtimes)
-		VALUES ($1, $2, $3, $4, $5, $6)`, schema)
+		VALUES (?, ?, ?, ?, ?, ?)`, schema))
 
-	q.updateKeyStore = fmt.Sprintf(`UPDATE %s.key_store SET
-		certificate_data = $2, private_key = $3, upd_by = $4, upd_dtimes = $5
-		WHERE id = $1`, schema)
+	// Placeholders are positional: SET columns first, then the WHERE id last —
+	// UpdateKeyStoreRecord binds its args in that order.
+	q.updateKeyStore = dbutil.Rebind(driverName, fmt.Sprintf(`UPDATE %s.key_store SET
+		certificate_data = ?, private_key = ?, upd_by = ?, upd_dtimes = ?
+		WHERE id = ?`, schema))
 
 	return q
 }
@@ -123,7 +136,9 @@ func (q *Queries) WithTx(tx *sqlx.Tx) *Queries {
 // GetKeyAliasesByAppRef implements Querier.
 func (q *Queries) GetKeyAliasesByAppRef(ctx context.Context, appID string, refID string) ([]KeyAlias, error) {
 	var rows []KeyAlias
-	if err := q.db.SelectContext(ctx, &rows, q.selectKeyAlias, appID, refID); err != nil {
+	// selectKeyAlias has three placeholders (app_id, ref_id, and the ref_id = ''
+	// NULL-guard), so refID is bound twice.
+	if err := q.db.SelectContext(ctx, &rows, q.selectKeyAlias, appID, refID, refID); err != nil {
 		return nil, fmt.Errorf("select key_alias: %w", err)
 	}
 	return rows, nil
@@ -164,7 +179,8 @@ func (q *Queries) InsertKeyAlias(ctx context.Context, k KeyAlias) error {
 
 // UpdateKeyAlias implements Querier.
 func (q *Queries) UpdateKeyAlias(ctx context.Context, k KeyAlias) error {
-	_, err := q.db.ExecContext(ctx, q.updateKeyAlias, k.ID, k.KeyExpireDtimes, k.StatusCode, k.CertThumbprint, k.UpdBy, k.UpdDtimes)
+	// Args match updateKeyAlias's placeholder order: SET columns first, id last.
+	_, err := q.db.ExecContext(ctx, q.updateKeyAlias, k.KeyExpireDtimes, k.StatusCode, k.CertThumbprint, k.UpdBy, k.UpdDtimes, k.ID)
 	if err != nil {
 		return fmt.Errorf("update key_alias: %w", err)
 	}
@@ -209,7 +225,8 @@ func (q *Queries) InsertKeyStoreRecord(ctx context.Context, k KeyStoreRecord) er
 
 // UpdateKeyStoreRecord implements Querier.
 func (q *Queries) UpdateKeyStoreRecord(ctx context.Context, k KeyStoreRecord) error {
-	_, err := q.db.ExecContext(ctx, q.updateKeyStore, k.ID, k.CertificateData, k.PrivateKey, k.UpdBy, k.UpdDtimes)
+	// Args match updateKeyStore's placeholder order: SET columns first, id last.
+	_, err := q.db.ExecContext(ctx, q.updateKeyStore, k.CertificateData, k.PrivateKey, k.UpdBy, k.UpdDtimes, k.ID)
 	if err != nil {
 		return fmt.Errorf("update key_store: %w", err)
 	}
