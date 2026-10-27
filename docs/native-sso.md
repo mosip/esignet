@@ -275,6 +275,7 @@ implemented on the branches in this submission. "Deviation" entries are delibera
 | `sid` in the ID token, shared with the device secret | §3.5 | implemented | SSO session id, or the authorization id when no session exists |
 | Exchange: `subject_token_type = id_token`, `actor_token_type = device-secret` | §4.1 | implemented | any other combination is `invalid_request` |
 | Exchange: `audience` REQUIRED and equal to the issuer | §4.1 | implemented | missing → `invalid_request`, mismatch → `invalid_target` |
+| Refresh-token grant keeps or re-issues the device secret while `device_sso` stays in scope; refreshed ID token carries `ds_hash` and `sid` | §3.3, §3.4.3 | implemented | A valid `device_secret` presented on the refresh request (same subject, client and DPoP key) is kept; a missing or invalid one is replaced |
 | Exchange: `scope`, when present, includes `openid`; ⊆ the originally granted scope | §4.1, PS 10.a | implemented | Also ⊆ the child client's registered scopes: an unregistered scope is `invalid_scope`, and an omitted `scope` inherits only the registered subset. `device_sso` is refused explicitly and never inherited (PS 10.b) |
 | Exchange: validate the ID token's signature and `sub`; expiry may be ignored | §4.3, §6.3 | implemented | signature, issuer, `nbf`, `typ` and revocation are still enforced |
 | Exchange: validate the device secret and its binding (`ds_hash`, `sid`, `sub`) | §4.3 | implemented | plus vendor family and client enablement |
