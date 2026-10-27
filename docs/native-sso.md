@@ -147,7 +147,7 @@ rotate. Revocation of the family (sign-out) is a follow-up; see §8.
   (`relyingPartyId`) as the super app, or be listed in the super app's
   `additionalConfig.allowed_child_clients`. Anything else is `invalid_grant` (vendor mismatch).
 - **Scopes.** The child's scopes must be a subset of the scopes granted to the super app
-  (`invalid_scope` otherwise), and `device_sso` itself is never exchangeable.
+  (`invalid_scope` otherwise), and `device_sso` itself is never exchangeable. `device_sso` also never appears in an access token's `scope` claim: it stays on the grant (the token response's `scope` and the refresh token) so that a refresh keeps the device secret alive, but it names no permission a resource server could honour.
 - **Consent is derived, never captured silently.** eSignet loads the super app's consent record
   for the user. The child's required claims (its registered claims released by the requested
   scopes) must all be among the claims the user accepted, and any authorization scope must have been
