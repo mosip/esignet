@@ -8,6 +8,7 @@ package clientmgmt
 
 import (
 	"encoding/json"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/suite"
@@ -695,14 +696,44 @@ func (ts *ValidateTestSuite) TestNormalizeStatus() {
 	}
 }
 
-func (ts *ValidateTestSuite) TestIsValidURI() {
+func (ts *ValidateTestSuite) TestIsValidLogoURI() {
 	t := ts.T()
-	assert.True(t, isValidURI("https://example.com/logo.png"))
-	assert.True(t, isValidURI("io.mosip.residentapp://logo"))
-	assert.False(t, isValidURI(""))
-	assert.False(t, isValidURI("not a uri"))
-	assert.False(t, isValidURI("http://"))
-	assert.False(t, isValidURI("https://"))
+	for _, uri := range []string{
+		"https://example.com/logo.png",
+		"http://localhost:5000/images/logo.png",
+		"HTTPS://example.com/logo.png",
+		"https://example.com/" + strings.Repeat("a", 1004),
+	} {
+		assert.True(t, isValidLogoURI(uri), uri)
+	}
+
+	for _, uri := range []string{
+		"",
+		"not a uri",
+		"notauri",
+		"http://",
+		"https://",
+		"/images/logo.png",
+		"javascript:alert(1)",
+		"JavaScript:alert(1)",
+		"javascript://example.com/%0aalert(1)",
+		"data:text/html,<script>alert(1)</script>",
+		"vbscript:msgbox(1)",
+		"file:///etc/passwd",
+		"file:etc/passwd",
+		"mailto:a@b.com",
+		"io.mosip.residentapp://logo",
+		"https://example.com/" + strings.Repeat("a", 1005),
+	} {
+		assert.False(t, isValidLogoURI(uri), uri)
+	}
+}
+
+func (ts *ValidateTestSuite) TestValidateLogoURIErrorCode() {
+	t := ts.T()
+	assert.NoError(t, validateLogoURI("https://example.com/logo.png"))
+	assert.Equal(t, "invalid_uri", errCode(t, validateLogoURI("javascript:alert(1)")))
+	assert.Equal(t, "invalid_uri", errCode(t, validateLogoURI("data:text/html,<script>alert(1)</script>")))
 }
 
 func (ts *ValidateTestSuite) TestHasUniqueStrings() {
