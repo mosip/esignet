@@ -1246,9 +1246,15 @@ consent:
   essential_claims: البيانات الأساسية
   optional_claims: البيانات الاختيارية
   authorize_scope: تفويض النطاقات
+  essential_scope: الأذونات الأساسية
+  optional_scope: الأذونات الاختيارية
   essential_claims.info: معلومات المستخدم الإلزامية المطلوبة من مزود الخدمة
   optional_claims.info: معلومات إضافية للمستخدم يمكن للمقيم اختيار مشاركتها مع مزود الخدمة
+  optional_claims.toggle_all: تبديل جميع السمات الاختيارية
   authorize_scope.info: يسمح لمزود الخدمة بالوصول إلى هذه الخدمات المحمية نيابة عنك
+  essential_scope.info: أذونات الوصول الإلزامية المطلوبة من مزود الخدمة
+  optional_scope.info: أذونات وصول إضافية يمكن للمقيم اختيار منحها لمزود الخدمة
+  optional_scope.toggle_all: تبديل جميع الأذونات الاختيارية
   name: الاسم الكامل
   given_name: الاسم
   middle_name: الاسم الأوسط
@@ -1268,6 +1274,7 @@ consent:
   zoneinfo: المنطقة الزمنية
   profile: الملف الشخصي
   required: مطلوب
+  mosip_identity_vc_ldp: هوية Mosip VC
 
 signin:
   images.app_logo.alt: شعار التطبيق
