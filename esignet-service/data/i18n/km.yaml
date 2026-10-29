@@ -1195,6 +1195,13 @@ header:
   select_login_id: ជ្រើសរើសជម្រើសអត្តសញ្ញាណចូល
   select_login_mode: ជ្រើសរើសរបៀបចូលដែលពេញចិត្ត
 
+dropdown:
+  login_id_label: អត្តសញ្ញាណចូល
+  vid: យូអ៊ីន/វីឌី
+  mobile: លេខទូរស័ព្ទ
+  email: អ៊ីមែល
+  nrc: លេខសម្គាល់ NRC
+
 input:
   uin_label: UIN/VID
   uin_placeholder: បញ្ចូល UIN/VID របស់អ្នក

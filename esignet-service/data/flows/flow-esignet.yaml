@@ -176,6 +176,10 @@ otp_inputs: &otp_inputs
     identifier: captcha_token
     type: CUSTOM
     required: true
+  - ref: SELECT_LOGIN_ID
+    identifier: login_id_select
+    type: CUSTOM
+    required: true
 
 # Anchor for password's required inputs
 password_inputs: &password_inputs
@@ -232,77 +236,47 @@ page_title: &page_title
   category: MISCELLANEOUS
   resourceType: ELEMENT
 
+# Anchor for Login ID dropdown
+# rendered in oidc-ui by the custom SELECT_LOGIN_ID renderer
+# label & option labels are i18n keys from the "dropdown" section
+# option value must match the id of the login id node it switches to
+# (login_id_uin, login_id_mobile, login_id_email, login_id_nrc)
+# option icon is picked in oidc-ui by value, or set an "icon" url per option
+# selecting an option submits the flow with that value as the action id
+# extended below by login_id_uin / mobile / email / nrc, which set selectedValue
 login_id_header: &login_id_header
-  id: block_login_id
-  type: STACK
-  direction: col
+  id: SELECT_LOGIN_ID
+  ref: login_id_select
+  type: CUSTOM
+  category: MISCELLANEOUS
   resourceType: ELEMENT
-  justify: stretch
-  items: 2
-
-login_uin_button: &login_uin_button
-  <<: *trigger_button
-  id: login_id_uin
-  label: "{{t(button:login_id_uin)}}"
-  classes: left-align-button login-id-button
-  startIcon: "/images/vid_icon.svg"
-
-login_mobile_button: &login_mobile_button
-  <<: *trigger_button
-  id: login_id_mobile
-  label: "{{t(button:login_id_mobile)}}"
-  classes: left-align-button login-id-button
-  startIcon: "/images/mobile_icon.svg"
-
-login_email_button: &login_email_button
-  <<: *trigger_button
-  id: login_id_email
-  label: "{{t(button:login_id_email)}}"
-  classes: left-align-button login-id-button
-  startIcon: "/images/email_icon.svg"
-
-login_nrc_button: &login_nrc_button
-  <<: *trigger_button
-  id: login_id_nrc
-  label: "{{t(button:login_id_nrc)}}"
-  classes: left-align-button login-id-button
-  startIcon: "/images/nrc_id_icon.svg"
+  label: "{{t(dropdown:login_id_label)}}"
+  required: true
+  options:
+    - label: "{{t(dropdown:vid)}}"
+      value: login_id_uin
+    - label: "{{t(dropdown:mobile)}}"
+      value: login_id_mobile
+    - label: "{{t(dropdown:email)}}"
+      value: login_id_email
+    - label: "{{t(dropdown:nrc)}}"
+      value: login_id_nrc
 
 login_id_uin: &login_id_uin
   <<: *login_id_header
-  components:
-    - <<: *login_uin_button
-      classes: left-align-button login-id-button login-id-button--active
-    - *login_mobile_button
-    - *login_email_button
-    - *login_nrc_button
+  selectedValue: login_id_uin
 
 login_id_mobile: &login_id_mobile
   <<: *login_id_header
-  components:
-    - *login_uin_button
-    - <<: *login_mobile_button
-      classes: left-align-button login-id-button login-id-button--active
-    - *login_email_button
-    - *login_nrc_button
+  selectedValue: login_id_mobile
 
 login_id_email: &login_id_email
   <<: *login_id_header
-  components:
-    - *login_uin_button
-    - *login_mobile_button
-    - <<: *login_email_button
-      classes: left-align-button login-id-button login-id-button--active
-    - *login_nrc_button
+  selectedValue: login_id_email
 
 login_id_nrc: &login_id_nrc
   <<: *login_id_header
-  components:
-    - *login_uin_button
-    - *login_mobile_button
-    - *login_email_button
-    - <<: *login_nrc_button
-      classes: left-align-button login-id-button login-id-button--active
+  selectedValue: login_id_nrc
 
 id: flow-esignet
 handle: flow-esignet
@@ -640,6 +614,10 @@ nodes:
           required: true
         - ref: CAPTCHA_BOX
           identifier: captcha_token
+          type: CUSTOM
+          required: true
+        - ref: SELECT_LOGIN_ID
+          identifier: login_id_select
           type: CUSTOM
           required: true
     onSuccess: prompt_uin_otp
@@ -1055,6 +1033,10 @@ nodes:
       inputs:
         - identifier: username
           type: TEXT_INPUT
+          required: true
+        - ref: SELECT_LOGIN_ID
+          identifier: login_id_select
+          type: CUSTOM
           required: true
     onSuccess: prompt_uin_bio
 

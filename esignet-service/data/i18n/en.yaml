@@ -1195,6 +1195,13 @@ header:
   select_login_id: Select a Login ID Option
   select_login_mode: Select a preferred mode of login
 
+dropdown:
+  login_id_label: Login Id
+  vid: UIN/VID
+  mobile: Mobile Number
+  email: Email
+  nrc: NRC ID
+  
 input:
   uin_label: UIN/VID
   uin_placeholder: Enter your UIN/VID

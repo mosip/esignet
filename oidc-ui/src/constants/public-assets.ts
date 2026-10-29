@@ -26,3 +26,11 @@ export const CSS_IMAGE_VARIABLES: Record<string, string> = {
 export const CONFIG_URLS = {
   THEME_CONFIG: `${BASE_URL}theme/config.json`,
 } as const;
+
+/** Login id dropdown icons, keyed by the flow option value. */
+export const LOGIN_ID_ICONS: Readonly<Record<string, string>> = {
+  login_id_uin: `${BASE_URL}images/vid_icon.svg`,
+  login_id_mobile: `${BASE_URL}images/mobile_icon.svg`,
+  login_id_email: `${BASE_URL}images/email_icon.svg`,
+  login_id_nrc: `${BASE_URL}images/nrc_id_icon.svg`,
+};
