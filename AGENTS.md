@@ -9,7 +9,7 @@ own `README.md`/`AGENTS.md` over guessing conventions from a sibling.
 
 | Path | Stack | Purpose |
 |------|-------|---------|
-| `esignet-service/` | Go 1.26, `make.sh` | The OIDC/OAuth2 provider itself. Has its own [`AGENTS.md`](esignet-service/AGENTS.md) — read that before working here. |
+| `esignet-service/` | Go 1.27, `make.sh` | The OIDC/OAuth2 provider itself. Has its own [`AGENTS.md`](esignet-service/AGENTS.md) — read that before working here. |
 | `oidc-ui/` | React + TypeScript + Vite (`package.json`) | Login/consent UI. |
 | `postman-collection/` | Postman collection + environment (JSON) | Manual/scripted API checks against `esignet-service`. |
 | `docker-compose/` | Docker Compose | Local Postgres + Redis for `esignet-service`. |
