@@ -280,3 +280,10 @@ input[type="password"]::-ms-clear {
 .thunderid-signin.thunderid-card {
   overflow: visible !important;
 }
+
+/* let the login card shrink below the SDK's 420px min-width on small screens */
+.thunderid-signin.thunderid-card {
+  min-width: 0;
+  width: 100%;
+  max-width: 420px;
+}
