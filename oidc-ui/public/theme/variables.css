@@ -162,15 +162,27 @@
   --no-record-banner-font: normal normal 400 13px/18px "Montserrat", sans-serif;
   --no-record-banner-color: var(--primary-color);
   --no-record-banner-padding: 1em 1.5em;
-  --selected_login_id_border_color: var(--primary-color);
-  --login_id_label_color: var(--secondary-color);
-  --selected_login_id_color: var(--primary-color);
-  --login_id_hover_border_color: var(--primary-color);
-  --login_id_hover_color: var(--primary-color);
-  --selected_login_id_focus_color: var(--primary-color);
-  --selected_login_id_focus_outline_color: var(--primary-color);
   --qr_code_title_color: #696969;
   --resend_otp_button_color: var(--primary-color);
+  /* Login id dropdown (SELECT_LOGIN_ID) */
+  --login-id-dropdown-height: 44px;
+  --login-id-dropdown-border-radius: 8px;
+  --login-id-dropdown-border-color: #d0d5dd;
+  --login-id-dropdown-bg-color: #ffffff;
+  --login-id-dropdown-text-color: #1d2939;
+  --login-id-dropdown-placeholder-color: #667085;
+  --login-id-dropdown-icon-color: #667085;
+  --login-id-dropdown-selected-color: var(--primary-color);
+  --login-id-dropdown-selected-bg-color: color-mix(
+    in srgb,
+    var(--primary-color) 8%,
+    white
+  );
+  --login-id-dropdown-hover-bg-color: #f9fafb;
+  --login-id-dropdown-focus-color: var(--primary-color);
+  --login-id-dropdown-error-color: #d92d20;
+  --login-id-dropdown-list-border-radius: 12px;
+  --login-id-dropdown-list-shadow: 0px 4px 16px rgba(16, 24, 40, 0.12);
   --login-client-logo-image-shadow: 0px 4px 15px 2px
     color-mix(in srgb, var(--primary-color) 30%, transparent);
   --caps-lock-text-color: #2d86ba;

@@ -1195,6 +1195,13 @@ header:
   select_login_id: Seleccione una opción de ID de inicio de sesión
   select_login_mode: Seleccione un modo de inicio de sesión preferido
 
+dropdown:
+  login_id_label: ID de inicio de sesión
+  vid: UIN/VID
+  mobile: Número de teléfono
+  email: Correo electrónico
+  nrc: NRC ID
+
 input:
   uin_label: UIN/VID
   uin_placeholder: Ingrese su UIN/VID

@@ -1195,6 +1195,13 @@ header:
   select_login_id: लॉगिन आईडी विकल्प चुनें
   select_login_mode: लॉगिन का पसंदीदा तरीका चुनें
 
+dropdown:
+  login_id_label: लॉगिन आईडी
+  vid: यूआईएन/वीआईडी
+  mobile: मोबाइल नंबर
+  email: ईमेल
+  nrc: एनआरसी आईडी
+
 input:
   uin_label: यूआईएन/वीआईडी
   uin_placeholder: अपना यूआईएन/वीआईडी दर्ज करें

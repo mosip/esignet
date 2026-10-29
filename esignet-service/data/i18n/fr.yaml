@@ -1195,6 +1195,13 @@ header:
   select_login_id: "Sélectionnez une option d'identifiant de connexion"
   select_login_mode: Sélectionnez un mode de connexion préféré
 
+dropdown:
+  login_id_label: Identifiant de connexion
+  vid: UIN/VID
+  mobile: Numéro de téléphone
+  email: E-mail
+  nrc: NRC ID
+
 input:
   uin_label: UIN/VID
   uin_placeholder: Entrez votre UIN/VID

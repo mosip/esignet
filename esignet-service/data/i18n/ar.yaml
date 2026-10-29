@@ -1195,6 +1195,13 @@ header:
   select_login_id: اختر خيار معرف تسجيل الدخول
   select_login_mode: اختر طريقة تسجيل الدخول المفضلة
 
+dropdown:
+  login_id_label: معرف تسجيل الدخول
+  vid: يو آي إن/فيد
+  mobile: رقم الهاتف المحمول
+  email: البريد الإلكتروني
+  nrc: معرف NRC
+
 input:
   uin_label: UIN/VID
   uin_placeholder: أدخل UIN/VID الخاص بك

@@ -251,20 +251,6 @@ input[type="password"]::-ms-clear {
   width: calc(100% + 4rem);
 }
 
-/* login ID button styles */
-.login-id-button {
-  white-space: normal !important;
-  padding: 0.5rem !important;
-  color: var(--login_id_label_color) !important;
-  font-size: 0.875rem !important;
-}
-
-/* login ID button active state */
-.login-id-button--active {
-  border-color: var(--primary-color) !important;
-  color: var(--primary-color) !important;
-}
-
 /* center the Captcha Widget */
 .captcha-renderer {
   display: flex;
@@ -279,4 +265,178 @@ input[type="password"]::-ms-clear {
 /* SBI biometric device dropdown to render outside the login card. */
 .thunderid-signin.thunderid-card {
   overflow: visible !important;
+}
+
+/* Login id dropdown (SELECT_LOGIN_ID) */
+.login-id-dropdown {
+  position: relative;
+  width: 100%;
+  text-align: start;
+}
+
+.login-id-dropdown__label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--login-id-dropdown-placeholder-color);
+}
+
+.login-id-dropdown__label--error,
+.login-id-dropdown__required,
+.login-id-dropdown__helper--error {
+  color: var(--login-id-dropdown-error-color);
+}
+
+.login-id-dropdown__trigger {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  height: var(--login-id-dropdown-height);
+  padding-inline: 16px;
+  border: 1px solid var(--login-id-dropdown-border-color);
+  border-radius: var(--login-id-dropdown-border-radius);
+  background-color: var(--login-id-dropdown-bg-color);
+  color: var(--login-id-dropdown-text-color);
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.5;
+  text-align: start;
+  cursor: pointer;
+  outline: none;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.login-id-dropdown__trigger:hover:not(:disabled),
+.login-id-dropdown__trigger[data-open="true"] {
+  border-color: var(--login-id-dropdown-focus-color);
+}
+
+.login-id-dropdown__trigger:focus-visible {
+  border-color: var(--login-id-dropdown-focus-color);
+  box-shadow: 0 0 0 3px
+    color-mix(in srgb, var(--login-id-dropdown-focus-color) 20%, transparent);
+}
+
+.login-id-dropdown__trigger--selected {
+  color: var(--login-id-dropdown-selected-color);
+}
+
+.login-id-dropdown__trigger--error,
+.login-id-dropdown__trigger--error:hover:not(:disabled),
+.login-id-dropdown__trigger--error[data-open="true"] {
+  border-color: var(--login-id-dropdown-error-color);
+}
+
+.login-id-dropdown__trigger--error:focus-visible {
+  box-shadow: 0 0 0 3px
+    color-mix(in srgb, var(--login-id-dropdown-error-color) 20%, transparent);
+}
+
+.login-id-dropdown__trigger:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.login-id-dropdown__value,
+.login-id-dropdown__option-label {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.login-id-dropdown__placeholder {
+  flex: 1 1 auto;
+  color: var(--login-id-dropdown-placeholder-color);
+  font-weight: 400;
+}
+
+.login-id-dropdown__icon {
+  flex: 0 0 auto;
+  width: 24px;
+  height: 24px;
+  background-color: currentColor;
+  mask-repeat: no-repeat;
+  mask-position: center;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  -webkit-mask-size: contain;
+}
+
+.login-id-dropdown__option .login-id-dropdown__icon {
+  color: var(--login-id-dropdown-icon-color);
+}
+
+.login-id-dropdown__chevron {
+  flex: 0 0 auto;
+  color: var(--login-id-dropdown-icon-color);
+  transition: transform 0.2s ease;
+}
+
+.login-id-dropdown__chevron--open {
+  transform: rotate(180deg);
+}
+
+.login-id-dropdown__list {
+  position: absolute;
+  inset-inline: 0;
+  top: 100%;
+  z-index: 50;
+  margin: 8px 0 0;
+  padding: 8px;
+  max-height: 280px;
+  overflow-y: auto;
+  list-style: none;
+  background-color: var(--login-id-dropdown-bg-color);
+  border-radius: var(--login-id-dropdown-list-border-radius);
+  box-shadow: var(--login-id-dropdown-list-shadow);
+}
+
+.login-id-dropdown__option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: var(--login-id-dropdown-height);
+  padding-inline: 16px;
+  border-radius: var(--login-id-dropdown-border-radius);
+  color: var(--login-id-dropdown-text-color);
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  user-select: none;
+}
+
+.login-id-dropdown__option--active:not(.login-id-dropdown__option--selected) {
+  background-color: var(--login-id-dropdown-hover-bg-color);
+}
+
+.login-id-dropdown__option--selected {
+  background-color: var(--login-id-dropdown-selected-bg-color);
+  color: var(--login-id-dropdown-selected-color);
+}
+
+.login-id-dropdown__option--selected .login-id-dropdown__icon {
+  color: var(--login-id-dropdown-selected-color);
+}
+
+.login-id-dropdown__option--disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.login-id-dropdown__check {
+  flex: 0 0 auto;
+  color: var(--login-id-dropdown-selected-color);
+}
+
+.login-id-dropdown__helper {
+  margin-top: 4px;
+  font-size: 0.875rem;
+  color: var(--login-id-dropdown-placeholder-color);
 }
