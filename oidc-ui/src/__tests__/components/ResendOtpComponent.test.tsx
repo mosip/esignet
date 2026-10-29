@@ -152,7 +152,7 @@ describe("ResendOtpComponent — submit without captcha", () => {
     captchaChangedCapture.fn = undefined;
   });
 
-  it("calls resetForm then onSubmit with an empty payload when no captcha is configured", () => {
+  it("clears only the OTP field then calls onSubmit with an empty payload when no captcha is configured", () => {
     const context = makeContext();
     render(
       <ResendOtpComponent
@@ -161,7 +161,7 @@ describe("ResendOtpComponent — submit without captcha", () => {
       />,
     );
     fireEvent.click(screen.getByTestId("resend-button"));
-    expect(context.resetForm).toHaveBeenCalled();
+    expect(context.onInputChange).toHaveBeenCalledWith("otp", "");
     expect(context.onSubmit).toHaveBeenCalledWith(
       expect.objectContaining({ id: "resend-otp" }),
       {},
@@ -182,17 +182,23 @@ describe("ResendOtpComponent — submit without captcha", () => {
     ).not.toThrow();
   });
 
-  it("does not throw when resetForm is absent — covers resetForm && resetForm() false branch", () => {
-    const context = makeContext({ resetForm: undefined as any });
+  it("preserves the username identifier while clearing the OTP on resend", () => {
+    const context = makeContext({
+      formValues: { username: "1234567890", otp: "999999" },
+    });
     render(
       <ResendOtpComponent
         component={makeComponent({ timeLeft: 0 })}
         context={context}
       />,
     );
-    expect(() =>
-      fireEvent.click(screen.getByTestId("resend-button")),
-    ).not.toThrow();
+    fireEvent.click(screen.getByTestId("resend-button"));
+    // Only the OTP field is cleared; username is never touched.
+    expect(context.onInputChange).toHaveBeenCalledWith("otp", "");
+    expect(context.onInputChange).not.toHaveBeenCalledWith(
+      "username",
+      expect.anything(),
+    );
     expect(context.onSubmit).toHaveBeenCalled();
   });
 });
