@@ -153,7 +153,7 @@ oauth:
     allowed_algs: ["ES256", "PS256", "ES384", "ES512", "EdDSA", "RS256"]
     max_jti_length: 256
   allowed_subject_types: ["pairwise"]
-  allowed_grant_types: ["authorization_code", "urn:ietf:params:oauth:grant-type:token-exchange"]
+  allowed_grant_types: ["authorization_code", "refresh_token", "urn:ietf:params:oauth:grant-type:token-exchange"]
   allowed_response_types: ["code"]
   allowed_auth_methods: ["private_key_jwt"]
   allowed_scopes: ["openid","profile","email","phone","device_sso"]

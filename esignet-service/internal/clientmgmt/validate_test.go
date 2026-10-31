@@ -174,6 +174,12 @@ func (ts *ValidateTestSuite) TestValidateCreate() {
 		assert.Equal(t, "invalid_grant_type", errCode(t, ValidateCreate(ProfileOIDC, req, nil)))
 	})
 
+	t.Run("refresh_token and token_exchange grant types accepted", func(t *testing.T) {
+		req := validCreateRequest()
+		req.GrantTypes = []string{"authorization_code", "refresh_token", "token_exchange"}
+		assert.NoError(t, ValidateCreate(ProfileOIDC, req, nil))
+	})
+
 	t.Run("empty auth methods", func(t *testing.T) {
 		req := validCreateRequest()
 		req.AuthMethods = nil

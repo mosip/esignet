@@ -288,6 +288,11 @@ func (ts *ActorProviderTestSuite) TestActorProvider_GetInboundClientByID() {
 	if client.Properties["name"] != "Test App" {
 		t.Errorf("Properties[name] = %v, want Test App", client.Properties["name"])
 	}
+	// The pairwise subject is a mapped value, so the engine's refresh-token grant must not try to
+	// resolve it as an entity.
+	if client.SubjectAttribute[subjectUserType] != subjectAttribute {
+		t.Errorf("SubjectAttribute = %v, want %s -> %s", client.SubjectAttribute, subjectUserType, subjectAttribute)
+	}
 
 	if _, svcErr := p.GetInboundClientByID(context.Background(), "no-such-client"); svcErr == nil {
 		t.Fatal("expected error for unknown client")

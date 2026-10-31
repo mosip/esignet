@@ -438,9 +438,12 @@ func validateGrantTypes(grants []string, minItems, maxItems int) error {
 }
 
 // supportedGrantTypes lists the grant types a client may register. token_exchange lets a native
-// app redeem a sibling app's device secret (OpenID Connect Native SSO for Mobile Apps 1.0).
+// app redeem a sibling app's device secret (OpenID Connect Native SSO for Mobile Apps 1.0);
+// refresh_token lets the first app renew its tokens while keeping the device-secret binding
+// (§3.4.3) instead of signing in again when the access token expires.
 var supportedGrantTypes = map[string]bool{
 	"authorization_code": true,
+	"refresh_token":      true,
 	"token_exchange":     true,
 }
 

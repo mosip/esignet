@@ -162,6 +162,15 @@ func (p *actorProvider) GetOAuthProfileByID(
 	}, nil
 }
 
+// The subject eSignet issues is the identity system's partner-specific user token (a pairwise
+// identifier), not an engine entity id. The inbound client declares it as a mapped subject so the
+// engine never tries to resolve it as an entity (the refresh-token grant otherwise refuses the token
+// because the subject "no longer exists").
+const (
+	subjectUserType  = "individual"
+	subjectAttribute = "psu_token"
+)
+
 func (p *actorProvider) GetInboundClientByID(
 	ctx context.Context, id string,
 ) (*providers.InboundClient, *common.ServiceError) {
@@ -193,8 +202,10 @@ func (p *actorProvider) GetInboundClientByID(
 		LoginConsent: &providers.LoginConsentConfig{
 			ValidityPeriod: configInt64(client.AdditionalConfig, consentExpireInMins, 0) * 60,
 		},
-		Properties: properties,
-		IsReadOnly: false,
+		AllowedUserTypes: []string{subjectUserType},
+		SubjectAttribute: map[string]string{subjectUserType: subjectAttribute},
+		Properties:       properties,
+		IsReadOnly:       false,
 	}, nil
 }
 
