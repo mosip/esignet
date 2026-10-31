@@ -33,3 +33,8 @@ func (p *idpProvider) GetIdentityProvider(_ context.Context, _ string) (*provide
 	*common.ServiceError) {
 	return nil, nil
 }
+
+func (p *idpProvider) GetDirectAuthorizationTargets(_ context.Context, _ *providers.IDPDTO,
+	_ map[string]interface{}) ([]providers.AuthorizationTarget, *common.ServiceError) {
+	return nil, nil
+}
