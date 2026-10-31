@@ -627,6 +627,30 @@ func (ts *ValidateTestSuite) TestValidateAdditionalConfig() {
 		assert.Equal(t, "invalid_additional_config", errCode(t, err))
 	})
 
+	t.Run("valid allowed_child_clients", func(t *testing.T) {
+		assert.NoError(t, validateAdditionalConfig(json.RawMessage(`{"allowed_child_clients":["health-app","tax-app"]}`), false))
+	})
+
+	t.Run("empty allowed_child_clients rejected", func(t *testing.T) {
+		err := validateAdditionalConfig(json.RawMessage(`{"allowed_child_clients":[]}`), false)
+		assert.Equal(t, "invalid_additional_config", errCode(t, err))
+	})
+
+	t.Run("duplicate allowed_child_clients rejected", func(t *testing.T) {
+		err := validateAdditionalConfig(json.RawMessage(`{"allowed_child_clients":["health-app","health-app"]}`), false)
+		assert.Equal(t, "invalid_additional_config", errCode(t, err))
+	})
+
+	t.Run("blank allowed_child_clients entry rejected", func(t *testing.T) {
+		err := validateAdditionalConfig(json.RawMessage(`{"allowed_child_clients":["health-app"," "]}`), false)
+		assert.Equal(t, "invalid_additional_config", errCode(t, err))
+	})
+
+	t.Run("non-array allowed_child_clients rejected", func(t *testing.T) {
+		err := validateAdditionalConfig(json.RawMessage(`{"allowed_child_clients":"health-app"}`), false)
+		assert.Equal(t, "invalid_additional_config", errCode(t, err))
+	})
+
 	t.Run("purpose validated", func(t *testing.T) {
 		assert.NoError(t, validateAdditionalConfig(json.RawMessage(
 			`{"purpose":{"type":"consent","title":{"@none":"Title"}}}`), false))
@@ -815,4 +839,14 @@ type ValidateTestSuite struct {
 
 func TestValidateTestSuite(t *testing.T) {
 	suite.Run(t, new(ValidateTestSuite))
+}
+
+func (ts *ValidateTestSuite) TestValidateGrantTypes_TokenExchangeIsSupported() {
+	t := ts.T()
+	assert.NoError(t, validateGrantTypes([]string{"authorization_code", "token_exchange"}, 0, 0))
+	assert.NoError(t, validateGrantTypes([]string{"token_exchange"}, 1, 0))
+	assert.Equal(t, "invalid_grant_type", errCode(t, validateGrantTypes([]string{"implicit"}, 0, 0)))
+	assert.Equal(t, "invalid_grant_type",
+		errCode(t, validateGrantTypes([]string{"urn:ietf:params:oauth:grant-type:token-exchange"}, 0, 0)),
+		"clients register the short name; the URN is the engine identifier")
 }

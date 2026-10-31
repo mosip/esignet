@@ -72,4 +72,4 @@ require (
 	modernc.org/sqlite v1.53.0 // indirect
 )
 
-replace github.com/thunder-id/thunderid => github.com/thunder-id/thunderid/backend v0.0.0-20261027071101-51458d79979f
+replace github.com/thunder-id/thunderid => ../../thunderid/backend

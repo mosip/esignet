@@ -73,6 +73,7 @@ Token/OIDC transaction lifetimes:
 | `MOSIP_ESIGNET_SIGNING_KEY_REF_ID` | `jwt.preferred_key_id` | `RSA_2048` |
 | `MOSIP_ESIGNET_OAUTH_AUTH_CODE_LIFETIME_SECONDS` | `oauth.authorization_code.validity_period` | `60` |
 | `MOSIP_ESIGNET_OAUTH_PAR_EXPIRY_SECONDS` | `oauth.par.expires_in` | `3600` |
+| `MOSIP_ESIGNET_DEVICE_SECRET_VALIDITY_SECONDS` | `native_sso.device_secret_validity_seconds` | `2592000` (30 days) — lifetime of the Native SSO `device_secret`; see [native-sso.md](native-sso.md) |
 | `MOSIP_ESIGNET_DPOP_LEEWAY` | `oauth.dpop.leeway` | `10` |
 | `MOSIP_ESIGNET_AUTH_TRANSACTION_ID_LENGTH` | `auth_transaction_id_length` | `10` — length IDA/mock-identity-system require for a transaction id |
 | — | `oauth.dpop.required` | `false` |

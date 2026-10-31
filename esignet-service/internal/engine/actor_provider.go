@@ -82,7 +82,7 @@ func (p *actorProvider) GetOAuthClientByClientID(
 		ID:                      client.ClientID,
 		OUID:                    client.RpID,
 		ClientID:                client.ClientID,
-		GrantTypes:              []providers.GrantType{providers.GrantTypeAuthorizationCode},
+		GrantTypes:              engineGrantTypes(client.GrantTypes),
 		RedirectURIs:            client.RedirectURIs,
 		ResponseTypes:           []providers.ResponseType{providers.ResponseTypeCode},
 		TokenEndpointAuthMethod: providers.TokenEndpointAuthMethodPrivateKeyJWT,
@@ -274,6 +274,27 @@ func extractJWKs(jwk string) []json.RawMessage {
 		return jwks.Keys
 	}
 	return []json.RawMessage{json.RawMessage(jwk)}
+}
+
+// engineGrantTypes maps the grant types a client registered (clientmgmt names) to the engine's
+// identifiers. token_exchange is accepted by its short name and by its RFC 8693 URN. A client
+// with no recognised grant type keeps the authorization code grant, as before.
+func engineGrantTypes(registered []string) []providers.GrantType {
+	out := make([]providers.GrantType, 0, len(registered)+1)
+	for _, g := range registered {
+		switch g {
+		case string(providers.GrantTypeAuthorizationCode):
+			out = append(out, providers.GrantTypeAuthorizationCode)
+		case "token_exchange", string(providers.GrantTypeTokenExchange):
+			out = append(out, providers.GrantTypeTokenExchange)
+		case string(providers.GrantTypeRefreshToken):
+			out = append(out, providers.GrantTypeRefreshToken)
+		}
+	}
+	if len(out) == 0 {
+		out = append(out, providers.GrantTypeAuthorizationCode)
+	}
+	return out
 }
 
 // getAllowedScopes combines both OIDC scopes and authorization scopes

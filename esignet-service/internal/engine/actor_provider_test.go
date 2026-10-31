@@ -12,6 +12,8 @@ import (
 	"encoding/json"
 	"errors"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 	"time"
 
 	"github.com/stretchr/testify/suite"
@@ -495,4 +497,16 @@ type ActorProviderTestSuite struct {
 
 func TestActorProviderTestSuite(t *testing.T) {
 	suite.Run(t, new(ActorProviderTestSuite))
+}
+
+func (ts *ActorProviderTestSuite) TestEngineGrantTypes() {
+	t := ts.T()
+	require.Equal(t, []providers.GrantType{providers.GrantTypeAuthorizationCode}, engineGrantTypes([]string{"authorization_code"}))
+	require.Equal(t, []providers.GrantType{providers.GrantTypeAuthorizationCode, providers.GrantTypeTokenExchange},
+		engineGrantTypes([]string{"authorization_code", "token_exchange"}))
+	require.Equal(t, []providers.GrantType{providers.GrantTypeTokenExchange},
+		engineGrantTypes([]string{"urn:ietf:params:oauth:grant-type:token-exchange"}))
+	require.Equal(t, []providers.GrantType{providers.GrantTypeAuthorizationCode}, engineGrantTypes([]string{"implicit"}),
+		"unrecognised grant types fall back to the authorization code grant")
+	require.Equal(t, []providers.GrantType{providers.GrantTypeAuthorizationCode}, engineGrantTypes(nil))
 }

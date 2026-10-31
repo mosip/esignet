@@ -288,6 +288,23 @@ Sample userinfo JWT payload (with bilingual claims):
 
 ---
 
+## Native SSO for Mobile Apps
+
+A vendor with several native apps can let a second app reuse the first app's eSignet login
+without a second OTP or consent screen: the first app requests the `device_sso` scope and receives
+a `device_secret` next to its ID token; the second app exchanges both (RFC 8693, DPoP-bound) for its
+own access token. See [native-sso.md](native-sso.md) for the flows, API, client registration and
+the Android reference implementation. Rules a native app must follow:
+
+- Request `device_sso` together with `openid`, on a PAR + PKCE + DPoP authorization; the token
+  request must carry a DPoP proof, otherwise no device secret is issued.
+- On the exchange send `audience=<issuer URL>` (exactly the discovery `issuer`), and if you send a
+  `scope` it must include `openid` and stay within the first app's grant; `device_sso` is refused.
+- Hand `id_token`, `device_secret` and a DPoP proof to sibling apps only over an IPC guarded by a
+  signature-level permission; the signing key never leaves the first app.
+- Treat `interaction_required` and `invalid_scope` as "run an interactive authorization with
+  `prompt=consent`".
+
 ## Changes from the Java Implementation
 
 The following documents what changed, what is new, and what is confirmed unchanged when moving from the Java-based eSignet to the Go backend (eSignet Thunder v2.0.0+). Each item is verified against the Go source.

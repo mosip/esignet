@@ -430,11 +430,18 @@ func validateGrantTypes(grants []string, minItems, maxItems int) error {
 		return validationErr("invalid_grant_type")
 	}
 	for _, g := range grants {
-		if g != "authorization_code" {
+		if !supportedGrantTypes[g] {
 			return validationErr("invalid_grant_type")
 		}
 	}
 	return nil
+}
+
+// supportedGrantTypes lists the grant types a client may register. token_exchange lets a native
+// app redeem a sibling app's device secret (OpenID Connect Native SSO for Mobile Apps 1.0).
+var supportedGrantTypes = map[string]bool{
+	"authorization_code": true,
+	"token_exchange":     true,
 }
 
 func validateAuthMethods(methods []string, minItems, maxItems int) error {
@@ -501,6 +508,7 @@ var allowedAdditionalConfigKeys = map[string]struct{}{
 	"require_pkce":                          {},
 	"purpose":                               {},
 	"allowed_authorization_scopes":          {},
+	"allowed_child_clients":                 {},
 }
 
 // validateAdditionalConfig validates the additionalConfig JSON object.
@@ -560,6 +568,11 @@ func validateAdditionalConfig(raw json.RawMessage, hasEncPublicKey bool) error {
 			return err
 		}
 	}
+	if v, ok := cfg["allowed_child_clients"]; ok {
+		if err := validateAllowedChildClients(v); err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
@@ -575,6 +588,26 @@ func validateAllowedAuthorizationScopes(raw json.RawMessage) error {
 	}
 	for _, s := range scopes {
 		if strings.TrimSpace(s) == "" {
+			return validationErr("invalid_additional_config")
+		}
+	}
+	return nil
+}
+
+// validateAllowedChildClients validates the allowed_child_clients
+// additional_config value: a non-empty array of unique, non-blank client ids.
+// A super app lists here the sibling clients of another relying party that may
+// redeem its Native SSO device secrets; same-relying-party siblings need no entry.
+func validateAllowedChildClients(raw json.RawMessage) error {
+	var clientIDs []string
+	if err := json.Unmarshal(raw, &clientIDs); err != nil || len(clientIDs) == 0 {
+		return validationErr("invalid_additional_config")
+	}
+	if !hasUniqueStrings(clientIDs) {
+		return validationErr("invalid_additional_config")
+	}
+	for _, id := range clientIDs {
+		if strings.TrimSpace(id) == "" {
 			return validationErr("invalid_additional_config")
 		}
 	}
