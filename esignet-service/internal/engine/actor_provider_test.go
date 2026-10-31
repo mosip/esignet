@@ -290,8 +290,8 @@ func (ts *ActorProviderTestSuite) TestActorProvider_GetInboundClientByID() {
 	}
 	// The pairwise subject is a mapped value, so the engine's refresh-token grant must not try to
 	// resolve it as an entity.
-	if client.SubjectAttribute[subjectUserType] != subjectAttribute {
-		t.Errorf("SubjectAttribute = %v, want %s -> %s", client.SubjectAttribute, subjectUserType, subjectAttribute)
+	if client.SubjectAttribute["individual"] != "psu_token" {
+		t.Errorf("SubjectAttribute = %v, want individual -> psu_token", client.SubjectAttribute)
 	}
 
 	if _, svcErr := p.GetInboundClientByID(context.Background(), "no-such-client"); svcErr == nil {
