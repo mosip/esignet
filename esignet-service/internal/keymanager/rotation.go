@@ -6,8 +6,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/mosip/esignet/internal/dbutil"
 	"github.com/mosip/esignet/internal/keymanager/db"
+	"github.com/mosip/esignet/internal/persistence"
 )
 
 // expiryFor computes a key's expiry timestamp from its generation time and
@@ -41,7 +41,8 @@ func uniqueIdentifier(appID, refID string, now time.Time) string {
 // uni_ident_const constraint — the expected, benign outcome when two
 // concurrent requests decide "no current key, must generate" for the same
 // (appID, refID) on the same calendar day. Classification is delegated to the
-// shared dbutil helper so it works across Postgres and MySQL.
+// shared persistence helper so it works across Postgres and MySQL.
 func IsDuplicateUniIdent(err error) bool {
-	return dbutil.IsUniqueViolation(err, "uni_ident_const")
+	e := persistence.GetErrorCode(err)
+	return e.Code == persistence.ErrDuplicateKey && e.Constraint == "uni_ident_const"
 }

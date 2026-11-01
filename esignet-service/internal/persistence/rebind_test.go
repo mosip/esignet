@@ -4,11 +4,9 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-package dbutil
+package persistence
 
-import "testing"
-
-func TestRebind(t *testing.T) {
+func (ts *PersistenceTestSuite) TestRebind() {
 	tests := []struct {
 		name       string
 		driverName string
@@ -41,10 +39,8 @@ func TestRebind(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := Rebind(tt.driverName, tt.query); got != tt.want {
-				t.Errorf("Rebind(%q, %q) = %q, want %q", tt.driverName, tt.query, got, tt.want)
-			}
+		ts.Run(tt.name, func() {
+			ts.Equal(tt.want, Rebind(tt.driverName, tt.query), "Rebind(%q, %q)", tt.driverName, tt.query)
 		})
 	}
 }

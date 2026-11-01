@@ -4,10 +4,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-// Package dbutil holds small cross-database helpers shared by the clientmgmt,
-// consentmgmt and keymanager persistence layers: placeholder rebinding and
-// unique-constraint-violation classification across PostgreSQL and MySQL.
-package dbutil
+package persistence
 
 import "github.com/jmoiron/sqlx"
 

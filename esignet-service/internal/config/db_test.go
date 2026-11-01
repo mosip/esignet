@@ -10,128 +10,12 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+
+	"github.com/mosip/esignet/internal/persistence"
 )
 
-func TestHasDBEnvConfig(t *testing.T) {
-	cases := []string{
-		"DATABASE_URL", "DATABASE_HOST", "DATABASE_PORT",
-		"DATABASE_NAME", "DATABASE_USERNAME", "DATABASE_PASSWORD", "DB_DBUSER_PASSWORD",
-	}
-	for _, envVar := range cases {
-		t.Run(envVar, func(t *testing.T) {
-			t.Setenv(envVar, "set")
-			require.True(t, hasDBEnvConfig())
-		})
-	}
-
-	t.Run("none set", func(t *testing.T) {
-		for _, envVar := range cases {
-			t.Setenv(envVar, "")
-		}
-		require.False(t, hasDBEnvConfig())
-	})
-}
-
-func TestEnsurePostgresSSLMode(t *testing.T) {
-	cases := []struct {
-		name string
-		dsn  string
-		want string
-	}{
-		{"adds sslmode with no query", "postgres://user:pass@host/db", "postgres://user:pass@host/db?sslmode=disable"},
-		{"adds sslmode with existing query", "postgres://user:pass@host/db?foo=bar", "postgres://user:pass@host/db?foo=bar&sslmode=disable"},
-		{"leaves existing sslmode alone", "postgres://user:pass@host/db?sslmode=require", "postgres://user:pass@host/db?sslmode=require"},
-		{"leaves non-postgres DSN alone", "host=localhost dbname=x", "host=localhost dbname=x"},
-		{"postgresql scheme also matched", "postgresql://user@host/db", "postgresql://user@host/db?sslmode=disable"},
-	}
-	for _, tc := range cases {
-		t.Run(tc.name, func(t *testing.T) {
-			require.Equal(t, tc.want, ensurePostgresSSLMode(tc.dsn))
-		})
-	}
-}
-
-func TestResolveDBDSN_FullURL(t *testing.T) {
-	t.Setenv("DATABASE_URL", "postgres://esignet:secret@dbhost:5432/mosip_esignet")
-
-	dsn := resolveDBDSN("")
-
-	require.Equal(t, "postgres://esignet:secret@dbhost:5432/mosip_esignet?sslmode=disable", dsn)
-}
-
-func TestResolveDBDSN_IndividualVars(t *testing.T) {
-	t.Setenv("DATABASE_HOST", "dbhost")
-	t.Setenv("DATABASE_PORT", "5555")
-	t.Setenv("DATABASE_NAME", "mydb")
-	t.Setenv("DATABASE_USERNAME", "myuser")
-	t.Setenv("DATABASE_PASSWORD", "mypass")
-
-	dsn := resolveDBDSN("")
-
-	require.Equal(t, "host=dbhost port=5555 dbname=mydb user=myuser password=mypass sslmode=disable", dsn)
-}
-
-func TestResolveDBDSN_DBUserPasswordFallback(t *testing.T) {
-	t.Setenv("DATABASE_HOST", "dbhost")
-	t.Setenv("DATABASE_PASSWORD", "")
-	t.Setenv("DB_DBUSER_PASSWORD", "fallback-pass")
-
-	dsn := resolveDBDSN("")
-
-	require.Contains(t, dsn, "password=fallback-pass")
-}
-
-func TestResolveDBDSN_DatabasePasswordTakesPrecedence(t *testing.T) {
-	t.Setenv("DATABASE_PASSWORD", "primary-pass")
-	t.Setenv("DB_DBUSER_PASSWORD", "fallback-pass")
-
-	dsn := resolveDBDSN("")
-
-	require.Contains(t, dsn, "password=primary-pass")
-	require.NotContains(t, dsn, "fallback-pass")
-}
-
-func TestResolveDBDSN_NoPasswordOmitsField(t *testing.T) {
-	for _, envVar := range []string{
-		"DATABASE_URL", "DATABASE_HOST", "DATABASE_PORT", "DATABASE_NAME",
-		"DATABASE_USERNAME", "DATABASE_PASSWORD", "DB_DBUSER_PASSWORD",
-	} {
-		t.Setenv(envVar, "")
-	}
-
-	dsn := resolveDBDSN("")
-
-	require.NotContains(t, dsn, "password=")
-	require.Contains(t, dsn, "host="+defaultDBHost)
-	require.Contains(t, dsn, "port="+defaultDBPort)
-	require.Contains(t, dsn, "dbname="+defaultDBName)
-	require.Contains(t, dsn, "user="+defaultDBUser)
-}
-
-func TestResolveDBDSN_YAMLUsedWhenNoEnvConfig(t *testing.T) {
-	for _, envVar := range []string{
-		"DATABASE_URL", "DATABASE_HOST", "DATABASE_PORT", "DATABASE_NAME",
-		"DATABASE_USERNAME", "DATABASE_PASSWORD", "DB_DBUSER_PASSWORD",
-	} {
-		t.Setenv(envVar, "")
-	}
-
-	dsn := resolveDBDSN("host=yamlhost port=5432 dbname=yamldb user=yamluser sslmode=disable")
-
-	require.Equal(t, "host=yamlhost port=5432 dbname=yamldb user=yamluser sslmode=disable", dsn)
-}
-
-func TestResolveDBDSN_EnvTakesPrecedenceOverYAML(t *testing.T) {
-	t.Setenv("DATABASE_HOST", "envhost")
-
-	dsn := resolveDBDSN("host=yamlhost port=5432 dbname=yamldb user=yamluser sslmode=disable")
-
-	require.Contains(t, dsn, "host=envhost")
-	require.NotContains(t, dsn, "yamlhost")
-}
-
 func TestLoadDB_Defaults(t *testing.T) {
-	db := loadDB(DB{})
+	db := loadDB(persistence.DB{})
 
 	require.Equal(t, defaultDBMaxOpenConns, db.Pool.MaxOpenConns)
 	require.Equal(t, defaultDBMaxIdleConns, db.Pool.MaxIdleConns)
@@ -145,7 +29,7 @@ func TestLoadDB_PoolTuningOverrides(t *testing.T) {
 	t.Setenv("DB_CONN_MAX_LIFETIME_SECS", "600")
 	t.Setenv("DB_CONN_MAX_IDLE_TIME_SECS", "120")
 
-	db := loadDB(DB{})
+	db := loadDB(persistence.DB{})
 
 	require.Equal(t, 50, db.Pool.MaxOpenConns)
 	require.Equal(t, 10, db.Pool.MaxIdleConns)
@@ -157,7 +41,7 @@ func TestLoadDB_NonPositivePoolValuesFallBackToDefaults(t *testing.T) {
 	t.Setenv("DB_MAX_OPEN_CONNS", "0")
 	t.Setenv("DB_MAX_IDLE_CONNS", "-1")
 
-	db := loadDB(DB{})
+	db := loadDB(persistence.DB{})
 
 	require.Equal(t, defaultDBMaxOpenConns, db.Pool.MaxOpenConns)
 	require.Equal(t, defaultDBMaxIdleConns, db.Pool.MaxIdleConns)
@@ -166,7 +50,7 @@ func TestLoadDB_NonPositivePoolValuesFallBackToDefaults(t *testing.T) {
 func TestLoadDB_ExplicitZeroLifetimeIsOptOut(t *testing.T) {
 	t.Setenv("DB_CONN_MAX_LIFETIME_SECS", "0")
 
-	db := loadDB(DB{})
+	db := loadDB(persistence.DB{})
 
 	require.Zero(t, db.Pool.ConnMaxLifetimeSecs)
 }
@@ -178,7 +62,7 @@ func TestLoadDB_YAMLPoolValuesUsedWhenEnvUnset(t *testing.T) {
 		t.Setenv(envVar, "")
 	}
 
-	db := loadDB(DB{Pool: DBPool{
+	db := loadDB(persistence.DB{Pool: persistence.DBPool{
 		MaxOpenConns:        15,
 		MaxIdleConns:        5,
 		ConnMaxLifetimeSecs: 900,
@@ -194,7 +78,7 @@ func TestLoadDB_YAMLPoolValuesUsedWhenEnvUnset(t *testing.T) {
 func TestLoadDB_EnvPoolValuesTakePrecedenceOverYAML(t *testing.T) {
 	t.Setenv("DB_MAX_OPEN_CONNS", "77")
 
-	db := loadDB(DB{Pool: DBPool{MaxOpenConns: 15}})
+	db := loadDB(persistence.DB{Pool: persistence.DBPool{MaxOpenConns: 15}})
 
 	require.Equal(t, 77, db.Pool.MaxOpenConns)
 }
@@ -209,7 +93,7 @@ func TestLoadDB_EnvWinsOverPopulatedYAMLPool(t *testing.T) {
 	t.Setenv("DB_CONN_MAX_IDLE_TIME_SECS", "120")
 
 	// Mirrors the values shipped in data/deployment.yaml.
-	db := loadDB(DB{Pool: DBPool{
+	db := loadDB(persistence.DB{Pool: persistence.DBPool{
 		MaxOpenConns:        25,
 		MaxIdleConns:        5,
 		ConnMaxLifetimeSecs: 1800,
@@ -228,7 +112,7 @@ func TestLoadDB_InvalidEnvFallsBackToYAML(t *testing.T) {
 	t.Setenv("DB_MAX_OPEN_CONNS", "abc")
 	t.Setenv("DB_CONN_MAX_LIFETIME_SECS", "not-a-number")
 
-	db := loadDB(DB{Pool: DBPool{MaxOpenConns: 15, ConnMaxLifetimeSecs: 900}})
+	db := loadDB(persistence.DB{Pool: persistence.DBPool{MaxOpenConns: 15, ConnMaxLifetimeSecs: 900}})
 
 	require.Equal(t, 15, db.Pool.MaxOpenConns)
 	require.Equal(t, 900, db.Pool.ConnMaxLifetimeSecs)
@@ -240,7 +124,7 @@ func TestLoadDB_InvalidEnvFallsBackToYAML(t *testing.T) {
 func TestLoadDB_NegativeLifetimeFallsBackToDefault(t *testing.T) {
 	t.Setenv("DB_CONN_MAX_LIFETIME_SECS", "-5")
 
-	db := loadDB(DB{})
+	db := loadDB(persistence.DB{})
 
 	require.Equal(t, defaultDBConnMaxLifetimeSecs, db.Pool.ConnMaxLifetimeSecs)
 }
@@ -255,96 +139,21 @@ func clearDBEnv(t *testing.T) {
 	}
 }
 
-func TestEnsureMySQLParseTime(t *testing.T) {
-	cases := []struct {
-		name string
-		dsn  string
-		want string
-	}{
-		{"appends with no query", "user:pass@tcp(h:3306)/db", "user:pass@tcp(h:3306)/db?parseTime=true&loc=UTC"},
-		{"appends with existing query", "user:pass@tcp(h:3306)/db?charset=utf8mb4", "user:pass@tcp(h:3306)/db?charset=utf8mb4&parseTime=true&loc=UTC"},
-		{"leaves existing parseTime alone", "user:pass@tcp(h:3306)/db?parseTime=true", "user:pass@tcp(h:3306)/db?parseTime=true"},
-	}
-	for _, tc := range cases {
-		t.Run(tc.name, func(t *testing.T) {
-			require.Equal(t, tc.want, ensureMySQLParseTime(tc.dsn))
-		})
-	}
-}
-
-func TestResolveMySQLDSN_FullURLPassedThrough(t *testing.T) {
-	t.Setenv("DATABASE_URL", "esignet:secret@tcp(dbhost:3306)/mosip_esignet?parseTime=true&loc=UTC")
-
-	dsn := resolveMySQLDSN("")
-
-	require.Equal(t, "esignet:secret@tcp(dbhost:3306)/mosip_esignet?parseTime=true&loc=UTC", dsn)
-}
-
-func TestResolveMySQLDSN_FullURLGetsParseTimeAppended(t *testing.T) {
-	t.Setenv("DATABASE_URL", "esignet:secret@tcp(dbhost:3306)/mosip_esignet")
-
-	dsn := resolveMySQLDSN("")
-
-	require.Equal(t, "esignet:secret@tcp(dbhost:3306)/mosip_esignet?parseTime=true&loc=UTC", dsn)
-}
-
-func TestResolveMySQLDSN_IndividualVars(t *testing.T) {
-	t.Setenv("DATABASE_URL", "")
-	t.Setenv("DATABASE_HOST", "dbhost")
-	t.Setenv("DATABASE_PORT", "3307")
-	t.Setenv("DATABASE_NAME", "mydb")
-	t.Setenv("DATABASE_USERNAME", "myuser")
-	t.Setenv("DATABASE_PASSWORD", "mypass")
-
-	dsn := resolveMySQLDSN("")
-
-	require.Equal(t, "myuser:mypass@tcp(dbhost:3307)/mydb?parseTime=true&loc=UTC", dsn)
-}
-
-func TestResolveMySQLDSN_DBUserPasswordFallback(t *testing.T) {
-	t.Setenv("DATABASE_URL", "")
-	t.Setenv("DATABASE_HOST", "dbhost")
-	t.Setenv("DATABASE_PASSWORD", "")
-	t.Setenv("DB_DBUSER_PASSWORD", "fallback-pass")
-
-	dsn := resolveMySQLDSN("")
-
-	require.Contains(t, dsn, ":fallback-pass@tcp(")
-}
-
-func TestResolveMySQLDSN_NoPasswordOmitsCredentialColon(t *testing.T) {
-	clearDBEnv(t)
-
-	dsn := resolveMySQLDSN("")
-
-	require.Equal(t,
-		defaultMySQLUser+"@tcp("+defaultDBHost+":"+defaultMySQLPort+")/"+defaultDBName+"?parseTime=true&loc=UTC",
-		dsn)
-}
-
-func TestResolveMySQLDSN_YAMLUsedWhenNoEnvConfig(t *testing.T) {
-	clearDBEnv(t)
-
-	dsn := resolveMySQLDSN("esignet:secret@tcp(yamlhost:3306)/yamldb?parseTime=true&loc=UTC")
-
-	require.Equal(t, "esignet:secret@tcp(yamlhost:3306)/yamldb?parseTime=true&loc=UTC", dsn)
-}
-
 func TestLoadDB_DriverDefaultsToPostgres(t *testing.T) {
 	t.Setenv("DB_DRIVER", "")
 
-	db := loadDB(DB{})
+	db := loadDB(persistence.DB{})
 
-	require.Equal(t, DriverPostgres, db.Driver)
+	require.Equal(t, persistence.DriverPostgres, db.Driver)
 }
 
 func TestLoadDB_DriverFromEnvBuildsMySQLDSN(t *testing.T) {
 	clearDBEnv(t)
 	t.Setenv("DB_DRIVER", "mysql")
 
-	db := loadDB(DB{})
+	db := loadDB(persistence.DB{})
 
-	require.Equal(t, DriverMySQL, db.Driver)
+	require.Equal(t, persistence.DriverMySQL, db.Driver)
 	require.Contains(t, db.DSN, "@tcp(")
 	require.Contains(t, db.DSN, "parseTime=true")
 }
@@ -352,7 +161,7 @@ func TestLoadDB_DriverFromEnvBuildsMySQLDSN(t *testing.T) {
 func TestLoadDB_DriverNormalizedAndEnvOverridesYAML(t *testing.T) {
 	t.Setenv("DB_DRIVER", "MySQL")
 
-	db := loadDB(DB{Driver: "postgres"})
+	db := loadDB(persistence.DB{Driver: "postgres"})
 
-	require.Equal(t, DriverMySQL, db.Driver)
+	require.Equal(t, persistence.DriverMySQL, db.Driver)
 }

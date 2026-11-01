@@ -13,7 +13,7 @@ import (
 
 	"github.com/jmoiron/sqlx"
 
-	"github.com/mosip/esignet/internal/dbutil"
+	"github.com/mosip/esignet/internal/persistence"
 )
 
 // TX is satisfied by *sqlx.DB and *sqlx.Tx, allowing Queries to run
@@ -59,7 +59,7 @@ var schemaIdentifier = regexp.MustCompile(`^[A-Za-z_][A-Za-z0-9_]*$`)
 // New returns a Queries backed by conn (a *sqlx.DB or *sqlx.Tx), reading
 // from/writing to the given schema (e.g. "keymgr" for the Java service's
 // schema, or a separate one such as "keymgr_go" to test this library in
-// isolation). driverName selects the placeholder style via dbutil.Rebind and
+// isolation). driverName selects the placeholder style via persistence.Rebind and
 // must be the sql/sqlx driver name ("postgres"/"pgx" or "mysql").
 //
 // Queries are written with "?" placeholders and rebound once here. When
@@ -79,47 +79,47 @@ func New(conn TX, schema, driverName string) *Queries {
 	// explicitly. Without it, a NULL-stored ROOT row would look like it
 	// doesn't exist yet and a duplicate could be generated. The ref_id value
 	// is bound twice (see GetKeyAliasesByAppRef).
-	q.selectKeyAlias = dbutil.Rebind(driverName, fmt.Sprintf(`SELECT %s FROM %s.key_alias
+	q.selectKeyAlias = persistence.Rebind(driverName, fmt.Sprintf(`SELECT %s FROM %s.key_alias
 		WHERE app_id = ? AND (ref_id = ? OR (ref_id IS NULL AND ? = '')) AND (is_deleted IS NULL OR is_deleted = FALSE)
 		ORDER BY key_gen_dtimes DESC`, keyAliasColumns, schema))
 
-	q.selectKeyAliasByThumbprint = dbutil.Rebind(driverName, fmt.Sprintf(`SELECT %s FROM %s.key_alias
+	q.selectKeyAliasByThumbprint = persistence.Rebind(driverName, fmt.Sprintf(`SELECT %s FROM %s.key_alias
 		WHERE cert_thumbprint = ? AND (is_deleted IS NULL OR is_deleted = FALSE)
 		ORDER BY key_gen_dtimes DESC LIMIT 1`, keyAliasColumns, schema))
 
-	q.selectKeyAliasByUniIdent = dbutil.Rebind(driverName, fmt.Sprintf(`SELECT %s FROM %s.key_alias
+	q.selectKeyAliasByUniIdent = persistence.Rebind(driverName, fmt.Sprintf(`SELECT %s FROM %s.key_alias
 		WHERE uni_ident = ? AND (is_deleted IS NULL OR is_deleted = FALSE)
 		ORDER BY key_gen_dtimes DESC LIMIT 1`, keyAliasColumns, schema))
 
-	q.insertKeyAlias = dbutil.Rebind(driverName, fmt.Sprintf(`INSERT INTO %s.key_alias
+	q.insertKeyAlias = persistence.Rebind(driverName, fmt.Sprintf(`INSERT INTO %s.key_alias
 		(id, app_id, ref_id, key_gen_dtimes, key_expire_dtimes, status_code, cert_thumbprint, uni_ident, cr_by, cr_dtimes)
 		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, schema))
 
 	// Placeholders are positional: SET columns first, then the WHERE id last —
 	// UpdateKeyAlias binds its args in that order.
-	q.updateKeyAlias = dbutil.Rebind(driverName, fmt.Sprintf(`UPDATE %s.key_alias SET
+	q.updateKeyAlias = persistence.Rebind(driverName, fmt.Sprintf(`UPDATE %s.key_alias SET
 		key_expire_dtimes = ?, status_code = ?, cert_thumbprint = ?, upd_by = ?, upd_dtimes = ?
 		WHERE id = ?`, schema))
 
-	q.selectKeyPolicy = dbutil.Rebind(driverName, fmt.Sprintf(`SELECT app_id, key_validity_duration, is_active, pre_expire_days, access_allowed,
+	q.selectKeyPolicy = persistence.Rebind(driverName, fmt.Sprintf(`SELECT app_id, key_validity_duration, is_active, pre_expire_days, access_allowed,
 		cr_by, cr_dtimes, upd_by, upd_dtimes, is_deleted, del_dtimes
 		FROM %s.key_policy_def
 		WHERE app_id = ? AND is_active = TRUE`, schema))
 
-	q.selectKeyPolicyExists = dbutil.Rebind(driverName, fmt.Sprintf(`SELECT EXISTS(
+	q.selectKeyPolicyExists = persistence.Rebind(driverName, fmt.Sprintf(`SELECT EXISTS(
 		SELECT 1 FROM %s.key_policy_def
 		WHERE app_id = ? AND (is_deleted IS NULL OR is_deleted = FALSE))`, schema))
 
-	q.selectKeyStore = dbutil.Rebind(driverName, fmt.Sprintf(`SELECT %s FROM %s.key_store
+	q.selectKeyStore = persistence.Rebind(driverName, fmt.Sprintf(`SELECT %s FROM %s.key_store
 		WHERE id = ? AND (is_deleted IS NULL OR is_deleted = FALSE)`, keyStoreColumns, schema))
 
-	q.insertKeyStore = dbutil.Rebind(driverName, fmt.Sprintf(`INSERT INTO %s.key_store
+	q.insertKeyStore = persistence.Rebind(driverName, fmt.Sprintf(`INSERT INTO %s.key_store
 		(id, certificate_data, private_key, master_key, cr_by, cr_dtimes)
 		VALUES (?, ?, ?, ?, ?, ?)`, schema))
 
 	// Placeholders are positional: SET columns first, then the WHERE id last —
 	// UpdateKeyStoreRecord binds its args in that order.
-	q.updateKeyStore = dbutil.Rebind(driverName, fmt.Sprintf(`UPDATE %s.key_store SET
+	q.updateKeyStore = persistence.Rebind(driverName, fmt.Sprintf(`UPDATE %s.key_store SET
 		certificate_data = ?, private_key = ?, upd_by = ?, upd_dtimes = ?
 		WHERE id = ?`, schema))
 
