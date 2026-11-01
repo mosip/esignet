@@ -693,6 +693,14 @@ paths:
                           items:
                             type: string
                           description: Additional OAuth scopes, beyond the standard scope claims, that this client is allowed to request.
+                        allowed_child_clients:
+                          type: array
+                          minItems: 1
+                          uniqueItems: true
+                          items:
+                            type: string
+                            pattern: '\S'
+                          description: 'Native SSO: on a super app, the client ids of sibling apps of another relying party that may redeem its device secrets (same-relying-party siblings need no entry).'
             examples:
               example-1:
                 value:
@@ -1386,6 +1394,14 @@ paths:
                           items:
                             type: string
                           description: Additional OAuth scopes, beyond the standard scope claims, that this client is allowed to request.
+                        allowed_child_clients:
+                          type: array
+                          minItems: 1
+                          uniqueItems: true
+                          items:
+                            type: string
+                            pattern: '\S'
+                          description: 'Native SSO: on a super app, the client ids of sibling apps of another relying party that may redeem its device secrets (same-relying-party siblings need no entry).'
             examples:
               Example 1:
                 value:
@@ -1659,6 +1675,14 @@ paths:
                           items:
                             type: string
                           description: Additional OAuth scopes, beyond the standard scope claims, that this client is allowed to request.
+                        allowed_child_clients:
+                          type: array
+                          minItems: 1
+                          uniqueItems: true
+                          items:
+                            type: string
+                            pattern: '\S'
+                          description: 'Native SSO: on a super app, the client ids of sibling apps of another relying party that may redeem its device secrets (same-relying-party siblings need no entry).'
                     encPublicKey:
                       description: |-
                         Encryption public key in JWK format for userinfo JWE encryption.
@@ -1885,15 +1909,8 @@ paths:
               properties:
                 scope:
                   type: string
-                  description: Specifies what access privileges are being requested for Access Tokens. The scopes associated with Access Tokens determine what resources will be available when they are used to access OAuth 2.0 protected endpoints. OpenID Connect requests MUST contain the OpenID scope value.
-                  enum:
-                    - openid
-                    - profile
-                    - email
-                    - address
-                    - phone
-                    - offline_access
-                    - device_sso
+                  description: 'Space delimited list of scope values. Supported values: openid, profile, email, address, phone, offline_access, device_sso. OpenID Connect requests MUST contain the openid scope value; device_sso (Native SSO) requires openid.'
+                  example: openid profile device_sso
                 response_type:
                   type: string
                   description: 'Value that determines the authorization processing flow to be used. When using the Authorization Code Flow, this value is code.'
@@ -2747,6 +2764,9 @@ paths:
               schema:
                 type: object
                 properties:
+                  refresh_token:
+                    type: string
+                    description: Refresh token, when the client is registered for the refresh_token grant.
                   id_token:
                     type: string
                     description: |-
