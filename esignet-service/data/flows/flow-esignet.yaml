@@ -326,7 +326,7 @@ interceptors:
 # Anchor for the per-flow-session cap on OTP generate/resend calls, applied to every
 # eSignetOtpExecutor node so RESEND_OTP can't be clicked unboundedly.
 otp_max_attempts: &otp_max_attempts
-  maxAttempts: "3"
+  maxAttempts: ${MOSIP_ESIGNET_OTP_MAX_ATTEMPTS}
 
 nodes:
   - id: start
@@ -604,7 +604,6 @@ nodes:
                   ref: resend_otp_timer
                   category: MISCELLANEOUS
                   resourceType: ELEMENT
-                  timeLeft: 20
                   variant: primary
                   label: "otp.resend_otp"
                   captcha:

@@ -1036,6 +1036,8 @@ system:
   "flows.executor.errors.magic_link_generation_failed_desc": ಮ್ಯಾಜಿಕ್ ಲಿಂಕ್ ರಚಿಸಲು ವಿಫಲವಾಗಿದೆ
   "flows.executor.errors.max_otp_attempts_reached": ಗರಿಷ್ಠ OTP ಪ್ರಯತ್ನಗಳು ತಲುಪಲ್ಪಟ್ಟಿವೆ
   "flows.executor.errors.max_otp_attempts_reached_desc": OTP ಪರಿಶೀಲನೆ ಪ್ರಯತ್ನಗಳ ಗರಿಷ್ಠ ಸಂಖ್ಯೆ ತಲುಪಲ್ಪಟ್ಟಿದೆ
+  "flows.executor.errors.otp_resend_too_early": ಹೊಸ OTP ವಿನಂತಿಸುವ ಮೊದಲು ದಯವಿಟ್ಟು ಕಾಯಿರಿ
+  "flows.executor.errors.otp_resend_too_early_desc": ಪ್ರಸ್ತುತ OTP ಅವಧಿ ಮುಗಿದ ನಂತರ ಮಾತ್ರ ಹೊಸ OTP ಅನ್ನು ವಿನಂತಿಸಬಹುದು
   "flows.executor.errors.no_registered_passkeys": ನೋಂದಾಯಿಸಿದ ಪಾಸ್‌ಕೀಗಳು ಕಂಡುಬಂದಿಲ್ಲ
   "flows.executor.errors.no_registered_passkeys_desc": ಬಳಕೆದಾರನಿಗಾಗಿ ನೋಂದಾಯಿಸಿದ ಪಾಸ್‌ಕೀಗಳು ಕಂಡುಬಂದಿಲ್ಲ
   "flows.executor.errors.no_user_types_available": ಯಾವುದೇ ಬಳಕೆದಾರ ಪ್ರಕಾರಗಳು ಲಭ್ಯವಿಲ್ಲ

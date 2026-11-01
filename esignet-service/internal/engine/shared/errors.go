@@ -108,6 +108,21 @@ var MaxOTPAttemptsReachedError = &common.ServiceError{
 	},
 }
 
+// OTPResendTooEarlyError is returned when a resend is requested while the previously sent OTP
+// is still valid.
+var OTPResendTooEarlyError = &common.ServiceError{
+	Code: "otp_resend_too_early",
+	Type: common.ClientErrorType,
+	Error: common.I18nMessage{
+		Key:          "flows.executor.errors.otp_resend_too_early",
+		DefaultValue: "OTP resend too early",
+	},
+	ErrorDescription: common.I18nMessage{
+		Key:          "flows.executor.errors.otp_resend_too_early_desc",
+		DefaultValue: "A new OTP can be requested only after the current OTP has expired",
+	},
+}
+
 // MissingEncryptionKeyAlgError is returned when a client's userinfo response
 // type is JWE but its encryption key has no alg field.
 var MissingEncryptionKeyAlgError = &common.ServiceError{

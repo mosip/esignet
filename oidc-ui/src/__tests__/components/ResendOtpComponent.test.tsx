@@ -62,7 +62,6 @@ function makeComponent(
   return {
     id: "resend-otp",
     type: "RESEND_OTP",
-    timeLeft: 0,
     ...overrides,
   } as ResendOtpFlowComponent;
 }
@@ -105,7 +104,7 @@ describe("ResendOtpComponent — rendering and initial state", () => {
   it("button is enabled when timeLeft is 0", () => {
     render(
       <ResendOtpComponent
-        component={makeComponent({ timeLeft: 0 })}
+        component={makeComponent()}
         context={makeContext()}
       />,
     );
@@ -115,18 +114,53 @@ describe("ResendOtpComponent — rendering and initial state", () => {
   it("button is disabled while the countdown is active", () => {
     render(
       <ResendOtpComponent
-        component={makeComponent({ timeLeft: 60 })}
-        context={makeContext()}
+        component={makeComponent()}
+        context={makeContext({ additionalData: { timeLeft: "60" } })}
       />,
     );
     expect(screen.getByTestId("resend-button")).toBeDisabled();
   });
 
+  it("uses timeLeft from backend additionalData for the countdown", () => {
+    render(
+      <ResendOtpComponent
+        component={makeComponent()}
+        context={makeContext({
+          additionalData: { timeLeft: "180", attemptsLeft: "2" },
+        })}
+      />,
+    );
+    expect(screen.getByTestId("resend-button")).toBeDisabled();
+    expect(screen.getByText(/app\.otp\.resend_timer/)).toBeDefined();
+  });
+
+  it("keeps the button disabled when no attempts are left", () => {
+    render(
+      <ResendOtpComponent
+        component={makeComponent()}
+        context={makeContext({
+          additionalData: { timeLeft: "0", attemptsLeft: "0" },
+        })}
+      />,
+    );
+    expect(screen.getByTestId("resend-button")).toBeDisabled();
+  });
+
+  it("disables the button immediately after a click", () => {
+    const context = makeContext({ additionalData: { attemptsLeft: "2" } });
+    render(
+      <ResendOtpComponent component={makeComponent()} context={context} />,
+    );
+    fireEvent.click(screen.getByTestId("resend-button"));
+    expect(screen.getByTestId("resend-button")).toBeDisabled();
+    expect(context.onSubmit).toHaveBeenCalledTimes(1);
+  });
+
   it("shows the countdown timer heading while time remains", () => {
     render(
       <ResendOtpComponent
-        component={makeComponent({ timeLeft: 90 })}
-        context={makeContext()}
+        component={makeComponent()}
+        context={makeContext({ additionalData: { timeLeft: "90" } })}
       />,
     );
     expect(screen.getByText(/app\.otp\.resend_timer/)).toBeDefined();
@@ -136,10 +170,9 @@ describe("ResendOtpComponent — rendering and initial state", () => {
     render(
       <ResendOtpComponent
         component={makeComponent({
-          timeLeft: 60,
           captcha: { provider: "hcaptcha", siteKey: "k" },
         })}
-        context={makeContext()}
+        context={makeContext({ additionalData: { timeLeft: "60" } })}
       />,
     );
     expect(screen.queryByTestId("captcha")).toBeNull();
@@ -155,10 +188,7 @@ describe("ResendOtpComponent — submit without captcha", () => {
   it("calls resetForm then onSubmit with an empty payload when no captcha is configured", () => {
     const context = makeContext();
     render(
-      <ResendOtpComponent
-        component={makeComponent({ timeLeft: 0 })}
-        context={context}
-      />,
+      <ResendOtpComponent component={makeComponent()} context={context} />,
     );
     fireEvent.click(screen.getByTestId("resend-button"));
     expect(context.resetForm).toHaveBeenCalled();
@@ -172,10 +202,7 @@ describe("ResendOtpComponent — submit without captcha", () => {
   it("does not throw and skips submit body when onSubmit is absent — covers if(onSubmit) false branch", () => {
     const context = makeContext({ onSubmit: undefined as any });
     render(
-      <ResendOtpComponent
-        component={makeComponent({ timeLeft: 0 })}
-        context={context}
-      />,
+      <ResendOtpComponent component={makeComponent()} context={context} />,
     );
     expect(() =>
       fireEvent.click(screen.getByTestId("resend-button")),
@@ -185,10 +212,7 @@ describe("ResendOtpComponent — submit without captcha", () => {
   it("does not throw when resetForm is absent — covers resetForm && resetForm() false branch", () => {
     const context = makeContext({ resetForm: undefined as any });
     render(
-      <ResendOtpComponent
-        component={makeComponent({ timeLeft: 0 })}
-        context={context}
-      />,
+      <ResendOtpComponent component={makeComponent()} context={context} />,
     );
     expect(() =>
       fireEvent.click(screen.getByTestId("resend-button")),
@@ -207,7 +231,6 @@ describe("ResendOtpComponent — captcha interaction", () => {
     render(
       <ResendOtpComponent
         component={makeComponent({
-          timeLeft: 0,
           captcha: { provider: "hcaptcha", siteKey: "k" },
         })}
         context={makeContext()}
@@ -221,7 +244,6 @@ describe("ResendOtpComponent — captcha interaction", () => {
     render(
       <ResendOtpComponent
         component={makeComponent({
-          timeLeft: 0,
           captcha: { provider: "hcaptcha", siteKey: "k" },
         })}
         context={context}
@@ -243,7 +265,6 @@ describe("ResendOtpComponent — captcha interaction", () => {
     render(
       <ResendOtpComponent
         component={makeComponent({
-          timeLeft: 0,
           captcha: { provider: "hcaptcha", siteKey: "k" },
         })}
         context={makeContext()}
@@ -259,7 +280,6 @@ describe("ResendOtpComponent — captcha interaction", () => {
     render(
       <ResendOtpComponent
         component={makeComponent({
-          timeLeft: 0,
           captcha: { provider: "hcaptcha", siteKey: "k" },
         })}
         context={makeContext()}
@@ -278,7 +298,6 @@ describe("ResendOtpComponent — captcha interaction", () => {
     render(
       <ResendOtpComponent
         component={makeComponent({
-          timeLeft: 0,
           captcha: { provider: "hcaptcha", siteKey: "k" },
         })}
         context={makeContext()}
@@ -295,7 +314,6 @@ describe("ResendOtpComponent — captcha interaction", () => {
     render(
       <ResendOtpComponent
         component={makeComponent({
-          timeLeft: 0,
           captcha: { provider: "hcaptcha", siteKey: "k" },
         })}
         context={makeContext()}
@@ -312,7 +330,6 @@ describe("ResendOtpComponent — captcha interaction", () => {
     render(
       <ResendOtpComponent
         component={makeComponent({
-          timeLeft: 0,
           captcha: { provider: "hcaptcha", siteKey: "k" },
         })}
         context={context}
@@ -345,8 +362,8 @@ describe("ResendOtpComponent — countdown timer", () => {
   it("hides the countdown heading when timer reaches zero", () => {
     render(
       <ResendOtpComponent
-        component={makeComponent({ timeLeft: 1 })}
-        context={makeContext()}
+        component={makeComponent()}
+        context={makeContext({ additionalData: { timeLeft: "1" } })}
       />,
     );
     act(() => {
@@ -358,8 +375,8 @@ describe("ResendOtpComponent — countdown timer", () => {
   it("button becomes enabled after the countdown expires", () => {
     render(
       <ResendOtpComponent
-        component={makeComponent({ timeLeft: 1 })}
-        context={makeContext()}
+        component={makeComponent()}
+        context={makeContext({ additionalData: { timeLeft: "1" } })}
       />,
     );
     act(() => {
@@ -372,8 +389,8 @@ describe("ResendOtpComponent — countdown timer", () => {
     // timeLeft: 2 → first tick: prev=2 > 1, returns prev-1=1 (false branch of if prev<=1)
     render(
       <ResendOtpComponent
-        component={makeComponent({ timeLeft: 2 })}
-        context={makeContext()}
+        component={makeComponent()}
+        context={makeContext({ additionalData: { timeLeft: "2" } })}
       />,
     );
     act(() => {
@@ -390,10 +407,9 @@ describe("ResendOtpComponent — countdown timer", () => {
     render(
       <ResendOtpComponent
         component={makeComponent({
-          timeLeft: 1,
           captcha: { provider: "hcaptcha", siteKey: "k" },
         })}
-        context={makeContext()}
+        context={makeContext({ additionalData: { timeLeft: "1" } })}
       />,
     );
     act(() => {

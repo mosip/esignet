@@ -1036,6 +1036,8 @@ system:
   "flows.executor.errors.magic_link_generation_failed_desc": मैजिक लिंक जनरेट करने में विफल
   "flows.executor.errors.max_otp_attempts_reached": OTP के अधिकतम प्रयास पूरे हो गए
   "flows.executor.errors.max_otp_attempts_reached_desc": OTP सत्यापन प्रयासों की अधिकतम संख्या पूरी हो गई है
+  "flows.executor.errors.otp_resend_too_early": नया OTP मांगने से पहले कृपया प्रतीक्षा करें
+  "flows.executor.errors.otp_resend_too_early_desc": नया OTP केवल वर्तमान OTP की समय-सीमा समाप्त होने के बाद ही मांगा जा सकता है
   "flows.executor.errors.no_registered_passkeys": कोई पंजीकृत पासकी नहीं मिली
   "flows.executor.errors.no_registered_passkeys_desc": उपयोगकर्ता के लिए कोई पंजीकृत पासकी नहीं मिली
   "flows.executor.errors.no_user_types_available": कोई उपयोगकर्ता प्रकार उपलब्ध नहीं
