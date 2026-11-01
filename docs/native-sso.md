@@ -201,7 +201,8 @@ Errors:
 
 | Error | When |
 |---|---|
-| `invalid_request` | subject_token_type is not `id_token`, the subject token is not a self-issued ID token, or actor/subject tokens are missing |
+| `invalid_request` | `audience` is missing, subject_token_type is not `id_token`, the subject token is not a self-issued ID token, or actor/subject tokens are missing |
+| `invalid_target` | `audience` is not this issuer (Native SSO 1.0 §4.1 requires the issuer value from the discovery document) |
 | `unauthorized_client` | the presenting client is not registered for `device_sso` |
 | `invalid_grant` | device secret cannot be decrypted/verified, expired, foreign issuer, vendor mismatch, `ds_hash`/`sid`/`sub` mismatch, DPoP key differs from `cnf.jkt` |
 | `invalid_dpop_proof` | no DPoP proof although the secret is key-bound |

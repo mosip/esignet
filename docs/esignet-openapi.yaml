@@ -150,6 +150,7 @@ paths:
                         enum:
                           - authorization_code
                           - token_exchange
+                          - refresh_token
                     clientAuthMethods:
                       type: array
                       description: Auth method supported for token endpoint. At present only "private_key_jwt" is supported.
@@ -399,6 +400,7 @@ paths:
                         enum:
                           - authorization_code
                           - token_exchange
+                          - refresh_token
                     clientAuthMethods:
                       type: array
                       description: Auth method supported for token endpoint. At present only "private_key_jwt" is supported.
@@ -642,6 +644,7 @@ paths:
                         enum:
                           - authorization_code
                           - token_exchange
+                          - refresh_token
                     clientAuthMethods:
                       type: array
                       description: Auth method supported for token endpoint. At present only "private_key_jwt" is supported.
@@ -901,6 +904,7 @@ paths:
                         enum:
                           - authorization_code
                           - token_exchange
+                          - refresh_token
                     clientAuthMethods:
                       type: array
                       description: Auth method supported for token endpoint. At present only "private_key_jwt" is supported.
@@ -1107,6 +1111,7 @@ paths:
                         enum:
                           - authorization_code
                           - token_exchange
+                          - refresh_token
                     clientAuthMethods:
                       type: array
                       description: Auth method supported for token endpoint. At present only "private_key_jwt" is supported.
@@ -1332,6 +1337,7 @@ paths:
                         enum:
                           - authorization_code
                           - token_exchange
+                          - refresh_token
                     clientAuthMethods:
                       type: array
                       description: Auth method supported for token endpoint. At present only "private_key_jwt" is supported.
@@ -1598,6 +1604,7 @@ paths:
                         enum:
                           - authorization_code
                           - token_exchange
+                          - refresh_token
                     clientAuthMethods:
                       type: array
                       description: Auth method supported for token endpoint. At present only "private_key_jwt" is supported.
