@@ -8,7 +8,9 @@ package executors
 
 import (
 	"fmt"
+	"math"
 	"strconv"
+	"time"
 
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/common"
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/providers"
@@ -30,6 +32,14 @@ const (
 	// otpAttemptCountKey stores the running OTP generate/resend count in RuntimeData across
 	// node executions within a flow session.
 	otpAttemptCountKey = "otpAttemptCount"
+	// otpLastSentAtKey stores the unix time of the last successful OTP send in RuntimeData.
+	otpLastSentAtKey = "otpLastSentAt"
+	// AdditionalData keys read by the UI's resend-OTP component.
+	additionalKeyTimeLeft        = "timeLeft"
+	additionalKeyOTPValidityMins = "otpValidityMins"
+	additionalKeyAttemptsLeft    = "attemptsLeft"
+	// actionResendOTP is the flow action submitted by the UI's resend button.
+	actionResendOTP = "RESEND_OTP"
 	// defaultMaxOTPAttempts is used when the maxAttempts node property is absent or invalid.
 	defaultMaxOTPAttempts = 3
 )
@@ -42,14 +52,15 @@ var individualIDInput = providers.Input{
 
 type otpExecutor struct {
 	baseExecutor
-	authn shared.ConsolidatedAuthnProvider
+	authn           shared.ConsolidatedAuthnProvider
+	otpValidityMins int
 }
 
 var _ providers.Executor = (*otpExecutor)(nil)
 
 // NewOtpExecutor creates an executor that sends OTP via the MOSIP IDA API.
-func NewOtpExecutor(authn shared.ConsolidatedAuthnProvider) providers.Executor {
-	return &otpExecutor{authn: authn}
+func NewOtpExecutor(authn shared.ConsolidatedAuthnProvider, otpValidityMins int) providers.Executor {
+	return &otpExecutor{authn: authn, otpValidityMins: otpValidityMins}
 }
 
 func (e *otpExecutor) GetName() string {
@@ -98,11 +109,29 @@ func (e *otpExecutor) Execute(ctx *providers.NodeContext) (*providers.ExecutorRe
 	}
 
 	attemptCount := otpAttemptCountFromContext(ctx)
-	if attemptCount >= maxOTPAttemptsFromContext(ctx) {
+	maxAttempts := maxOTPAttemptsFromContext(ctx)
+	if attemptCount >= maxAttempts {
 		applog.GetLogger().Warn(ctx.Context, "maximum OTP attempts reached")
 		execResp.Status = providers.ExecFailure
 		execResp.Error = shared.MaxOTPAttemptsReachedError
 		return execResp, nil
+	}
+
+	// The previous OTP is still valid: reject the resend without calling the ID system and
+	// without counting an attempt. Stay on the OTP screen (ExecUserInputRequired, not
+	// ExecFailure) and return the remaining time so the UI can resync its countdown.
+	if ctx.CurrentAction == actionResendOTP {
+		if remaining := e.otpRemainingSeconds(ctx); remaining > 0 {
+			applog.GetLogger().Warn(ctx.Context, "OTP resend requested before the OTP expired",
+				applog.Int("remainingSeconds", remaining))
+			execResp.Status = providers.ExecUserInputRequired
+			execResp.Error = shared.OTPResendTooEarlyError
+			execResp.AdditionalData = map[string]string{
+				additionalKeyTimeLeft:     strconv.Itoa(remaining),
+				additionalKeyAttemptsLeft: strconv.Itoa(attemptsLeft(maxAttempts, attemptCount)),
+			}
+			return execResp, nil
+		}
 	}
 
 	result, serviceError := e.authn.SendOTP(ctx.Context, map[string]any{usernameAttr: username},
@@ -121,6 +150,9 @@ func (e *otpExecutor) Execute(ctx *providers.NodeContext) (*providers.ExecutorRe
 			execResp.Status = providers.ExecUserInputRequired
 			execResp.Inputs = []providers.Input{individualIDInput}
 			execResp.Error = serviceError
+			execResp.AdditionalData = map[string]string{
+				additionalKeyAttemptsLeft: strconv.Itoa(attemptsLeft(maxAttempts, attemptCount+1)),
+			}
 			return execResp, nil
 		}
 		// Genuine server-side failures (infrastructure, unexpected API errors) propagate
@@ -129,6 +161,14 @@ func (e *otpExecutor) Execute(ctx *providers.NodeContext) (*providers.ExecutorRe
 	}
 
 	ctx.RuntimeData[otpAttemptCountKey] = strconv.Itoa(attemptCount + 1)
+	ctx.RuntimeData[otpLastSentAtKey] = strconv.FormatInt(time.Now().Unix(), 10)
+
+	// Backend-driven values for the OTP screen; the resend countdown equals the OTP validity.
+	execResp.AdditionalData = map[string]string{
+		additionalKeyTimeLeft:        strconv.Itoa(e.otpValidityMins * 60),
+		additionalKeyOTPValidityMins: strconv.Itoa(e.otpValidityMins),
+		additionalKeyAttemptsLeft:    strconv.Itoa(attemptsLeft(maxAttempts, attemptCount+1)),
+	}
 
 	execResp.ForwardedData[maskedEmail] = result.MaskedEmail
 	execResp.ForwardedData[maskedMobile] = result.MaskedMobile
@@ -146,6 +186,28 @@ func (e *otpExecutor) ensurePrerequisites(
 	execResp.Status = providers.ExecUserInputRequired
 	execResp.Inputs = []providers.Input{individualIDInput}
 	return false
+}
+
+// otpRemainingSeconds returns the seconds left before the last sent OTP expires, or 0 if no OTP
+// was sent in this flow session or it has already expired.
+func (e *otpExecutor) otpRemainingSeconds(ctx *providers.NodeContext) int {
+	sentAt, err := strconv.ParseInt(ctx.RuntimeData[otpLastSentAtKey], 10, 64)
+	if err != nil {
+		return 0
+	}
+	expiresAt := time.Unix(sentAt, 0).Add(time.Duration(e.otpValidityMins) * time.Minute)
+	if remaining := time.Until(expiresAt); remaining > 0 {
+		return int(math.Ceil(remaining.Seconds()))
+	}
+	return 0
+}
+
+// attemptsLeft returns the OTP sends remaining after used attempts, never negative.
+func attemptsLeft(maxAttempts, used int) int {
+	if left := maxAttempts - used; left > 0 {
+		return left
+	}
+	return 0
 }
 
 // otpAttemptCountFromContext reads the running OTP generate/resend count from RuntimeData,

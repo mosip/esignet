@@ -1036,6 +1036,8 @@ system:
   "flows.executor.errors.magic_link_generation_failed_desc": បរាជ័យក្នុងការបង្កើត magic link
   "flows.executor.errors.max_otp_attempts_reached": ឈានដល់ចំនួនអតិបរិមានៃការព្យាយាម OTP
   "flows.executor.errors.max_otp_attempts_reached_desc": ឈានដល់ចំនួនអតិបរិមានៃការព្យាយាមផ្ទៀងផ្ទាត់ OTP
+  "flows.executor.errors.otp_resend_too_early": សូមរង់ចាំមុនពេលស្នើសុំ OTP ថ្មី
+  "flows.executor.errors.otp_resend_too_early_desc": អាចស្នើសុំ OTP ថ្មីបានតែបន្ទាប់ពី OTP បច្ចុប្បន្នផុតកំណត់ប៉ុណ្ណោះ
   "flows.executor.errors.no_registered_passkeys": រកមិនឃើញ passkeys ដែលបានចុះឈ្មោះ
   "flows.executor.errors.no_registered_passkeys_desc": រកមិនឃើញ passkeys ដែលបានចុះឈ្មោះសម្រាប់អ្នកប្រើប្រាស់
   "flows.executor.errors.no_user_types_available": គ្មានប្រភេទអ្នកប្រើប្រាស់
