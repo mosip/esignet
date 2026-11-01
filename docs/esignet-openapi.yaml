@@ -1893,6 +1893,7 @@ paths:
                     - address
                     - phone
                     - offline_access
+                    - device_sso
                 response_type:
                   type: string
                   description: 'Value that determines the authorization processing flow to be used. When using the Authorization Code Flow, this value is code.'
@@ -2097,7 +2098,7 @@ paths:
           required: true
           schema:
             type: string
-            description: 'Space delimited list of scope values. Supported values: openid, profile, email, address, phone, offline_access.'
+            description: 'Space delimited list of scope values. Supported values: openid, profile, email, address, phone, offline_access, device_sso.'
             examples:
               - openid profile
               - openid email
@@ -2628,9 +2629,13 @@ paths:
                   type: string
                   enum:
                     - authorization_code
+                    - refresh_token
                     - 'urn:ietf:params:oauth:grant-type:token-exchange'
                   description: |-
-                    `authorization_code` redeems a code. `urn:ietf:params:oauth:grant-type:token-exchange`
+                    `authorization_code` redeems a code. `refresh_token` renews the tokens of a client
+                    registered for that grant without a new login; while `device_sso` stays in scope the
+                    refreshed ID token keeps `ds_hash` and `sid`, a valid `device_secret` presented on the
+                    request is kept and otherwise a new one is issued (Native SSO 1.0 §3.4.3). `urn:ietf:params:oauth:grant-type:token-exchange`
                     is the Native SSO silent sign-in of a sibling app: it presents the first app's
                     `id_token` as `subject_token` (`subject_token_type=urn:ietf:params:oauth:token-type:id_token`)
                     and the `device_secret` as `actor_token`
@@ -2665,6 +2670,12 @@ paths:
                 audience:
                   type: string
                   description: Token exchange only. Required; must equal the issuer URL (Native SSO 1.0 §4.1).
+                refresh_token:
+                  type: string
+                  description: Refresh token grant only. The refresh token issued with the tokens being renewed.
+                device_secret:
+                  type: string
+                  description: Refresh token grant only, optional. The `device_secret` the app holds; while `device_sso` stays in scope a valid one (same subject, client and DPoP key) is kept, otherwise a new one is issued in the response (Native SSO 1.0 §3.4.3).
                 code:
                   type: string
                   description: 'Authorization code, sent as query param in the client''s redirect URI.'
@@ -2694,6 +2705,15 @@ paths:
                     - grant_type
                     - code
                     - redirect_uri
+                    - client_assertion_type
+                    - client_assertion
+                - description: Refresh token redemption (a DPoP proof is required while `device_sso` is in scope).
+                  properties:
+                    grant_type:
+                      const: refresh_token
+                  required:
+                    - grant_type
+                    - refresh_token
                     - client_assertion_type
                     - client_assertion
                 - description: Native SSO token exchange (sibling app silent sign-in).
@@ -3173,6 +3193,7 @@ paths:
                     registration_endpoint: 'https://esignet.collab.mosip.net/v1/esignet/client-mgmt/oauth-client'
                     scopes_supported:
                       - email
+                      - device_sso
                     response_types_supported:
                       - code
                     response_modes_supported:
