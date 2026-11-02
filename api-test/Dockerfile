@@ -23,7 +23,7 @@
 # module is built with `go test -c` into a standalone binary so the runtime needs
 # no `go test`. Both modules emit into /out/bin; the names never collide.
 
-FROM golang:1.26-bookworm AS builder
+FROM golang:1.27-bookworm AS builder
 WORKDIR /src
 
 # Module files first, so the dependency layers cache independently of any
