@@ -160,7 +160,7 @@ type Service struct {
 // NewService constructs a Service backed by a real DB connection.
 func NewService(conn *sqlx.DB, ks keystore.KeyStore, cfg Config) *Service {
 	return &Service{
-		q: db.New(conn, cfg.DBSchema), ks: ks, cfg: cfg, logger: applog.GetLogger().Named("keymanager"),
+		q: db.New(conn, cfg.DBSchema, conn.DriverName()), ks: ks, cfg: cfg, logger: applog.GetLogger().Named("keymanager"),
 		signingCertCache:     newTTLCache[SigningCertificate](),
 		currentKeyCache:      newTTLCache[resolvedCurrentKey](),
 		symmetricKeyCache:    newTTLCache[resolvedSymmetricKey](),

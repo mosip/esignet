@@ -21,6 +21,7 @@ import (
 	"gopkg.in/yaml.v3"
 
 	applog "github.com/mosip/esignet/internal/log"
+	"github.com/mosip/esignet/internal/persistence"
 )
 
 const (
@@ -92,7 +93,7 @@ type AppConfig struct {
 	Issuer                     string                           `yaml:"issuer"`
 	DataDir                    string                           `yaml:"data_dir"`
 	RuntimeDBType              string                           `yaml:"runtime_db_type"`
-	DB                         DB                               `yaml:"db"`
+	DB                         persistence.DB                   `yaml:"db"`
 	Redis                      Redis                            `yaml:"redis"`
 	ScopeClaims                map[string][]string              `yaml:"scope_claims"`
 	ResourceServers            []ResourceServerConfig           `yaml:"resource_servers"`
