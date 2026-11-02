@@ -44,8 +44,9 @@ type ErrorInfo struct {
 // decide on the failure reason from the ErrorInfo alone rather than inspecting
 // driver types. It understands both drivers (PostgreSQL *pgconn.PgError, MySQL
 // *mysql.MySQLError) and a plain-string fallback for non-driver-typed errors
-// (e.g. stringified errors in tests), gated on the explicit "SQLSTATE 23505" /
-// "Error 1062" markers so bare digits in a port, id or timestamp can't trip it.
+// (e.g. stringified errors in tests), gated on the complete "(SQLSTATE 23505)" /
+// "Error 1062:" (or "Error 1062 (") markers so bare digits in a port, id or
+// timestamp — or a longer code like "Error 10620" — can't trip it.
 // A nil or unrecognized error yields {ErrUnknown, ""}.
 func GetErrorCode(err error) ErrorInfo {
 	if err == nil {
@@ -74,9 +75,9 @@ func GetErrorCode(err error) ErrorInfo {
 	// MySQL as "for key '…'" — so it is parsed out.
 	msg := err.Error()
 	switch {
-	case strings.Contains(msg, "SQLSTATE 23505"):
+	case strings.Contains(msg, "(SQLSTATE 23505)"):
 		return ErrorInfo{Code: ErrDuplicateKey, Constraint: pgConstraintFromString(msg)}
-	case strings.Contains(msg, "Error 1062"):
+	case strings.Contains(msg, "Error 1062:") || strings.Contains(msg, "Error 1062 ("):
 		return ErrorInfo{Code: ErrDuplicateKey, Constraint: mysqlDupKey(msg)}
 	default:
 		return ErrorInfo{Code: ErrUnknown}

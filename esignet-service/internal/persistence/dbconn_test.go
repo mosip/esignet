@@ -84,6 +84,7 @@ func (ts *PersistenceTestSuite) TestResolveDBDSN_FullURL() {
 }
 
 func (ts *PersistenceTestSuite) TestResolveDBDSN_IndividualVars() {
+	ts.clearDBEnv()
 	ts.T().Setenv("DATABASE_HOST", "dbhost")
 	ts.T().Setenv("DATABASE_PORT", "5555")
 	ts.T().Setenv("DATABASE_NAME", "mydb")
@@ -96,6 +97,7 @@ func (ts *PersistenceTestSuite) TestResolveDBDSN_IndividualVars() {
 }
 
 func (ts *PersistenceTestSuite) TestResolveDBDSN_DBUserPasswordFallback() {
+	ts.clearDBEnv()
 	ts.T().Setenv("DATABASE_HOST", "dbhost")
 	ts.T().Setenv("DATABASE_PASSWORD", "")
 	ts.T().Setenv("DB_DBUSER_PASSWORD", "fallback-pass")
@@ -106,6 +108,7 @@ func (ts *PersistenceTestSuite) TestResolveDBDSN_DBUserPasswordFallback() {
 }
 
 func (ts *PersistenceTestSuite) TestResolveDBDSN_DatabasePasswordTakesPrecedence() {
+	ts.clearDBEnv()
 	ts.T().Setenv("DATABASE_PASSWORD", "primary-pass")
 	ts.T().Setenv("DB_DBUSER_PASSWORD", "fallback-pass")
 
@@ -136,6 +139,7 @@ func (ts *PersistenceTestSuite) TestResolveDBDSN_YAMLUsedWhenNoEnvConfig() {
 }
 
 func (ts *PersistenceTestSuite) TestResolveDBDSN_EnvTakesPrecedenceOverYAML() {
+	ts.clearDBEnv()
 	ts.T().Setenv("DATABASE_HOST", "envhost")
 
 	dsn := resolveDBDSN("host=yamlhost port=5432 dbname=yamldb user=yamluser sslmode=disable")
