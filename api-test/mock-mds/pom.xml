@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Fetch-only POM for the mock MDS (SBI device service) bundled into the harness
+  image. Nothing is built from it: the Dockerfile's mockmds stage runs
+  `mvn dependency:copy-dependencies` against it to pull the published
+  io.mosip.mock.mds:mock-mds jar plus its runtime classpath from Maven Central.
+  The version is overridden from the Dockerfile's MOCK_MDS_VERSION build arg.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>io.mosip.esignet.apitest</groupId>
+	<artifactId>mock-mds-fetch</artifactId>
+	<version>0</version>
+	<packaging>pom</packaging>
+
+	<properties>
+		<mock.mds.version>1.3.1</mock.mds.version>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>io.mosip.mock.mds</groupId>
+			<artifactId>mock-mds</artifactId>
+			<version>${mock.mds.version}</version>
+		</dependency>
+	</dependencies>
+</project>
