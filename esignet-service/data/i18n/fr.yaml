@@ -1246,9 +1246,15 @@ consent:
   essential_claims: Informations Essentielles
   optional_claims: Informations Facultatives
   authorize_scope: Autoriser les Portées
+  essential_scope: Autorisations Essentielles
+  optional_scope: Autorisations Facultatives
   essential_claims.info: Informations utilisateur obligatoires requises par le fournisseur de services
   optional_claims.info: Informations utilisateur supplémentaires que le résident peut choisir de partager avec le fournisseur de services
+  optional_claims.toggle_all: Activer/désactiver tous les attributs facultatifs
   authorize_scope.info: Permet au fournisseur de services d'accéder à ces services protégés en votre nom
+  essential_scope.info: Autorisations d'accès obligatoires requises par le fournisseur de services
+  optional_scope.info: Autorisations d'accès supplémentaires que le résident peut choisir d'accorder au fournisseur de services
+  optional_scope.toggle_all: Activer/désactiver toutes les autorisations facultatives
   name: Nom Complet
   given_name: Prénom
   middle_name: Deuxième Prénom
@@ -1268,6 +1274,7 @@ consent:
   zoneinfo: Fuseau Horaire
   profile: Profil
   required: Obligatoire
+  mosip_identity_vc_ldp: Identité VC Mosip
 
 signin:
   images.app_logo.alt: "Logo de l'application"
