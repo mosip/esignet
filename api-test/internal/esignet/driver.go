@@ -123,6 +123,10 @@ type FlowResult struct {
 	AuthorizeErrorCode string
 	// LoginReached is the success signal for RunToLogin, which deliberately produces no RedirectURI.
 	LoginReached bool
+
+	// authID and executionID identify the login the authorize request reached, for RunScript to drive by hand.
+	authID      string
+	executionID string
 }
 
 func (r FlowResult) OK() bool { return r.RedirectURI != "" && r.Error == "" }
@@ -172,7 +176,7 @@ type consentElement struct {
 }
 
 // consentDecision is the reply shape the ConsentExecutor expects, sent as a JSON-encoded string.
-// Approved must be sent explicitly: an absent field reads as false and the executor rejects the whole decision with FET-1066.
+// Approved must be sent explicitly: an absent field reads as false and the executor rejects the whole decision.
 type consentDecision struct {
 	Approved bool                     `json:"approved"`
 	Purposes []consentPurposeDecision `json:"purposes"`
@@ -258,6 +262,9 @@ func containsFold(haystack []string, needle string) bool {
 	return false
 }
 
+// maxRecordedBody caps a request body kept in the trace; an oversized-input case would otherwise put megabytes of filler into the report. Real captures are far below it.
+const maxRecordedBody = 1 << 20
+
 // session carries a cookie-jar HTTP client and the captured call trace for one Run.
 type session struct {
 	client   *http.Client
@@ -316,7 +323,7 @@ func (s *session) do(ctx context.Context, label, method, u string, body []byte, 
 
 	call := result.HTTPCall{
 		Seq: len(s.calls) + 1, At: time.Now().UnixNano(), Label: label, Method: method, URL: u,
-		ReqHeaders: httpx.CloneHeader(req.Header), ReqCookies: reqCookies, ReqBody: string(body),
+		ReqHeaders: httpx.CloneHeader(req.Header), ReqCookies: reqCookies, ReqBody: truncate(string(body), maxRecordedBody),
 	}
 
 	resp, err := client.Do(req)
@@ -381,10 +388,11 @@ func (d *Driver) run(ctx context.Context, s *session, base, authorizeURL string,
 			q := queryOf(target)
 			if q.Get("authId") != "" && q.Get("executionId") != "" {
 				fr.LoginReached = true
+				fr.authID, fr.executionID = q.Get("authId"), q.Get("executionId")
 				if stopAtLogin {
 					return fr
 				}
-				return d.completeLogin(ctx, s, base, q.Get("authId"), q.Get("executionId"), fr)
+				return d.completeLogin(ctx, s, base, fr.authID, fr.executionID, "", fr)
 			}
 			if q.Get("code") != "" || q.Get("error") != "" {
 				fr.RedirectURI = target
@@ -407,9 +415,13 @@ func (d *Driver) run(ctx context.Context, s *session, base, authorizeURL string,
 	return fr
 }
 
-func (d *Driver) completeLogin(ctx context.Context, s *session, base, authID, executionID string, fr FlowResult) FlowResult {
-	var challengeToken, assertion, flowStatus string
+// completeLogin drives the flow from its current view to the callback; challengeToken is the last one seen when resuming a flow already in progress, "" for a fresh one.
+func (d *Driver) completeLogin(ctx context.Context, s *session, base, authID, executionID, challengeToken string, fr FlowResult) FlowResult {
+	var assertion, flowStatus string
 	payload := map[string]any{"executionId": executionID}
+	if challengeToken != "" {
+		payload["challengeToken"] = challengeToken
+	}
 	// Freshness boundary: an OTP delivered before login started belongs to a previous flow.
 	flowStart := time.Now()
 	// Every input answered so far in this flow, re-sent in full on each step the way the browser does.
@@ -493,7 +505,7 @@ func (d *Driver) completeLogin(ctx context.Context, s *session, base, authID, ex
 			return fr
 		}
 
-		// Every step re-sends all inputs accumulated so far, not just this view's — sending only `otp` leaves basic_auth with no username and misreports FET-1005 as a bad OTP.
+		// Every step re-sends all inputs accumulated so far, not just this view's — sending only `otp` leaves basic_auth with no username and misreports the missing username as a bad OTP.
 		for k, v := range inputs {
 			carriedInputs[k] = v
 		}
