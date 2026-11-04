@@ -11,7 +11,7 @@ import (
 // credential is simply absent — indistinguishable by lookup from a key that
 // was never a credential at all.
 var answerKeys = []string{
-	"username", "individualId", "otp", "password", "biometric",
+	"username", "individualId", "secondaryIndividualId", "otp", "password", "biometric",
 	"fullName", "name", "dob", "captchaToken",
 }
 
@@ -44,6 +44,8 @@ func BuildAnswers(c config.Esignet) map[string]string {
 	}
 	put("username", username)
 	put("individualId", c.Identity.IndividualID)
+	// Named apart from any flow input so the automatic driver never answers one with it.
+	put("secondaryIndividualId", c.Identity.SecondaryIndividualID)
 	// In dynamic mode the OTP is fetched from the mock-SMTP listener at flow time;
 	// leaving "otp" unset here lets the driver's OTPProvider fallback supply it.
 	if c.OTP.Source != "dynamic" {

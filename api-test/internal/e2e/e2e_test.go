@@ -12,6 +12,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/mosip/esignet/api-test/internal/esignet"
 	"github.com/mosip/esignet/api-test/internal/result"
 )
 
@@ -328,8 +329,11 @@ func TestShippedSpecsParseAndAreConsistent(t *testing.T) {
 				if sc.AuthFactor == "" {
 					t.Errorf("scenario %q has no auth_factor", sc.Name)
 				}
-				if msg := sc.ClientLifecycle.validate(); msg != "" {
+				if msg := scenarioConfigError(sc); msg != "" {
 					t.Errorf("scenario %q: %s", sc.Name, msg)
+				}
+				if sc.RequiresCredential != "" && !esignet.KnownAnswerKey(sc.RequiresCredential) {
+					t.Errorf("scenario %q: requires_credential %q is not a known answer key", sc.Name, sc.RequiresCredential)
 				}
 				cfg := ClientConfig{}
 				if sc.ClientConfig != nil {
@@ -364,8 +368,8 @@ func TestShippedSpecsParseAndAreConsistent(t *testing.T) {
 					}
 				}
 
-				// A rejected login never reaches RecordConsent, so it stores nothing.
-				if !sc.ExpectLoginFailure {
+				// A rejected login never reaches RecordConsent, so it stores nothing; nor does a script that stops before its finish step.
+				if !sc.ExpectLoginFailure && (len(sc.Steps) == 0 || sc.Steps[len(sc.Steps)-1].Finish) {
 					if _, ok := consented[key]; !ok {
 						consented[key] = sc.Name
 					}

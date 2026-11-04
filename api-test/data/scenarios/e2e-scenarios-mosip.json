@@ -1,5 +1,5 @@
 {
-  "_comment": "End-to-end scenarios for MOSIP_ESIGNET_AUTHN_PROVIDER=mosip. Same auth_factor matrix as mock (otp/password/bio), positive + negative. otp uses the real MOSIP send-OTP -> verify chain; the individual id/OTP come from config (INDIVIDUAL_ID/TEST_OTP env), so a positive otp run needs an identity with a working OTP channel in the target environment -- if the configured identity has none, that scenario is expected to FAIL and is kept in place rather than removed, per instruction. password's positive scenario is requires_credential:password, so it is skipped rather than run when esignet.credentials.password is unset; bio's positive scenario is a tracked known_issue, out of scope until a mock MDS is provisioned for this target. Both negative scenarios still assert rejection (structurally, since no valid credential exists to accept). CONSENT/CAPTCHA CASES (appended): the consent cases are ORDER-DEPENDENT and share one registered client per run -- 'stored consent is reused' asserts NO prompt, which only holds because the identical-scope case ran immediately before it and saved a consent record for (client,user). Each other consent case deliberately uses a DISTINCT scope set so its request hash differs and the server re-prompts; reordering them, or narrowing the run with e2e.include so the approve-all case is skipped, will make the reuse case fail. Captcha: an empty token is rejected by the server before the validator-configured check, so that negative is portable to any deployment; a non-empty token is accepted when no MOSIP_ESIGNET_CAPTCHA_VALIDATOR_URL is configured (the dev/test default) and validated for real when one is.",
+  "_comment": "End-to-end scenarios for MOSIP_ESIGNET_AUTHN_PROVIDER=mosip. Same auth_factor matrix as mock (otp/password/bio), positive + negative. otp uses the real MOSIP send-OTP -> verify chain; the individual id/OTP come from config (INDIVIDUAL_ID/TEST_OTP env), so a positive otp run needs an identity with a working OTP channel in the target environment -- if the configured identity has none, that scenario is expected to FAIL and is kept in place rather than removed, per instruction. password's positive scenario is requires_credential:password, so it is skipped rather than run when esignet.credentials.password is unset; Both negative scenarios still assert rejection. BIOMETRIC CASES (bio TC_BIO_*, from the BIO-Auth test sheet) are scripted, asserting only that a refusal carries an error (flow/execute error codes are ThunderID's own, not eSignet's API); TC_BIO_18, 23 and 28 log in with a second identity, esignet.identity.secondary_individual_id, which the config requires for a bio run on this plugin: each drives /flow/execute step by step with acr_values=mosip:idp:acr:biometrics and asserts every response, taking real captures from the mock MDS the harness image runs (MOCK_MDS_BASE_URL). The identity under test must be enrolled from the mock MDS's Default profile; captures from its Automatic profile stand in for someone else. TC_BIO_27 (the integration journey) is not a scenario of its own: each of its checkpoints is (TC_BIO_14, 06, 30, 08, 01, 26), and its ID token acr check is in TC_BIO_01. Not automated: TC_BIO_07 (waits out IDA's capture validity), TC_BIO_24/25 (need IDA made to fail or stall), TC_BIO_19/29 (mobile and email login ids; biometric scenarios log in with the configured individual id only), CONSENT/CAPTCHA CASES (appended): the consent cases are ORDER-DEPENDENT and share one registered client per run -- 'stored consent is reused' asserts NO prompt, which only holds because the identical-scope case ran immediately before it and saved a consent record for (client,user). Each other consent case deliberately uses a DISTINCT scope set so its request hash differs and the server re-prompts; reordering them, or narrowing the run with e2e.include so the approve-all case is skipped, will make the reuse case fail. Captcha: an empty token is rejected by the server before the validator-configured check, so that negative is portable to any deployment; a non-empty token is accepted when no MOSIP_ESIGNET_CAPTCHA_VALIDATOR_URL is configured (the dev/test default) and validated for real when one is.",
   "redirect_uri": "https://api-e2e.example.org/callback",
   "user_claims": ["name", "email", "phone_number", "gender", "birthdate"],
   "acr": ["mosip:idp:acr:generated-code", "mosip:idp:acr:password", "mosip:idp:acr:biometrics"],
@@ -33,17 +33,382 @@
       "scopes": ["openid"]
     },
     {
-      "name": "bio positive: login succeeds with biometric capture",
+      "name": "bio TC_BIO_01: a valid biometric capture authenticates the user",
       "auth_factor": "bio",
-      "known_issue": "out of scope for this release: no mock MDS (biometric device service) is provisioned on the mosip target, so a real biometric capture cannot be supplied — tracked as mosip/esignet#2528",
+      "acr_values": ["mosip:idp:acr:biometrics"],
+      "expect_present": ["sub"],
+      "expect_id_token_values": {"acr": "mosip:idp:acr:biometrics"},
       "scopes": ["openid"],
-      "expect_present": ["sub"]
+      "steps": [
+        {"name": "UIN biometric prompt", "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["username"]}},
+        {"name": "submit the UIN", "action": "submit_uin", "inputs": {"username": "{{username}}"}, "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["biometric"], "actions": ["SBI_ID", "BACK_BUTTON"]}},
+        {"name": "valid capture", "capture": {"as": "good"}, "action": "SBI_ID", "inputs": {"biometric": "{{capture.good}}"}, "expect": {"authenticated": true, "no_error": true}},
+        {"finish": true}
+      ]
     },
     {
-      "name": "bio negative: no biometric capture is rejected",
+      "name": "bio TC_BIO_02: no biometric input re-prompts without authenticating",
       "auth_factor": "bio",
-      "expect_login_failure": true,
-      "scopes": ["openid"]
+      "acr_values": ["mosip:idp:acr:biometrics"],
+      "scopes": ["openid"],
+      "steps": [
+        {"name": "UIN biometric prompt", "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["username"]}},
+        {"name": "submit the UIN", "action": "submit_uin", "inputs": {"username": "{{username}}"}, "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["biometric"]}},
+        {"name": "no biometric input", "action": "SBI_ID", "inputs": {}, "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["biometric"], "authenticated": false}}
+      ]
+    },
+    {
+      "name": "bio TC_BIO_03: an empty or blank biometric input is refused",
+      "auth_factor": "bio",
+      "acr_values": ["mosip:idp:acr:biometrics"],
+      "scopes": ["openid"],
+      "steps": [
+        {"name": "UIN biometric prompt", "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["username"]}},
+        {"name": "submit the UIN", "action": "submit_uin", "inputs": {"username": "{{username}}"}, "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["biometric"]}},
+        {"name": "empty biometric", "action": "SBI_ID", "inputs": {"biometric": ""}, "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["biometric"], "authenticated": false, "has_error": true}},
+        {"name": "blank biometric", "action": "SBI_ID", "inputs": {"biometric": " "}, "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["biometric"], "authenticated": false, "has_error": true}}
+      ]
+    },
+    {
+      "name": "bio TC_BIO_04: a value that is not a capture structure is refused",
+      "auth_factor": "bio",
+      "acr_values": ["mosip:idp:acr:biometrics"],
+      "scopes": ["openid"],
+      "steps": [
+        {"name": "UIN biometric prompt", "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["username"]}},
+        {"name": "submit the UIN", "action": "submit_uin", "inputs": {"username": "{{username}}"}, "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["biometric"]}},
+        {"name": "not base64", "action": "SBI_ID", "inputs": {"biometric": "!!!"}, "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["biometric"], "authenticated": false, "has_error": true}},
+        {"name": "base64 of plain text", "action": "SBI_ID", "inputs": {"biometric": "not a biometric capture"}, "encode_base64": ["biometric"], "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["biometric"], "authenticated": false, "has_error": true}},
+        {"name": "base64 of a JSON object", "action": "SBI_ID", "inputs": {"biometric": "{\"data\": \"x\", \"hash\": \"y\"}"}, "encode_base64": ["biometric"], "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["biometric"], "authenticated": false, "has_error": true}}
+      ]
+    },
+    {
+      "name": "bio TC_BIO_05: a capture holding no biometric records is refused",
+      "auth_factor": "bio",
+      "acr_values": ["mosip:idp:acr:biometrics"],
+      "scopes": ["openid"],
+      "steps": [
+        {"name": "UIN biometric prompt", "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["username"]}},
+        {"name": "submit the UIN", "action": "submit_uin", "inputs": {"username": "{{username}}"}, "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["biometric"]}},
+        {"name": "base64 of []", "action": "SBI_ID", "inputs": {"biometric": "[]"}, "encode_base64": ["biometric"], "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["biometric"], "authenticated": false, "has_error": true}}
+      ]
+    },
+    {
+      "name": "bio TC_BIO_06: a well-formed capture that does not match the identity is refused",
+      "_comment": "'Someone else' is a capture from the mock MDS's Automatic profile; the identity under test must be enrolled from its Default profile. The altered capture has one character of its signed data changed, so its signature no longer verifies.",
+      "auth_factor": "bio",
+      "acr_values": ["mosip:idp:acr:biometrics"],
+      "scopes": ["openid"],
+      "steps": [
+        {"name": "UIN biometric prompt", "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["username"]}},
+        {"name": "submit the UIN", "action": "submit_uin", "inputs": {"username": "{{username}}"}, "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["biometric"]}},
+        {"name": "capture of someone else", "capture": {"as": "other", "profile": "Automatic"}, "action": "SBI_ID", "inputs": {"biometric": "{{capture.other}}"}, "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["biometric"], "authenticated": false, "has_error": true}},
+        {"name": "capture altered after capture", "capture": {"as": "altered", "tamper": true}, "action": "SBI_ID", "inputs": {"biometric": "{{capture.altered}}"}, "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["biometric"], "authenticated": false, "has_error": true}}
+      ]
+    },
+    {
+      "name": "bio TC_BIO_30: a valid capture still authenticates after a refused one in the same login",
+      "auth_factor": "bio",
+      "acr_values": ["mosip:idp:acr:biometrics"],
+      "scopes": ["openid"],
+      "steps": [
+        {"name": "UIN biometric prompt", "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["username"]}},
+        {"name": "submit the UIN", "action": "submit_uin", "inputs": {"username": "{{username}}"}, "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["biometric"]}},
+        {"name": "capture of someone else", "capture": {"as": "other", "profile": "Automatic"}, "action": "SBI_ID", "inputs": {"biometric": "{{capture.other}}"}, "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["biometric"], "authenticated": false, "has_error": true}},
+        {"name": "valid capture", "capture": {"as": "good"}, "action": "SBI_ID", "inputs": {"biometric": "{{capture.good}}"}, "expect": {"authenticated": true, "no_error": true}}
+      ]
+    },
+    {
+      "name": "bio TC_BIO_08: a capture cannot be replayed in another login",
+      "_comment": "IDA binds a capture to the transaction id derived from the execution it was taken for, so a capture from any other login, finished or not, must be refused.",
+      "auth_factor": "bio",
+      "acr_values": ["mosip:idp:acr:biometrics"],
+      "scopes": ["openid"],
+      "steps": [
+        {"name": "UIN biometric prompt", "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["username"]}},
+        {"name": "submit the UIN", "action": "submit_uin", "inputs": {"username": "{{username}}"}, "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["biometric"]}},
+        {"name": "valid capture (login 1)", "capture": {"as": "first"}, "action": "SBI_ID", "inputs": {"biometric": "{{capture.first}}"}, "expect": {"authenticated": true, "no_error": true}},
+        {"restart": true},
+        {"name": "UIN biometric prompt", "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["username"]}},
+        {"name": "submit the UIN", "action": "submit_uin", "inputs": {"username": "{{username}}"}, "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["biometric"]}},
+        {"name": "login 1's capture replayed", "action": "SBI_ID", "inputs": {"biometric": "{{capture.first}}"}, "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["biometric"], "authenticated": false, "has_error": true}},
+        {"name": "capture for this login, left unsubmitted", "capture": {"as": "unsubmitted"}, "capture_only": true},
+        {"restart": true},
+        {"name": "UIN biometric prompt", "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["username"]}},
+        {"name": "submit the UIN", "action": "submit_uin", "inputs": {"username": "{{username}}"}, "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["biometric"]}},
+        {"name": "capture taken for another login", "action": "SBI_ID", "inputs": {"biometric": "{{capture.unsubmitted}}"}, "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["biometric"], "authenticated": false, "has_error": true}}
+      ]
+    },
+    {
+      "name": "bio TC_BIO_09: a very large biometric value is refused cleanly",
+      "_comment": "Refused as 413, or with an error and the biometric prompt again; never a 5xx.",
+      "auth_factor": "bio",
+      "acr_values": ["mosip:idp:acr:biometrics"],
+      "scopes": ["openid"],
+      "steps": [
+        {"name": "UIN biometric prompt", "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["username"]}},
+        {"name": "submit the UIN", "action": "submit_uin", "inputs": {"username": "{{username}}"}, "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["biometric"]}},
+        {"name": "5 MB biometric value", "action": "SBI_ID", "inputs": {"biometric": "{{filler:5242880}}"}, "expect": {"http_status_below": 500, "authenticated": false}}
+      ]
+    },
+    {
+      "name": "bio TC_BIO_10: injection payloads inside the capture structure are refused and not echoed",
+      "auth_factor": "bio",
+      "acr_values": ["mosip:idp:acr:biometrics"],
+      "scopes": ["openid"],
+      "steps": [
+        {"name": "UIN biometric prompt", "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["username"]}},
+        {"name": "submit the UIN", "action": "submit_uin", "inputs": {"username": "{{username}}"}, "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["biometric"]}},
+        {"name": "injection payload", "action": "SBI_ID", "inputs": {"biometric": "[{\"data\": \"<script>alert(1)</script>\", \"hash\": \"' OR '1'='1\"}]"}, "encode_base64": ["biometric"], "expect": {"has_error": true, "required_inputs": ["biometric"], "authenticated": false, "body_excludes": ["alert(1)", "<script>", "\\u003cscript", "'1'='1", "\\u00271\\u0027"]}}
+      ]
+    },
+    {
+      "name": "bio TC_BIO_11: a finger capture authenticates the user",
+      "_comment": "Needs the identity enrolled with this modality, from the mock MDS's Default profile.",
+      "auth_factor": "bio",
+      "acr_values": ["mosip:idp:acr:biometrics"],
+      "scopes": ["openid"],
+      "steps": [
+        {"name": "UIN biometric prompt", "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["username"]}},
+        {"name": "submit the UIN", "action": "submit_uin", "inputs": {"username": "{{username}}"}, "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["biometric"]}},
+        {"name": "valid finger capture", "capture": {"as": "good", "modality": "Finger"}, "action": "SBI_ID", "inputs": {"biometric": "{{capture.good}}"}, "expect": {"authenticated": true, "no_error": true}}
+      ]
+    },
+    {
+      "name": "bio TC_BIO_11: a face capture authenticates the user",
+      "_comment": "Needs the identity enrolled with this modality, from the mock MDS's Default profile.",
+      "auth_factor": "bio",
+      "acr_values": ["mosip:idp:acr:biometrics"],
+      "scopes": ["openid"],
+      "steps": [
+        {"name": "UIN biometric prompt", "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["username"]}},
+        {"name": "submit the UIN", "action": "submit_uin", "inputs": {"username": "{{username}}"}, "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["biometric"]}},
+        {"name": "valid face capture", "capture": {"as": "good", "modality": "Face"}, "action": "SBI_ID", "inputs": {"biometric": "{{capture.good}}"}, "expect": {"authenticated": true, "no_error": true}}
+      ]
+    },
+    {
+      "name": "bio TC_BIO_11: an iris capture authenticates the user",
+      "_comment": "Needs the identity enrolled with this modality, from the mock MDS's Default profile.",
+      "auth_factor": "bio",
+      "acr_values": ["mosip:idp:acr:biometrics"],
+      "scopes": ["openid"],
+      "steps": [
+        {"name": "UIN biometric prompt", "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["username"]}},
+        {"name": "submit the UIN", "action": "submit_uin", "inputs": {"username": "{{username}}"}, "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["biometric"]}},
+        {"name": "valid iris capture", "capture": {"as": "good", "modality": "Iris"}, "action": "SBI_ID", "inputs": {"biometric": "{{capture.good}}"}, "expect": {"authenticated": true, "no_error": true}}
+      ]
+    },
+    {
+      "name": "bio TC_BIO_12: an extra otp sent with the biometric is ignored",
+      "_comment": "111111 is the proxy OTP on MOSIP test environments: if the otp were checked instead of the biometric, this would authenticate.",
+      "auth_factor": "bio",
+      "acr_values": ["mosip:idp:acr:biometrics"],
+      "scopes": ["openid"],
+      "steps": [
+        {"name": "UIN biometric prompt", "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["username"]}},
+        {"name": "submit the UIN", "action": "submit_uin", "inputs": {"username": "{{username}}"}, "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["biometric"]}},
+        {"name": "capture of someone else plus an otp", "capture": {"as": "other", "profile": "Automatic"}, "action": "SBI_ID", "inputs": {"biometric": "{{capture.other}}", "otp": "111111"}, "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["biometric"], "authenticated": false, "has_error": true}}
+      ]
+    },
+    {
+      "name": "bio TC_BIO_12: an extra valid password sent with the biometric is ignored",
+      "auth_factor": "bio",
+      "acr_values": ["mosip:idp:acr:biometrics"],
+      "requires_credential": "password",
+      "scopes": ["openid"],
+      "steps": [
+        {"name": "UIN biometric prompt", "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["username"]}},
+        {"name": "submit the UIN", "action": "submit_uin", "inputs": {"username": "{{username}}"}, "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["biometric"]}},
+        {"name": "capture of someone else plus the valid password", "capture": {"as": "other", "profile": "Automatic"}, "action": "SBI_ID", "inputs": {"biometric": "{{capture.other}}", "password": "{{password}}"}, "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["biometric"], "authenticated": false, "has_error": true}}
+      ]
+    },
+    {
+      "name": "bio TC_BIO_13: repeated refused captures do not block a valid one",
+      "_comment": "TBD in the test sheet: should biometric attempts be capped, as OTP sends are (3 per login)? The flow sets no cap, so every attempt re-prompts and the 11th authenticates; this asserts that behaviour.",
+      "auth_factor": "bio",
+      "acr_values": ["mosip:idp:acr:biometrics"],
+      "scopes": ["openid"],
+      "steps": [
+        {"name": "UIN biometric prompt", "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["username"]}},
+        {"name": "submit the UIN", "action": "submit_uin", "inputs": {"username": "{{username}}"}, "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["biometric"]}},
+        {"name": "capture of someone else", "capture": {"as": "other", "profile": "Automatic"}, "action": "SBI_ID", "inputs": {"biometric": "{{capture.other}}"}, "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["biometric"], "authenticated": false, "has_error": true}, "repeat": 10},
+        {"name": "valid capture", "capture": {"as": "good"}, "action": "SBI_ID", "inputs": {"biometric": "{{capture.good}}"}, "expect": {"authenticated": true, "no_error": true}}
+      ]
+    },
+    {
+      "name": "bio TC_BIO_14: the biometric factor opens on the UIN prompt with no captcha",
+      "auth_factor": "bio",
+      "acr_values": ["mosip:idp:acr:biometrics"],
+      "scopes": ["openid"],
+      "steps": [
+        {"name": "UIN biometric prompt", "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["username"], "actions": ["submit_uin", "login_id_mobile", "login_id_email", "login_id_nrc", "BACK_BUTTON"], "not_inputs": ["captcha_token"]}}
+      ]
+    },
+    {
+      "name": "bio TC_BIO_15: submit_uin with no login id returns the same prompt",
+      "auth_factor": "bio",
+      "acr_values": ["mosip:idp:acr:biometrics"],
+      "scopes": ["openid"],
+      "steps": [
+        {"name": "UIN biometric prompt", "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["username"]}},
+        {"name": "no login id", "action": "submit_uin", "inputs": {}, "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["username"], "actions": ["submit_uin"], "not_inputs": ["biometric"]}}
+      ]
+    },
+    {
+      "name": "bio TC_BIO_15: an empty login id never authenticates",
+      "auth_factor": "bio",
+      "acr_values": ["mosip:idp:acr:biometrics"],
+      "scopes": ["openid"],
+      "steps": [
+        {"name": "UIN biometric prompt", "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["username"]}},
+        {"name": "empty login id", "action": "submit_uin", "inputs": {"username": ""}, "expect": {"http_status_below": 500}},
+        {"name": "valid capture", "capture": {"as": "good"}, "action": "SBI_ID", "inputs": {"biometric": "{{capture.good}}"}, "expect": {"http_status_below": 500, "has_error": true, "authenticated": false}}
+      ]
+    },
+    {
+      "name": "bio TC_BIO_15: a blank login id never authenticates",
+      "auth_factor": "bio",
+      "acr_values": ["mosip:idp:acr:biometrics"],
+      "scopes": ["openid"],
+      "steps": [
+        {"name": "UIN biometric prompt", "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["username"]}},
+        {"name": "blank login id", "action": "submit_uin", "inputs": {"username": " "}, "expect": {"http_status_below": 500}},
+        {"name": "valid capture", "capture": {"as": "good"}, "action": "SBI_ID", "inputs": {"biometric": "{{capture.good}}"}, "expect": {"http_status_below": 500, "has_error": true, "authenticated": false}}
+      ]
+    },
+    {
+      "name": "bio TC_BIO_16: an unregistered login id is refused at the biometric step",
+      "_comment": "9999999999 is a well-formed UIN expected to be unregistered on the target; the id is not checked until the biometric is.",
+      "auth_factor": "bio",
+      "acr_values": ["mosip:idp:acr:biometrics"],
+      "scopes": ["openid"],
+      "steps": [
+        {"name": "UIN biometric prompt", "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["username"]}},
+        {"name": "submit the UIN", "action": "submit_uin", "inputs": {"username": "9999999999"}, "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["biometric"]}},
+        {"name": "valid capture", "capture": {"as": "good"}, "action": "SBI_ID", "inputs": {"biometric": "{{capture.good}}"}, "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["biometric"], "authenticated": false, "has_error": true}}
+      ]
+    },
+    {
+      "name": "bio TC_BIO_17: a malformed login id is refused before the biometric prompt",
+      "auth_factor": "bio",
+      "acr_values": ["mosip:idp:acr:biometrics"],
+      "known_issue": "the flow declares no rules on the login id input, so the server moves straight to the biometric prompt (test sheet: GH-1897 G01)",
+      "scopes": ["openid"],
+      "steps": [
+        {"name": "UIN biometric prompt", "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["username"]}},
+        {"name": "login id 'abc'", "action": "submit_uin", "inputs": {"username": "abc"}, "expect": {"field_errors": true, "required_inputs": ["username"], "not_inputs": ["biometric"]}},
+        {"restart": true},
+        {"name": "UIN biometric prompt", "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["username"]}},
+        {"name": "login id '123'", "action": "submit_uin", "inputs": {"username": "123"}, "expect": {"field_errors": true, "required_inputs": ["username"], "not_inputs": ["biometric"]}},
+        {"restart": true},
+        {"name": "UIN biometric prompt", "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["username"]}},
+        {"name": "login id '12345678901234567'", "action": "submit_uin", "inputs": {"username": "12345678901234567"}, "expect": {"field_errors": true, "required_inputs": ["username"], "not_inputs": ["biometric"]}}
+      ]
+    },
+    {
+      "name": "bio TC_BIO_18: the login id cannot be swapped when the biometric is submitted",
+      "_comment": "The capture is taken for the primary identity and submitted with username set to the secondary one. Both identities are enrolled from the mock MDS's Default profile, so the capture would match either: the refusal has to come from the swap itself.",
+      "auth_factor": "bio",
+      "acr_values": ["mosip:idp:acr:biometrics"],
+      "scopes": ["openid"],
+      "steps": [
+        {"name": "UIN biometric prompt", "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["username"]}},
+        {"name": "submit the UIN", "action": "submit_uin", "inputs": {"username": "{{username}}"}, "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["biometric"]}},
+        {"name": "valid capture with the secondary identity's UIN", "capture": {"as": "good"}, "action": "SBI_ID", "inputs": {"biometric": "{{capture.good}}", "username": "{{secondaryIndividualId}}"}, "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["biometric"], "authenticated": false, "has_error": true}}
+      ]
+    },
+    {
+      "name": "bio TC_BIO_20: an undeclared action on the biometric prompt is refused",
+      "auth_factor": "bio",
+      "acr_values": ["mosip:idp:acr:biometrics"],
+      "scopes": ["openid"],
+      "steps": [
+        {"name": "UIN biometric prompt", "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["username"]}},
+        {"name": "submit the UIN", "action": "submit_uin", "inputs": {"username": "{{username}}"}, "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["biometric"]}},
+        {"name": "undeclared action 'sbi_id'", "capture": {"as": "good"}, "action": "sbi_id", "inputs": {"biometric": "{{capture.good}}"}, "expect": {"http_status_below": 500, "flow_status": "ERROR", "has_error": true, "authenticated": false}},
+        {"restart": true},
+        {"name": "UIN biometric prompt", "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["username"]}},
+        {"name": "submit the UIN", "action": "submit_uin", "inputs": {"username": "{{username}}"}, "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["biometric"]}},
+        {"name": "undeclared action 'submit_uin'", "capture": {"as": "good"}, "action": "submit_uin", "inputs": {"biometric": "{{capture.good}}"}, "expect": {"http_status_below": 500, "flow_status": "ERROR", "has_error": true, "authenticated": false}},
+        {"restart": true},
+        {"name": "UIN biometric prompt", "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["username"]}},
+        {"name": "submit the UIN", "action": "submit_uin", "inputs": {"username": "{{username}}"}, "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["biometric"]}},
+        {"name": "undeclared action 'acr_otp'", "capture": {"as": "good"}, "action": "acr_otp", "inputs": {"biometric": "{{capture.good}}"}, "expect": {"http_status_below": 500, "flow_status": "ERROR", "has_error": true, "authenticated": false}}
+      ]
+    },
+    {
+      "name": "bio TC_BIO_21: the biometric prompt is returned again with no action",
+      "auth_factor": "bio",
+      "acr_values": ["mosip:idp:acr:biometrics"],
+      "scopes": ["openid"],
+      "steps": [
+        {"name": "UIN biometric prompt", "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["username"]}},
+        {"name": "submit the UIN", "action": "submit_uin", "inputs": {"username": "{{username}}"}, "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["biometric"]}},
+        {"name": "empty action", "action": "", "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["biometric"], "no_error": true}},
+        {"name": "resumed call, no action", "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["biometric"], "no_error": true}}
+      ]
+    },
+    {
+      "name": "bio TC_BIO_22: a capture cannot be submitted before the login id",
+      "_comment": "Refused with an error or answered with the same prompt; either way nobody is authenticated.",
+      "auth_factor": "bio",
+      "acr_values": ["mosip:idp:acr:biometrics"],
+      "scopes": ["openid"],
+      "steps": [
+        {"name": "UIN biometric prompt", "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["username"]}},
+        {"name": "capture on the UIN prompt", "capture": {"as": "good"}, "action": "SBI_ID", "inputs": {"biometric": "{{capture.good}}"}, "expect": {"http_status_below": 500, "authenticated": false}}
+      ]
+    },
+    {
+      "name": "bio TC_BIO_23: going back from the biometric prompt clears the login id",
+      "_comment": "Goes back and logs in as the secondary identity, which must be enrolled from the mock MDS's Default profile.",
+      "auth_factor": "bio",
+      "acr_values": ["mosip:idp:acr:biometrics"],
+      "expect_present": ["sub"],
+      "scopes": ["openid"],
+      "steps": [
+        {"name": "UIN biometric prompt", "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["username"]}},
+        {"name": "submit the UIN", "action": "submit_uin", "inputs": {"username": "{{username}}"}, "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["biometric"]}},
+        {"action": "BACK_BUTTON", "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["username"], "actions": ["submit_uin"], "not_inputs": ["biometric"]}},
+        {"name": "submit the secondary UIN", "action": "submit_uin", "inputs": {"username": "{{secondaryIndividualId}}"}, "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["biometric"]}},
+        {"name": "valid capture (secondary identity)", "capture": {"as": "good"}, "action": "SBI_ID", "inputs": {"biometric": "{{capture.good}}"}, "expect": {"authenticated": true, "no_error": true}},
+        {"finish": true}
+      ]
+    },
+    {
+      "name": "bio TC_BIO_26: no part of the capture leaves the authentication step",
+      "_comment": "Checks every eSignet response, the JWTs inside them, the token and userinfo. The esignet-service logs are outside the harness's reach.",
+      "auth_factor": "bio",
+      "acr_values": ["mosip:idp:acr:biometrics"],
+      "expect_present": ["sub"],
+      "expect_capture_not_echoed": true,
+      "scopes": ["openid"],
+      "steps": [
+        {"name": "UIN biometric prompt", "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["username"]}},
+        {"name": "submit the UIN", "action": "submit_uin", "inputs": {"username": "{{username}}"}, "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["biometric"]}},
+        {"name": "valid capture", "capture": {"as": "good"}, "action": "SBI_ID", "inputs": {"biometric": "{{capture.good}}"}, "expect": {"authenticated": true, "no_error": true}},
+        {"finish": true}
+      ]
+    },
+    {
+      "name": "bio TC_BIO_28: malformed submissions are refused, then a clean login works",
+      "_comment": "Exercises TC_BIO_04, 18, 12 and 23.",
+      "auth_factor": "bio",
+      "acr_values": ["mosip:idp:acr:biometrics"],
+      "expect_present": ["sub"],
+      "expect_id_token_values": {"acr": "mosip:idp:acr:biometrics"},
+      "scopes": ["openid"],
+      "steps": [
+        {"name": "UIN biometric prompt", "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["username"]}},
+        {"name": "submit the UIN", "action": "submit_uin", "inputs": {"username": "{{username}}"}, "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["biometric"]}},
+        {"name": "base64 of a JSON object", "action": "SBI_ID", "inputs": {"biometric": "{\"data\": \"x\", \"hash\": \"y\"}"}, "encode_base64": ["biometric"], "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["biometric"], "authenticated": false, "has_error": true}},
+        {"name": "valid capture with the secondary identity's UIN", "capture": {"as": "swapped"}, "action": "SBI_ID", "inputs": {"biometric": "{{capture.swapped}}", "username": "{{secondaryIndividualId}}"}, "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["biometric"], "authenticated": false, "has_error": true}},
+        {"name": "capture of someone else plus otp and password", "capture": {"as": "other", "profile": "Automatic"}, "action": "SBI_ID", "inputs": {"biometric": "{{capture.other}}", "otp": "111111", "password": "harness-extra-password"}, "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["biometric"], "authenticated": false, "has_error": true}},
+        {"action": "BACK_BUTTON", "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["username"]}},
+        {"name": "submit the UIN", "action": "submit_uin", "inputs": {"username": "{{username}}"}, "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["biometric"]}},
+        {"name": "fresh valid capture", "capture": {"as": "good"}, "action": "SBI_ID", "inputs": {"biometric": "{{capture.good}}"}, "expect": {"authenticated": true, "no_error": true}},
+        {"finish": true}
+      ]
     },
 
     {
