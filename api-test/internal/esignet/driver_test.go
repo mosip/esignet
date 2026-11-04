@@ -29,7 +29,7 @@ func TestSelectAction(t *testing.T) {
 			preferred: []string{"otp", "generated-code"}, want: "acr_otp"},
 		{name: "acr-kbi", in: []string{"acr_otp", "acr_password", "acr_bio", "acr_kbi"},
 			preferred: []string{"kbi", "knowledge"}, want: "acr_kbi"},
-		{name: "submit-over-tab-switch", in: []string{"submit_uin", "login_id_mobile", "login_id_email", "login_id_nrc", "BACK_BUTTON"},
+		{name: "submit-over-tab-switch", in: []string{"submit_uin", "login_id_mobile", "login_id_email", "BACK_BUTTON"},
 			preferred: []string{"otp", "generated-code", "mobile", "phone"}, want: "submit_uin"},
 		{name: "proceed-over-resend", in: []string{"resend_otp", "action_proceed_kbi"}, want: "action_proceed_kbi"},
 		// Stage 5: a step offering only tab switches is progressable, so the
@@ -41,8 +41,8 @@ func TestSelectAction(t *testing.T) {
 
 		// Stage 0, the login-id tab correction: with id_type set, switch tabs first if the default tab's submit sends the wrong kind.
 		{name: "id-tab-switch-to-mobile",
-			in:       []string{"submit_uin", "login_id_mobile", "login_id_email", "login_id_nrc", "BACK_BUTTON"},
-			nodes:    map[string]string{"submit_uin": "send_mosip_otp_uin", "login_id_mobile": "prompt_mobile_otp", "login_id_email": "prompt_email_otp", "login_id_nrc": "prompt_nrc_otp", "BACK_BUTTON": "prompt_acr"},
+			in:       []string{"submit_uin", "login_id_mobile", "login_id_email", "BACK_BUTTON"},
+			nodes:    map[string]string{"submit_uin": "send_mosip_otp_uin", "login_id_mobile": "prompt_mobile_otp", "login_id_email": "prompt_email_otp", "BACK_BUTTON": "prompt_acr"},
 			idTokens: []string{"mobile", "phone"}, preferred: []string{"otp", "generated-code"},
 			want: "login_id_mobile"},
 		// Already on the mobile tab: the correction must NOT fire again, or it would loop between tabs.

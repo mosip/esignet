@@ -1195,6 +1195,12 @@ header:
   select_login_id: "Sélectionnez une option d'identifiant de connexion"
   select_login_mode: Sélectionnez un mode de connexion préféré
 
+dropdown:
+  login_id_label: Identifiant de connexion
+  vid: UIN/VID
+  mobile: Numéro de téléphone
+  email: E-mail
+
 input:
   uin_label: UIN/VID
   uin_placeholder: Entrez votre UIN/VID
@@ -1227,7 +1233,6 @@ button:
   login_id_uin: UIN/VID
   login_id_mobile: Numéro de téléphone
   login_id_email: E-mail
-  login_id_nrc: NRC ID
 
 otp:
   enter_otp_title: "Entrez l'OTP"

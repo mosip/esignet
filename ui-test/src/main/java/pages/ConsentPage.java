@@ -257,7 +257,7 @@ public class ConsentPage extends BasePage {
 				break;
 			}
 		}
-		for (String id : List.of("login_id_vid", "login_id_uin", "login_id_mobile", "login_id_email", "login_id_nrc")) {
+		for (String id : List.of("login_id_vid", "login_id_uin", "login_id_mobile", "login_id_email")) {
 			for (WebElement chip : driver.findElements(By.id(id))) {
 				if (chip.isDisplayed()) {
 					String cssClass = chip.getAttribute("class");
