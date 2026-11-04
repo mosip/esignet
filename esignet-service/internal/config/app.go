@@ -611,6 +611,7 @@ func ApplyEnvOverrides(cfg *AppConfig) error {
 		}
 	}
 	if v := os.Getenv("MOSIP_ESIGNET_OAUTH_PAR_EXPIRY_SECONDS"); v != "" {
+		// Default: 90 s (RFC 9126 §2.2 short-lived; matches deployment.yaml and applyDefaults).
 		secs, err := strconv.ParseInt(v, 10, 64)
 		if err != nil {
 			return fmt.Errorf("invalid MOSIP_ESIGNET_OAUTH_PAR_EXPIRY_SECONDS: %w", err)
