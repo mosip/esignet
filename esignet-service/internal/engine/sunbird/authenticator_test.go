@@ -89,10 +89,12 @@ func (ts *AuthenticatorTestSuite) TestAuthenticate() {
 	t.Run("missing credential field", func(t *testing.T) {
 		p := newTestProvider("http://unused", "http://unused")
 		identifiers := map[string]interface{}{sunbirdIndividualIDKey: "POL123"}
-		credentials := map[string]interface{}{"fullName": "Jane Doe"}
+		credentials := map[string]interface{}{"fullName": "Jane Doe"} // "dob" absent
 		result, svcErr := p.Authenticate(context.Background(), identifiers, credentials, nil)
 		require.Nil(t, result)
-		require.Same(t, shared.InvalidRequestError, svcErr)
+		require.NotNil(t, svcErr)
+		require.Equal(t, "AUTHN-MGR-1008", svcErr.Code)
+		require.Contains(t, svcErr.Error.DefaultValue, "dob")
 	})
 
 	t.Run("empty credential value", func(t *testing.T) {
@@ -101,7 +103,20 @@ func (ts *AuthenticatorTestSuite) TestAuthenticate() {
 		credentials := map[string]interface{}{"fullName": "Jane Doe", "dob": ""}
 		result, svcErr := p.Authenticate(context.Background(), identifiers, credentials, nil)
 		require.Nil(t, result)
-		require.Same(t, shared.InvalidRequestError, svcErr)
+		require.NotNil(t, svcErr)
+		require.Equal(t, "AUTHN-MGR-1008", svcErr.Code)
+		require.Contains(t, svcErr.Error.DefaultValue, "dob")
+	})
+
+	t.Run("whitespace-only credential value", func(t *testing.T) {
+		p := newTestProvider("http://unused", "http://unused")
+		identifiers := map[string]interface{}{sunbirdIndividualIDKey: "POL123"}
+		credentials := map[string]interface{}{"fullName": "Jane Doe", "dob": "   "}
+		result, svcErr := p.Authenticate(context.Background(), identifiers, credentials, nil)
+		require.Nil(t, result)
+		require.NotNil(t, svcErr)
+		require.Equal(t, "AUTHN-MGR-1008", svcErr.Code)
+		require.Contains(t, svcErr.Error.DefaultValue, "dob")
 	})
 
 	t.Run("successful match", func(t *testing.T) {
