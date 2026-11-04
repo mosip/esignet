@@ -89,6 +89,7 @@ func exports(c *config.Config) string {
 	kv("ESIGNET_TLS_VERIFY", strconv.FormatBool(c.Esignet.TLSVerify))
 	kv("ID_TYPE", c.Esignet.Identity.IDType)
 	kv("INDIVIDUAL_ID", c.Esignet.Identity.IndividualID)
+	kv("SECONDARY_INDIVIDUAL_ID", c.Esignet.Identity.SecondaryIndividualID)
 	kv("TEST_USERNAME", c.Esignet.Credentials.Username)
 	kv("TEST_PASSWORD", c.Esignet.Credentials.Password)
 	kv("KBI_FULL_NAME", c.Esignet.Knowledge.FullName)
@@ -201,6 +202,12 @@ func printCheck(c *config.Config, path string) {
 	if c.HasSurface(config.SurfaceE2E) {
 		fmt.Printf("\ne2e\n")
 		fmt.Printf("  spec        %s\n", orDash(c.E2E.Spec))
+		// The harness image's entrypoint starts the MDS and exports its URL only for a real run, never for --check.
+		mdsNote := "not set — scripted biometric scenarios report ENV_NOT_READY (the harness image sets MOCK_MDS_BASE_URL at run time)"
+		if c.E2E.MockMDS.BaseURL != "" {
+			mdsNote = c.E2E.MockMDS.BaseURL
+		}
+		fmt.Printf("  mock MDS    %s\n", mdsNote)
 		// An unreadable/unparseable spec is reported in place, not returned: this
 		// is a dry run, and the surrounding summary is still worth printing.
 		names, total, err := selectedScenarios(c)

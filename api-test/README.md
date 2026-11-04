@@ -171,8 +171,8 @@ silent fallback to another plugin.
 }
 ```
 
-`individual_id` is required for every plugin **except `mock`**, which falls back to its seeded
-identity so a first run works out of the box.
+`individual_id` is required for every plugin, `mock` included: no identity is seeded on every
+target. An e2e run that includes bio on `mock` or `mosip` also needs `secondary_individual_id`.
 
 > Full field-by-field reference, the complete environment-variable table, and the TLS verification
 > knobs: **[Configuration reference](docs/configuration.md)**.

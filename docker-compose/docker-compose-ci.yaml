@@ -182,6 +182,7 @@ services:
       REPORT_DIR: /home/esignet/test-report
       ADMIN_TOKEN: local-no-scope
       INDIVIDUAL_ID: 1774231323
+      SECONDARY_INDIVIDUAL_ID: 2856473901
       ID_TYPE: uin
       SURFACES: api,e2e
       TEST_PROFILE: full

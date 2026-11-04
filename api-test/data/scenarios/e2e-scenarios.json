@@ -1,5 +1,5 @@
 {
-  "_comment": "End-to-end scenarios for MOSIP_ESIGNET_AUTHN_PROVIDER=mock. Each scenario declares auth_factor (otp|password|bio) and drives the full authorize -> login -> token(private_key_jwt) -> userinfo chain. Positive scenarios expect login to succeed; negative scenarios (expect_login_failure=true) expect it to be rejected. bio is now driven by esignet.credentials.biometric (mock accepts any non-empty value, including one that isn't real biometric data, as a successful capture); its negative case uses omit_credentials to submit no value at all, since mock accepts an empty string too. password has no working credential confirmed on this deployment yet -- its positive scenario is kept in place and will FAIL until real credentials/config exist (per instruction: let it fail, don't omit the testcase). Their negative scenarios still meaningfully assert rejection: for password a deliberately wrong value is submitted; for bio there is no way to submit any credential at all, so rejection is structural (no configured answer) rather than a value mismatch -- also acceptable per instruction. TRIED (2026-07-21) for password ACR: username=decl-user-1 with password='Mosip@123' and, separately, the Postman-documented 'TempPassword123!' -- both submit successfully (flow accepts the inputs, no config error) but the flow loops indefinitely re-requesting username+password (INCOMPLETE) rather than ever completing or returning an explicit rejection, for both passwords. This means neither credential authenticates against this environment's mock-identity-system as currently seeded; the actual valid password (if this user exists here at all) is still unconfirmed. CONSENT/CAPTCHA CASES (appended): the consent cases are ORDER-DEPENDENT and share one registered client per run -- 'stored consent is reused' asserts NO prompt, which only holds because the identical-scope case ran immediately before it and saved a consent record for (client,user). Each other consent case deliberately uses a DISTINCT scope set so its request hash differs and the server re-prompts; reordering them, or narrowing the run with e2e.include so the approve-all case is skipped, will make the reuse case fail. Captcha: an empty token is rejected by the server before the validator-configured check, so that negative is portable to any deployment; a non-empty token is accepted when no MOSIP_ESIGNET_CAPTCHA_VALIDATOR_URL is configured (the dev/test default) and validated for real when one is.",
+  "_comment": "End-to-end scenarios for MOSIP_ESIGNET_AUTHN_PROVIDER=mock. Each scenario declares auth_factor (otp|password|bio) and drives the full authorize -> login -> token(private_key_jwt) -> userinfo chain. Positive scenarios expect login to succeed; negative scenarios (expect_login_failure=true) expect it to be rejected. BIOMETRIC CASES (bio TC_BIO_*, from the BIO-Auth test sheet) are scripted: each drives /flow/execute step by step with acr_values=mosip:idp:acr:biometrics and asserts every response. The mock identity system accepts any non-empty biometric without checking it (authStatus = true, a TODO), so these submit a capture-shaped literal and need no mock MDS; cases that refuse a value only a real check would catch are known_issue here, and cases that need a non-matching or replayed capture (TC_BIO_04-08, 10-13, 30), IDA (24/25) or MOSIP ID (28) are not in this file. TC_BIO_19/29 (mobile and email login ids) are not automated: biometric scenarios log in with configured individual ids only. TC_BIO_18 (login-id swap) is not in this file: the mock cannot validate a biometric, so a swap is undetectable. TC_BIO_23 logs in with esignet.identity.secondary_individual_id, which the config requires for a bio run. Refusals are asserted only as carrying an error: flow/execute error codes are ThunderID's own, not eSignet's API. password has no working credential confirmed on this deployment yet -- its positive scenario is kept in place and will FAIL until real credentials/config exist (per instruction: let it fail, don't omit the testcase). Their negative scenarios still meaningfully assert rejection: for password a deliberately wrong value is submitted; for bio there is no way to submit any credential at all, so rejection is structural (no configured answer) rather than a value mismatch -- also acceptable per instruction. TRIED (2026-07-21) for password ACR: username=decl-user-1 with password='Mosip@123' and, separately, the Postman-documented 'TempPassword123!' -- both submit successfully (flow accepts the inputs, no config error) but the flow loops indefinitely re-requesting username+password (INCOMPLETE) rather than ever completing or returning an explicit rejection, for both passwords. This means neither credential authenticates against this environment's mock-identity-system as currently seeded; the actual valid password (if this user exists here at all) is still unconfirmed. CONSENT/CAPTCHA CASES (appended): the consent cases are ORDER-DEPENDENT and share one registered client per run -- 'stored consent is reused' asserts NO prompt, which only holds because the identical-scope case ran immediately before it and saved a consent record for (client,user). Each other consent case deliberately uses a DISTINCT scope set so its request hash differs and the server re-prompts; reordering them, or narrowing the run with e2e.include so the approve-all case is skipped, will make the reuse case fail. Captcha: an empty token is rejected by the server before the validator-configured check, so that negative is portable to any deployment; a non-empty token is accepted when no MOSIP_ESIGNET_CAPTCHA_VALIDATOR_URL is configured (the dev/test default) and validated for real when one is.",
   "redirect_uri": "https://api-e2e.example.org/callback",
   "user_claims": ["name", "email", "phone_number", "gender", "birthdate"],
   "acr": ["mosip:idp:acr:generated-code", "mosip:idp:acr:password", "mosip:idp:acr:biometrics"],
@@ -61,19 +61,163 @@
       "scopes": ["openid"]
     },
     {
-      "name": "bio positive: login succeeds with biometric capture",
+      "name": "bio TC_BIO_01: a biometric capture authenticates the user",
+      "_comment": "Also TC_BIO_26: no part of the capture may come back in any eSignet response, the JWTs inside them, the token or userinfo. The esignet-service logs are outside the harness's reach.",
       "auth_factor": "bio",
-      "_comment": "No credentials override: the value comes from esignet.credentials.biometric. Mock accepts any non-empty value as a successful capture.",
+      "acr_values": ["mosip:idp:acr:biometrics"],
+      "expect_present": ["sub"],
+      "expect_id_token_values": {"acr": "mosip:idp:acr:biometrics"},
+      "expect_capture_not_echoed": true,
       "scopes": ["openid"],
-      "expect_present": ["sub"]
+      "steps": [
+        {"name": "UIN biometric prompt", "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["username"]}},
+        {"name": "submit the login id", "action": "submit_uin", "inputs": {"username": "{{username}}"}, "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["biometric"], "actions": ["SBI_ID", "BACK_BUTTON"]}},
+        {"name": "capture", "action": "SBI_ID", "inputs": {"biometric": "[{\"specVersion\":\"0.9.5\",\"data\":\"eyJhbGciOiJSUzI1NiJ9.eyJiaW9UeXBlIjoiRmluZ2VyIiwiYmlvU3ViVHlwZSI6IlVOS05PV04iLCJwdXJwb3NlIjoiQXV0aCIsImVudiI6IlN0YWdpbmciLCJiaW9WYWx1ZSI6Imhhcm5lc3MtbW9jay1jYXB0dXJlLTAwMDEifQ.aGFybmVzcy1tb2NrLWNhcHR1cmUtc2lnbmF0dXJlLTAwMDE\",\"hash\":\"5d1c7b0e9a3f4e2b8c6d0f1a2b3c4d5e6f708192a3b4c5d6e7f8091a2b3c4d5e\",\"sessionKey\":\"aGFybmVzcy1tb2NrLWNhcHR1cmUtc2Vzc2lvbi1rZXktMDAwMQ\",\"thumbprint\":\"harness-mock-thumbprint\"}]"}, "encode_base64": ["biometric"], "expect": {"authenticated": true, "no_error": true}},
+        {"finish": true}
+      ]
     },
     {
-      "name": "bio negative: no biometric capture is rejected",
+      "name": "bio TC_BIO_02: no biometric input re-prompts without authenticating",
       "auth_factor": "bio",
-      "expect_login_failure": true,
-      "_comment": "omit_credentials, not an empty override: mock treats an empty string as a valid (if odd) capture and accepts it, so the negative must submit no value at all.",
-      "omit_credentials": ["biometric"],
-      "scopes": ["openid"]
+      "acr_values": ["mosip:idp:acr:biometrics"],
+      "scopes": ["openid"],
+      "steps": [
+        {"name": "UIN biometric prompt", "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["username"]}},
+        {"name": "submit the login id", "action": "submit_uin", "inputs": {"username": "{{username}}"}, "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["biometric"]}},
+        {"name": "no biometric input", "action": "SBI_ID", "inputs": {}, "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["biometric"], "authenticated": false}}
+      ]
+    },
+    {
+      "name": "bio TC_BIO_03: an empty or blank biometric input is refused",
+      "auth_factor": "bio",
+      "acr_values": ["mosip:idp:acr:biometrics"],
+      "known_issue": "the mock identity system accepts any non-empty biometric without checking it (mock-identity-system AuthenticationServiceImpl: authStatus = true //TODO); the sheet records MOCK separately",
+      "scopes": ["openid"],
+      "steps": [
+        {"name": "UIN biometric prompt", "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["username"]}},
+        {"name": "submit the login id", "action": "submit_uin", "inputs": {"username": "{{username}}"}, "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["biometric"]}},
+        {"name": "empty biometric", "action": "SBI_ID", "inputs": {"biometric": ""}, "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["biometric"], "authenticated": false, "has_error": true}},
+        {"name": "blank biometric", "action": "SBI_ID", "inputs": {"biometric": " "}, "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["biometric"], "authenticated": false, "has_error": true}}
+      ]
+    },
+    {
+      "name": "bio TC_BIO_09: a very large biometric value is refused cleanly",
+      "_comment": "No 5xx is the property that matters on any plugin; that the value is also refused is the mock gap.",
+      "auth_factor": "bio",
+      "acr_values": ["mosip:idp:acr:biometrics"],
+      "known_issue": "the mock identity system accepts any non-empty biometric without checking it (mock-identity-system AuthenticationServiceImpl: authStatus = true //TODO); the sheet records MOCK separately",
+      "scopes": ["openid"],
+      "steps": [
+        {"name": "UIN biometric prompt", "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["username"]}},
+        {"name": "submit the login id", "action": "submit_uin", "inputs": {"username": "{{username}}"}, "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["biometric"]}},
+        {"name": "5 MB biometric value", "action": "SBI_ID", "inputs": {"biometric": "{{filler:5242880}}"}, "expect": {"http_status_below": 500, "authenticated": false}}
+      ]
+    },
+    {
+      "name": "bio TC_BIO_15: a missing, empty or blank login id never authenticates",
+      "auth_factor": "bio",
+      "acr_values": ["mosip:idp:acr:biometrics"],
+      "scopes": ["openid"],
+      "steps": [
+        {"name": "UIN biometric prompt", "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["username"]}},
+        {"name": "no login id", "action": "submit_uin", "inputs": {}, "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["username"], "not_inputs": ["biometric"]}},
+        {"restart": true},
+        {"name": "UIN biometric prompt", "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["username"]}},
+        {"name": "empty login id", "action": "submit_uin", "inputs": {"username": ""}, "expect": {"http_status_below": 500}},
+        {"name": "capture after an empty login id", "action": "SBI_ID", "inputs": {"biometric": "[{\"specVersion\":\"0.9.5\",\"data\":\"eyJhbGciOiJSUzI1NiJ9.eyJiaW9UeXBlIjoiRmluZ2VyIiwiYmlvU3ViVHlwZSI6IlVOS05PV04iLCJwdXJwb3NlIjoiQXV0aCIsImVudiI6IlN0YWdpbmciLCJiaW9WYWx1ZSI6Imhhcm5lc3MtbW9jay1jYXB0dXJlLTAwMDEifQ.aGFybmVzcy1tb2NrLWNhcHR1cmUtc2lnbmF0dXJlLTAwMDE\",\"hash\":\"5d1c7b0e9a3f4e2b8c6d0f1a2b3c4d5e6f708192a3b4c5d6e7f8091a2b3c4d5e\",\"sessionKey\":\"aGFybmVzcy1tb2NrLWNhcHR1cmUtc2Vzc2lvbi1rZXktMDAwMQ\",\"thumbprint\":\"harness-mock-thumbprint\"}]"}, "encode_base64": ["biometric"], "expect": {"http_status_below": 500, "has_error": true, "authenticated": false}},
+        {"restart": true},
+        {"name": "UIN biometric prompt", "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["username"]}},
+        {"name": "blank login id", "action": "submit_uin", "inputs": {"username": " "}, "expect": {"http_status_below": 500}},
+        {"name": "capture after a blank login id", "action": "SBI_ID", "inputs": {"biometric": "[{\"specVersion\":\"0.9.5\",\"data\":\"eyJhbGciOiJSUzI1NiJ9.eyJiaW9UeXBlIjoiRmluZ2VyIiwiYmlvU3ViVHlwZSI6IlVOS05PV04iLCJwdXJwb3NlIjoiQXV0aCIsImVudiI6IlN0YWdpbmciLCJiaW9WYWx1ZSI6Imhhcm5lc3MtbW9jay1jYXB0dXJlLTAwMDEifQ.aGFybmVzcy1tb2NrLWNhcHR1cmUtc2lnbmF0dXJlLTAwMDE\",\"hash\":\"5d1c7b0e9a3f4e2b8c6d0f1a2b3c4d5e6f708192a3b4c5d6e7f8091a2b3c4d5e\",\"sessionKey\":\"aGFybmVzcy1tb2NrLWNhcHR1cmUtc2Vzc2lvbi1rZXktMDAwMQ\",\"thumbprint\":\"harness-mock-thumbprint\"}]"}, "encode_base64": ["biometric"], "expect": {"http_status_below": 500, "has_error": true, "authenticated": false}}
+      ]
+    },
+    {
+      "name": "bio TC_BIO_16: an unregistered login id is refused at the biometric step",
+      "_comment": "9999999999 is a well-formed UIN expected to be absent from the mock identity system; the id is not checked until the biometric is.",
+      "auth_factor": "bio",
+      "acr_values": ["mosip:idp:acr:biometrics"],
+      "scopes": ["openid"],
+      "steps": [
+        {"name": "UIN biometric prompt", "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["username"]}},
+        {"name": "submit the login id", "action": "submit_uin", "inputs": {"username": "9999999999"}, "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["biometric"]}},
+        {"name": "capture", "action": "SBI_ID", "inputs": {"biometric": "[{\"specVersion\":\"0.9.5\",\"data\":\"eyJhbGciOiJSUzI1NiJ9.eyJiaW9UeXBlIjoiRmluZ2VyIiwiYmlvU3ViVHlwZSI6IlVOS05PV04iLCJwdXJwb3NlIjoiQXV0aCIsImVudiI6IlN0YWdpbmciLCJiaW9WYWx1ZSI6Imhhcm5lc3MtbW9jay1jYXB0dXJlLTAwMDEifQ.aGFybmVzcy1tb2NrLWNhcHR1cmUtc2lnbmF0dXJlLTAwMDE\",\"hash\":\"5d1c7b0e9a3f4e2b8c6d0f1a2b3c4d5e6f708192a3b4c5d6e7f8091a2b3c4d5e\",\"sessionKey\":\"aGFybmVzcy1tb2NrLWNhcHR1cmUtc2Vzc2lvbi1rZXktMDAwMQ\",\"thumbprint\":\"harness-mock-thumbprint\"}]"}, "encode_base64": ["biometric"], "expect": {"has_error": true, "flow_status": "INCOMPLETE", "required_inputs": ["biometric"], "authenticated": false}}
+      ]
+    },
+    {
+      "name": "bio TC_BIO_17: a malformed login id is refused before the biometric prompt",
+      "auth_factor": "bio",
+      "acr_values": ["mosip:idp:acr:biometrics"],
+      "known_issue": "the flow declares no rules on the login id input, so the server moves straight to the biometric prompt (test sheet: GH-1897 G01)",
+      "scopes": ["openid"],
+      "steps": [
+        {"name": "UIN biometric prompt", "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["username"]}},
+        {"name": "login id 'abc'", "action": "submit_uin", "inputs": {"username": "abc"}, "expect": {"field_errors": true, "required_inputs": ["username"], "not_inputs": ["biometric"]}},
+        {"restart": true},
+        {"name": "UIN biometric prompt", "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["username"]}},
+        {"name": "login id '123'", "action": "submit_uin", "inputs": {"username": "123"}, "expect": {"field_errors": true, "required_inputs": ["username"], "not_inputs": ["biometric"]}},
+        {"restart": true},
+        {"name": "UIN biometric prompt", "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["username"]}},
+        {"name": "login id '12345678901234567'", "action": "submit_uin", "inputs": {"username": "12345678901234567"}, "expect": {"field_errors": true, "required_inputs": ["username"], "not_inputs": ["biometric"]}}
+      ]
+    },
+    {
+      "name": "bio TC_BIO_20: an undeclared action on the biometric prompt re-prompts without authenticating",
+      "_comment": "An action the prompt does not declare is treated as no action selected: the same prompt comes back with its actions and no error, and nobody is authenticated. The capture sent with the wrong action is kept on the session, so data.inputs does not ask for biometric again.",
+      "auth_factor": "bio",
+      "acr_values": ["mosip:idp:acr:biometrics"],
+      "scopes": ["openid"],
+      "steps": [
+        {"name": "UIN biometric prompt", "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["username"]}},
+        {"name": "submit the login id", "action": "submit_uin", "inputs": {"username": "{{username}}"}, "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["biometric"]}},
+        {"name": "undeclared action 'sbi_id'", "action": "sbi_id", "inputs": {"biometric": "[{\"specVersion\":\"0.9.5\",\"data\":\"eyJhbGciOiJSUzI1NiJ9.eyJiaW9UeXBlIjoiRmluZ2VyIiwiYmlvU3ViVHlwZSI6IlVOS05PV04iLCJwdXJwb3NlIjoiQXV0aCIsImVudiI6IlN0YWdpbmciLCJiaW9WYWx1ZSI6Imhhcm5lc3MtbW9jay1jYXB0dXJlLTAwMDEifQ.aGFybmVzcy1tb2NrLWNhcHR1cmUtc2lnbmF0dXJlLTAwMDE\",\"hash\":\"5d1c7b0e9a3f4e2b8c6d0f1a2b3c4d5e6f708192a3b4c5d6e7f8091a2b3c4d5e\",\"sessionKey\":\"aGFybmVzcy1tb2NrLWNhcHR1cmUtc2Vzc2lvbi1rZXktMDAwMQ\",\"thumbprint\":\"harness-mock-thumbprint\"}]"}, "encode_base64": ["biometric"], "expect": {"http_status_below": 500, "flow_status": "INCOMPLETE", "no_error": true, "actions": ["SBI_ID", "BACK_BUTTON"], "authenticated": false}},
+        {"restart": true},
+        {"name": "UIN biometric prompt", "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["username"]}},
+        {"name": "submit the login id", "action": "submit_uin", "inputs": {"username": "{{username}}"}, "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["biometric"]}},
+        {"name": "undeclared action 'submit_uin'", "action": "submit_uin", "inputs": {"biometric": "[{\"specVersion\":\"0.9.5\",\"data\":\"eyJhbGciOiJSUzI1NiJ9.eyJiaW9UeXBlIjoiRmluZ2VyIiwiYmlvU3ViVHlwZSI6IlVOS05PV04iLCJwdXJwb3NlIjoiQXV0aCIsImVudiI6IlN0YWdpbmciLCJiaW9WYWx1ZSI6Imhhcm5lc3MtbW9jay1jYXB0dXJlLTAwMDEifQ.aGFybmVzcy1tb2NrLWNhcHR1cmUtc2lnbmF0dXJlLTAwMDE\",\"hash\":\"5d1c7b0e9a3f4e2b8c6d0f1a2b3c4d5e6f708192a3b4c5d6e7f8091a2b3c4d5e\",\"sessionKey\":\"aGFybmVzcy1tb2NrLWNhcHR1cmUtc2Vzc2lvbi1rZXktMDAwMQ\",\"thumbprint\":\"harness-mock-thumbprint\"}]"}, "encode_base64": ["biometric"], "expect": {"http_status_below": 500, "flow_status": "INCOMPLETE", "no_error": true, "actions": ["SBI_ID", "BACK_BUTTON"], "authenticated": false}},
+        {"restart": true},
+        {"name": "UIN biometric prompt", "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["username"]}},
+        {"name": "submit the login id", "action": "submit_uin", "inputs": {"username": "{{username}}"}, "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["biometric"]}},
+        {"name": "undeclared action 'acr_otp'", "action": "acr_otp", "inputs": {"biometric": "[{\"specVersion\":\"0.9.5\",\"data\":\"eyJhbGciOiJSUzI1NiJ9.eyJiaW9UeXBlIjoiRmluZ2VyIiwiYmlvU3ViVHlwZSI6IlVOS05PV04iLCJwdXJwb3NlIjoiQXV0aCIsImVudiI6IlN0YWdpbmciLCJiaW9WYWx1ZSI6Imhhcm5lc3MtbW9jay1jYXB0dXJlLTAwMDEifQ.aGFybmVzcy1tb2NrLWNhcHR1cmUtc2lnbmF0dXJlLTAwMDE\",\"hash\":\"5d1c7b0e9a3f4e2b8c6d0f1a2b3c4d5e6f708192a3b4c5d6e7f8091a2b3c4d5e\",\"sessionKey\":\"aGFybmVzcy1tb2NrLWNhcHR1cmUtc2Vzc2lvbi1rZXktMDAwMQ\",\"thumbprint\":\"harness-mock-thumbprint\"}]"}, "encode_base64": ["biometric"], "expect": {"http_status_below": 500, "flow_status": "INCOMPLETE", "no_error": true, "actions": ["SBI_ID", "BACK_BUTTON"], "authenticated": false}}
+      ]
+    },
+    {
+      "name": "bio TC_BIO_21: the biometric prompt is returned again with no action",
+      "auth_factor": "bio",
+      "acr_values": ["mosip:idp:acr:biometrics"],
+      "scopes": ["openid"],
+      "steps": [
+        {"name": "UIN biometric prompt", "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["username"]}},
+        {"name": "submit the login id", "action": "submit_uin", "inputs": {"username": "{{username}}"}, "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["biometric"]}},
+        {"name": "empty action", "action": "", "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["biometric"], "no_error": true}},
+        {"name": "resumed call, no action", "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["biometric"], "no_error": true}}
+      ]
+    },
+    {
+      "name": "bio TC_BIO_22: a capture cannot be submitted before the login id",
+      "_comment": "Refused with an error or answered with the same prompt; either way nobody is authenticated.",
+      "auth_factor": "bio",
+      "acr_values": ["mosip:idp:acr:biometrics"],
+      "scopes": ["openid"],
+      "steps": [
+        {"name": "UIN biometric prompt", "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["username"]}},
+        {"name": "capture on the UIN prompt", "action": "SBI_ID", "inputs": {"biometric": "[{\"specVersion\":\"0.9.5\",\"data\":\"eyJhbGciOiJSUzI1NiJ9.eyJiaW9UeXBlIjoiRmluZ2VyIiwiYmlvU3ViVHlwZSI6IlVOS05PV04iLCJwdXJwb3NlIjoiQXV0aCIsImVudiI6IlN0YWdpbmciLCJiaW9WYWx1ZSI6Imhhcm5lc3MtbW9jay1jYXB0dXJlLTAwMDEifQ.aGFybmVzcy1tb2NrLWNhcHR1cmUtc2lnbmF0dXJlLTAwMDE\",\"hash\":\"5d1c7b0e9a3f4e2b8c6d0f1a2b3c4d5e6f708192a3b4c5d6e7f8091a2b3c4d5e\",\"sessionKey\":\"aGFybmVzcy1tb2NrLWNhcHR1cmUtc2Vzc2lvbi1rZXktMDAwMQ\",\"thumbprint\":\"harness-mock-thumbprint\"}]"}, "encode_base64": ["biometric"], "expect": {"http_status_below": 500, "authenticated": false}}
+      ]
+    },
+    {
+      "name": "bio TC_BIO_23: going back from the biometric prompt clears the login id",
+      "_comment": "Goes back and logs in as the secondary identity.",
+      "auth_factor": "bio",
+      "acr_values": ["mosip:idp:acr:biometrics"],
+      "expect_present": ["sub"],
+      "scopes": ["openid"],
+      "steps": [
+        {"name": "UIN biometric prompt", "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["username"]}},
+        {"name": "submit the login id", "action": "submit_uin", "inputs": {"username": "{{username}}"}, "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["biometric"]}},
+        {"action": "BACK_BUTTON", "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["username"], "actions": ["submit_uin"], "not_inputs": ["biometric"]}},
+        {"name": "submit the secondary login id", "action": "submit_uin", "inputs": {"username": "{{secondaryIndividualId}}"}, "expect": {"flow_status": "INCOMPLETE", "required_inputs": ["biometric"]}},
+        {"name": "capture", "action": "SBI_ID", "inputs": {"biometric": "[{\"specVersion\":\"0.9.5\",\"data\":\"eyJhbGciOiJSUzI1NiJ9.eyJiaW9UeXBlIjoiRmluZ2VyIiwiYmlvU3ViVHlwZSI6IlVOS05PV04iLCJwdXJwb3NlIjoiQXV0aCIsImVudiI6IlN0YWdpbmciLCJiaW9WYWx1ZSI6Imhhcm5lc3MtbW9jay1jYXB0dXJlLTAwMDEifQ.aGFybmVzcy1tb2NrLWNhcHR1cmUtc2lnbmF0dXJlLTAwMDE\",\"hash\":\"5d1c7b0e9a3f4e2b8c6d0f1a2b3c4d5e6f708192a3b4c5d6e7f8091a2b3c4d5e\",\"sessionKey\":\"aGFybmVzcy1tb2NrLWNhcHR1cmUtc2Vzc2lvbi1rZXktMDAwMQ\",\"thumbprint\":\"harness-mock-thumbprint\"}]"}, "encode_base64": ["biometric"], "expect": {"authenticated": true, "no_error": true}},
+        {"finish": true}
+      ]
     },
 
     {

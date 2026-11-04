@@ -29,11 +29,11 @@ func TestSnippetRedactsCredentials(t *testing.T) {
 	}
 }
 
-// flow/execute answers with {code, message}, and the features assert FES-1004 on
-// it. Masking that would blank the one value the failure report is read for.
+// flow/execute answers with {code, message}, and the features assert on it.
+// Masking that would blank the one value the failure report is read for.
 func TestSnippetKeepsTheDiagnosticFields(t *testing.T) {
-	got := snippet([]byte(`{"code":"FES-1004","message":"invalid transaction"}`))
-	for _, want := range []string{"FES-1004", "invalid transaction"} {
+	got := snippet([]byte(`{"code":"some-code","message":"invalid transaction"}`))
+	for _, want := range []string{"some-code", "invalid transaction"} {
 		if !strings.Contains(got, want) {
 			t.Errorf("snippet masked %q, which the assertion is about:\n%s", want, got)
 		}

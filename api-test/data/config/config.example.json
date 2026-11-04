@@ -137,7 +137,7 @@
     "provider": "mock",
     "auth_factor": "otp",
     "tls_verify": true,
-    "identity": { "individual_id": "", "id_type": "uin" },
+    "identity": { "individual_id": "", "id_type": "uin", "secondary_individual_id": "" },
     "credentials": { "username": "", "password": "", "biometric": "" },
     "knowledge": { "full_name": "", "dob": "" },
     "otp": { "source": "static", "value": "111111", "ws_url": "", "recipient_email": "" },
@@ -150,11 +150,22 @@
     "tls_verify": true
   },
 
+  "//e2e": [
+    "  mock_mds   the mock MDS (SBI device service) the scripted biometric",
+    "             scenarios capture from. The harness image starts one on",
+    "             loopback and sets base_url itself; unset, those scenarios",
+    "             report ENV_NOT_READY.          (env MOCK_MDS_BASE_URL)",
+    "             env and domain_uri are signed into each capture and must",
+    "             equal the authn provider's IDA env and domain URI, or IDA",
+    "             refuses it. Defaults: Staging, and the origin of",
+    "             esignet.base_url.               (env MOCK_MDS_ENV, MOCK_MDS_DOMAIN_URI)"
+  ],
   "e2e": {
     "spec": "",
     "auth_factors": [],
     "include": [],
-    "exclude": []
+    "exclude": [],
+    "mock_mds": { "base_url": "", "env": "Staging", "domain_uri": "" }
   },
 
   "run": {

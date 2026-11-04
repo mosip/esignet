@@ -42,7 +42,7 @@ Its detail line names the setting to supply.
 | Client-management cases report as not run | `keycloak.token_url` / `client_id` / `client_secret` unset, so no admin token can be obtained |
 | Authorize-validation cases report as not run | `api.flow_client_id` unset — those cases need a pre-registered client to drive |
 | A secret from your config file appears blank in the run | An environment variable of the same name is defined but empty. Present-and-empty still overrides; leave it undefined instead — see [Configuration](configuration.md#environment-overrides) |
-| e2e fails immediately for a missing identity | `esignet.identity.individual_id` is required for every plugin except `mock` |
+| e2e fails immediately for a missing identity | `esignet.identity.individual_id` is required for every plugin, and `secondary_individual_id` for an e2e run with bio on `mock` or `mosip` |
 
 ---
 
