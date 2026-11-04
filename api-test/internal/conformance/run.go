@@ -398,12 +398,16 @@ func (o *Orchestrator) runModule(ctx context.Context, plan *PlanResponse, m Modu
 			// synthetic error callback so the suite can evaluate the test and exit WAITING on its own.
 			if errorPageAuthorizeURL != "" && alias != "" {
 				if cbURL, err := syntheticErrorCallbackURL(o.client.baseURL, alias, errorPageAuthorizeURL); err == nil {
-					dr, _ := o.client.DeliverCallback(ctx, cbURL)
+					dr, deliverErr := o.client.DeliverCallback(ctx, cbURL)
 					if dr.SuiteCallbackStatus != 0 {
 						res.FlowTrace.SuiteCallbackStatus = dr.SuiteCallbackStatus
 					}
 					if dr.ImplicitSubmitStatus != 0 {
 						res.FlowTrace.ImplicitSubmitStatus = dr.ImplicitSubmitStatus
+					}
+					if deliverErr != nil {
+						res.HarnessError = "deliver synthetic callback: " + deliverErr.Error()
+						break
 					}
 				}
 			}
@@ -421,7 +425,7 @@ func (o *Orchestrator) runModule(ctx context.Context, plan *PlanResponse, m Modu
 
 		if time.Now().After(deadline) {
 			if res.HarnessError == "" {
-				res.HarnessError = fmt.Sprintf("timeout after %ds (last status %s)", o.cfg.Run.TimeoutSeconds, res.Status)
+				res.HarnessError = fmt.Sprintf("timeout after %ds (last status %s)", timeoutSec, res.Status)
 			}
 			break
 		}
@@ -486,6 +490,7 @@ func (o *Orchestrator) driveOne(ctx context.Context, driver *esignet.Driver, aut
 		// For modules where an HTML error page is the expected server response (e.g. invalid/unregistered
 		// redirect_uri), signal the caller so it can deliver a synthetic error callback to the suite.
 		if allowErrorPage && flow.AuthorizeErrorCode != "" {
+			res.OutcomeDetail = "authorize error: " + flow.AuthorizeErrorCode
 			return true
 		}
 		res.HarnessError = "eSignet flow: " + flow.Error
