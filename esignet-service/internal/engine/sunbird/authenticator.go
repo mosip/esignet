@@ -13,6 +13,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/common"
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/providers"
@@ -91,7 +92,7 @@ func (p *sunbirdAuthnProvider) Authenticate(ctx context.Context, identifiers, cr
 	kbiFields := make(map[string]string, len(p.kbiFieldIDs))
 	for _, id := range p.kbiFieldIDs {
 		val, ok := credentials[id].(string)
-		if !ok || val == "" {
+		if !ok || strings.TrimSpace(val) == "" {
 			return nil, &common.ServiceError{
 				Code: "AUTHN-MGR-1008",
 				Type: common.ClientErrorType,
