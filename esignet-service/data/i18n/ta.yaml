@@ -1195,6 +1195,12 @@ header:
   select_login_id: உள்நுழைவு ஐடி விருப்பத்தைத் தேர்ந்தெடுக்கவும்
   select_login_mode: உள்நுழைவின் விருப்பமான முறையைத் தேர்ந்தெடுக்கவும்
 
+dropdown:
+  login_id_label: உள்நுழைவு ஐடி
+  vid: யுஐஎன்/விஐடி
+  mobile: மொபைல் எண்
+  email: மின்னஞ்சல்
+
 input:
   uin_label: UIN/VID
   uin_placeholder: உங்கள் UIN/VID ஐ உள்ளிடவும்
@@ -1227,7 +1233,6 @@ button:
   login_id_uin: யுஐஎன்/விஐடி
   login_id_mobile: மொபைல் எண்
   login_id_email: மின்னஞ்சல்
-  login_id_nrc: NRC ஐடி
 
 otp:
   enter_otp_title: OTP ஐ உள்ளிடவும்

@@ -1195,6 +1195,12 @@ header:
   select_login_id: ಲಾಗಿನ್ ಐಡಿ ಆಯ್ಕೆಯನ್ನು ಆರಿಸಿ
   select_login_mode: ಲಾಗಿನ್‌ನ ಆದ್ಯತೆಯ ವಿಧಾನವನ್ನು ಆರಿಸಿ
 
+dropdown:
+  login_id_label: ಲಾಗಿನ್ ಐಡಿ
+  vid: ಯುಐಎನ್/ವಿಐಡಿ
+  mobile: ಮೊಬೈಲ್ ಸಂಖ್ಯೆ
+  email: ಇಮೇಲ್
+
 input:
   uin_label: UIN/VID
   uin_placeholder: ನಿಮ್ಮ UIN/VID ನಮೂದಿಸಿ
@@ -1227,7 +1233,6 @@ button:
   login_id_uin: ಯುಐಎನ್/ವಿಐಡಿ
   login_id_mobile: ಮೊಬೈಲ್ ಸಂಖ್ಯೆ
   login_id_email: ಇಮೇಲ್
-  login_id_nrc: NRC ಐಡಿ
 
 otp:
   enter_otp_title: OTP ನಮೂದಿಸಿ

@@ -84,9 +84,6 @@ public class LoginOptionsPage extends BasePage {
 	@FindBy(id = "login_id_mobile")
 	WebElement mobileNumberOption;
 
-	@FindBy(id = "login_id_nrc")
-	WebElement nrcIdOption;
-
 	@FindBy(id = "login_id_uin")
 	WebElement vidOption;
 
@@ -775,10 +772,6 @@ public class LoginOptionsPage extends BasePage {
 		waitForLoginIdInputReady();
 	}
 
-	public boolean isNrcIdOptionDisplayed() {
-		return isElementVisible(nrcIdOption, "Verified nrc option is displayed for authentication");
-	}
-
 	public boolean isVidOptionDisplayed() {
 		return isElementVisible(vidOption, "Verified vid option is displayed for authentication");
 	}
@@ -937,7 +930,6 @@ public class LoginOptionsPage extends BasePage {
 			case "uin", "uin-password", "mockuin" -> selectUinLoginIdTypeIfAvailable();
 			case "email", "emailloginid" -> clickOnEmailOptionButton();
 			case "mobile" -> clickOnMobileNumberOption();
-			case "nrc" -> clickOnElement(nrcIdOption, "Selected NRC ID login ID type");
 			default -> throw new IllegalArgumentException("Unknown password login id type: " + loginIdType);
 		}
 		waitForLoginIdInputReady();
@@ -1294,7 +1286,6 @@ public class LoginOptionsPage extends BasePage {
 			case "login_id_uin" -> "UIN/VID";
 			case "login_id_mobile" -> "mobile number";
 			case "login_id_email" -> "email";
-			case "login_id_nrc" -> "NRC";
 			default -> elementId;
 		};
 	}
@@ -1312,7 +1303,6 @@ public class LoginOptionsPage extends BasePage {
 				case "uin" -> "uin";
 				case "mobile" -> "phone";
 				case "email" -> "email";
-				case "nrc" -> "nrc";
 				default -> loginIdType;
 			};
 			for (WebElement option : postfix.getOptions()) {
@@ -1348,7 +1338,7 @@ public class LoginOptionsPage extends BasePage {
 	}
 
 	private boolean isAnyLoginIdChipVisible() {
-		for (String id : List.of("login_id_mobile", "login_id_vid", "login_id_uin", "login_id_email", "login_id_nrc")) {
+		for (String id : List.of("login_id_mobile", "login_id_vid", "login_id_uin", "login_id_email")) {
 			for (WebElement chip : driver.findElements(By.id(id))) {
 				if (chip.isDisplayed()) {
 					return true;

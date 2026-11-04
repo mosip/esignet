@@ -213,12 +213,6 @@ public class LoginOptionsStepDefinition {
 				"Mobile number option is not displayed for authentication");
 	}
 
-	@Then("verify nrc id option is present for authentication")
-	public void verifyNrcIdOptionForAuthentication() {
-		Assert.assertTrue(loginOptionsPage.isNrcIdOptionDisplayed(),
-				"Nrc id option is not displayed for authentication");
-	}
-
 	@Then("verify vid option is present for authentication")
 	public void verifyVidOptionForAuthentication() {
 		Assert.assertTrue(loginOptionsPage.isVidOptionDisplayed(), "Vid option is not displayed for authentication");

@@ -1195,6 +1195,12 @@ header:
   select_login_id: Seleccione una opción de ID de inicio de sesión
   select_login_mode: Seleccione un modo de inicio de sesión preferido
 
+dropdown:
+  login_id_label: ID de inicio de sesión
+  vid: UIN/VID
+  mobile: Número de teléfono
+  email: Correo electrónico
+
 input:
   uin_label: UIN/VID
   uin_placeholder: Ingrese su UIN/VID
@@ -1227,7 +1233,6 @@ button:
   login_id_uin: UIN/VID
   login_id_mobile: Número de teléfono
   login_id_email: Correo electrónico
-  login_id_nrc: NRC ID
 
 otp:
   enter_otp_title: Ingrese OTP

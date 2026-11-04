@@ -1195,6 +1195,12 @@ header:
   select_login_id: පිවිසුම් ID විකල්පයක් තෝරන්න
   select_login_mode: කැමති පිවිසුම් ආකාරයක් තෝරන්න
 
+dropdown:
+  login_id_label: පිවිසුම් ID
+  vid: යුඅයිඑන්/වීඅයිඩී
+  mobile: ජංගම දුරකථන අංකය
+  email: විද්‍යුත් තැපෑල
+
 input:
   uin_label: UIN/VID
   uin_placeholder: ඔබේ UIN/VID ඇතුළත් කරන්න
@@ -1227,7 +1233,6 @@ button:
   login_id_uin: යුඅයිඑන්/වීඅයිඩී
   login_id_mobile: ජංගම දුරකථන අංකය
   login_id_email: විද්‍යුත් තැපෑල
-  login_id_nrc: NRC හැඳුනුම්පත
 
 otp:
   enter_otp_title: OTP ඇතුළත් කරන්න

@@ -1,12 +1,14 @@
-import { StrictMode } from "react";
+import { StrictMode, type ComponentProps } from "react";
 import { createRoot } from "react-dom/client";
 import { ThunderIDProvider } from "@thunderid/react";
+
 import App from "./App";
 import {
   SbiCustomRenderer,
   ResendOtpRenderer,
   BackButtonRenderer,
   CaptchaRenderer,
+  SelectComponentRenderer,
 } from "./components";
 import { LOGIN } from "./constants/routes";
 import { returnToRelyingParty } from "./utils/session-recovery";
@@ -14,7 +16,9 @@ import { returnToRelyingParty } from "./utils/session-recovery";
 const searchParams = new URL(window.location.href).searchParams;
 
 // Normalize the trailing slash so /signin/ matches like the router does.
-const isLoginRoute = window.location.pathname.replace(/\/+$/, "").endsWith(LOGIN);
+const isLoginRoute = window.location.pathname
+  .replace(/\/+$/, "")
+  .endsWith(LOGIN);
 
 // From the RP hand-off URL; absent after the SDK strips it or on reload/back.
 const applicationId = searchParams.get("applicationId") ?? undefined;
@@ -38,6 +42,23 @@ if (!baseUrlRaw) {
 }
 const baseUrl = baseUrlRaw || `http://localhost:8088`;
 
+// Typed from the provider prop so we only depend on @thunderid/react.
+type Extensions = NonNullable<
+  ComponentProps<typeof ThunderIDProvider>["extensions"]
+>;
+
+const customRenderers: Extensions = {
+  components: {
+    renderers: {
+      SBI_ID: SbiCustomRenderer,
+      RESEND_OTP: ResendOtpRenderer,
+      BACK_BUTTON: BackButtonRenderer,
+      CAPTCHA_BOX: CaptchaRenderer,
+      SELECT_LOGIN_ID: SelectComponentRenderer,
+    },
+  },
+};
+
 if (isLoginRoute && !applicationId) {
   // Reload/back with no live transaction → hand back to the RP.
   returnToRelyingParty();
@@ -50,18 +71,11 @@ if (isLoginRoute && !applicationId) {
           applicationId={applicationId}
           namespace={applicationId}
           preferences={
-            initialLanguage ? { i18n: { language: initialLanguage } } : undefined
+            initialLanguage
+              ? { i18n: { language: initialLanguage } }
+              : undefined
           }
-          extensions={{
-            components: {
-              renderers: {
-                SBI_ID: SbiCustomRenderer,
-                RESEND_OTP: ResendOtpRenderer,
-                BACK_BUTTON: BackButtonRenderer,
-                CAPTCHA_BOX: CaptchaRenderer,
-              },
-            },
-          }}
+          extensions={customRenderers}
         >
           <App />
         </ThunderIDProvider>

@@ -46,7 +46,6 @@ Feature: Esignet Login Options Page
    And select the mandatory language
    And user click on Login with Otp
    Then verify mobile number option is present for authentication
-   Then verify nrc id option is present for authentication
    Then verify vid option is present for authentication
    Then verify email option is present for authentication
    Then verify mobile number selected for authentication
@@ -176,7 +175,6 @@ Feature: Esignet Login Options Page
    Then verify mobile number option is present for authentication
    Then verify vid option is present for authentication
    Then verify email option is present for authentication
-   Then verify nrc id option is present for authentication
    Then verify password field is present for authentication
    When user selects uin login id type if available
    When user enters prerequisite uin into password login id field
@@ -203,7 +201,6 @@ Feature: Esignet Login Options Page
    Then verify mobile number option is present for authentication
    Then verify vid option is present for authentication
    Then verify email option is present for authentication
-   Then verify nrc id option is present for authentication
    Then verify password field is present for authentication
    When user selects "<login id type>" login id type for password authentication
    And user enters configured password login id for "<identity key>"
@@ -225,7 +222,6 @@ Feature: Esignet Login Options Page
    And select the mandatory language
    And clicks on login with password button in login screen page
    Then verify mobile number option is present for authentication
-   Then verify nrc id option is present for authentication
    Then verify vid option is present for authentication
    Then verify email option is present for authentication
    Then verify password field is present for authentication
