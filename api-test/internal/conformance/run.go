@@ -67,7 +67,7 @@ var moduleBehaviors = map[string]moduleBehavior{
 	// The suite self-completes after its own internal module timeout (typically ~5 min) once no callback
 	// arrives. The harness uses a longer timeout so it outlasts the suite's wait instead of cutting it short.
 	"ensure-registered-redirect-uri": {allowErrorPage: true, timeoutSeconds: 600},
-	"redirect-uri-query-added":        {allowErrorPage: true, timeoutSeconds: 600},
+	"redirect-uri-query-added":       {allowErrorPage: true, timeoutSeconds: 600},
 	// The suite pauses at CONFIGURED waiting for the operator to rotate keys; send Continue automatically.
 	"server-rotate-keys": {needsContinue: true},
 }
