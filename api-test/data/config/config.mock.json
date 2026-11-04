@@ -36,7 +36,7 @@
         "openid": "openid_connect",
         "fapi_profile": "plain_fapi"
       },
-      "config_file": "conformance-suite-private/esignet-fapi2-config-copy.json",
+      "config_file": "conformance-suite-private/esignet-fapi2-config.json",
       "profile": "full"
     },
     {
@@ -47,7 +47,7 @@
         "response_mode": "default",
         "client_registration": "static_client"
       },
-      "config_file": "conformance-suite-private/esignet-config-copy.json",
+      "config_file": "conformance-suite-private/esignet-config.json",
       "skip": [
         "oidcc-refresh-token",
         "oidcc-ensure-request-object-with-redirect-uri"
