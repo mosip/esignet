@@ -4,15 +4,14 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-// Querier is the persistence contract the clientmgmt service programs against.
-// db.Queries implements it; both are hand-maintained.
-
 package db
 
 import (
 	"context"
 )
 
+// Querier is the persistence contract the clientmgmt service programs against.
+// db.Queries implements it; both are hand-maintained.
 type Querier interface {
 	CreateClient(ctx context.Context, arg CreateClientParams) (ClientDetail, error)
 	GetActiveClient(ctx context.Context, id string) (ClientDetail, error)

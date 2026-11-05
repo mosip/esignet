@@ -4,9 +4,6 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-// ClientDetail is the client_detail row model for the clientmgmt persistence
-// layer. It is hand-maintained alongside db.go.
-
 package db
 
 import (
@@ -14,6 +11,8 @@ import (
 	"time"
 )
 
+// ClientDetail is the client_detail row model for the clientmgmt persistence
+// layer. It is hand-maintained alongside db.go.
 type ClientDetail struct {
 	ID               string         `db:"id" json:"id"`
 	Name             string         `db:"name" json:"name"`
