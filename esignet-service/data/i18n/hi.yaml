@@ -1010,7 +1010,7 @@ system:
   "flows.executor.errors.insufficient_permissions_desc": उपयोगकर्ता के पास यह क्रिया करने के लिए पर्याप्त अनुमतियां नहीं हैं
   "flows.executor.errors.invalid_action": अमान्य क्रिया प्रदान की गई
   "flows.executor.errors.invalid_action_desc": प्रदान की गई क्रिया वर्तमान फ़्लो चरण के लिए मान्य नहीं है
-  "flows.executor.errors.invalid_credentials": अमान्य क्रेडेंशियल प्रदान किए गए
+  "flows.executor.errors.invalid_credentials": कृपया मान्य क्रेडेंशियल दर्ज करें
   "flows.executor.errors.invalid_credentials_desc": प्रदान किए गए क्रेडेंशियल अमान्य हैं
   "flows.executor.errors.invalid_federated_user": अमान्य फेडरेटेड उपयोगकर्ता
   "flows.executor.errors.invalid_federated_user_desc": फेडरेटेड उपयोगकर्ता जानकारी अमान्य या असंगत है
@@ -1190,6 +1190,7 @@ system:
   "theme.error.not_found_description": अनुरोधित थीम कॉन्फ़िगरेशन नहीं मिली
   "theme.error.result_limit_exceeded": परिणाम सीमा पार हो गई
   "theme.error.result_limit_exceeded_description": कंपोजिट मोड में थीम की कुल संख्या अधिकतम अनुमत सीमा से अधिक है
+  "invalid_individual_id": कृपया मान्य क्रेडेंशियल दर्ज करें
 
 header:
   login_heading: लॉगिन
@@ -1227,6 +1228,7 @@ button:
   continue: जारी रखें
   login: लॉगिन
   verify: सत्यापित करें
+  cancel: रद्द करें
   get_otp: ओटीपी प्राप्त करें
   login_otp: ओटीपी से लॉगिन करें
   login_password: पासवर्ड से लॉगिन करें
@@ -1240,6 +1242,11 @@ otp:
   enter_otp_title: ओटीपी दर्ज करें
   otp_sent_msg: कृपया अपने पंजीकृत संपर्क पर भेजा गया 6 अंकों का ओटीपी दर्ज करें
   resend_otp: ओटीपी पुनः भेजें
+  didnt_receive_otp: ओटीपी प्राप्त नहीं हुआ?
+  resend_captcha_prompt: कृपया पुष्टि करें कि आप एक रोबोट नहीं हैं और हम आपको एक नया OTP भेजेंगे
+  resend_limit_reached: ओटीपी पुनः भेजने की सीमा पार हो गई है। कृपया फिर से लॉगिन करें।
+  resend_try_again: कृपया पुनः प्रयास करें
+  attempts_remaining: "{{param(totalAttempts)}} में से {{param(attemptsLeft)}} प्रयास शेष"
 
 biometric:
   title: अपनी बायोमेट्रिक्स प्रदान करें

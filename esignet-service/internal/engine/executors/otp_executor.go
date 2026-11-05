@@ -38,6 +38,7 @@ const (
 	additionalKeyTimeLeft        = "timeLeft"
 	additionalKeyOTPValidityMins = "otpValidityMins"
 	additionalKeyAttemptsLeft    = "attemptsLeft"
+	additionalKeyTotalAttempts   = "totalAttempts"
 	// actionResendOTP is the flow action submitted by the UI's resend button.
 	actionResendOTP = "RESEND_OTP"
 	// defaultMaxOTPAttempts is used when the maxAttempts node property is absent or invalid.
@@ -115,6 +116,10 @@ func (e *otpExecutor) Execute(ctx *providers.NodeContext) (*providers.ExecutorRe
 		applog.GetLogger().Warn(ctx.Context, "maximum OTP attempts reached")
 		execResp.Status = providers.ExecFailure
 		execResp.Error = shared.MaxOTPAttemptsReachedError
+		execResp.AdditionalData = map[string]string{
+			additionalKeyAttemptsLeft:  "0",
+			additionalKeyTotalAttempts: strconv.Itoa(maxAttempts),
+		}
 		return execResp, nil
 	}
 
@@ -125,8 +130,9 @@ func (e *otpExecutor) Execute(ctx *providers.NodeContext) (*providers.ExecutorRe
 		execResp.Status = providers.ExecUserInputRequired
 		execResp.Error = shared.OTPResendTooEarlyError
 		execResp.AdditionalData = map[string]string{
-			additionalKeyTimeLeft:     strconv.Itoa(remaining),
-			additionalKeyAttemptsLeft: strconv.Itoa(attemptsLeft(maxAttempts, attemptCount)),
+			additionalKeyTimeLeft:      strconv.Itoa(remaining),
+			additionalKeyAttemptsLeft:  strconv.Itoa(attemptsLeft(maxAttempts, attemptCount)),
+			additionalKeyTotalAttempts: strconv.Itoa(maxAttempts),
 		}
 		return execResp, nil
 	}
@@ -148,7 +154,8 @@ func (e *otpExecutor) Execute(ctx *providers.NodeContext) (*providers.ExecutorRe
 			execResp.Inputs = []providers.Input{individualIDInput}
 			execResp.Error = serviceError
 			execResp.AdditionalData = map[string]string{
-				additionalKeyAttemptsLeft: strconv.Itoa(attemptsLeft(maxAttempts, attemptCount+1)),
+				additionalKeyAttemptsLeft:  strconv.Itoa(attemptsLeft(maxAttempts, attemptCount+1)),
+				additionalKeyTotalAttempts: strconv.Itoa(maxAttempts),
 			}
 			return execResp, nil
 		}
@@ -165,6 +172,7 @@ func (e *otpExecutor) Execute(ctx *providers.NodeContext) (*providers.ExecutorRe
 		additionalKeyTimeLeft:        strconv.Itoa(e.otpValidityMins * 60),
 		additionalKeyOTPValidityMins: strconv.Itoa(e.otpValidityMins),
 		additionalKeyAttemptsLeft:    strconv.Itoa(attemptsLeft(maxAttempts, attemptCount+1)),
+		additionalKeyTotalAttempts:   strconv.Itoa(maxAttempts),
 	}
 
 	execResp.ForwardedData[maskedEmail] = result.MaskedEmail

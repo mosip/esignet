@@ -1010,7 +1010,7 @@ system:
   "flows.executor.errors.insufficient_permissions_desc": L'utilisateur ne dispose pas d'autorisations suffisantes pour effectuer cette action
   "flows.executor.errors.invalid_action": Action fournie non valide
   "flows.executor.errors.invalid_action_desc": L'action fournie n'est pas valide pour l'étape actuelle du flux
-  "flows.executor.errors.invalid_credentials": Identifiants fournis non valides
+  "flows.executor.errors.invalid_credentials": Veuillez saisir des identifiants valides
   "flows.executor.errors.invalid_credentials_desc": Les identifiants fournis sont non valides
   "flows.executor.errors.invalid_federated_user": Utilisateur fédéré non valide
   "flows.executor.errors.invalid_federated_user_desc": Les informations de l'utilisateur fédéré sont non valides ou incohérentes
@@ -1190,6 +1190,7 @@ system:
   "theme.error.not_found_description": La configuration de thème demandée est introuvable
   "theme.error.result_limit_exceeded": Limite de résultats dépassée
   "theme.error.result_limit_exceeded_description": Le nombre total de thèmes dépasse la limite maximale autorisée en mode composite
+  "invalid_individual_id": Veuillez saisir des identifiants valides
 
 header:
   login_heading: Connexion
@@ -1227,6 +1228,7 @@ button:
   continue: Continuer
   login: Connexion
   verify: Vérifier
+  cancel: Annuler
   get_otp: Obtenir OTP
   login_otp: Connexion avec OTP
   login_password: Connexion avec mot de passe
@@ -1240,6 +1242,11 @@ otp:
   enter_otp_title: "Entrez l'OTP"
   otp_sent_msg: "Veuillez entrer l'OTP à 6 chiffres envoyé à votre contact enregistré"
   resend_otp: "Renvoyer l'OTP"
+  didnt_receive_otp: Vous n'avez pas reçu le code OTP ?
+  resend_captcha_prompt: "Confirmez que vous n'êtes pas un robot et nous vous enverrons un nouvel OTP."
+  resend_limit_reached: "Vous avez atteint la limite de tentatives de renvoi d'OTP."
+  resend_try_again: Veuillez réessayer
+  attempts_remaining: "{{param(attemptsLeft)}} essais restants sur {{param(totalAttempts)}}"
 
 biometric:
   title: Fournissez vos données biométriques

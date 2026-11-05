@@ -1010,7 +1010,7 @@ system:
   "flows.executor.errors.insufficient_permissions_desc": ಈ ಕ್ರಿಯೆ ನಿರ್ವಹಿಸಲು ಬಳಕೆದಾರನಿಗೆ ಸಾಕಷ್ಟು ಅನುಮತಿಗಳಿಲ್ಲ
   "flows.executor.errors.invalid_action": ಅಮಾನ್ಯ ಕ್ರಿಯೆ ಒದಗಿಸಲ್ಪಟ್ಟಿದೆ
   "flows.executor.errors.invalid_action_desc": ಒದಗಿಸಿದ ಕ್ರಿಯೆ ಪ್ರಸ್ತುತ ಫ್ಲೋ ಹಂತಕ್ಕೆ ಮಾನ್ಯವಾಗಿಲ್ಲ
-  "flows.executor.errors.invalid_credentials": ಅಮಾನ್ಯ ರುಜುವಾತುಗಳು ಒದಗಿಸಲ್ಪಟ್ಟಿವೆ
+  "flows.executor.errors.invalid_credentials": ದಯವಿಟ್ಟು ಮಾನ್ಯ ರುಜುವಾತನ್ನು ನಮೂದಿಸಿ
   "flows.executor.errors.invalid_credentials_desc": ಒದಗಿಸಿದ ರುಜುವಾತುಗಳು ಅಮಾನ್ಯವಾಗಿವೆ
   "flows.executor.errors.invalid_federated_user": ಅಮಾನ್ಯ ಫೆಡರೇಟೆಡ್ ಬಳಕೆದಾರ
   "flows.executor.errors.invalid_federated_user_desc": ಫೆಡರೇಟೆಡ್ ಬಳಕೆದಾರ ಮಾಹಿತಿ ಅಮಾನ್ಯ ಅಥವಾ ಅಸಂಗತವಾಗಿದೆ
@@ -1190,6 +1190,7 @@ system:
   "theme.error.not_found_description": ವಿನಂತಿಸಿದ ಥೀಮ್ ಸಂರಚನೆ ಕಂಡುಬಂದಿಲ್ಲ
   "theme.error.result_limit_exceeded": ಫಲಿತಾಂಶ ಮಿತಿ ಮೀರಿದೆ
   "theme.error.result_limit_exceeded_description": ಸಂಯೋಜಿತ ಮೋಡ್‌ನಲ್ಲಿ ಥೀಮ್‌ಗಳ ಒಟ್ಟು ಸಂಖ್ಯೆ ಗರಿಷ್ಠ ಅನುಮತಿಸಿದ ಮಿತಿ ಮೀರಿದೆ
+  "invalid_individual_id": ದಯವಿಟ್ಟು ಮಾನ್ಯ ರುಜುವಾತನ್ನು ನಮೂದಿಸಿ
 
 header:
   login_heading: ಲಾಗಿನ್
@@ -1227,6 +1228,7 @@ button:
   continue: ಮುಂದುವರಿಸಿ
   login: ಲಾಗಿನ್
   verify: ಪರಿಶೀಲಿಸಿ
+  cancel: ರದ್ದುಮಾಡಿ
   get_otp: OTP ಪಡೆಯಿರಿ
   login_otp: OTP ಮೂಲಕ ಲಾಗಿನ್ ಮಾಡಿ
   login_password: ಪಾಸ್‌ವರ್ಡ್ ಮೂಲಕ ಲಾಗಿನ್ ಮಾಡಿ
@@ -1240,6 +1242,11 @@ otp:
   enter_otp_title: OTP ನಮೂದಿಸಿ
   otp_sent_msg: ನಿಮ್ಮ ನೋಂದಾಯಿತ ಸಂಪರ್ಕಕ್ಕೆ ಕಳುಹಿಸಲಾದ 6 ಅಂಕಿಯ OTP ನಮೂದಿಸಿ
   resend_otp: OTP ಮರುಕಳುಹಿಸಿ
+  didnt_receive_otp: OTP ಪ್ರಾಪ್ತಿಸಲಾಗಲಿಲ್ಲ
+  resend_captcha_prompt: ನೀವು ರೋಬೋಟ್ ಅಲ್ಲ ಎಂದು ದೃಢೀಕರಿಸಿ; ನಾವು ನಿಮಗೆ ಹೊಸ OTP ಕಳುಹಿಸುತ್ತೇವೆ.
+  resend_limit_reached: OTP ಅನ್ನು ಮರುಕಳುಹಿಸುವ ಮಿತಿಯನ್ನು ನೀವು ತಲುಪಿದ್ದೀರಿ. ದಯವಿಟ್ಟು ಮತ್ತೊಮ್ಮೆ ಸೈನ್-ಇನ್ ಮಾಡಿ.
+  resend_try_again: ದಯವಿಟ್ಟು ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ
+  attempts_remaining: "{{param(totalAttempts)}} ರಲ್ಲಿ {{param(attemptsLeft)}} ಪ್ರಯತ್ನಗಳು ಬಾಕಿ"
 
 biometric:
   title: ನಿಮ್ಮ ಬಯೋಮೆಟ್ರಿಕ್ಸ್ ಅನ್ನು ಒದಗಿಸಿ
