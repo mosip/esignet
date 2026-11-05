@@ -19,6 +19,7 @@ import org.openqa.selenium.Keys;
 import org.openqa.selenium.NoAlertPresentException;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.OutputType;
+import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
@@ -215,6 +216,138 @@ public class BasePage {
 		return isOnEsignetLoginPage(driver);
 	}
 
+	// ---------------------------------------------------------------------
+	// Login ID type dropdown (SELECT_LOGIN_ID in flow-esignet.yaml).
+	// One combobox button replaces the old login_id_* buttons. Its options are
+	// in the DOM only while the list is open, each with data-value set to the
+	// flow value (login_id_uin, login_id_mobile, login_id_email).
+	// The button's data-value holds the selected option's value. Picking an
+	// option submits the flow, so wait for data-value to change afterwards.
+	// ---------------------------------------------------------------------
+
+	public static final String LOGIN_ID_UIN = "login_id_uin";
+	public static final String LOGIN_ID_MOBILE = "login_id_mobile";
+	public static final String LOGIN_ID_EMAIL = "login_id_email";
+
+	protected static final By LOGIN_ID_DROPDOWN = By.cssSelector(
+			"button.login-id-dropdown__trigger[role='combobox']");
+	private static final String LOGIN_ID_OPTION_CSS =
+			"ul.login-id-dropdown__list li[role='option'][data-value='%s']";
+
+	protected WebElement findVisibleLoginIdDropdown() {
+		for (WebElement dropdown : driver.findElements(LOGIN_ID_DROPDOWN)) {
+			try {
+				if (dropdown.isDisplayed()) {
+					return dropdown;
+				}
+			} catch (StaleElementReferenceException ignored) {
+
+			}
+		}
+		return null;
+	}
+
+	public boolean isLoginIdDropdownVisible() {
+		return findVisibleLoginIdDropdown() != null;
+	}
+
+	/** The selected login ID type's flow value, or null when none is shown. */
+	public String getSelectedLoginIdType() {
+		WebElement dropdown = findVisibleLoginIdDropdown();
+		if (dropdown == null) {
+			return null;
+		}
+		String value = dropdown.getAttribute("data-value");
+		return value == null || value.isBlank() ? null : value;
+	}
+
+	public boolean isLoginIdTypeSelected(String value) {
+		return value != null && value.equals(getSelectedLoginIdType());
+	}
+
+	private boolean isLoginIdDropdownOpen(WebElement dropdown) {
+		return "true".equals(dropdown.getAttribute("aria-expanded"));
+	}
+
+	protected void openLoginIdDropdown() {
+		WebElement dropdown = findVisibleLoginIdDropdown();
+		if (dropdown == null) {
+			throw new IllegalStateException("Login ID dropdown is not visible. URL: " + driver.getCurrentUrl());
+		}
+		if (isLoginIdDropdownOpen(dropdown)) {
+			return;
+		}
+		// A native click: a script click counts as a keyboard activation and
+		// would pick the active option instead of toggling the list.
+		dropdown.click();
+		new WebDriverWait(driver, Duration.ofSeconds(5))
+				.pollingEvery(Duration.ofMillis(100))
+				.ignoring(StaleElementReferenceException.class)
+				.until(d -> {
+					WebElement trigger = findVisibleLoginIdDropdown();
+					return trigger != null && isLoginIdDropdownOpen(trigger);
+				});
+	}
+
+	protected void closeLoginIdDropdown() {
+		WebElement dropdown = findVisibleLoginIdDropdown();
+		if (dropdown != null && isLoginIdDropdownOpen(dropdown)) {
+			dropdown.sendKeys(Keys.ESCAPE);
+		}
+	}
+
+	private WebElement findEnabledLoginIdOption(String value) {
+		for (WebElement option : driver.findElements(By.cssSelector(String.format(LOGIN_ID_OPTION_CSS, value)))) {
+			try {
+				if (option.isDisplayed() && !"true".equals(option.getAttribute("aria-disabled"))) {
+					return option;
+				}
+			} catch (StaleElementReferenceException ignored) {
+
+			}
+		}
+		return null;
+	}
+
+	/** Whether the dropdown offers this login ID type. Opens and closes the list. */
+	public boolean isLoginIdTypeOffered(String value) {
+		if (!isLoginIdDropdownVisible()) {
+			return false;
+		}
+		if (isLoginIdTypeSelected(value)) {
+			return true;
+		}
+		try {
+			openLoginIdDropdown();
+			return findEnabledLoginIdOption(value) != null;
+		} finally {
+			closeLoginIdDropdown();
+		}
+	}
+
+	/**
+	 * Selects a login ID type in the dropdown and waits for the flow to switch
+	 * to it. Returns false, leaving the list closed, when it is not offered.
+	 */
+	public boolean selectLoginIdType(String value, String stepDesc) {
+		if (isLoginIdTypeSelected(value)) {
+			ExtentReportManager.getTest().log(Status.INFO, stepDesc + " - already selected");
+			return true;
+		}
+		openLoginIdDropdown();
+		WebElement option = findEnabledLoginIdOption(value);
+		if (option == null) {
+			closeLoginIdDropdown();
+			return false;
+		}
+		clickOnElement(option, stepDesc);
+		new WebDriverWait(driver, Duration.ofSeconds(10))
+				.pollingEvery(Duration.ofMillis(200))
+				.ignoring(StaleElementReferenceException.class)
+				.until(d -> isLoginIdTypeSelected(value));
+		return true;
+	}
+
 	protected boolean isOnEsignetLoginPage(WebDriver webDriver) {
 
 		if (!webDriver.findElements(By.xpath("//*[contains(text(),'Something went wrong')]")).isEmpty()) {
@@ -225,8 +358,7 @@ public class BasePage {
 			return true;
 		}
 		boolean landed = !webDriver.findElements(By.cssSelector("[id^='acr_']")).isEmpty()
-				|| !webDriver.findElements(By.id("login_id_uin")).isEmpty()
-				|| !webDriver.findElements(By.id("login_id_mobile")).isEmpty();
+				|| !webDriver.findElements(LOGIN_ID_DROPDOWN).isEmpty();
 		if (landed) {
 			return true;
 		}
@@ -332,13 +464,32 @@ public class BasePage {
 			return false;
 		}
 		try {
-			String currentHost = URI.create(currentUrl).getHost();
-			String eSignetHost = URI.create(eSignetBaseUrl).getHost();
-			return currentHost != null && eSignetHost != null && !currentHost.equalsIgnoreCase(eSignetHost)
-					&& !currentUrl.contains("/authorize");
+			URI currentUri = URI.create(currentUrl);
+			URI eSignetUri = URI.create(eSignetBaseUrl);
+			String currentHost = currentUri.getHost();
+			String eSignetHost = eSignetUri.getHost();
+			if (currentHost == null || eSignetHost == null || currentUrl.contains("/authorize")) {
+				return false;
+			}
+			// Locally the relying party and eSignet share the localhost host, so tell them apart by port
+			if (isLocalHost(currentHost) && isLocalHost(eSignetHost)) {
+				return effectivePort(currentUri) != effectivePort(eSignetUri);
+			}
+			return !currentHost.equalsIgnoreCase(eSignetHost);
 		} catch (IllegalArgumentException e) {
 			return false;
 		}
+	}
+
+	private static boolean isLocalHost(String host) {
+		return host.equalsIgnoreCase("localhost") || host.equals("127.0.0.1") || host.equals("[::1]");
+	}
+
+	private static int effectivePort(URI uri) {
+		if (uri.getPort() != -1) {
+			return uri.getPort();
+		}
+		return "https".equalsIgnoreCase(uri.getScheme()) ? 443 : 80;
 	}
 
 	public boolean ensureFreshEsignetLoginPage(By landmark) {
