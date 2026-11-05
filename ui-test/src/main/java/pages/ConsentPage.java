@@ -228,6 +228,11 @@ public class ConsentPage extends BasePage {
 		if (isLoginIdDropdownVisible()) {
 			selectLoginIdType(LOGIN_ID_MOBILE, "Selected mobile number ID type");
 		}
+		if (isLoginIdDropdownVisible()
+			&& !selectLoginIdType(LOGIN_ID_MOBILE, "Selected mobile number ID type")) {
+			throw new IllegalStateException(
+					"Mobile number ID type is not offered in the login ID dropdown. URL: " + driver.getCurrentUrl());
+		}
 		waitForElementVisible(mobileNumberField);
 		mobileNumberField.clear();
 		enterText(mobileNumberField, number, "Entered registered mobile number");
