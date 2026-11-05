@@ -1227,6 +1227,7 @@ button:
   continue: បន្ត
   login: ចូល
   verify: ផ្ទៀងផ្ទាត់
+  cancel: បោះបង់
   get_otp: ទទួល OTP
   login_otp: ចូលដោយ OTP
   login_password: ចូលដោយពាក្យសម្ងាត់
@@ -1240,6 +1241,9 @@ otp:
   enter_otp_title: បញ្ចូល OTP
   otp_sent_msg: សូមបញ្ចូលលេខកូដ OTP 6 ខ្ទង់ដែលបានផ្ញើទៅទំនាក់ទំនងដែលបានចុះឈ្មោះរបស់អ្នក
   resend_otp: ផ្ញើ OTP ម្តងទៀត
+  didnt_receive_otp: មិនទទួលបានកូដ OTP?
+  resend_captcha_prompt: បញ្ជាក់ថាអ្នកគឺមិនមែនជា robot ហើយយើងនឹងផ្ញើកូដ OTP ថ្មី
+  resend_limit_reached: អ្នកបានឈានដល់កម្រិតកំណត់សម្រាប់ការផ្ញើ OTP ម្តងទៀត។ សូមចូលឡើងវិញ។
 
 biometric:
   title: ផ្តល់ជីវមាត្ររបស់អ្នក

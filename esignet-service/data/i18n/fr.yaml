@@ -1227,6 +1227,7 @@ button:
   continue: Continuer
   login: Connexion
   verify: Vérifier
+  cancel: Annuler
   get_otp: Obtenir OTP
   login_otp: Connexion avec OTP
   login_password: Connexion avec mot de passe
@@ -1240,6 +1241,9 @@ otp:
   enter_otp_title: "Entrez l'OTP"
   otp_sent_msg: "Veuillez entrer l'OTP à 6 chiffres envoyé à votre contact enregistré"
   resend_otp: "Renvoyer l'OTP"
+  didnt_receive_otp: Vous n'avez pas reçu le code OTP ?
+  resend_captcha_prompt: "Confirmez que vous n'êtes pas un robot et nous vous enverrons un nouvel OTP."
+  resend_limit_reached: "Vous avez atteint la limite de tentatives de renvoi d'OTP."
 
 biometric:
   title: Fournissez vos données biométriques

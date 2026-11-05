@@ -1227,6 +1227,7 @@ button:
   continue: متابعة
   login: تسجيل الدخول
   verify: تحقق
+  cancel: إلغاء
   get_otp: احصل على OTP
   login_otp: تسجيل الدخول بـ OTP
   login_password: تسجيل الدخول بكلمة المرور
@@ -1240,6 +1241,9 @@ otp:
   enter_otp_title: أدخل OTP
   otp_sent_msg: يرجى إدخال رمز OTP المكون من 6 أرقام المرسل إلى جهة الاتصال المسجلة الخاصة بك
   resend_otp: إعادة إرسال OTP
+  didnt_receive_otp: ألم تستلم رمز التحقق؟
+  resend_captcha_prompt: أكد أنك لست روبوتًا وسنرسل رمز تحقق جديدًا.
+  resend_limit_reached: لقد وصلت إلى الحد الأقصى لإعادة إرسال OTP. يرجى تسجيل الدخول مرة أخرى.
 
 biometric:
   title: قدم بياناتك الحيوية

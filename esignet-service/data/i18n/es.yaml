@@ -1227,6 +1227,7 @@ button:
   continue: Continuar
   login: Iniciar sesión
   verify: Verificar
+  cancel: Cancelar
   get_otp: Obtener OTP
   login_otp: Iniciar sesión con OTP
   login_password: Iniciar sesión con contraseña
@@ -1240,6 +1241,9 @@ otp:
   enter_otp_title: Ingrese OTP
   otp_sent_msg: Por favor ingrese el OTP de 6 dígitos enviado a su contacto registrado
   resend_otp: Reenviar OTP
+  didnt_receive_otp: ¿No recibiste el código OTP?
+  resend_captcha_prompt: Confirma que no eres un robot y te enviaremos un nuevo código OTP.
+  resend_limit_reached: Has alcanzado el límite para reenviar OTP. Por favor, inicia sesión de nuevo.
 
 biometric:
   title: Proporcione sus datos biométricos
