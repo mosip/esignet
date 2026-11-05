@@ -7,7 +7,7 @@ export default function ResendOtpRenderer(
   context: ComponentRenderContext,
 ) {
   return (
-    <div className="back-button-renderer">
+    <div className="resend-otp-renderer">
       <ResendOtp key={component.id} component={component} context={context} />
     </div>
   );

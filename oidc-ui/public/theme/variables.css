@@ -198,6 +198,11 @@
     white
   );
   --consent-banner-border-radius: 10px;
+  --resend-panel-bg-color: color-mix(in srgb, var(--primary-color) 5%, white);
+  --resend-panel-text-color: #4e4e4e;
+  --resend-panel-title-color: #1f1f1f;
+  --resend-panel-link-color: var(--primary-color);
+  --resend-panel-error-color: #d92d20;
 }
 
 /* example theme to override default variables

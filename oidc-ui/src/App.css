@@ -341,6 +341,70 @@ input[type="password"]::-ms-clear {
   color: #4e4e4e !important;
 }
 
+/* Resend OTP panel — groups the prompt, captcha and action into one tinted
+   block so the captcha reads as a condition on Resend, not on Verify. */
+.resend-otp-panel {
+  margin: 1rem -2rem -2rem;
+  padding: 1rem 2rem;
+  background: var(--resend-panel-bg-color);
+  border-bottom-left-radius: var(--thunderid-border-radius-large);
+  border-bottom-right-radius: var(--thunderid-border-radius-large);
+  text-align: center;
+}
+
+.resend-otp-panel__title {
+  margin-bottom: 0.25rem;
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--resend-panel-title-color);
+}
+
+.resend-otp-panel__text {
+  font-weight: 500;
+  font-size: 0.875rem;
+  line-height: 1.4;
+  color: var(--resend-panel-text-color);
+}
+
+.resend-otp-panel__captcha {
+  display: flex;
+  justify-content: center;
+  margin-top: 0.75rem;
+}
+
+.resend-otp-panel__error {
+  margin-top: 0.25rem;
+  font-size: 0.75rem;
+  color: var(--resend-panel-error-color);
+}
+
+.resend-otp-panel__link {
+  margin-top: 0.5rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: var(--resend-panel-link-color);
+  cursor: pointer;
+}
+
+.resend-otp-panel__link:hover {
+  text-decoration: underline;
+}
+
+.resend-otp-panel__link:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  text-decoration: none;
+}
+
+.resend-otp-panel__link:focus-visible {
+  outline: 2px solid var(--resend-panel-link-color);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
 /* Login id dropdown (SELECT_LOGIN_ID) */
 .login-id-dropdown {
   position: relative;

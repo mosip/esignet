@@ -1227,6 +1227,7 @@ button:
   continue: Continue
   login: Login
   verify: Verify
+  cancel: Cancel
   get_otp: Get OTP
   login_otp: Login with OTP
   login_password: Login with Password
@@ -1240,6 +1241,9 @@ otp:
   enter_otp_title: Enter OTP
   otp_sent_msg: Please enter the 6-digit OTP sent to your registered contact
   resend_otp: Resend OTP
+  didnt_receive_otp: Didn't receive the OTP?
+  resend_captcha_prompt: Confirm you're not a robot and we'll send a new OTP.
+  resend_limit_reached: You have reached the limit for resending OTP. Please sign-in again.
 
 biometric:
   title: Provide your biometrics
