@@ -5,7 +5,7 @@
  */
 
 // ClientDetail is the client_detail row model for the clientmgmt persistence
-// layer. (Originally sqlc-generated; now hand-maintained alongside db.go.)
+// layer. It is hand-maintained alongside db.go.
 
 package db
 
@@ -18,7 +18,7 @@ type ClientDetail struct {
 	ID               string         `db:"id" json:"id"`
 	Name             string         `db:"name" json:"name"`
 	RpID             string         `db:"rp_id" json:"rp_id"`
-	LogoUri          string         `db:"logo_uri" json:"logo_uri"`
+	LogoURI          string         `db:"logo_uri" json:"logo_uri"`
 	RedirectUris     string         `db:"redirect_uris" json:"redirect_uris"`
 	Claims           string         `db:"claims" json:"claims"`
 	AcrValues        string         `db:"acr_values" json:"acr_values"`

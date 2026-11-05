@@ -6,9 +6,9 @@
 
 // Package db implements the clientmgmt persistence layer for the client_detail
 // table using jmoiron/sqlx. Queries are written with "?" placeholders and
-// rebound once per driver in New (see dbutil.Rebind), so the same query text
-// runs on PostgreSQL and MySQL. (Originally sqlc-generated; now hand-written —
-// the public surface, Querier/ClientDetail/*Params, is unchanged.)
+// rebound once per driver in New (see persistence.Rebind), so the same query
+// text runs on PostgreSQL and MySQL. The public surface — Querier,
+// ClientDetail, and the *Params types — is hand-maintained.
 package db
 
 import (
@@ -51,7 +51,7 @@ type Queries struct {
 var _ Querier = (*Queries)(nil)
 
 // New returns a Queries backed by conn (a *sqlx.DB or *sqlx.Tx). driverName
-// selects the placeholder style via dbutil.Rebind and must be the sql/sqlx
+// selects the placeholder style via persistence.Rebind and must be the sql/sqlx
 // driver name ("postgres"/"pgx" or "mysql"). Queries are written with "?" and
 // rebound here once.
 func New(conn TX, driverName string) *Queries {
@@ -90,13 +90,12 @@ func New(conn TX, driverName string) *Queries {
 	return q
 }
 
-// CreateClientParams holds the inputs for CreateClient (unchanged from the
-// previous sqlc-generated shape).
+// CreateClientParams holds the inputs for CreateClient.
 type CreateClientParams struct {
 	ID               string         `db:"id" json:"id"`
 	Name             string         `db:"name" json:"name"`
 	RpID             string         `db:"rp_id" json:"rp_id"`
-	LogoUri          string         `db:"logo_uri" json:"logo_uri"`
+	LogoURI          string         `db:"logo_uri" json:"logo_uri"`
 	RedirectUris     string         `db:"redirect_uris" json:"redirect_uris"`
 	Claims           string         `db:"claims" json:"claims"`
 	AcrValues        string         `db:"acr_values" json:"acr_values"`
@@ -116,7 +115,7 @@ type CreateClientParams struct {
 type UpdateClientParams struct {
 	ID               string         `db:"id" json:"id"`
 	Name             string         `db:"name" json:"name"`
-	LogoUri          string         `db:"logo_uri" json:"logo_uri"`
+	LogoURI          string         `db:"logo_uri" json:"logo_uri"`
 	RedirectUris     string         `db:"redirect_uris" json:"redirect_uris"`
 	Claims           string         `db:"claims" json:"claims"`
 	AcrValues        string         `db:"acr_values" json:"acr_values"`
@@ -133,7 +132,7 @@ type UpdateClientParams struct {
 type PatchClientParams struct {
 	ID                string         `db:"id" json:"id"`
 	Name              string         `db:"name" json:"name"`
-	LogoUri           string         `db:"logo_uri" json:"logo_uri"`
+	LogoURI           string         `db:"logo_uri" json:"logo_uri"`
 	RedirectUris      string         `db:"redirect_uris" json:"redirect_uris"`
 	Claims            string         `db:"claims" json:"claims"`
 	AcrValues         string         `db:"acr_values" json:"acr_values"`
@@ -167,12 +166,13 @@ func (q *Queries) GetActiveClient(ctx context.Context, id string) (ClientDetail,
 }
 
 // CreateClient inserts a new client_detail row and returns it. The write and
-// the read-back are separate statements (MySQL has no RETURNING); a
-// unique-violation error from the INSERT is surfaced for the caller to classify
-// (see clientmgmt.isDuplicateClientID / isDuplicatePublicKeyHash).
+// the read-back are separate statements (MySQL has no RETURNING), so run them on
+// a transaction (as the clientmgmt service does) for a read-back consistent with
+// the write. A unique-violation error from the INSERT is surfaced for the caller
+// to classify (see clientmgmt.isDuplicateClientID / isDuplicatePublicKeyHash).
 func (q *Queries) CreateClient(ctx context.Context, arg CreateClientParams) (ClientDetail, error) {
 	_, err := q.db.ExecContext(ctx, q.createClient,
-		arg.ID, arg.Name, arg.RpID, arg.LogoUri, arg.RedirectUris, arg.Claims, arg.AcrValues,
+		arg.ID, arg.Name, arg.RpID, arg.LogoURI, arg.RedirectUris, arg.Claims, arg.AcrValues,
 		arg.PublicKey, arg.PublicKeyHash, arg.EncPublicKey, arg.EncPublicKeyHash, arg.EncPublicKeyCert,
 		arg.GrantTypes, arg.AuthMethods, arg.Status, arg.AdditionalConfig, arg.CrDtimes)
 	if err != nil {
@@ -181,12 +181,14 @@ func (q *Queries) CreateClient(ctx context.Context, arg CreateClientParams) (Cli
 	return q.GetClient(ctx, arg.ID)
 }
 
-// UpdateClient updates a client_detail row and returns it. The follow-up read
-// yields sql.ErrNoRows when the id doesn't exist, preserving the not-found
-// semantics the caller expects.
+// UpdateClient updates a client_detail row and returns it. The write and the
+// follow-up read are separate statements (MySQL has no RETURNING), so run them on
+// a transaction (as the clientmgmt service does) for a read-back consistent with
+// the write. The follow-up read yields sql.ErrNoRows when the id doesn't exist,
+// preserving the not-found semantics the caller expects.
 func (q *Queries) UpdateClient(ctx context.Context, arg UpdateClientParams) (ClientDetail, error) {
 	_, err := q.db.ExecContext(ctx, q.updateClient,
-		arg.Name, arg.LogoUri, arg.RedirectUris, arg.Claims, arg.AcrValues,
+		arg.Name, arg.LogoURI, arg.RedirectUris, arg.Claims, arg.AcrValues,
 		arg.GrantTypes, arg.AuthMethods, arg.Status, arg.AdditionalConfig, arg.UpdDtimes, arg.ID)
 	if err != nil {
 		return ClientDetail{}, err
@@ -198,11 +200,13 @@ func (q *Queries) UpdateClient(ctx context.Context, arg UpdateClientParams) (Cli
 // upd_dtimes. RowsAffected()==0 means either the id is absent or the expected
 // upd_dtimes no longer matches (concurrent modification); both map to
 // sql.ErrNoRows, which the caller translates to ErrClientConflict — matching the
-// previous RETURNING-based semantics. On success the row is read back.
+// previous RETURNING-based semantics. On success the row is read back; run the
+// update and read-back on a transaction (as the clientmgmt service does) so the
+// returned row is consistent with the write.
 func (q *Queries) PatchClient(ctx context.Context, arg PatchClientParams) (ClientDetail, error) {
 	query := q.patchClientExpectedNull
 	args := []interface{}{
-		arg.Name, arg.LogoUri, arg.RedirectUris, arg.Claims, arg.AcrValues,
+		arg.Name, arg.LogoURI, arg.RedirectUris, arg.Claims, arg.AcrValues,
 		arg.GrantTypes, arg.AuthMethods, arg.Status, arg.AdditionalConfig,
 		arg.EncPublicKey, arg.EncPublicKeyHash, arg.EncPublicKeyCert, arg.UpdDtimes, arg.ID,
 	}

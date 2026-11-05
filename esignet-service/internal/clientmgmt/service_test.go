@@ -97,7 +97,7 @@ func existingClientRow() db.ClientDetail {
 		ID:            "client-1",
 		Name:          `{"@none":"Test Client"}`,
 		RpID:          "rp-1",
-		LogoUri:       "https://example.com/logo.png",
+		LogoURI:       "https://example.com/logo.png",
 		RedirectUris:  `["https://example.com/callback"]`,
 		Claims:        `["name","email"]`,
 		AcrValues:     `["mosip:idp:acr:static-code"]`,

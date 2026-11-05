@@ -66,7 +66,7 @@ func testClientRow() db.ClientDetail {
 		ID:               "client-001",
 		Name:             `{"@none":"Test App"}`,
 		RpID:             "rp-001",
-		LogoUri:          "https://example.com/logo.png",
+		LogoURI:          "https://example.com/logo.png",
 		RedirectUris:     `["https://example.com/callback"]`,
 		Claims:           `["name","email"]`,
 		AcrValues:        `["mosip:idp:acr:static-code"]`,

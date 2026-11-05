@@ -3,56 +3,58 @@ package db
 import (
 	"strings"
 	"testing"
+
+	"github.com/stretchr/testify/suite"
 )
 
-// New only builds query strings (it never touches conn), so a nil TX is safe
-// here and lets these tests inspect the rebound SQL without a database.
+// DBTestSuite exercises New's query building. New only builds query strings (it
+// never touches conn), so a nil TX is safe here and lets these tests inspect the
+// rebound SQL without a database.
+type DBTestSuite struct {
+	suite.Suite
+}
 
-func TestNew_RebindsPlaceholdersPerDriver(t *testing.T) {
+func TestDBTestSuite(t *testing.T) {
+	suite.Run(t, new(DBTestSuite))
+}
+
+func (ts *DBTestSuite) TestNewRebindsPlaceholdersPerDriver() {
 	pg := New(nil, "postgres")
-	if !strings.Contains(pg.getClient, "$1") || strings.Contains(pg.getClient, "?") {
-		t.Errorf("postgres: expected $N placeholders, got %q", pg.getClient)
-	}
+	ts.Assert().Contains(pg.getClient, "$1", "postgres: expected $N placeholders, got %q", pg.getClient)
+	ts.Assert().NotContains(pg.getClient, "?", "postgres: expected no ? placeholders, got %q", pg.getClient)
+
 	my := New(nil, "mysql")
-	if !strings.Contains(my.getClient, "?") || strings.Contains(my.getClient, "$1") {
-		t.Errorf("mysql: expected ? placeholders, got %q", my.getClient)
-	}
+	ts.Assert().Contains(my.getClient, "?", "mysql: expected ? placeholders, got %q", my.getClient)
+	ts.Assert().NotContains(my.getClient, "$1", "mysql: expected no $N placeholders, got %q", my.getClient)
 }
 
-func TestNew_CreateClientPlaceholderCount(t *testing.T) {
+func (ts *DBTestSuite) TestNewCreateClientPlaceholderCount() {
 	my := New(nil, "mysql")
-	if got := strings.Count(my.createClient, "?"); got != 17 {
-		t.Errorf("createClient: expected 17 placeholders, got %d in %q", got, my.createClient)
-	}
+	ts.Assert().Equal(17, strings.Count(my.createClient, "?"),
+		"createClient: expected 17 placeholders in %q", my.createClient)
 }
 
-func TestNew_UpdateClientIDLast(t *testing.T) {
+func (ts *DBTestSuite) TestNewUpdateClientIDLast() {
 	my := New(nil, "mysql")
-	if got := strings.Count(my.updateClient, "?"); got != 11 {
-		t.Errorf("updateClient: expected 11 placeholders, got %d in %q", got, my.updateClient)
-	}
+	ts.Assert().Equal(11, strings.Count(my.updateClient, "?"),
+		"updateClient: expected 11 placeholders in %q", my.updateClient)
 	// The WHERE id must be the final placeholder — UpdateClient binds id last.
-	if !strings.Contains(my.updateClient, "WHERE id = ?") {
-		t.Errorf("updateClient: expected 'WHERE id = ?' last, got %q", my.updateClient)
-	}
+	ts.Assert().Contains(my.updateClient, "WHERE id = ?",
+		"updateClient: expected 'WHERE id = ?' last, got %q", my.updateClient)
 }
 
-func TestNew_PatchClientVariants(t *testing.T) {
+func (ts *DBTestSuite) TestNewPatchClientVariants() {
 	my := New(nil, "mysql")
 
 	// Expected-value variant: 13 SET + WHERE id + optimistic-lock guard = 15.
-	if got := strings.Count(my.patchClientExpected, "?"); got != 15 {
-		t.Errorf("patchClientExpected: expected 15 placeholders, got %d in %q", got, my.patchClientExpected)
-	}
-	if !strings.HasSuffix(strings.TrimSpace(my.patchClientExpected), "AND upd_dtimes = ?") {
-		t.Errorf("patchClientExpected: expected trailing 'AND upd_dtimes = ?', got %q", my.patchClientExpected)
-	}
+	ts.Assert().Equal(15, strings.Count(my.patchClientExpected, "?"),
+		"patchClientExpected: expected 15 placeholders in %q", my.patchClientExpected)
+	ts.Assert().True(strings.HasSuffix(strings.TrimSpace(my.patchClientExpected), "AND upd_dtimes = ?"),
+		"patchClientExpected: expected trailing 'AND upd_dtimes = ?', got %q", my.patchClientExpected)
 
 	// NULL variant: 13 SET + WHERE id = 14, guard is a literal IS NULL (no bind).
-	if got := strings.Count(my.patchClientExpectedNull, "?"); got != 14 {
-		t.Errorf("patchClientExpectedNull: expected 14 placeholders, got %d in %q", got, my.patchClientExpectedNull)
-	}
-	if !strings.HasSuffix(strings.TrimSpace(my.patchClientExpectedNull), "AND upd_dtimes IS NULL") {
-		t.Errorf("patchClientExpectedNull: expected trailing 'AND upd_dtimes IS NULL', got %q", my.patchClientExpectedNull)
-	}
+	ts.Assert().Equal(14, strings.Count(my.patchClientExpectedNull, "?"),
+		"patchClientExpectedNull: expected 14 placeholders in %q", my.patchClientExpectedNull)
+	ts.Assert().True(strings.HasSuffix(strings.TrimSpace(my.patchClientExpectedNull), "AND upd_dtimes IS NULL"),
+		"patchClientExpectedNull: expected trailing 'AND upd_dtimes IS NULL', got %q", my.patchClientExpectedNull)
 }

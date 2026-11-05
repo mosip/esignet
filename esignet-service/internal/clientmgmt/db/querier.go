@@ -5,7 +5,7 @@
  */
 
 // Querier is the persistence contract the clientmgmt service programs against.
-// (Originally sqlc-generated; now hand-maintained — db.Queries implements it.)
+// db.Queries implements it; both are hand-maintained.
 
 package db
 

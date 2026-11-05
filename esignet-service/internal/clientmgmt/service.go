@@ -53,6 +53,8 @@ const eventWeakRSAKey = "CLIENT_WEAK_RSA_KEY"
 // Service handles client management business logic.
 type Service struct {
 	q                db.Querier
+	db               *sqlx.DB
+	driverName       string
 	cache            providers.RuntimeStoreProvider
 	cacheTTLSecs     int64
 	logger           *applog.Logger
@@ -67,7 +69,8 @@ type Service struct {
 // unrestricted.
 func NewService(conn *sqlx.DB, cache providers.RuntimeStoreProvider, cacheTTLSecs int64, supportedEncAlgs []string) *Service {
 	return &Service{
-		q: db.New(conn, conn.DriverName()), cache: cache, cacheTTLSecs: cacheTTLSecs,
+		q: db.New(conn, conn.DriverName()), db: conn, driverName: conn.DriverName(),
+		cache: cache, cacheTTLSecs: cacheTTLSecs,
 		logger: applog.GetLogger().Named("clientmgmt"), supportedEncAlgs: supportedEncAlgs,
 	}
 }
@@ -86,6 +89,33 @@ func NewServiceWithQuerier(q db.Querier, cache providers.RuntimeStoreProvider, c
 // providers depend on it), so it can't be a constructor argument.
 func (s *Service) SetAuditor(auditor providers.ObservabilityProvider) {
 	s.auditor = auditor
+}
+
+// withTxQuerier runs fn against a transaction-scoped querier so that a write and
+// its read-back execute atomically. The write methods (CreateClient/UpdateClient/
+// PatchClient) do the write and then a separate SELECT read-back, because MySQL
+// has no RETURNING; running both in one transaction keeps the returned row
+// consistent with the write under concurrent modification of the same client.
+// A mock-backed Service (db == nil, from NewServiceWithQuerier) runs fn against
+// s.q directly, without a transaction.
+func (s *Service) withTxQuerier(ctx context.Context, fn func(q db.Querier) (db.ClientDetail, error)) (db.ClientDetail, error) {
+	if s.db == nil {
+		return fn(s.q)
+	}
+	tx, err := s.db.BeginTxx(ctx, nil)
+	if err != nil {
+		return db.ClientDetail{}, fmt.Errorf("begin client tx: %w", err)
+	}
+	defer func() { _ = tx.Rollback() }()
+
+	row, err := fn(db.New(tx, s.driverName))
+	if err != nil {
+		return db.ClientDetail{}, err
+	}
+	if err := tx.Commit(); err != nil {
+		return db.ClientDetail{}, fmt.Errorf("commit client tx: %w", err)
+	}
+	return row, nil
 }
 
 // CreateClient registers a new OIDC client.
@@ -134,7 +164,7 @@ func (s *Service) CreateClient(ctx context.Context, profile Profile, req CreateC
 		ID:               req.ClientID,
 		Name:             marshalClientName(req.ClientName, req.ClientNameLangMap, profile),
 		RpID:             req.RpID,
-		LogoUri:          req.LogoURI,
+		LogoURI:          req.LogoURI,
 		RedirectUris:     redirectURIs,
 		Claims:           claims,
 		AcrValues:        acrValues,
@@ -150,7 +180,9 @@ func (s *Service) CreateClient(ctx context.Context, profile Profile, req CreateC
 		CrDtimes:         time.Now().UTC(),
 	}
 
-	row, err := s.q.CreateClient(ctx, params)
+	row, err := s.withTxQuerier(ctx, func(q db.Querier) (db.ClientDetail, error) {
+		return q.CreateClient(ctx, params)
+	})
 	if err != nil {
 		if isDuplicateClientID(err) {
 			return ClientResponse{}, ErrDuplicateClientID
@@ -211,7 +243,7 @@ func (s *Service) UpdateClient(ctx context.Context, profile Profile, clientID st
 	params := db.UpdateClientParams{
 		ID:               clientID,
 		Name:             marshalClientName(req.ClientName, req.ClientNameLangMap, profile),
-		LogoUri:          req.LogoURI,
+		LogoURI:          req.LogoURI,
 		RedirectUris:     redirectURIs,
 		Claims:           claims,
 		AcrValues:        acrValues,
@@ -222,7 +254,9 @@ func (s *Service) UpdateClient(ctx context.Context, profile Profile, clientID st
 		UpdDtimes:        sql.NullTime{Time: now, Valid: true},
 	}
 
-	row, err := s.q.UpdateClient(ctx, params)
+	row, err := s.withTxQuerier(ctx, func(q db.Querier) (db.ClientDetail, error) {
+		return q.UpdateClient(ctx, params)
+	})
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return ClientResponse{}, ErrClientNotFound
@@ -314,7 +348,7 @@ func (s *Service) PatchClient(ctx context.Context, clientID string, req PatchCli
 	params := db.PatchClientParams{
 		ID:                clientID,
 		Name:              marshalClientName(merged.ClientName, merged.ClientNameLangMap, ProfileClient),
-		LogoUri:           merged.LogoURI,
+		LogoURI:           merged.LogoURI,
 		RedirectUris:      redirectURIs,
 		Claims:            claims,
 		AcrValues:         acrValues,
@@ -329,7 +363,9 @@ func (s *Service) PatchClient(ctx context.Context, clientID string, req PatchCli
 		UpdDtimes:         sql.NullTime{Time: now, Valid: true},
 	}
 
-	row, err := s.q.PatchClient(ctx, params)
+	row, err := s.withTxQuerier(ctx, func(q db.Querier) (db.ClientDetail, error) {
+		return q.PatchClient(ctx, params)
+	})
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return ClientResponse{}, ErrClientConflict
@@ -524,7 +560,7 @@ func mergePatch(existing db.ClientDetail, req PatchClientRequest, fields PatchFi
 		ClientName:        clientName,
 		ClientNameLangMap: langMap,
 		Status:            existing.Status,
-		LogoURI:           existing.LogoUri,
+		LogoURI:           existing.LogoURI,
 		RedirectURIs:      redirectURIs,
 		Claims:            claims,
 		AcrValues:         acrValues,
@@ -707,7 +743,7 @@ func toResponse(row db.ClientDetail) (ClientResponse, error) {
 		ClientName:        clientName,
 		ClientNameLangMap: langMap,
 		RpID:              row.RpID,
-		LogoURI:           row.LogoUri,
+		LogoURI:           row.LogoURI,
 		RedirectURIs:      redirectURIs,
 		Claims:            claims,
 		AcrValues:         acrValues,
