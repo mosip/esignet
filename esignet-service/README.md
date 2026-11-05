@@ -6,7 +6,7 @@ A Go service that embeds the ThunderID authorization engine with PostgreSQL-back
 
 ## Prerequisites
 
-- Go 1.26+
+- Go 1.27+
 - Bash (Git Bash on Windows) to run `make.sh`
 - OpenSSL (for local TLS signing-key generation; bundled with Git Bash)
 - PostgreSQL 14+ (client management persistence, and keymanager's key/certificate store)
@@ -119,6 +119,8 @@ Minimum to start the service:
 |----------|---------|---------|
 | `DATABASE_HOST` / `DATABASE_USERNAME` / `DATABASE_NAME` | `localhost` / `postgres` / `mosip_esignet` | PostgreSQL connection (client management + keymanager storage) |
 | `DATABASE_PASSWORD` / `DB_DBUSER_PASSWORD` | _(empty)_ | Either name works; required unless your DB has no password |
+| `DB_DRIVER` | `postgres` | Database engine selection — controls DSN construction and the SQL placeholder style. **Only `postgres` is accepted today**: the service fails fast at startup on `mysql`, because client and consent management still require PostgreSQL. |
+| `DATABASE_URL` | _(empty)_ | Full DSN, as an alternative to the individual `DATABASE_*` vars (Postgres `postgres://…`; MySQL `user:pass@tcp(host:port)/db`). Takes precedence when set. |
 | `REDIS_HOST` | `localhost` | Redis connection (session/flow/PAR store) |
 | `MOSIP_ESIGNET_AUTHN_PROVIDER` | `mock` | `mock`, `mosip`, or `sunbird` — see [`docs/configuration.md`](../docs/configuration.md) §7 for what each requires |
 | `PORT` | `8088` | HTTP listen port |

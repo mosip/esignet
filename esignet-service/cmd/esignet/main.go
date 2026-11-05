@@ -40,6 +40,7 @@ import (
 	"github.com/mosip/esignet/internal/keymanager/signature"
 	applog "github.com/mosip/esignet/internal/log"
 	"github.com/mosip/esignet/internal/metrics"
+	"github.com/mosip/esignet/internal/persistence"
 	"github.com/mosip/esignet/internal/security"
 )
 
@@ -52,24 +53,31 @@ func main() {
 		logger.Fatal("failed to load app config", applog.Error(err))
 	}
 
-	// Setup DB connection
-	pgConn, closeDB, err := appCfg.DB.Open()
-	if err != nil {
-		logger.Fatal("postgres connection failed", applog.Error(err))
+	// TEMPORARY : MySQL support is incomplete —
+	// clientmgmt/consentmgmt are still Postgres-only (sqlc), so starting on
+	// MySQL would yield a half-working service (keymanager OK, client/consent
+	// failing at runtime). Fail fast until those packages are converted.
+	if appCfg.DB.Driver == "mysql" {
+		logger.Fatal("DB_DRIVER=mysql is not yet fully supported in this build (client/consent management pending); set DB_DRIVER=postgres")
 	}
-	logger.Info(context.Background(), "postgres connected",
-		applog.Int("maxOpenConns", appCfg.DB.Pool.MaxOpenConns),
-		applog.Int("maxIdleConns", appCfg.DB.Pool.MaxIdleConns),
-		applog.Int("connMaxLifetimeSecs", appCfg.DB.Pool.ConnMaxLifetimeSecs),
-		applog.Int("connMaxIdleTimeSecs", appCfg.DB.Pool.ConnMaxIdleTimeSecs))
+
+	// Setup DB connection. The resolved driver name is threaded to the sqlx
+	// layer (keymanager) below so its queries rebind to the right placeholder
+	// style ($N for Postgres, ? for MySQL).
+	dbConn, driverName, closeDB, err := persistence.Open(appCfg.DB)
+	if err != nil {
+		logger.Fatal("database connection failed", applog.Error(err))
+	}
 	defer func() {
 		if err := closeDB(); err != nil {
-			logger.Warn(context.Background(), "close postgres", applog.Error(err))
+			logger.Warn(context.Background(), "close database", applog.Error(err))
 		}
 	}()
 	// keymanager's persistence layer is built on sqlx (for GetContext/SelectContext);
-	// wrap the same *sql.DB rather than opening a second connection pool.
-	sqlxConn := sqlx.NewDb(pgConn, "pgx")
+	// wrap the same *sql.DB rather than opening a second connection pool. The
+	// driver name (from Open) sets the bind type so keymanager/db.Rebind emits
+	// the correct placeholders; "postgres" and "pgx" both map to $N.
+	sqlxConn := sqlx.NewDb(dbConn, driverName)
 
 	// Setup Redis client. It is shared by the runtime store provider and the consent enforcer
 	// (which reads the engine's authorization requests), so both resolve the same keys. Created
@@ -108,8 +116,8 @@ func main() {
 	// It is applied to the client management and key management endpoints below, so those endpoints are also protected.
 	securityMiddleware := getSecurityMiddleware(appCfg, commonHTTPClient, logger)
 
-	clientSvc := clientmgmt.NewService(pgConn, runtimeStore, appCfg.ClientCacheTTLSecs, appCfg.SupportedEncAlgorithms)
-	consentSvc := consentmgmt.NewService(pgConn)
+	clientSvc := clientmgmt.NewService(dbConn, runtimeStore, appCfg.ClientCacheTTLSecs, appCfg.SupportedEncAlgorithms)
+	consentSvc := consentmgmt.NewService(dbConn)
 	clientHandler := clientmgmt.NewHandler(clientSvc, logger)
 	clientHandler.RegisterRoutes(mux, securityMiddleware)
 	keyMgrSvc, sigSvc, cryptoSvc, ks, err := initializeKeyManager(sqlxConn)
@@ -199,7 +207,7 @@ func main() {
 	}()
 
 	// Start a private metrics listener — not routed through the public ingress; only reachable within the cluster by Prometheus.
-	metricsSrv := startMetricsServer(pgConn, redisClient, appCfg, logger)
+	metricsSrv := startMetricsServer(dbConn, redisClient, appCfg, logger)
 
 	// Start a debug pprof listener if enabled.
 	if appCfg.PProfConfig.Enabled {
@@ -208,7 +216,7 @@ func main() {
 
 	// Block until an orchestrator (Docker/Kubernetes) asks us to stop, then
 	// shut the HTTP server down gracefully — letting in-flight requests
-	// finish — before this function returns and the deferred pgConn/
+	// finish — before this function returns and the deferred dbConn/
 	// redisClient/keystore Close() calls above run. A bare os.Exit path
 	// (logger.Fatal, an unhandled signal) skips all of those; this is the
 	// only path that reaches them.
@@ -233,9 +241,9 @@ func main() {
 // the public ingress; only reachable within the cluster by Prometheus.
 // Keeping it on a separate port means no authentication middleware is needed
 // and no scrape traffic reaches the main application mux.
-func startMetricsServer(pgConn *sql.DB, redisClient *redis.Client, appCfg *config.AppConfig,
+func startMetricsServer(dbConn *sql.DB, redisClient *redis.Client, appCfg *config.AppConfig,
 	logger *applog.Logger) *http.Server {
-	metrics.RegisterDBStats(pgConn)
+	metrics.RegisterDBStats(dbConn)
 	if redisClient != nil {
 		metrics.RegisterRedisStats(redisClient)
 	}
@@ -335,7 +343,7 @@ func initializeKeyManager(conn *sqlx.DB) (*keymanager.Service, *signature.Servic
 	}
 	svc := keymanager.NewService(conn, ks, kmCfg)
 	sigSvc := signature.NewService(svc)
-	cryptoSvc := cryptomanager.NewService(db.New(conn, kmCfg.DBSchema), svc, cryptomanager.LoadConfig())
+	cryptoSvc := cryptomanager.NewService(db.New(conn, kmCfg.DBSchema, conn.DriverName()), svc, cryptomanager.LoadConfig())
 	return svc, sigSvc, cryptoSvc, ks, nil
 }
 

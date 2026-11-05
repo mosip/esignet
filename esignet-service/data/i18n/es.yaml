@@ -1195,6 +1195,12 @@ header:
   select_login_id: Seleccione una opción de ID de inicio de sesión
   select_login_mode: Seleccione un modo de inicio de sesión preferido
 
+dropdown:
+  login_id_label: ID de inicio de sesión
+  vid: UIN/VID
+  mobile: Número de teléfono
+  email: Correo electrónico
+
 input:
   uin_label: UIN/VID
   uin_placeholder: Ingrese su UIN/VID
@@ -1227,7 +1233,6 @@ button:
   login_id_uin: UIN/VID
   login_id_mobile: Número de teléfono
   login_id_email: Correo electrónico
-  login_id_nrc: NRC ID
 
 otp:
   enter_otp_title: Ingrese OTP
@@ -1246,9 +1251,15 @@ consent:
   essential_claims: Datos Esenciales
   optional_claims: Datos Voluntarios
   authorize_scope: Autorizar Alcances
+  essential_scope: Permisos Esenciales
+  optional_scope: Permisos Voluntarios
   essential_claims.info: Información obligatoria del usuario requerida por el proveedor del servicio
   optional_claims.info: Información adicional del usuario que el residente puede optar por compartir con el proveedor del servicio
+  optional_claims.toggle_all: Activar o desactivar todos los atributos opcionales
   authorize_scope.info: Permite al proveedor de servicios acceder a estos servicios protegidos en su nombre
+  essential_scope.info: Permisos de acceso obligatorios requeridos por el proveedor del servicio
+  optional_scope.info: Permisos de acceso adicionales que el residente puede optar por otorgar al proveedor del servicio
+  optional_scope.toggle_all: Activar o desactivar todos los permisos opcionales
   name: Nombre Completo
   given_name: Nombre
   middle_name: Segundo Nombre
@@ -1268,6 +1279,7 @@ consent:
   zoneinfo: Zona Horaria
   profile: Perfil
   required: Obligatorio
+  mosip_identity_vc_ldp: Identidad VC de Mosip
 
 signin:
   images.app_logo.alt: Logo de la aplicación
