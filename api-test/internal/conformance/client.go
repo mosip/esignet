@@ -205,6 +205,19 @@ type DeliverResult struct {
 var implicitSubmitRe = regexp.MustCompile(`"implicitSubmitUrl"\s*:\s*"([^"]+)"`)
 var implicitPathRe = regexp.MustCompile(`https?://[^"'\s]+/implicit/[^"'\s]+`)
 
+// Continue sends the operator "Continue" signal to a test that is paused waiting for an operator action
+// (e.g. oidcc-server-rotate-keys waits at CONFIGURED before the key rotation step).
+func (c *Client) Continue(ctx context.Context, testID string) error {
+	body, status, err := c.do(ctx, "suite /api/runner (continue)", http.MethodPost, "/api/runner/"+testID, []byte(`{"action":"continue"}`), "application/json")
+	if err != nil {
+		return err
+	}
+	if status != http.StatusOK && status != http.StatusNoContent {
+		return fmt.Errorf("continue HTTP %d: %s", status, snippet(body))
+	}
+	return nil
+}
+
 // DeliverCallback performs the suite's two-request hand-off: GET the redirect_uri, then POST implicitSubmitUrl.
 func (c *Client) DeliverCallback(ctx context.Context, redirectURI string) (DeliverResult, error) {
 	var res DeliverResult

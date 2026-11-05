@@ -39,6 +39,19 @@ type moduleBehavior struct {
 	loadOnlyVisits int
 	// maxVisits is how many times the same browser URL may be driven; 0 means 1.
 	maxVisits int
+	// allowErrorPage means eSignet's HTML error page (no redirect) is the expected outcome for this module.
+	// driveOne logs the error but does not abort the outer poll loop, so the suite can reach its own terminal status.
+	allowErrorPage bool
+	// needsContinue sends the suite's operator "Continue" signal once when the module is in CONFIGURED/WAITING
+	// with no pending browser URLs (e.g. oidcc-server-rotate-keys pauses for a key-rotation operator step).
+	needsContinue bool
+	// timeoutSeconds overrides the global run timeout for this module; 0 means use the global value.
+	// Used for modules where the suite self-completes after its own internal timeout (e.g. allowErrorPage
+	// tests where no callback arrives and the suite eventually marks PASSED itself).
+	timeoutSeconds int
+	// expectedErrorCode is the OAuth2 error code eSignet must return for allowErrorPage modules.
+	// When non-empty, driveOne fails the module if the actual code differs.
+	expectedErrorCode string
 }
 
 // moduleBehaviors maps a module-name substring to the behaviour it needs, matched the same way as unsupportedModuleHints.
@@ -53,6 +66,13 @@ var moduleBehaviors = map[string]moduleBehavior{
 		loadOnlyVisits: 1,
 		maxVisits:      2,
 	},
+	// eSignet correctly shows an HTML error page (no redirect) when redirect_uri is invalid/unregistered.
+	// The suite self-completes after its own internal module timeout (typically ~5 min) once no callback
+	// arrives. The harness uses a longer timeout so it outlasts the suite's wait instead of cutting it short.
+	"ensure-registered-redirect-uri": {allowErrorPage: true, timeoutSeconds: 600, expectedErrorCode: "invalid_request"},
+	"redirect-uri-query-added":       {allowErrorPage: true, timeoutSeconds: 600, expectedErrorCode: "invalid_request"},
+	// The suite pauses at CONFIGURED waiting for the operator to rotate keys; send Continue automatically.
+	"server-rotate-keys": {needsContinue: true},
 }
 
 // behaviorFor returns the behaviour configured for a module, or the zero value.
@@ -161,6 +181,12 @@ func (o *Orchestrator) runPlan(ctx context.Context, p config.Plan, driver *esign
 	}
 	o.logf("created plan %s (id=%s, %d modules)", plan.Name, plan.ID, len(plan.Modules))
 
+	// Extract the alias from the plan config JSON — used to construct synthetic error callbacks.
+	var planMeta struct {
+		Alias string `json:"alias"`
+	}
+	_ = json.Unmarshal(configBody, &planMeta)
+
 	sel := o.cfg.Selection(p)
 	selected, err := o.selectModules(p.Name, sel, plan.Modules)
 	if err != nil {
@@ -188,7 +214,7 @@ func (o *Orchestrator) runPlan(ctx context.Context, p config.Plan, driver *esign
 			o.logf("module %-45s -> SKIPPED (config)", res.Module)
 			continue
 		}
-		res := o.runModule(ctx, plan, m, driver)
+		res := o.runModule(ctx, plan, m, driver, planMeta.Alias)
 		out.Modules = append(out.Modules, res)
 		o.logf("module %-45s -> %s / %s%s", res.Module, dash(res.Result), res.HarnessOutcome, errSuffix(res))
 		if o.cfg.Run.FailFast && (res.Result == "FAILED" || res.HarnessError != "") {
@@ -284,7 +310,7 @@ func reasonSuffix(reason string) string {
 	return " (" + reason + ")"
 }
 
-func (o *Orchestrator) runModule(ctx context.Context, plan *PlanResponse, m Module, driver *esignet.Driver) result.ModuleResult {
+func (o *Orchestrator) runModule(ctx context.Context, plan *PlanResponse, m Module, driver *esignet.Driver, alias string) result.ModuleResult {
 	res := result.ModuleResult{
 		Surface:        result.SurfaceConformance,
 		Plugin:         o.cfg.Esignet.Provider,
@@ -314,16 +340,21 @@ func (o *Orchestrator) runModule(ctx context.Context, plan *PlanResponse, m Modu
 	}
 	res.TestID = test.ID
 
-	deadline := time.Now().Add(time.Duration(o.cfg.Run.TimeoutSeconds) * time.Second)
+	// One Driver is shared across every module, so both switches are restored before returning, or a stray DenyAll would deny consent for later modules.
+	behavior := behaviorFor(m.TestModule)
+	driver.SetConsentPolicy(behavior.consent)
+	driver.SetFollowRejection(behavior.followRejection)
+
+	timeoutSec := o.cfg.Run.TimeoutSeconds
+	if behavior.timeoutSeconds > 0 {
+		timeoutSec = behavior.timeoutSeconds
+	}
+	deadline := time.Now().Add(time.Duration(timeoutSec) * time.Second)
 	poll := time.Duration(o.cfg.Run.PollIntervalSeconds) * time.Second
 	// A zero interval would turn the wait below into a hot loop hammering the suite for the whole timeout window (wsotp.WaitOTP applies the same floor).
 	if poll <= 0 {
 		poll = time.Second
 	}
-	// One Driver is shared across every module, so both switches are restored before returning, or a stray DenyAll would deny consent for later modules.
-	behavior := behaviorFor(m.TestModule)
-	driver.SetConsentPolicy(behavior.consent)
-	driver.SetFollowRejection(behavior.followRejection)
 	defer func() {
 		driver.SetConsentPolicy(esignet.ConsentPolicy{})
 		driver.SetFollowRejection(false)
@@ -331,6 +362,7 @@ func (o *Orchestrator) runModule(ctx context.Context, plan *PlanResponse, m Modu
 
 	visits := map[string]int{}
 	visitCount := 0
+	continueSent := false
 
 	for {
 		info, err := o.client.GetInfo(ctx, test.ID)
@@ -351,8 +383,11 @@ func (o *Orchestrator) runModule(ctx context.Context, plan *PlanResponse, m Modu
 		}
 		pending := pendingURLs(runner.Browser, visits, behavior.visitBudget())
 		if len(pending) > 0 {
+			var errorPageAuthorizeURL string
 			for _, u := range pending {
-				o.driveOne(ctx, driver, u, &res, visitCount < behavior.loadOnlyVisits)
+				if o.driveOne(ctx, driver, u, &res, visitCount < behavior.loadOnlyVisits, behavior.allowErrorPage, behavior.expectedErrorCode) {
+					errorPageAuthorizeURL = u
+				}
 				visits[u]++
 				visitCount++
 				if res.HarnessError != "" {
@@ -362,13 +397,41 @@ func (o *Orchestrator) runModule(ctx context.Context, plan *PlanResponse, m Modu
 			if res.HarnessError != "" {
 				break
 			}
+			// When eSignet shows an error page (correct RFC behaviour for invalid redirect_uri), deliver a
+			// synthetic error callback so the suite can evaluate the test and exit WAITING on its own.
+			if errorPageAuthorizeURL != "" && alias != "" {
+				cbURL, cbErr := syntheticErrorCallbackURL(o.client.baseURL, alias, errorPageAuthorizeURL)
+				if cbErr != nil {
+					res.OutcomeDetail = "synthetic callback URL: " + cbErr.Error()
+				} else {
+					dr, deliverErr := o.client.DeliverCallback(ctx, cbURL)
+					if dr.SuiteCallbackStatus != 0 {
+						res.FlowTrace.SuiteCallbackStatus = dr.SuiteCallbackStatus
+					}
+					if dr.ImplicitSubmitStatus != 0 {
+						res.FlowTrace.ImplicitSubmitStatus = dr.ImplicitSubmitStatus
+					}
+					if deliverErr != nil {
+						res.HarnessError = "deliver synthetic callback: " + deliverErr.Error()
+						break
+					}
+				}
+			}
+		} else if behavior.needsContinue && !continueSent && info.Status == "CONFIGURED" {
+			// Some modules (e.g. oidcc-server-rotate-keys) pause at CONFIGURED waiting for an operator
+			// action; send the Continue signal once so the suite can proceed without manual intervention.
+			if err := o.client.Continue(ctx, test.ID); err != nil {
+				res.HarnessError = "operator continue: " + err.Error()
+				break
+			}
+			continueSent = true
 		} else {
 			time.Sleep(poll)
 		}
 
 		if time.Now().After(deadline) {
 			if res.HarnessError == "" {
-				res.HarnessError = fmt.Sprintf("timeout after %ds (last status %s)", o.cfg.Run.TimeoutSeconds, res.Status)
+				res.HarnessError = fmt.Sprintf("timeout after %ds (last status %s)", timeoutSec, res.Status)
 			}
 			break
 		}
@@ -400,12 +463,14 @@ func (o *Orchestrator) runModule(ctx context.Context, plan *PlanResponse, m Modu
 }
 
 // driveOne drives a single authorize URL through eSignet and hands the code back to the suite.
+// It returns true when eSignet responded with an HTML error page and allowErrorPage is set —
+// the caller should then deliver a synthetic error callback so the suite can exit WAITING.
 func (o *Orchestrator) driveOne(ctx context.Context, driver *esignet.Driver, authorizeURL string,
-	res *result.ModuleResult, loadOnly bool) {
+	res *result.ModuleResult, loadOnly bool, allowErrorPage bool, expectedErrorCode string) bool {
 	base, err := o.esignetBase(authorizeURL)
 	if err != nil {
 		res.HarnessError = err.Error()
-		return
+		return false
 	}
 
 	// A load-only visit stops at the login page on purpose, so there is no assertion and no redirect to deliver — the suite drives the next visit.
@@ -419,7 +484,7 @@ func (o *Orchestrator) driveOne(ctx context.Context, driver *esignet.Driver, aut
 		} else if !flow.LoginReached {
 			res.HarnessError = "eSignet flow: login page not reached on the load-only visit"
 		}
-		return
+		return false
 	}
 
 	flow := driver.Run(ctx, base, authorizeURL)
@@ -428,8 +493,18 @@ func (o *Orchestrator) driveOne(ctx context.Context, driver *esignet.Driver, aut
 	res.FlowTrace.EsignetCallbackStatus = flow.CallbackStatus
 	res.Calls = append(res.Calls, flow.Calls...)
 	if !flow.OK() {
+		// For modules where an HTML error page is the expected server response (e.g. invalid/unregistered
+		// redirect_uri), signal the caller so it can deliver a synthetic error callback to the suite.
+		if allowErrorPage && flow.AuthorizeErrorCode != "" {
+			if expectedErrorCode != "" && flow.AuthorizeErrorCode != expectedErrorCode {
+				res.HarnessError = "unexpected authorize error: " + flow.AuthorizeErrorCode + " (expected " + expectedErrorCode + ")"
+				return false
+			}
+			res.OutcomeDetail = "authorize error: " + flow.AuthorizeErrorCode
+			return true
+		}
 		res.HarnessError = "eSignet flow: " + flow.Error
-		return
+		return false
 	}
 
 	deliver, err := o.client.DeliverCallback(ctx, flow.RedirectURI)
@@ -439,6 +514,23 @@ func (o *Orchestrator) driveOne(ctx context.Context, driver *esignet.Driver, aut
 	if err != nil {
 		res.HarnessError = "deliver callback: " + err.Error()
 	}
+	return false
+}
+
+// syntheticErrorCallbackURL builds the suite callback URL for an error response.
+// When eSignet shows an HTML error page (correct RFC behaviour), the harness uses this URL to
+// deliver error=invalid_request to the suite so it can evaluate the test and exit WAITING.
+func syntheticErrorCallbackURL(suiteBase, alias, authorizeURL string) (string, error) {
+	u, err := url.Parse(authorizeURL)
+	if err != nil {
+		return "", fmt.Errorf("parse authorize URL: %w", err)
+	}
+	state := u.Query().Get("state")
+	if state == "" {
+		return "", fmt.Errorf("no state param in authorize URL")
+	}
+	return fmt.Sprintf("%s/test/a/%s/callback?error=invalid_request&state=%s",
+		strings.TrimRight(suiteBase, "/"), alias, url.QueryEscape(state)), nil
 }
 
 // esignetBase returns the configured eSignet base URL, or derives it from the authorize URL.
