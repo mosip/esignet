@@ -2764,6 +2764,10 @@ paths:
               schema:
                 type: object
                 properties:
+                  issued_token_type:
+                    type: string
+                    const: 'urn:ietf:params:oauth:token-type:access_token'
+                    description: Token exchange only (RFC 8693, always present on a successful exchange). The Native SSO exchange issues an access token.
                   refresh_token:
                     type: string
                     description: Refresh token, when the client is registered for the refresh_token grant.
