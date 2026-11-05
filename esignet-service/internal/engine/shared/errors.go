@@ -79,6 +79,20 @@ var AuthenticationFailedError = &common.ServiceError{
 	},
 }
 
+// OTPInvalidOrExpiredError is returned when the OTP is invalid or expired.
+var OTPInvalidOrExpiredError = &common.ServiceError{
+	Code: "otp_invalid_or_expired",
+	Type: common.ClientErrorType,
+	Error: common.I18nMessage{
+		Key:          "otp_invalid_or_expired",
+		DefaultValue: "OTP invalid or expired",
+	},
+	ErrorDescription: common.I18nMessage{
+		Key:          "otp_invalid_or_expired_description",
+		DefaultValue: "The OTP is invalid or has expired",
+	},
+}
+
 // SendOTPFailedError is returned when the send OTP failed.
 var SendOTPFailedError = &common.ServiceError{
 	Code: "send_otp_failed",
