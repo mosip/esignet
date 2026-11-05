@@ -290,24 +290,29 @@ func validateRpID(rpID string) error {
 }
 
 func validateLogoURI(uri string) error {
-	if !isValidURI(uri) || len(uri) > 1024 {
+	if !isValidLogoURI(uri) {
 		return validationErr("invalid_uri")
 	}
 	return nil
 }
 
-func isValidURI(uri string) bool {
+// isValidLogoURI reports whether uri is usable as a logo image URL. The value
+// is served to the login UI as application.logoUrl, so only http/https with a
+// host are allowed; javascript:, data: and all other schemes are rejected.
+func isValidLogoURI(uri string) bool {
 	if uri == "" || len(uri) > 1024 {
 		return false
 	}
 	u, err := url.Parse(uri)
-	if err != nil || u.Scheme == "" {
+	if err != nil {
 		return false
 	}
-	if u.Scheme == "http" || u.Scheme == "https" {
+	switch u.Scheme {
+	case "http", "https":
 		return u.Host != ""
+	default:
+		return false
 	}
-	return u.Host != "" || u.Opaque != ""
 }
 
 // isValidRedirectURI validates a redirect URI.
