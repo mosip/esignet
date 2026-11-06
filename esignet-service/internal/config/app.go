@@ -388,7 +388,8 @@ func applyDefaults(cfg *AppConfig) {
 		cfg.OAuth.AuthorizationCode.ValidityPeriod = 60
 	}
 	if cfg.OAuth.PAR.ExpiresIn <= 0 {
-		cfg.OAuth.PAR.ExpiresIn = 3600
+		// RFC 9126 §2.2 requires a short-lived request_uri; 90 s matches FAPI 2.0 guidance.
+		cfg.OAuth.PAR.ExpiresIn = 90
 	}
 	cfg.OAuth.AuthClass.AcrAMR = map[string][]string{
 		"mosip:idp:acr:generated-code": {},
@@ -610,6 +611,7 @@ func ApplyEnvOverrides(cfg *AppConfig) error {
 		}
 	}
 	if v := os.Getenv("MOSIP_ESIGNET_OAUTH_PAR_EXPIRY_SECONDS"); v != "" {
+		// Default: 90 s (RFC 9126 §2.2 short-lived; matches deployment.yaml and applyDefaults).
 		secs, err := strconv.ParseInt(v, 10, 64)
 		if err != nil {
 			return fmt.Errorf("invalid MOSIP_ESIGNET_OAUTH_PAR_EXPIRY_SECONDS: %w", err)

@@ -813,6 +813,16 @@ func (ts *ValidateTestSuite) TestValidateClaimsBounds() {
 	assert.NoError(t, validateClaims(nil, 0, 0))
 }
 
+func (ts *ValidateTestSuite) TestValidateClaimsDuplicates() {
+	t := ts.T()
+	assert.Equal(t, "invalid_claim", errCode(t, validateClaims([]string{"name", "name"}, 0, 0)),
+		"duplicate claim entries must be rejected")
+	assert.Equal(t, "invalid_claim", errCode(t, validateClaims([]string{"name", "email", "name"}, 0, 0)),
+		"duplicate claim appearing non-adjacently must be rejected")
+	assert.NoError(t, validateClaims([]string{"name", "email"}, 0, 0),
+		"distinct claims must be accepted")
+}
+
 func (ts *ValidateTestSuite) TestValidateACRsBounds() {
 	t := ts.T()
 	assert.Equal(t, "invalid_acr", errCode(t, validateACRs([]string{"mosip:idp:acr:password"}, allowedACRAll, 2, 0)))

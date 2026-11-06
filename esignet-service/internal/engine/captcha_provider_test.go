@@ -29,12 +29,14 @@ func (ts *CaptchaProviderTestSuite) TestCaptchaProvider_Verify_EmptyToken() {
 }
 
 func (ts *CaptchaProviderTestSuite) TestCaptchaProvider_Verify_NotConfigured() {
+	// When ValidatorURL is not set the provider must fail closed (Success: false)
+	// so that a missing configuration does not silently accept arbitrary tokens.
 	p := NewCaptchaProvider(&config.CaptchaConfig{}, http.DefaultClient)
 
 	result, svcErr := p.Verify(context.Background(), "some-token")
 	require.Nil(ts.T(), svcErr)
 	require.NotNil(ts.T(), result)
-	require.True(ts.T(), result.Success)
+	require.False(ts.T(), result.Success)
 }
 
 func (ts *CaptchaProviderTestSuite) TestCaptchaProvider_Verify_Success() {

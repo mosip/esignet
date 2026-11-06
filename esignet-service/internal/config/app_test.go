@@ -380,12 +380,12 @@ func (ts *AppConfigTestSuite) TestApplyDefaultsPARExpiresIn() {
 		ts.Require().EqualValues(900, cfg.OAuth.PAR.ExpiresIn)
 	})
 
-	t.Run("defaults to 3600 when unset", func(_ *testing.T) {
+	t.Run("defaults to 90 when unset", func(_ *testing.T) {
 		cfg := &AppConfig{}
 
 		applyDefaults(cfg)
 
-		ts.Require().EqualValues(3600, cfg.OAuth.PAR.ExpiresIn)
+		ts.Require().EqualValues(90, cfg.OAuth.PAR.ExpiresIn)
 	})
 }
 
