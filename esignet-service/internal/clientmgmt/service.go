@@ -53,6 +53,7 @@ const eventWeakRSAKey = "CLIENT_WEAK_RSA_KEY"
 // Service handles client management business logic.
 type Service struct {
 	q                db.Querier
+	txBase           *db.Queries
 	db               *sqlx.DB
 	driverName       string
 	cache            providers.RuntimeStoreProvider
@@ -68,8 +69,9 @@ type Service struct {
 // declare (config.AppConfig.SupportedEncAlgorithms); pass nil to leave "alg"
 // unrestricted.
 func NewService(conn *sqlx.DB, cache providers.RuntimeStoreProvider, cacheTTLSecs int64, supportedEncAlgs []string) *Service {
+	queries := db.New(conn, conn.DriverName())
 	return &Service{
-		q: db.New(conn, conn.DriverName()), db: conn, driverName: conn.DriverName(),
+		q: queries, txBase: queries, db: conn, driverName: conn.DriverName(),
 		cache: cache, cacheTTLSecs: cacheTTLSecs,
 		logger: applog.GetLogger().Named("clientmgmt"), supportedEncAlgs: supportedEncAlgs,
 	}
@@ -91,15 +93,15 @@ func (s *Service) SetAuditor(auditor providers.ObservabilityProvider) {
 	s.auditor = auditor
 }
 
-// withTxQuerier runs fn against a transaction-scoped querier so that a write and
-// its read-back execute atomically. The write methods (CreateClient/UpdateClient/
-// PatchClient) do the write and then a separate SELECT read-back, because MySQL
-// has no RETURNING; running both in one transaction keeps the returned row
-// consistent with the write under concurrent modification of the same client.
-// A mock-backed Service (db == nil, from NewServiceWithQuerier) runs fn against
-// s.q directly, without a transaction.
-func (s *Service) withTxQuerier(ctx context.Context, fn func(q db.Querier) (db.ClientDetail, error)) (db.ClientDetail, error) {
-	if s.db == nil {
+// runWrite executes a write (CreateClient/UpdateClient/PatchClient) together with
+// its read-back consistently. PostgreSQL does this atomically in one RETURNING
+// statement, so fn runs directly on s.q with no transaction; mock-backed services
+// (db == nil, from NewServiceWithQuerier) also run fn directly. MySQL has no
+// RETURNING, so there the write and the separate SELECT read-back are wrapped in a
+// transaction (via a tx-scoped querier that reuses the prebuilt query strings) to
+// keep the returned row consistent with the write under concurrent modification.
+func (s *Service) runWrite(ctx context.Context, fn func(q db.Querier) (db.ClientDetail, error)) (db.ClientDetail, error) {
+	if s.db == nil || persistence.SupportsReturning(s.driverName) {
 		return fn(s.q)
 	}
 	tx, err := s.db.BeginTxx(ctx, nil)
@@ -108,7 +110,7 @@ func (s *Service) withTxQuerier(ctx context.Context, fn func(q db.Querier) (db.C
 	}
 	defer func() { _ = tx.Rollback() }()
 
-	row, err := fn(db.New(tx, s.driverName))
+	row, err := fn(s.txBase.WithTx(tx))
 	if err != nil {
 		return db.ClientDetail{}, err
 	}
@@ -180,7 +182,7 @@ func (s *Service) CreateClient(ctx context.Context, profile Profile, req CreateC
 		CrDtimes:         time.Now().UTC(),
 	}
 
-	row, err := s.withTxQuerier(ctx, func(q db.Querier) (db.ClientDetail, error) {
+	row, err := s.runWrite(ctx, func(q db.Querier) (db.ClientDetail, error) {
 		return q.CreateClient(ctx, params)
 	})
 	if err != nil {
@@ -254,7 +256,7 @@ func (s *Service) UpdateClient(ctx context.Context, profile Profile, clientID st
 		UpdDtimes:        sql.NullTime{Time: now, Valid: true},
 	}
 
-	row, err := s.withTxQuerier(ctx, func(q db.Querier) (db.ClientDetail, error) {
+	row, err := s.runWrite(ctx, func(q db.Querier) (db.ClientDetail, error) {
 		return q.UpdateClient(ctx, params)
 	})
 	if err != nil {
@@ -363,7 +365,7 @@ func (s *Service) PatchClient(ctx context.Context, clientID string, req PatchCli
 		UpdDtimes:         sql.NullTime{Time: now, Valid: true},
 	}
 
-	row, err := s.withTxQuerier(ctx, func(q db.Querier) (db.ClientDetail, error) {
+	row, err := s.runWrite(ctx, func(q db.Querier) (db.ClientDetail, error) {
 		return q.PatchClient(ctx, params)
 	})
 	if err != nil {

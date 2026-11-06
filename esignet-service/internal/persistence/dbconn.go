@@ -81,6 +81,15 @@ const (
 // DSN construction (the "how to address this DB system" responsibility)
 // -----------------------------------------------------------------------------
 
+// SupportsReturning reports whether driver supports the SQL RETURNING clause:
+// PostgreSQL does (so a write can read its row back in the same statement),
+// MySQL does not (so the write and read-back are separate statements that need a
+// transaction to stay consistent). The clientmgmt write path uses this to choose
+// between the two forms.
+func SupportsReturning(driver string) bool {
+	return driver == DriverPostgres
+}
+
 // ResolveDSN builds the driver-specific connection DSN from the deployment.yaml
 // value (yamlDSN) and the DATABASE_* / DATABASE_URL environment, with precedence
 // env var (DATABASE_URL) > yamlDSN > compiled-in default construction. driver
@@ -160,14 +169,14 @@ func resolveDBDSN(yamlDSN string) string {
 // resolveDBDSN: env var (DATABASE_URL) > yamlDSN (already parsed from
 // deployment.yaml) > compiled-in default construction from the individual
 // DATABASE_* vars. The built DSN uses go-sql-driver's form
-// (user:pass@tcp(host:port)/dbname?...); parseTime=true&loc=UTC are required so
-// DATE/DATETIME/TIMESTAMP columns scan into time.Time as UTC.
+// (user:pass@tcp(host:port)/dbname?...); ensureMySQLParams adds the parameters
+// the query layer requires (parseTime/loc and clientFoundRows).
 func resolveMySQLDSN(yamlDSN string) string {
 	if dsn := os.Getenv("DATABASE_URL"); dsn != "" {
-		return ensureMySQLParseTime(dsn)
+		return ensureMySQLParams(dsn)
 	}
 	if !hasDBEnvConfig() && yamlDSN != "" {
-		return ensureMySQLParseTime(yamlDSN)
+		return ensureMySQLParams(yamlDSN)
 	}
 
 	host := envOrDefault("DATABASE_HOST", defaultDBHost)
@@ -186,23 +195,35 @@ func resolveMySQLDSN(yamlDSN string) string {
 	// net.JoinHostPort brackets IPv6 literals (e.g. [::1]:3306) as go-sql-driver
 	// requires; it is a no-op for hostnames/IPv4.
 	addr := net.JoinHostPort(host, port)
-	return fmt.Sprintf("%s@tcp(%s)/%s?parseTime=true&loc=UTC", cred, addr, dbname)
+	return ensureMySQLParams(fmt.Sprintf("%s@tcp(%s)/%s", cred, addr, dbname))
 }
 
-// ensureMySQLParseTime appends parseTime=true&loc=UTC to a caller-supplied DSN
-// (DATABASE_URL or yaml) when parseTime is absent, mirroring
-// ensurePostgresSSLMode: without parseTime, go-sql-driver scans temporal
-// columns into []byte rather than time.Time, breaking every time.Time /
-// sql.NullTime destination in the query layer.
-func ensureMySQLParseTime(dsn string) string {
-	if strings.Contains(strings.ToLower(dsn), "parsetime=") {
-		return dsn
+// ensureMySQLParams appends the connection parameters the query layer requires
+// to a MySQL DSN (constructed or caller-supplied via DATABASE_URL/yaml) when
+// each is absent, mirroring ensurePostgresSSLMode:
+//   - parseTime=true&loc=UTC: without parseTime, go-sql-driver scans temporal
+//     columns into []byte rather than time.Time, breaking every time.Time /
+//     sql.NullTime destination in the query layer.
+//   - clientFoundRows=true: makes UPDATE report matched rows rather than only
+//     changed rows, so PatchClient's RowsAffected()==0 optimistic-lock guard
+//     means "row absent / version mismatch" (matching PostgreSQL) instead of
+//     firing a false conflict when a PATCH re-writes identical column values.
+func ensureMySQLParams(dsn string) string {
+	if !strings.Contains(strings.ToLower(dsn), "parsetime=") {
+		dsn += mysqlParamSep(dsn) + "parseTime=true&loc=UTC"
 	}
-	sep := "?"
+	if !strings.Contains(strings.ToLower(dsn), "clientfoundrows=") {
+		dsn += mysqlParamSep(dsn) + "clientFoundRows=true"
+	}
+	return dsn
+}
+
+// mysqlParamSep returns "?" if dsn has no query string yet, else "&".
+func mysqlParamSep(dsn string) string {
 	if strings.Contains(dsn, "?") {
-		sep = "&"
+		return "&"
 	}
-	return dsn + sep + "parseTime=true&loc=UTC"
+	return "?"
 }
 
 // -----------------------------------------------------------------------------
