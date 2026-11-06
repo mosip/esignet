@@ -38,6 +38,9 @@ import (
 type StateQuerier struct {
 	mu      sync.Mutex
 	aliases map[string][]db.KeyAlias // key: appID+"|"+refID, index 0 = most recently inserted
+	// records holds DB-resident key material (Component Encryption Keys) by alias, so tests can
+	// provision an encryption key through GetCertificate and round-trip JWE encryption.
+	records map[string]db.KeyStoreRecord
 
 	// GetKeyAliasesErr, when non-nil, is returned by GetKeyAliasesByAppRef instead of its normal
 	// result, letting callers exercise the error-wrapping paths of keymanager.Service methods
@@ -47,7 +50,7 @@ type StateQuerier struct {
 
 // NewStateQuerier constructs an empty StateQuerier.
 func NewStateQuerier() *StateQuerier {
-	return &StateQuerier{aliases: map[string][]db.KeyAlias{}}
+	return &StateQuerier{aliases: map[string][]db.KeyAlias{}, records: map[string]db.KeyStoreRecord{}}
 }
 
 func aliasMapKey(appID, refID string) string { return appID + "|" + refID }
@@ -62,8 +65,18 @@ func (q *StateQuerier) GetKeyAliasesByAppRef(_ context.Context, appID, refID str
 	return append([]db.KeyAlias(nil), q.aliases[aliasMapKey(appID, refID)]...), nil
 }
 
-// GetKeyAliasByCertThumbprint implements db.Querier; unused by these tests.
-func (q *StateQuerier) GetKeyAliasByCertThumbprint(_ context.Context, _ string) (db.KeyAlias, error) {
+// GetKeyAliasByCertThumbprint implements db.Querier by scanning the inserted aliases, so a
+// JWE's kid (certificate thumbprint) resolves to the key it was encrypted to.
+func (q *StateQuerier) GetKeyAliasByCertThumbprint(_ context.Context, thumbprint string) (db.KeyAlias, error) {
+	q.mu.Lock()
+	defer q.mu.Unlock()
+	for _, rows := range q.aliases {
+		for _, row := range rows {
+			if row.CertThumbprint != nil && *row.CertThumbprint == thumbprint {
+				return row, nil
+			}
+		}
+	}
 	return db.KeyAlias{}, sql.ErrNoRows
 }
 
@@ -116,16 +129,32 @@ func (q *StateQuerier) HasKeyPolicy(_ context.Context, _ string) (bool, error) {
 	return true, nil
 }
 
-// GetKeyStoreRecord implements db.Querier; unused by these tests.
-func (q *StateQuerier) GetKeyStoreRecord(_ context.Context, _ string) (db.KeyStoreRecord, error) {
-	return db.KeyStoreRecord{}, sql.ErrNoRows
+// GetKeyStoreRecord implements db.Querier, returning the DB-resident record stored under alias.
+func (q *StateQuerier) GetKeyStoreRecord(_ context.Context, alias string) (db.KeyStoreRecord, error) {
+	q.mu.Lock()
+	defer q.mu.Unlock()
+	rec, ok := q.records[alias]
+	if !ok {
+		return db.KeyStoreRecord{}, sql.ErrNoRows
+	}
+	return rec, nil
 }
 
-// InsertKeyStoreRecord implements db.Querier; unused by these tests.
-func (q *StateQuerier) InsertKeyStoreRecord(_ context.Context, _ db.KeyStoreRecord) error { return nil }
+// InsertKeyStoreRecord implements db.Querier, persisting the record under its ID (the alias).
+func (q *StateQuerier) InsertKeyStoreRecord(_ context.Context, rec db.KeyStoreRecord) error {
+	q.mu.Lock()
+	defer q.mu.Unlock()
+	q.records[rec.ID] = rec
+	return nil
+}
 
-// UpdateKeyStoreRecord implements db.Querier; unused by these tests.
-func (q *StateQuerier) UpdateKeyStoreRecord(_ context.Context, _ db.KeyStoreRecord) error { return nil }
+// UpdateKeyStoreRecord implements db.Querier, replacing the record stored under its ID.
+func (q *StateQuerier) UpdateKeyStoreRecord(_ context.Context, rec db.KeyStoreRecord) error {
+	q.mu.Lock()
+	defer q.mu.Unlock()
+	q.records[rec.ID] = rec
+	return nil
+}
 
 // FakeKeyStore is a hand-written in-memory keystore.KeyStore — real crypto
 // key generation and real x509.CreateCertificate calls, so sign/verify or

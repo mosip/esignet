@@ -82,7 +82,7 @@ func (p *actorProvider) GetOAuthClientByClientID(
 		ID:                      client.ClientID,
 		OUID:                    client.RpID,
 		ClientID:                client.ClientID,
-		GrantTypes:              []providers.GrantType{providers.GrantTypeAuthorizationCode},
+		GrantTypes:              engineGrantTypes(client.GrantTypes),
 		RedirectURIs:            client.RedirectURIs,
 		ResponseTypes:           []providers.ResponseType{providers.ResponseTypeCode},
 		TokenEndpointAuthMethod: providers.TokenEndpointAuthMethodPrivateKeyJWT,
@@ -162,6 +162,15 @@ func (p *actorProvider) GetOAuthProfileByID(
 	}, nil
 }
 
+// The subject eSignet issues is the identity system's partner-specific user token (a pairwise
+// identifier), not an engine entity id. The inbound client declares it as a mapped subject so the
+// engine never tries to resolve it as an entity (the refresh-token grant otherwise refuses the token
+// because the subject "no longer exists").
+const (
+	subjectUserType  = "individual"
+	subjectAttribute = "psu_token"
+)
+
 func (p *actorProvider) GetInboundClientByID(
 	ctx context.Context, id string,
 ) (*providers.InboundClient, *common.ServiceError) {
@@ -193,8 +202,10 @@ func (p *actorProvider) GetInboundClientByID(
 		LoginConsent: &providers.LoginConsentConfig{
 			ValidityPeriod: configInt64(client.AdditionalConfig, consentExpireInMins, 0) * 60,
 		},
-		Properties: properties,
-		IsReadOnly: false,
+		AllowedUserTypes: []string{subjectUserType},
+		SubjectAttribute: map[string]string{subjectUserType: subjectAttribute},
+		Properties:       properties,
+		IsReadOnly:       false,
 	}, nil
 }
 
@@ -274,6 +285,27 @@ func extractJWKs(jwk string) []json.RawMessage {
 		return jwks.Keys
 	}
 	return []json.RawMessage{json.RawMessage(jwk)}
+}
+
+// engineGrantTypes maps the grant types a client registered (clientmgmt names) to the engine's
+// identifiers. token_exchange is accepted by its short name and by its RFC 8693 URN. A client
+// with no recognised grant type keeps the authorization code grant, as before.
+func engineGrantTypes(registered []string) []providers.GrantType {
+	out := make([]providers.GrantType, 0, len(registered)+1)
+	for _, g := range registered {
+		switch g {
+		case string(providers.GrantTypeAuthorizationCode):
+			out = append(out, providers.GrantTypeAuthorizationCode)
+		case "token_exchange", string(providers.GrantTypeTokenExchange):
+			out = append(out, providers.GrantTypeTokenExchange)
+		case string(providers.GrantTypeRefreshToken):
+			out = append(out, providers.GrantTypeRefreshToken)
+		}
+	}
+	if len(out) == 0 {
+		out = append(out, providers.GrantTypeAuthorizationCode)
+	}
+	return out
 }
 
 // getAllowedScopes combines both OIDC scopes and authorization scopes
