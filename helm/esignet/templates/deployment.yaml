@@ -23,7 +23,7 @@ spec:
         {{- if or .Values.podAnnotations .Values.metrics.enabled }}
         {{- include "esignet.podAnnotations" . | nindent 8 }}
         {{- end }}
-       
+
       labels: {{- include "common.labels.standard" . | nindent 8 }}
         {{- if .Values.podLabels }}
         {{- include "common.tplvalues.render" (dict "value" .Values.podLabels "context" $) | nindent 8 }}
@@ -165,7 +165,7 @@ spec:
             - name: metrics
               containerPort: {{ .Values.metrics.port }}
             {{- end }}
-           
+
           {{- if .Values.resources }}
           resources: {{- toYaml .Values.resources | nindent 12 }}
           {{- end }}
