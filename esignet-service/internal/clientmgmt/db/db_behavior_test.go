@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-// recordingDBTX is a fake DBTX that records the query text and args passed to
+// recordingDBTX is a fake TX that records the query text and args passed to
 // ExecContext/GetContext so tests can assert exact argument ordering without a
 // live database. GetContext copies getRow into the *ClientDetail destination.
 type recordingDBTX struct {

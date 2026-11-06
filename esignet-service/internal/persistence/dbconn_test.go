@@ -157,7 +157,11 @@ func (ts *PersistenceTestSuite) TestEnsureMySQLParams() {
 		{"appends both with no query", "user:pass@tcp(h:3306)/db", "user:pass@tcp(h:3306)/db?parseTime=true&loc=UTC&clientFoundRows=true"},
 		{"appends both with existing query", "user:pass@tcp(h:3306)/db?charset=utf8mb4", "user:pass@tcp(h:3306)/db?charset=utf8mb4&parseTime=true&loc=UTC&clientFoundRows=true"},
 		{"leaves existing parseTime, adds clientFoundRows", "user:pass@tcp(h:3306)/db?parseTime=true", "user:pass@tcp(h:3306)/db?parseTime=true&clientFoundRows=true"},
+		{"leaves existing clientFoundRows, adds parseTime", "user:pass@tcp(h:3306)/db?clientFoundRows=false", "user:pass@tcp(h:3306)/db?clientFoundRows=false&parseTime=true&loc=UTC"},
 		{"leaves both when already present", "user:pass@tcp(h:3306)/db?parseTime=true&clientFoundRows=true", "user:pass@tcp(h:3306)/db?parseTime=true&clientFoundRows=true"},
+		{"detects existing param case-insensitively", "user:pass@tcp(h:3306)/db?PARSETIME=true", "user:pass@tcp(h:3306)/db?PARSETIME=true&clientFoundRows=true"},
+		{"question mark in password is not a query string", "user:p?ss@tcp(h:3306)/db", "user:p?ss@tcp(h:3306)/db?parseTime=true&loc=UTC&clientFoundRows=true"},
+		{"option-like text in password is not a param", "user:parseTime=x@tcp(h:3306)/db", "user:parseTime=x@tcp(h:3306)/db?parseTime=true&loc=UTC&clientFoundRows=true"},
 	}
 	for _, tc := range cases {
 		ts.Run(tc.name, func() {

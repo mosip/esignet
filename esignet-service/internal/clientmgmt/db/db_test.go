@@ -15,7 +15,7 @@ import (
 )
 
 // DBTestSuite exercises New's query building. New only builds query strings (it
-// never touches conn), so a nil DBTX is safe here and lets these tests inspect the
+// never touches conn), so a nil TX is safe here and lets these tests inspect the
 // rebound SQL without a database.
 type DBTestSuite struct {
 	suite.Suite

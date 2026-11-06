@@ -209,18 +209,45 @@ func resolveMySQLDSN(yamlDSN string) string {
 //     means "row absent / version mismatch" (matching PostgreSQL) instead of
 //     firing a false conflict when a PATCH re-writes identical column values.
 func ensureMySQLParams(dsn string) string {
-	if !strings.Contains(strings.ToLower(dsn), "parsetime=") {
+	if !mysqlHasParam(dsn, "parseTime") {
 		dsn += mysqlParamSep(dsn) + "parseTime=true&loc=UTC"
 	}
-	if !strings.Contains(strings.ToLower(dsn), "clientfoundrows=") {
+	if !mysqlHasParam(dsn, "clientFoundRows") {
 		dsn += mysqlParamSep(dsn) + "clientFoundRows=true"
 	}
 	return dsn
 }
 
-// mysqlParamSep returns "?" if dsn has no query string yet, else "&".
+// mysqlQuery returns the query-string portion of a MySQL DSN — the text after the
+// first "?" that follows the final "/". go-sql-driver locates parameters the same
+// way, so detection must scan only here: credentials and the address can contain
+// "?" and "/" (e.g. a password "p?ss"), which must not be mistaken for parameters.
+// Returns "" when the DSN has no query string.
+func mysqlQuery(dsn string) string {
+	afterDB := dsn[strings.LastIndex(dsn, "/")+1:]
+	_, query, found := strings.Cut(afterDB, "?")
+	if !found {
+		return ""
+	}
+	return query
+}
+
+// mysqlHasParam reports whether the DSN's query string already sets name
+// (case-insensitively), so a value the caller supplied is never overridden.
+func mysqlHasParam(dsn, name string) bool {
+	for _, param := range strings.Split(mysqlQuery(dsn), "&") {
+		if key, _, found := strings.Cut(param, "="); found && strings.EqualFold(key, name) {
+			return true
+		}
+	}
+	return false
+}
+
+// mysqlParamSep returns "?" if dsn has no query string yet, else "&". It inspects
+// only the portion after the final "/", so a "?" in the password or address does
+// not make it pick "&" (which would fold the appended parameters into the DB name).
 func mysqlParamSep(dsn string) string {
-	if strings.Contains(dsn, "?") {
+	if strings.Contains(dsn[strings.LastIndex(dsn, "/")+1:], "?") {
 		return "&"
 	}
 	return "?"

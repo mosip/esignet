@@ -19,11 +19,13 @@ import (
 	"github.com/mosip/esignet/internal/persistence"
 )
 
-// DBTX is the subset of *sqlx.DB / *sqlx.Tx that Queries uses, so one Queries can
-// run against either a pooled connection or an open transaction (consentmgmt's db
-// layer uses the same DBTX name for its sqlc-generated equivalent). Only the two
-// methods the query layer actually calls are declared.
-type DBTX interface {
+// TX is the subset of *sqlx.DB / *sqlx.Tx that Queries uses, so one Queries can
+// run against either a pooled connection or an open transaction. Only the two
+// methods the query layer actually calls are declared. (consentmgmt/db calls its
+// sqlc-generated equivalent DBTX; that name stutters as db.DBTX under revive and
+// is tolerated there only because generated files are lint-exempt, so this
+// hand-written layer uses TX.)
+type TX interface {
 	ExecContext(ctx context.Context, query string, args ...interface{}) (sql.Result, error)
 	GetContext(ctx context.Context, dest interface{}, query string, args ...interface{}) error
 }
@@ -40,7 +42,7 @@ const clientColumns = `id, name, rp_id, logo_uri, redirect_uris, claims, acr_val
 // in New, rebound to the driver's placeholder style; WithTx rebinds a Queries to
 // a transaction without rebuilding them.
 type Queries struct {
-	db DBTX
+	db TX
 
 	// usesReturning selects the write dialect: PostgreSQL appends RETURNING and
 	// reads the row back in the write statement; MySQL writes, then SELECTs.
@@ -60,7 +62,7 @@ var _ Querier = (*Queries)(nil)
 // selects the placeholder style via persistence.Rebind and the write dialect via
 // persistence.SupportsReturning, and must be the sql/sqlx driver name
 // ("postgres" or "mysql"). Queries are written with "?" and rebound here once.
-func New(conn DBTX, driverName string) *Queries {
+func New(conn TX, driverName string) *Queries {
 	q := &Queries{db: conn, usesReturning: persistence.SupportsReturning(driverName)}
 
 	q.getClient = persistence.Rebind(driverName,
@@ -117,7 +119,7 @@ func New(conn DBTX, driverName string) *Queries {
 // WithTx returns a copy of q bound to conn (typically an *sqlx.Tx), reusing the
 // query strings already built in New instead of rebinding them for every
 // transaction.
-func (q *Queries) WithTx(conn DBTX) *Queries {
+func (q *Queries) WithTx(conn TX) *Queries {
 	clone := *q
 	clone.db = conn
 	return &clone
