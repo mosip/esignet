@@ -101,6 +101,7 @@ services:
       # IAM just because this happens to be set.
       - ADMIN_TOKEN
       - INDIVIDUAL_ID
+      - SECONDARY_INDIVIDUAL_ID
       - ID_TYPE
       - FLOW_CLIENT_ID
       - SURFACES
@@ -111,6 +112,23 @@ services:
       # unless the operator explicitly passes false.
       - ESIGNET_TLS_VERIFY
       - API_TLS_VERIFY
+      # Bundled mock MDS for the biometric scenarios (docker-entrypoint.sh).
+      # Read by the entrypoint, not the harness config; every one has a default.
+      - MOCK_MDS_ENABLED
+      - MOCK_MDS_PORT
+      - MOCK_MDS_PURPOSE
+      - MOCK_MDS_BIOMETRIC_TYPE
+      - MOCK_MDS_IMAGE_TYPE
+      - MOCK_MDS_WAIT_SECONDS
+      - MOCK_MDS_AUTH_SERVER_URL
+      - MOCK_MDS_AUTH_APP_ID
+      - MOCK_MDS_AUTH_CLIENT_ID
+      - MOCK_MDS_AUTH_SECRET_KEY
+      - MOCK_MDS_IDA_SERVER_URL
+      # Read by the harness config (e2e.mock_mds), not the entrypoint: signed into
+      # each capture, so they must equal the authn provider's IDA env and domain URI.
+      - MOCK_MDS_ENV
+      - MOCK_MDS_DOMAIN_URI
       # Compose reaches the suite by its network alias rather than the config's
       # host-side URL, and that cert is the suite's own self-signed one. These
       # carry real defaults, so they are always set.

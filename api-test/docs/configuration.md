@@ -51,13 +51,25 @@ what "passing" means.
 | `base_url` | The deployment under test. Must serve `/.well-known/openid-configuration`. |
 | `provider` | `mock` \| `sunbird` \| `mosip` — which identity plugin the deployment runs |
 | `auth_factor` | Which ACR the conformance surface drives: `otp` \| `password` \| `bio` \| `kbi`. **One per run** — to cover another, change it and run again. |
-| `identity.individual_id` | The test identity. Required for every provider except `mock`. |
+| `identity.individual_id` | The test identity. Required for every provider, `mock` included, on the `conformance` and `e2e` surfaces. |
 | `identity.id_type` | `uin` \| `vid` \| `phone` \| `email` — selects the matching login-id tab |
+| `identity.secondary_individual_id` | A second registered identity of the same id type, for the biometric scenarios that need two (TC_BIO_18, 23, 28). Required for an e2e run that includes bio on `mock` or `mosip` (the config fails to load without it). On `mosip` it must be enrolled from the mock MDS's `Default` profile |
 | `credentials.username` / `.password` | For the password factor |
-| `credentials.biometric` | For the bio factor. Only `mock` validates it, and accepts any non-empty value |
+| `credentials.biometric` | For the bio factor's automatic-driver scenarios. Only `mock` validates it, and accepts any non-empty value. `mosip` takes real captures from the mock MDS instead — see `e2e.mock_mds` |
 | `knowledge.full_name` / `.dob` | For the knowledge-based factor |
 | `otp.*` | Static or dynamic OTP retrieval — see [MOSIP ID](mosip-id.md#dynamic-otp-retrieval) |
 | `pms.*` | MOSIP-ID-only partner binding — see [MOSIP ID](mosip-id.md#partner-registration-via-pms) |
+
+### `e2e.mock_mds`
+
+The mock MDS (MOSIP SBI device service) the scripted biometric scenarios capture from — see
+[Scripted scenarios](e2e-scenarios.md#scripted-scenarios).
+
+| Field | Meaning |
+|---|---|
+| `base_url` | Where the MDS listens. The harness image starts one on `127.0.0.1` and sets this itself (`docker-entrypoint.sh`); unset, the scenarios that capture report **ENV_NOT_READY** |
+| `env` | Signed into each capture. Must equal the authn provider's `IDA_AUTHENTICATOR_ENV`, or IDA refuses the capture. Default `Staging`, the provider's default too |
+| `domain_uri` | Signed into each capture. Must equal the authn provider's `MOSIP_ESIGNET_DOMAIN_URL`. Default: the origin of `esignet.base_url`, which is what the login UI's SBI widget sends |
 
 `esignet.base_url` may be left empty for a **conformance-only** run, in which case it is derived
 from the suite's authorize URL. The `api` and `e2e` surfaces require it outright.
@@ -82,10 +94,11 @@ once and vary only the table below.
 | | `mock` | `mosip` | `sunbird` |
 |---|---|---|---|
 | Default `auth_factor` | `otp` | `otp` | `kbi` — defaulted from the provider |
-| `identity.individual_id` | **not needed**: the tracked config ships a synthetic seed identity | **required** for `conformance` and `e2e` | **required** for `conformance` and `e2e` |
+| `identity.individual_id` | **required** for `conformance` and `e2e` | **required** for `conformance` and `e2e` | **required** for `conformance` and `e2e` |
+| `identity.secondary_individual_id` | **required** for `e2e` with bio | **required** for `e2e` with bio | — no biometric factor |
 | `otp.source` | `static` | **`dynamic`** — and `otp.ws_url` is then required | `static`, unused at `kbi` |
 | `credentials.username` / `.password` | ship in the tracked config | yours; unset skips the one `requires_credential` scenario rather than failing it | — its spec has no password scenarios |
-| `credentials.biometric` | the only plugin that validates it, and any non-empty value passes | leave unset — bio is a tracked known issue | — |
+| `credentials.biometric` | any non-empty value passes; the scripted bio scenarios submit their own capture-shaped value | leave unset — bio scenarios capture from the mock MDS (`e2e.mock_mds`) | — |
 | `knowledge.full_name` / `.dob` | — | — | **required** |
 | `pms.*` | — | **required** — see [MOSIP ID](mosip-id.md#partner-registration-via-pms) | — |
 | e2e client registration | eSignet `/client-mgmt/client` | **PMS** `/oauth/client` | eSignet `/client-mgmt/client` |
@@ -147,12 +160,13 @@ override**, so a container needing to change those must mount the config file it
 | `MOSIP_ESIGNET_AUTHN_PROVIDER` | `esignet.provider` | | `KEYCLOAK_CLIENT_ID` | `keycloak.client_id` |
 | `AUTH_FACTOR` | `esignet.auth_factor` | | `KEYCLOAK_CLIENT_SECRET` | `keycloak.client_secret` |
 | `ESIGNET_TLS_VERIFY` | `esignet.tls_verify` | | | |
-| `INDIVIDUAL_ID` / `ID_TYPE` | `esignet.identity.*` | | `GODOG_TAGS` | `api.tags` |
+| `INDIVIDUAL_ID` / `ID_TYPE` / `SECONDARY_INDIVIDUAL_ID` | `esignet.identity.*` | | `GODOG_TAGS` | `api.tags` |
 | `TEST_USERNAME` / `TEST_PASSWORD` / `TEST_BIOMETRIC` | `esignet.credentials.*` | | `FLOW_CLIENT_ID` | `api.flow_client_id` |
 | `KBI_FULL_NAME` / `KBI_DOB` | `esignet.knowledge.*` | | `API_TLS_VERIFY` | `api.tls_verify` |
 | `OTP_SOURCE` / `TEST_OTP` | `esignet.otp.*` | | `E2E_SPEC` | `e2e.spec` |
 | `OTP_WS_URL` / `OTP_RECIPIENT_EMAIL` | `esignet.otp.*` | | `E2E_AUTH_FACTORS` | `e2e.auth_factors` |
 | `PMS_BASE_URL` / `AUTH_PARTNER_ID` / `AUTH_POLICY_ID` / `PMS_CLIENT_API` | `esignet.pms.*` | | `E2E_INCLUDE` / `E2E_EXCLUDE` | `e2e.*` |
+| | | | `MOCK_MDS_BASE_URL` / `MOCK_MDS_ENV` / `MOCK_MDS_DOMAIN_URI` | `e2e.mock_mds.*` |
 
 > **`MOSIP_ESIGNET_BASE_URL` and `MOSIP_ESIGNET_AUTHN_PROVIDER` are deliberately the same names
 > eSignet itself reads** (`server.public_url` and the provider selector — see

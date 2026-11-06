@@ -22,6 +22,13 @@
 # dependency layer then caches independently of every source edit. The godog
 # module is built with `go test -c` into a standalone binary so the runtime needs
 # no `go test`. Both modules emit into /out/bin; the names never collide.
+#
+# The image also carries the mock MDS (MOSIP SBI device service) that the
+# biometric scenarios capture from over the SBI loopback API. docker-entrypoint.sh
+# starts it on 127.0.0.1 before handing off to run-all.sh. MOCK_MDS_VERSION picks
+# both the Maven Central jar and the matching source tag its data files come from.
+
+ARG MOCK_MDS_VERSION=1.3.1
 
 FROM golang:1.27-bookworm AS builder
 WORKDIR /src
@@ -51,6 +58,31 @@ RUN mkdir -p /out/bin && \
 WORKDIR /src/api
 RUN go test -c -trimpath -o /out/bin/api.test .
 
+# Mock MDS. Maven Central publishes only the bare jar, so this stage assembles the
+# layout the MDS expects in its working directory: lib/ (the jar plus its runtime
+# classpath) from Maven Central, and application.properties, Biometric Devices/,
+# Profile/ and files/ from the same release's source tarball. files/sdkDependeny
+# (112MB of Windows SDK DLLs, never read by the MDS) is left out.
+FROM maven:3.9-eclipse-temurin-21 AS mockmds
+ARG MOCK_MDS_VERSION
+WORKDIR /src
+COPY mock-mds/pom.xml ./
+RUN mvn -B -q -Dmock.mds.version=${MOCK_MDS_VERSION} \
+      org.apache.maven.plugins:maven-dependency-plugin:3.8.1:copy-dependencies \
+      -DincludeScope=runtime -DoutputDirectory=/out/mock-mds/lib
+ADD https://github.com/mosip/mosip-mock-services/archive/refs/tags/v${MOCK_MDS_VERSION}.tar.gz /tmp/mosip-mock-services.tar.gz
+RUN tar -xzf /tmp/mosip-mock-services.tar.gz -C /out/mock-mds --strip-components=2 --wildcards \
+      '*/MockMDS/application.properties' \
+      '*/MockMDS/Biometric Devices/*' \
+      '*/MockMDS/Profile/*' \
+      '*/MockMDS/files/MockMDS/*' \
+      '*/MockMDS/files/keys/*' \
+      '*/MockMDS/files/images/*'
+
+# The published mock-mds classes are compiled for Java 21 with --enable-preview,
+# so they run on exactly a 21 JVM. Bookworm packages only 17; take Temurin's.
+FROM eclipse-temurin:21-jre AS jre
+
 FROM debian:bookworm-slim AS runtime
 
 ARG SOURCE
@@ -75,13 +107,22 @@ COPY --from=builder /out/bin/ ./bin/
 # config and the target URL. They hold no secrets — credentials arrive as env or
 # a mounted config.local.json, both of which override these.
 COPY data ./data
-COPY run-all.sh ./
+COPY run-all.sh docker-entrypoint.sh ./
 # A Windows checkout leaves CRLF line endings, which make the shebang line
 # unresolvable — the container then exits with a bare "no such file or
 # directory" naming a script that plainly exists. Normalising here keeps the
 # image buildable from any checkout; a repo-wide .gitattributes would be the
 # permanent fix.
-RUN sed -i 's/\r$//' run-all.sh && chmod +x run-all.sh && mkdir -p out && chown -R apitest:apitest /app
+RUN sed -i 's/\r$//' run-all.sh docker-entrypoint.sh && chmod +x run-all.sh docker-entrypoint.sh && \
+    mkdir -p out && chown -R apitest:apitest /app
+
+COPY --from=jre /opt/java/openjdk /opt/java/openjdk
+ENV JAVA_HOME=/opt/java/openjdk
+ENV PATH=/opt/java/openjdk/bin:$PATH
+# Owned by apitest: the entrypoint rewrites application.properties (port, IDA
+# endpoints) on every start.
+COPY --from=mockmds --chown=apitest:apitest /out/mock-mds /opt/mock-mds
+ENV MOCK_MDS_HOME=/opt/mock-mds
 
 ENV BIN_DIR=/app/bin
 # The prebuilt api.test runs from /app rather than from the module directory it
@@ -89,4 +130,4 @@ ENV BIN_DIR=/app/bin
 ENV API_FEATURES_DIR=/app/data/features
 USER apitest:apitest
 
-ENTRYPOINT ["./run-all.sh"]
+ENTRYPOINT ["./docker-entrypoint.sh"]

@@ -35,9 +35,17 @@ func load(t *testing.T, path string) (*Config, error) {
 
 func jsonString(s string) string { return `"` + strings.ReplaceAll(s, `\`, `\\`) + `"` }
 
+// withIdentity supplies the identities every plugin requires (both, for an e2e run with bio), for tests checking something else.
+func withIdentity(t *testing.T) {
+	t.Helper()
+	t.Setenv("INDIVIDUAL_ID", "test-identity")
+	t.Setenv("SECONDARY_INDIVIDUAL_ID", "test-identity-2")
+}
+
 // TLS verification must be on unless something explicitly turns it off, so an
 // omitted tls_verify cannot silently accept forged certificates.
 func TestTLSVerifyFailsClosed(t *testing.T) {
+	withIdentity(t)
 	cases := []struct {
 		name        string
 		conformance string
@@ -87,6 +95,7 @@ func TestNonPositivePollingRejected(t *testing.T) {
 
 // ID_TYPE reaches the conformance surface only through applyEnv.
 func TestIDTypeEnvOverride(t *testing.T) {
+	withIdentity(t)
 	t.Setenv("ID_TYPE", "uin")
 	c, err := load(t, writeConfig(t, ``))
 	if err != nil {
@@ -156,6 +165,7 @@ func TestLayerPrecedence(t *testing.T) {
 
 // A config named explicitly must not silently fall through to defaults.
 func TestExplicitMissingConfigIsFatal(t *testing.T) {
+	withIdentity(t)
 	missing := filepath.Join(t.TempDir(), "config.msoip.json")
 
 	if _, err := Load(missing, true); err == nil {
@@ -179,6 +189,7 @@ func TestExplicitMissingConfigIsFatal(t *testing.T) {
 // One config now drives all three surfaces, so a run must only be held to the
 // requirements of the surfaces it actually selected.
 func TestValidationIsScopedToSelectedSurfaces(t *testing.T) {
+	withIdentity(t)
 	// e2e only: no conformance base_url and no plan config, which used to be hard requirements.
 	spec := filepath.Join(t.TempDir(), "e2e-scenarios.json")
 	if err := os.WriteFile(spec, []byte(`{"scenarios":[]}`), 0o600); err != nil {
@@ -211,16 +222,18 @@ func TestValidationIsScopedToSelectedSurfaces(t *testing.T) {
 	}
 }
 
-// A run against a real deployment must name the identity under test.
-func TestNonMockProviderRequiresIdentity(t *testing.T) {
-	cfg := writeLayers(t,
-		`{"conformance":{"base_url":"https://suite.example"},
-		  "plan":{"config_file":$PLAN},
-		  "esignet":{"provider":"mosip"},
-		  "run":{"surfaces":["conformance"]}}`, "")
-	_, err := Load(cfg, true)
-	if err == nil || !strings.Contains(err.Error(), "individual_id") {
-		t.Fatalf("err = %v, want one naming individual_id", err)
+// Every plugin, mock included, must name the identity under test.
+func TestEveryProviderRequiresIdentity(t *testing.T) {
+	for _, provider := range []string{"mock", "mosip", "sunbird"} {
+		cfg := writeLayers(t,
+			`{"conformance":{"base_url":"https://suite.example"},
+			  "plan":{"config_file":$PLAN},
+			  "esignet":{"provider":"`+provider+`"},
+			  "run":{"surfaces":["conformance"]}}`, "")
+		_, err := Load(cfg, true)
+		if err == nil || !strings.Contains(err.Error(), "individual_id") {
+			t.Errorf("%s: err = %v, want one naming individual_id", provider, err)
+		}
 	}
 }
 
@@ -252,6 +265,7 @@ func writePlans(t *testing.T, plans string) (cfgPath, planPath string) {
 
 // Two plans in one run: each keeps its own name, variant and client/jwks file.
 func TestPlansListAndLegacyBlock(t *testing.T) {
+	withIdentity(t)
 	cfg, planPath := writePlans(t, `[
 		{"name":"oidcc-test-plan","config_file":$PLAN},
 		{"name":"fapi2-security-profile-final-test-plan","config_file":$PLAN,
@@ -329,6 +343,7 @@ func TestDuplicatePlanNamesRejected(t *testing.T) {
 // Each plan narrows its own module set, because two plans in one run rarely want
 // the same list; anything it leaves unset comes from run.*.
 func TestPerPlanSelectionFallsBackToRun(t *testing.T) {
+	withIdentity(t)
 	dir := t.TempDir()
 	planPath := filepath.Join(dir, "plan.json")
 	if err := os.WriteFile(planPath, []byte(`{}`), 0o600); err != nil {
@@ -363,6 +378,7 @@ func TestPerPlanSelectionFallsBackToRun(t *testing.T) {
 
 // PLAN_CONFIG_PATH cannot say which plan it means once there are two.
 func TestPlanEnvOverrides(t *testing.T) {
+	withIdentity(t)
 	cfg, planPath := writePlans(t, `[{"name":"oidcc-test-plan","config_file":$PLAN},
 		{"name":"fapi2-security-profile-final-test-plan","config_file":$PLAN}]`)
 
@@ -427,6 +443,7 @@ func TestPlanEnvOverrides(t *testing.T) {
 
 // json.Unmarshal merges a slice positionally and truncates to the incoming length.
 func TestPlansOverlay(t *testing.T) {
+	withIdentity(t)
 	dir := t.TempDir()
 	planPath := filepath.Join(dir, "plan.json")
 	otherPath := filepath.Join(dir, "other.json")
@@ -478,6 +495,36 @@ func TestRedactedMasksKeycloakSecret(t *testing.T) {
 
 // Every field the configuration panel must never carry, pinned in one place so a
 // new secret or identity field cannot be added to Config without being masked.
+// An e2e run that includes bio must name the second identity its biometric scenarios log in with, on every plugin with a biometric factor.
+func TestBioE2ERequiresSecondaryIdentity(t *testing.T) {
+	spec := filepath.Join(t.TempDir(), "e2e-scenarios.json")
+	if err := os.WriteFile(spec, []byte(`{"scenarios":[]}`), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	base := `"esignet":{"provider":"PROVIDER","base_url":"https://esignet.example","identity":{"individual_id":"1"IDENTITY}},
+		  "keycloak":{"token_url":"https://iam.example","client_id":"c","client_secret":"s"},
+		  "run":{"surfaces":["e2e"]}`
+	for _, tc := range []struct {
+		name, provider, identity, e2e string
+		wantErr                       bool
+	}{
+		{"mosip, every factor, no secondary", "mosip", "", `{"spec":` + jsonString(spec) + `}`, true},
+		{"mosip, bio listed, no secondary", "mosip", "", `{"spec":` + jsonString(spec) + `,"auth_factors":["otp","bio"]}`, true},
+		{"mosip, bio left out, no secondary", "mosip", "", `{"spec":` + jsonString(spec) + `,"auth_factors":["otp"]}`, false},
+		{"mosip, secondary set", "mosip", `,"secondary_individual_id":"2"`, `{"spec":` + jsonString(spec) + `}`, false},
+		{"mock, every factor, no secondary", "mock", "", `{"spec":` + jsonString(spec) + `}`, true},
+		{"mock, secondary set", "mock", `,"secondary_individual_id":"2"`, `{"spec":` + jsonString(spec) + `}`, false},
+		{"sunbird, no biometric factor", "sunbird", "", `{"spec":` + jsonString(spec) + `}`, false},
+	} {
+		body := strings.NewReplacer("PROVIDER", tc.provider, "IDENTITY", tc.identity).Replace(base)
+		cfg := writeLayers(t, `{`+body+`,"e2e":`+tc.e2e+`}`, "")
+		_, err := Load(cfg, true)
+		if got := err != nil && strings.Contains(err.Error(), "secondary_individual_id"); got != tc.wantErr {
+			t.Errorf("%s: err = %v, want secondary_individual_id error = %v", tc.name, err, tc.wantErr)
+		}
+	}
+}
+
 func TestRedactedMasksEveryIdentityAndSecretField(t *testing.T) {
 	c := &Config{}
 	c.Conformance.Token = "tok-leak"
@@ -487,13 +534,14 @@ func TestRedactedMasksEveryIdentityAndSecretField(t *testing.T) {
 	c.Esignet.OTP.Value = "otp-leak"
 	c.Esignet.OTP.RecipientEmail = "mail-leak"
 	c.Esignet.Identity.IndividualID = "id-leak"
+	c.Esignet.Identity.SecondaryIndividualID = "id2-leak"
 	c.Esignet.Knowledge.FullName = "name-leak"
 	c.Esignet.Knowledge.DOB = "dob-leak"
 
 	out := c.Redacted()
 	for _, want := range []string{
 		"tok-leak", "kc-leak", "user-leak", "pw-leak",
-		"otp-leak", "mail-leak", "id-leak", "name-leak", "dob-leak",
+		"otp-leak", "mail-leak", "id-leak", "id2-leak", "name-leak", "dob-leak",
 	} {
 		if strings.Contains(out, want) {
 			t.Errorf("Redacted() leaked %q:\n%s", want, out)
@@ -529,6 +577,7 @@ func TestRedactJWKMaterialMasksNonStringValues(t *testing.T) {
 
 // esignet.tls_verify is a separate knob from conformance.tls_verify and must fail closed on its own.
 func TestEsignetTLSVerifyIsIndependentOfConformance(t *testing.T) {
+	withIdentity(t)
 	c, err := load(t, writeConfig(t, `,"tls_verify":false`))
 	if err != nil {
 		t.Fatalf("Load: %v", err)
@@ -542,6 +591,7 @@ func TestEsignetTLSVerifyIsIndependentOfConformance(t *testing.T) {
 }
 
 func TestEsignetTLSVerifyEnvOverride(t *testing.T) {
+	withIdentity(t)
 	t.Setenv("ESIGNET_TLS_VERIFY", "false")
 	c, err := load(t, writeConfig(t, ``))
 	if err != nil {
@@ -554,6 +604,7 @@ func TestEsignetTLSVerifyEnvOverride(t *testing.T) {
 
 // An env-only container declares its plan solely through the indexed PLAN_1_* variables.
 func TestIndexedPlanEnvAllocatesWithNoConfigFile(t *testing.T) {
+	withIdentity(t)
 	plan := filepath.Join(t.TempDir(), "plan.json")
 	if err := os.WriteFile(plan, []byte(`{}`), 0o600); err != nil {
 		t.Fatal(err)

@@ -3,11 +3,13 @@
 Everything specific to running the harness against a deployment using the **MOSIP ID** identity
 plugin. Nothing here applies to the `mock` or `sunbird` plugins.
 
-Two things differ from the other plugins:
+Three things differ from the other plugins:
 
 1. **Client registration goes through partner-management-service (PMS)**, not eSignet's own client
    management, so that IDA gets the partner-and-policy binding it requires.
 2. **OTPs can be read live** from the deployment's mock SMTP service, instead of a static test OTP.
+3. **Biometric logins use real captures** from a mock MDS the harness image runs, which IDA
+   verifies like any device's.
 
 Run it the same way as any other plugin:
 
@@ -17,7 +19,7 @@ Run it the same way as any other plugin:
 ```
 
 **Contents:** [Partner registration](#partner-registration-via-pms) · [Dynamic OTP](#dynamic-otp-retrieval) ·
-[Settings summary](#settings-summary) · [Troubleshooting](#troubleshooting)
+[Biometric captures](#biometric-captures) · [Settings summary](#settings-summary) · [Troubleshooting](#troubleshooting)
 
 ---
 
@@ -127,12 +129,34 @@ change when extraction stops finding a code. It is off by default and never set 
 
 ---
 
+## Biometric captures
+
+The `bio TC_BIO_*` scenarios are [scripted](e2e-scenarios.md#scripted-scenarios): they drive
+`/flow/execute` step by step with `acr_values=mosip:idp:acr:biometrics` and submit captures taken from
+the mock MDS the harness image starts on `127.0.0.1:4501` (`docker-entrypoint.sh`, which sets
+`MOCK_MDS_BASE_URL`). Each capture is encrypted with the IDA partner certificate the MDS fetches with
+its `MOCK_MDS_AUTH_*` / `MOCK_MDS_IDA_SERVER_URL` settings (see `.env.example`), and bound to the
+transaction id of the login it was taken in.
+
+What the target needs for them to pass:
+
+- **The identity enrolled from the mock MDS's `Default` profile**, which returns the same
+  biometrics whatever the login id. Captures from its `Automatic` profile stand in for someone else.
+- **`MOCK_MDS_ENV` and `MOCK_MDS_DOMAIN_URI` equal to the provider's `IDA_AUTHENTICATOR_ENV` and
+  `MOSIP_ESIGNET_DOMAIN_URL`.** Both are signed into the capture and compared by IDA. Defaults:
+  `Staging`, and the origin of `MOSIP_ESIGNET_BASE_URL`.
+
+Run outside the image (no MDS), every scenario that takes a capture is reported ENV_NOT_READY. To
+run only these: `E2E_INCLUDE='^bio TC_BIO_'`.
+
+---
+
 ## Settings summary
 
 | Config field | Environment | Purpose |
 |---|---|---|
 | `esignet.provider` | `MOSIP_ESIGNET_AUTHN_PROVIDER` | Set to `mosip` |
-| `esignet.identity.individual_id` | `INDIVIDUAL_ID` | The test identity — **required**; there is no fallback outside `mock` |
+| `esignet.identity.individual_id` | `INDIVIDUAL_ID` | The test identity — **required** on every plugin |
 | `esignet.identity.id_type` | `ID_TYPE` | `uin` \| `vid` \| `phone` \| `email` — selects the matching login-id tab |
 | `esignet.pms.base_url` | `PMS_BASE_URL` | partner-management-service base URL |
 | `esignet.pms.auth_partner_id` | `AUTH_PARTNER_ID` | Onboarded partner id |
@@ -142,6 +166,8 @@ change when extraction stops finding a code. It is off by default and never set 
 | `esignet.otp.value` | `TEST_OTP` | The OTP, when `source: static` |
 | `esignet.otp.ws_url` | `OTP_WS_URL` | Mock SMTP WebSocket URL, when `source: dynamic` |
 | `esignet.otp.recipient_email` | `OTP_RECIPIENT_EMAIL` | Restrict to one recipient (email **or** phone) |
+| `e2e.mock_mds.base_url` | `MOCK_MDS_BASE_URL` | Mock MDS for biometric captures; the harness image sets it |
+| `e2e.mock_mds.env` / `.domain_uri` | `MOCK_MDS_ENV` / `MOCK_MDS_DOMAIN_URI` | Signed into each capture; must match the provider's IDA env and domain URI |
 
 The e2e scenario set for this plugin is `data/scenarios/e2e-scenarios-mosip.json`.
 
@@ -156,6 +182,8 @@ The e2e scenario set for this plugin is `data/scenarios/e2e-scenarios-mosip.json
 | Authentication rejected by IDA despite a registered client | Client registered directly with eSignet rather than through PMS, so it has no partner/policy binding |
 | OTP step times out with `source: dynamic` | `ws_url` unreachable, or `recipient_email` filtering out the message that arrived — clear it, or set `WSOTP_DEBUG=1` to see the frames |
 | OTP found but rejected | A stale code was matched: another run's message arrived first. Set `recipient_email` to disambiguate. |
-| e2e fails immediately on a missing identity | `individual_id` is required for every plugin except `mock` |
+| e2e fails immediately on a missing identity | `individual_id` is required for every plugin |
+| Biometric scenarios reported ENV_NOT_READY | No mock MDS: running outside the harness image, `MOCK_MDS_ENABLED=false`, or the MDS did not come up (see `out/mock-mds.log`) |
+| Every valid capture refused with FET-1005 | Capture env/domainUri differ from the provider's (`MOCK_MDS_ENV`, `MOCK_MDS_DOMAIN_URI`), the MDS fetched the wrong IDA certificate, or the identity was not enrolled from the `Default` profile |
 
 For failures not specific to this plugin, see [Troubleshooting](troubleshooting.md).
