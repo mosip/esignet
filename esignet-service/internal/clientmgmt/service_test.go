@@ -16,6 +16,7 @@ import (
 	"time"
 
 	"github.com/jackc/pgx/v5/pgconn"
+	"github.com/jmoiron/sqlx"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/providers"
@@ -96,7 +97,7 @@ func existingClientRow() db.ClientDetail {
 		ID:            "client-1",
 		Name:          `{"@none":"Test Client"}`,
 		RpID:          "rp-1",
-		LogoUri:       "https://example.com/logo.png",
+		LogoURI:       "https://example.com/logo.png",
 		RedirectUris:  `["https://example.com/callback"]`,
 		Claims:        `["name","email"]`,
 		AcrValues:     `["mosip:idp:acr:static-code"]`,
@@ -743,7 +744,9 @@ func (ts *ServiceTestSuite) TestToResponse() {
 func (ts *ServiceTestSuite) TestNewService() {
 	t := ts.T()
 	require.NotPanics(t, func() {
-		_ = NewService(nil, nil, 0, nil)
+		// sqlx.NewDb sets the driver name without opening a connection, so
+		// NewService can derive it via conn.DriverName() during construction.
+		_ = NewService(sqlx.NewDb(nil, "postgres"), nil, 0, nil)
 	})
 }
 

@@ -148,19 +148,24 @@ func (ts *PersistenceTestSuite) TestResolveDBDSN_EnvTakesPrecedenceOverYAML() {
 	ts.Require().NotContains(dsn, "yamlhost")
 }
 
-func (ts *PersistenceTestSuite) TestEnsureMySQLParseTime() {
+func (ts *PersistenceTestSuite) TestEnsureMySQLParams() {
 	cases := []struct {
 		name string
 		dsn  string
 		want string
 	}{
-		{"appends with no query", "user:pass@tcp(h:3306)/db", "user:pass@tcp(h:3306)/db?parseTime=true&loc=UTC"},
-		{"appends with existing query", "user:pass@tcp(h:3306)/db?charset=utf8mb4", "user:pass@tcp(h:3306)/db?charset=utf8mb4&parseTime=true&loc=UTC"},
-		{"leaves existing parseTime alone", "user:pass@tcp(h:3306)/db?parseTime=true", "user:pass@tcp(h:3306)/db?parseTime=true"},
+		{"appends both with no query", "user:pass@tcp(h:3306)/db", "user:pass@tcp(h:3306)/db?parseTime=true&loc=UTC&clientFoundRows=true"},
+		{"appends both with existing query", "user:pass@tcp(h:3306)/db?charset=utf8mb4", "user:pass@tcp(h:3306)/db?charset=utf8mb4&parseTime=true&loc=UTC&clientFoundRows=true"},
+		{"leaves existing parseTime, adds clientFoundRows", "user:pass@tcp(h:3306)/db?parseTime=true", "user:pass@tcp(h:3306)/db?parseTime=true&clientFoundRows=true"},
+		{"leaves existing clientFoundRows, adds parseTime", "user:pass@tcp(h:3306)/db?clientFoundRows=false", "user:pass@tcp(h:3306)/db?clientFoundRows=false&parseTime=true&loc=UTC"},
+		{"leaves both when already present", "user:pass@tcp(h:3306)/db?parseTime=true&clientFoundRows=true", "user:pass@tcp(h:3306)/db?parseTime=true&clientFoundRows=true"},
+		{"detects existing param case-insensitively", "user:pass@tcp(h:3306)/db?PARSETIME=true", "user:pass@tcp(h:3306)/db?PARSETIME=true&clientFoundRows=true"},
+		{"question mark in password is not a query string", "user:p?ss@tcp(h:3306)/db", "user:p?ss@tcp(h:3306)/db?parseTime=true&loc=UTC&clientFoundRows=true"},
+		{"option-like text in password is not a param", "user:parseTime=x@tcp(h:3306)/db", "user:parseTime=x@tcp(h:3306)/db?parseTime=true&loc=UTC&clientFoundRows=true"},
 	}
 	for _, tc := range cases {
 		ts.Run(tc.name, func() {
-			ts.Require().Equal(tc.want, ensureMySQLParseTime(tc.dsn))
+			ts.Require().Equal(tc.want, ensureMySQLParams(tc.dsn))
 		})
 	}
 }
@@ -170,7 +175,7 @@ func (ts *PersistenceTestSuite) TestResolveMySQLDSN_FullURLPassedThrough() {
 
 	dsn := resolveMySQLDSN("")
 
-	ts.Require().Equal("esignet:secret@tcp(dbhost:3306)/mosip_esignet?parseTime=true&loc=UTC", dsn)
+	ts.Require().Equal("esignet:secret@tcp(dbhost:3306)/mosip_esignet?parseTime=true&loc=UTC&clientFoundRows=true", dsn)
 }
 
 func (ts *PersistenceTestSuite) TestResolveMySQLDSN_FullURLGetsParseTimeAppended() {
@@ -178,7 +183,7 @@ func (ts *PersistenceTestSuite) TestResolveMySQLDSN_FullURLGetsParseTimeAppended
 
 	dsn := resolveMySQLDSN("")
 
-	ts.Require().Equal("esignet:secret@tcp(dbhost:3306)/mosip_esignet?parseTime=true&loc=UTC", dsn)
+	ts.Require().Equal("esignet:secret@tcp(dbhost:3306)/mosip_esignet?parseTime=true&loc=UTC&clientFoundRows=true", dsn)
 }
 
 func (ts *PersistenceTestSuite) TestResolveMySQLDSN_IndividualVars() {
@@ -191,7 +196,7 @@ func (ts *PersistenceTestSuite) TestResolveMySQLDSN_IndividualVars() {
 
 	dsn := resolveMySQLDSN("")
 
-	ts.Require().Equal("myuser:mypass@tcp(dbhost:3307)/mydb?parseTime=true&loc=UTC", dsn)
+	ts.Require().Equal("myuser:mypass@tcp(dbhost:3307)/mydb?parseTime=true&loc=UTC&clientFoundRows=true", dsn)
 }
 
 func (ts *PersistenceTestSuite) TestResolveMySQLDSN_DBUserPasswordFallback() {
@@ -211,7 +216,7 @@ func (ts *PersistenceTestSuite) TestResolveMySQLDSN_NoPasswordOmitsCredentialCol
 	dsn := resolveMySQLDSN("")
 
 	ts.Require().Equal(
-		defaultMySQLUser+"@tcp("+defaultDBHost+":"+defaultMySQLPort+")/"+defaultDBName+"?parseTime=true&loc=UTC",
+		defaultMySQLUser+"@tcp("+defaultDBHost+":"+defaultMySQLPort+")/"+defaultDBName+"?parseTime=true&loc=UTC&clientFoundRows=true",
 		dsn)
 }
 
@@ -220,7 +225,7 @@ func (ts *PersistenceTestSuite) TestResolveMySQLDSN_YAMLUsedWhenNoEnvConfig() {
 
 	dsn := resolveMySQLDSN("esignet:secret@tcp(yamlhost:3306)/yamldb?parseTime=true&loc=UTC")
 
-	ts.Require().Equal("esignet:secret@tcp(yamlhost:3306)/yamldb?parseTime=true&loc=UTC", dsn)
+	ts.Require().Equal("esignet:secret@tcp(yamlhost:3306)/yamldb?parseTime=true&loc=UTC&clientFoundRows=true", dsn)
 }
 
 // -----------------------------------------------------------------------------
