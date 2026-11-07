@@ -43,6 +43,10 @@ const (
 	// MOSIP_ESIGNET_AUTH_TRANSACTION_ID_LENGTH sets one.
 	defaultAuthTransactionIDLength = 10
 
+	// defaultOTPValidityMins is how long a sent OTP stays valid; the UI also uses it as the
+	// resend countdown. It must match the OTP expiry configured in the ID system.
+	defaultOTPValidityMins = 2
+
 	defaultMetricsPort = 9090
 
 	defaultHTTPClientTimeoutSecs         = 30
@@ -112,6 +116,7 @@ type AppConfig struct {
 	DesignCacheTTLSecs         int64                            `yaml:"design_cache_ttl_secs"`
 	FlowCacheTTLSecs           int64                            `yaml:"flow_cache_ttl_secs"`
 	AuthTransactionIDLength    int                              `yaml:"auth_transaction_id_length"`
+	OTPValidityMins            int                              `yaml:"otp_validity_mins"`
 	CaptchaConfig              CaptchaConfig                    `yaml:"captcha_config"`
 	OutboundIDSystemHTTPClient HTTPClientConfig                 `yaml:"outbound_idsystem_http_client"`
 	OutboundHTTPClient         HTTPClientConfig                 `yaml:"outbound_http_client"`
@@ -424,6 +429,9 @@ func applyDefaults(cfg *AppConfig) {
 
 	cfg.AuthTransactionIDLength = envIntOrConfigOrDefault(
 		"MOSIP_ESIGNET_AUTH_TRANSACTION_ID_LENGTH", cfg.AuthTransactionIDLength, defaultAuthTransactionIDLength)
+
+	cfg.OTPValidityMins = envIntOrConfigOrDefault(
+		"MOSIP_ESIGNET_OTP_VALIDITY_MINS", cfg.OTPValidityMins, defaultOTPValidityMins)
 
 	applyHTTPClientEnvOverrides("OUTBOUND_IDSYSTEM_HTTP_CLIENT", &cfg.OutboundIDSystemHTTPClient)
 	applyHTTPClientDefaults(&cfg.OutboundIDSystemHTTPClient)

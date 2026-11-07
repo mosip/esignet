@@ -23,7 +23,13 @@ export default function ResendOtpComponent({
   const [timeLeft, setTimeLeft] = useState<boolean>(true);
   const [captchaToken, setCaptchaToken] = useState<string>("");
   const [captchaError, setCaptchaError] = useState<boolean>(false);
-  const expiresIn = component?.timeLeft ?? 0;
+  const [submitting, setSubmitting] = useState<boolean>(false);
+
+  // timeLeft and attemptsLeft come from the backend (OTP executor additionalData).
+  const additionalData = context.additionalData ?? {};
+  const expiresIn = Number(additionalData.timeLeft ?? 0) || 0;
+  const attemptsLeft = Number(additionalData.attemptsLeft ?? 1);
+  const noAttemptsLeft = Number.isFinite(attemptsLeft) && attemptsLeft <= 0;
 
   const captchaId = `${component.id}_captcha`;
 
@@ -45,7 +51,14 @@ export default function ResendOtpComponent({
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [expiresIn]);
+  }, [expiresIn, attemptsLeft]);
+
+  // re-enable once the resend request has completed (success or rejection)
+  useEffect(() => {
+    if (!context.isLoading) {
+      setSubmitting(false);
+    }
+  }, [context.isLoading, attemptsLeft]);
 
   useEffect(() => {
     setTimeLeft(remaining > 0);
@@ -86,6 +99,7 @@ export default function ResendOtpComponent({
         ...(component.captcha ? { captcha_token: captchaToken } : {}),
       };
 
+      setSubmitting(true);
       context.onSubmit(component, payload, true);
     }
   };
@@ -119,7 +133,7 @@ export default function ResendOtpComponent({
         id={component.id}
         key={component.id}
         onClick={handleClick}
-        disabled={timeLeft || captchaError}
+        disabled={timeLeft || captchaError || noAttemptsLeft || submitting}
         data-testid="thunderid-resend-otp-button"
         variant={
           component.variant?.toLowerCase() === "primary" ? "solid" : "outline"
