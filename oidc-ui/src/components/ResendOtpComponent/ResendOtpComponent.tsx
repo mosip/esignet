@@ -35,6 +35,7 @@ export default function ResendOtpComponent({
 
   useEffect(() => {
     if (expiresIn <= 0) {
+      setRemaining(0);
       return undefined;
     }
 

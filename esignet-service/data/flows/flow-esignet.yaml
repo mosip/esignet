@@ -279,7 +279,7 @@ interceptors:
       - basic_cred_auth_email
       - basic_kbi_auth
 
-# Anchor for the per-flow-session cap on OTP generate/resend calls, applied to every
+# Anchor for the per-flow-session cap on send OTP calls (total-send limit), applied to every
 # eSignetOtpExecutor node so RESEND_OTP can't be clicked unboundedly.
 otp_max_attempts: &otp_max_attempts
   maxAttempts: ${MOSIP_ESIGNET_OTP_MAX_ATTEMPTS}
