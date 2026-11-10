@@ -169,7 +169,7 @@ otp_inputs: &otp_inputs
   - ref: SELECT_LOGIN_ID
     identifier: login_id_select
     type: CUSTOM
-    required: true
+    required: false
 
 # Anchor for password's required inputs
 password_inputs: &password_inputs
@@ -241,7 +241,7 @@ login_id_header: &login_id_header
   category: MISCELLANEOUS
   resourceType: ELEMENT
   label: "{{t(dropdown:login_id_label)}}"
-  required: true
+  required: false
   options:
     - label: "{{t(dropdown:vid)}}"
       value: login_id_uin
@@ -550,7 +550,7 @@ nodes:
         - ref: SELECT_LOGIN_ID
           identifier: login_id_select
           type: CUSTOM
-          required: true
+          required: false
     onSuccess: prompt_uin_otp
 
   - id: basic_auth
@@ -860,7 +860,7 @@ nodes:
         - ref: SELECT_LOGIN_ID
           identifier: login_id_select
           type: CUSTOM
-          required: true
+          required: false
     onSuccess: prompt_uin_bio
 
   - id: basic_bio_auth
