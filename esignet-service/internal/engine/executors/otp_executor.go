@@ -108,6 +108,7 @@ func (e *otpExecutor) Execute(ctx *providers.NodeContext) (*providers.ExecutorRe
 		return nil, err
 	}
 
+	// This is the total number of OTP sends (including the first one) in this flow session, not just resends.
 	attemptCount := otpAttemptCountFromContext(ctx)
 	maxAttempts := maxOTPAttemptsFromContext(ctx)
 	if attemptCount >= maxAttempts {
@@ -117,21 +118,17 @@ func (e *otpExecutor) Execute(ctx *providers.NodeContext) (*providers.ExecutorRe
 		return execResp, nil
 	}
 
-	// The previous OTP is still valid: reject the resend without calling the ID system and
-	// without counting an attempt. Stay on the OTP screen (ExecUserInputRequired, not
-	// ExecFailure) and return the remaining time so the UI can resync its countdown.
-	if ctx.CurrentAction == actionResendOTP {
-		if remaining := e.otpRemainingSeconds(ctx); remaining > 0 {
-			applog.GetLogger().Warn(ctx.Context, "OTP resend requested before the OTP expired",
-				applog.Int("remainingSeconds", remaining))
-			execResp.Status = providers.ExecUserInputRequired
-			execResp.Error = shared.OTPResendTooEarlyError
-			execResp.AdditionalData = map[string]string{
-				additionalKeyTimeLeft:     strconv.Itoa(remaining),
-				additionalKeyAttemptsLeft: strconv.Itoa(attemptsLeft(maxAttempts, attemptCount)),
-			}
-			return execResp, nil
+	// If the last OTP was sent less than the validity period ago, don't send another one yet.
+	if remaining := e.otpRemainingSeconds(ctx); remaining > 0 {
+		applog.GetLogger().Warn(ctx.Context, "OTP send/resend requested before the OTP expired",
+			applog.Int("remainingSeconds", remaining))
+		execResp.Status = providers.ExecUserInputRequired
+		execResp.Error = shared.OTPResendTooEarlyError
+		execResp.AdditionalData = map[string]string{
+			additionalKeyTimeLeft:     strconv.Itoa(remaining),
+			additionalKeyAttemptsLeft: strconv.Itoa(attemptsLeft(maxAttempts, attemptCount)),
 		}
+		return execResp, nil
 	}
 
 	result, serviceError := e.authn.SendOTP(ctx.Context, map[string]any{usernameAttr: username},

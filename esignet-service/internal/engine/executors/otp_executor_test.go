@@ -284,12 +284,63 @@ func (ts *OtpExecutorTestSuite) TestExecuteResendAfterOTPExpiredIsAllowed() {
 	}
 }
 
-func (ts *OtpExecutorTestSuite) TestExecuteNonResendActionIgnoresOTPValidity() {
+func (ts *OtpExecutorTestSuite) TestExecuteNonResendActionWithinOTPValidityIsRejected() {
 	t := ts.T()
 	provider := &fakeAuthnProvider{sendOTPResult: &shared.SendOTPResult{TransactionID: "txn-6"}}
 	e := NewOtpExecutor(provider, 3)
 	ctx := newOtpNodeContext(map[string]string{usernameAttr: "user1"}, map[string]string{
-		otpLastSentAtKey: strconv.FormatInt(time.Now().Unix(), 10),
+		otpAttemptCountKey: "1",
+		otpLastSentAtKey:   strconv.FormatInt(time.Now().Unix(), 10),
+	})
+
+	resp, err := e.Execute(ctx)
+	if err != nil {
+		t.Fatalf("Execute() error = %v", err)
+	}
+	if resp.Status != providers.ExecUserInputRequired {
+		t.Errorf("Status = %q, want %q", resp.Status, providers.ExecUserInputRequired)
+	}
+	if resp.Error != shared.OTPResendTooEarlyError {
+		t.Errorf("Error = %v, want OTPResendTooEarlyError", resp.Error)
+	}
+	if provider.lastIdentifiers != nil {
+		t.Error("SendOTP must not be called")
+	}
+	if ctx.RuntimeData[otpAttemptCountKey] != "1" {
+		t.Errorf("attempt count = %q, want unchanged 1", ctx.RuntimeData[otpAttemptCountKey])
+	}
+}
+
+func (ts *OtpExecutorTestSuite) TestExecuteMaxAttemptsTakesPrecedenceOverTooEarly() {
+	t := ts.T()
+	provider := &fakeAuthnProvider{sendOTPResult: &shared.SendOTPResult{TransactionID: "txn-7"}}
+	e := NewOtpExecutor(provider, 3)
+	ctx := newOtpNodeContext(map[string]string{usernameAttr: "user1"}, map[string]string{
+		otpAttemptCountKey: "3",
+		otpLastSentAtKey:   strconv.FormatInt(time.Now().Unix(), 10),
+	})
+
+	resp, err := e.Execute(ctx)
+	if err != nil {
+		t.Fatalf("Execute() error = %v", err)
+	}
+	if resp.Status != providers.ExecFailure {
+		t.Errorf("Status = %q, want %q", resp.Status, providers.ExecFailure)
+	}
+	if resp.Error != shared.MaxOTPAttemptsReachedError {
+		t.Errorf("Error = %v, want MaxOTPAttemptsReachedError", resp.Error)
+	}
+	if provider.lastIdentifiers != nil {
+		t.Error("SendOTP must not be called")
+	}
+}
+
+func (ts *OtpExecutorTestSuite) TestExecuteInvalidLastSentAtIsTreatedAsNoOTPSent() {
+	t := ts.T()
+	provider := &fakeAuthnProvider{sendOTPResult: &shared.SendOTPResult{TransactionID: "txn-8"}}
+	e := NewOtpExecutor(provider, 3)
+	ctx := newOtpNodeContext(map[string]string{usernameAttr: "user1"}, map[string]string{
+		otpLastSentAtKey: "not-a-number",
 	})
 
 	resp, err := e.Execute(ctx)
@@ -298,6 +349,49 @@ func (ts *OtpExecutorTestSuite) TestExecuteNonResendActionIgnoresOTPValidity() {
 	}
 	if resp.Status != providers.ExecComplete {
 		t.Errorf("Status = %q, want %q", resp.Status, providers.ExecComplete)
+	}
+}
+
+func (ts *OtpExecutorTestSuite) TestExecuteJustAfterOTPExpiryIsAllowed() {
+	t := ts.T()
+	provider := &fakeAuthnProvider{sendOTPResult: &shared.SendOTPResult{TransactionID: "txn-9"}}
+	e := NewOtpExecutor(provider, 3)
+	sentAt := time.Now().Add(-3*time.Minute - 2*time.Second).Unix()
+	ctx := newOtpNodeContext(map[string]string{usernameAttr: "user1"}, map[string]string{
+		otpAttemptCountKey: "1",
+		otpLastSentAtKey:   strconv.FormatInt(sentAt, 10),
+	})
+
+	resp, err := e.Execute(ctx)
+	if err != nil {
+		t.Fatalf("Execute() error = %v", err)
+	}
+	if resp.Status != providers.ExecComplete {
+		t.Errorf("Status = %q, want %q", resp.Status, providers.ExecComplete)
+	}
+}
+
+func (ts *OtpExecutorTestSuite) TestExecuteClientErrorWithinOTPValidityDoesNotCountAttempt() {
+	t := ts.T()
+	provider := &fakeAuthnProvider{sendOTPErr: shared.SendOTPFailedError}
+	e := NewOtpExecutor(provider, 3)
+	ctx := newOtpNodeContext(map[string]string{usernameAttr: "user1"}, map[string]string{
+		otpAttemptCountKey: "1",
+		otpLastSentAtKey:   strconv.FormatInt(time.Now().Unix(), 10),
+	})
+
+	resp, err := e.Execute(ctx)
+	if err != nil {
+		t.Fatalf("Execute() error = %v", err)
+	}
+	if resp.Error != shared.OTPResendTooEarlyError {
+		t.Errorf("Error = %v, want OTPResendTooEarlyError", resp.Error)
+	}
+	if provider.lastIdentifiers != nil {
+		t.Error("SendOTP must not be called")
+	}
+	if ctx.RuntimeData[otpAttemptCountKey] != "1" {
+		t.Errorf("attempt count = %q, want unchanged 1", ctx.RuntimeData[otpAttemptCountKey])
 	}
 }
 
@@ -394,6 +488,8 @@ func (ts *OtpExecutorTestSuite) TestExecuteAttemptCountIncrementsOnSuccess() {
 		t.Errorf("RuntimeData[otpAttemptCountKey] = %q, want %q", got, "1")
 	}
 
+	// Simulate the previous OTP having expired so the next send is allowed.
+	ctx.RuntimeData[otpLastSentAtKey] = strconv.FormatInt(time.Now().Add(-4*time.Minute).Unix(), 10)
 	if _, err := e.Execute(ctx); err != nil {
 		t.Fatalf("Execute() error = %v", err)
 	}
