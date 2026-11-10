@@ -1017,7 +1017,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"executionId\": \"{{execution_id}}\",\n  \"challengeToken\": \"{{challenge_token}}\",\n  \"action\": \"{{action_ref}}\",\n  \"inputs\": {\n    \"username\": \"{{individual_id}}\",\n    \"captcha_token\" : \"test-captcha-token\"\n  }\n}"
+              "raw": "{\n  \"executionId\": \"{{execution_id}}\",\n  \"challengeToken\": \"{{challenge_token}}\",\n  \"action\": \"{{action_ref}}\",\n  \"inputs\": {\n    \"login_id_select\": \"login_id_uin\",\n    \"username\": \"{{individual_id}}\",\n    \"captcha_token\" : \"test-captcha-token\"\n  }\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/flow/execute",
