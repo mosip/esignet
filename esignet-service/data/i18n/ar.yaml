@@ -1036,6 +1036,8 @@ system:
   "flows.executor.errors.magic_link_generation_failed_desc": فشل في توليد الرابط السحري
   "flows.executor.errors.max_otp_attempts_reached": تم الوصول إلى الحد الأقصى لمحاولات OTP
   "flows.executor.errors.max_otp_attempts_reached_desc": تم الوصول إلى الحد الأقصى لمحاولات التحقق من OTP
+  "flows.executor.errors.otp_resend_too_early": يرجى الانتظار قبل طلب رمز OTP جديد
+  "flows.executor.errors.otp_resend_too_early_desc": يمكن طلب رمز OTP جديد فقط بعد انتهاء صلاحية الرمز الحالي
   "flows.executor.errors.no_registered_passkeys": لم يتم العثور على مفاتيح مرور مسجلة
   "flows.executor.errors.no_registered_passkeys_desc": لم يتم العثور على مفاتيح مرور مسجلة للمستخدم
   "flows.executor.errors.no_user_types_available": لا تتوفر أنواع مستخدمين

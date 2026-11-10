@@ -169,7 +169,7 @@ otp_inputs: &otp_inputs
   - ref: SELECT_LOGIN_ID
     identifier: login_id_select
     type: CUSTOM
-    required: true
+    required: false
 
 # Anchor for password's required inputs
 password_inputs: &password_inputs
@@ -241,7 +241,7 @@ login_id_header: &login_id_header
   category: MISCELLANEOUS
   resourceType: ELEMENT
   label: "{{t(dropdown:login_id_label)}}"
-  required: true
+  required: false
   options:
     - label: "{{t(dropdown:vid)}}"
       value: login_id_uin
@@ -279,10 +279,10 @@ interceptors:
       - basic_cred_auth_email
       - basic_kbi_auth
 
-# Anchor for the per-flow-session cap on OTP generate/resend calls, applied to every
+# Anchor for the per-flow-session cap on send OTP calls (total-send limit), applied to every
 # eSignetOtpExecutor node so RESEND_OTP can't be clicked unboundedly.
 otp_max_attempts: &otp_max_attempts
-  maxAttempts: "3"
+  maxAttempts: ${MOSIP_ESIGNET_OTP_MAX_ATTEMPTS}
 
 nodes:
   - id: start
@@ -510,7 +510,6 @@ nodes:
                   ref: resend_otp_timer
                   category: MISCELLANEOUS
                   resourceType: ELEMENT
-                  timeLeft: 20
                   variant: primary
                   label: "otp.resend_otp"
                   captcha:
@@ -551,7 +550,7 @@ nodes:
         - ref: SELECT_LOGIN_ID
           identifier: login_id_select
           type: CUSTOM
-          required: true
+          required: false
     onSuccess: prompt_uin_otp
 
   - id: basic_auth
@@ -861,7 +860,7 @@ nodes:
         - ref: SELECT_LOGIN_ID
           identifier: login_id_select
           type: CUSTOM
-          required: true
+          required: false
     onSuccess: prompt_uin_bio
 
   - id: basic_bio_auth
