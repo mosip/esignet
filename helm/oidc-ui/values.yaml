@@ -120,11 +120,11 @@ hostAliases: []
 ##
 resources:
   limits:
-    cpu: "2"
-    memory: 512Mi
+    cpu: "300m"
+    memory: 1500Mi
   requests:
     cpu: 150m
-    memory: 256Mi
+    memory: 750Mi
 
 additionalResources:
   ## Specify any JAVA_OPTS string here. These typically will be specified in conjunction with above resources
