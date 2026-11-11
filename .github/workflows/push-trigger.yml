@@ -333,7 +333,7 @@ jobs:
         id: apitest
         run: |
           set +e
-          docker compose -f docker-compose/docker-compose-ci.yaml up --exit-code-from apitest apitest
+          docker compose -f docker-compose/docker-compose-ci.yaml up --no-deps --exit-code-from apitest apitest
           echo "apitest exited with code $? (not failing the job; see the report)"
 
       - name: Copy reports from api test container
@@ -380,7 +380,7 @@ jobs:
         id: uitest
         run: |
           set +e
-          docker compose -f docker-compose/docker-compose-ci.yaml up --exit-code-from ui-test ui-test
+          docker compose -f docker-compose/docker-compose-ci.yaml up --no-deps --exit-code-from ui-test ui-test
           echo "ui-test exited with code $? (not failing the job; see the report)"
 
       - name: Copy reports from ui test container

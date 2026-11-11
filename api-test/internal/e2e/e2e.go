@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"io"
 	"maps"
+	"net"
 	"net/http"
 	"net/url"
 	"regexp"
@@ -280,12 +281,28 @@ func (r *Runner) httpClient() *http.Client {
 }
 
 // requireHTTPS rejects a base URL that would send AdminToken in cleartext, since the client's redirect policy does not strip it on a scheme downgrade.
+// Plain http is accepted only for a loopback host (a local or CI docker-compose run), where the token never leaves the machine; any other host must be https.
 func requireHTTPS(label, raw string) error {
 	u, err := url.Parse(raw)
-	if err != nil || u.Scheme != "https" || u.Host == "" {
+	if err != nil || u.Host == "" {
 		return fmt.Errorf("%s must be an absolute https URL, got %q", label, raw)
 	}
-	return nil
+	switch {
+	case u.Scheme == "https":
+		return nil
+	case u.Scheme == "http" && isLoopbackHost(u.Hostname()):
+		return nil
+	}
+	return fmt.Errorf("%s must be an absolute https URL, got %q", label, raw)
+}
+
+// isLoopbackHost reports whether host is "localhost" or a loopback IP literal; a name that merely starts with "localhost" does not count.
+func isLoopbackHost(host string) bool {
+	if strings.EqualFold(host, "localhost") {
+		return true
+	}
+	ip := net.ParseIP(host)
+	return ip != nil && ip.IsLoopback()
 }
 
 // do performs an HTTP call and records it (Authorization redacted) into calls.

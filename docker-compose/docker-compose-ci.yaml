@@ -8,19 +8,21 @@ x-health: &health
 # esignet, esignet-ui and ui-test are built from this repo. pull_policy: build rebuilds them on
 # every `up` (unchanged layers come from cache), so a stale local image is never reused.
 
+# Every service shares the host network, so `localhost:<port>` is the same address for the
+# browser, the test runners and the containers themselves.
 services:
   database:
     container_name: postgres-db
     image: "postgres:16-bookworm"
-    ports:
-      - 5455:5432
+    network_mode: host
+    command: postgres -p 5455
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
     volumes:
       - ./init-ci.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -p 5455"]
       interval: 5s
       timeout: 5s
       retries: 20
@@ -29,12 +31,11 @@ services:
     container_name: mock-id
     image: "mosipqa/mock-identity-system:0.14.x"
     user: root
-    ports:
-      - 8082:8082
+    network_mode: host
     environment:
       - container_user=mosip
       - active_profile_env=default,local
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://database:5432/mosip_mockidentitysystem?currentSchema=mockidentitysystem
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5455/mosip_mockidentitysystem?currentSchema=mockidentitysystem
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=postgres
       - MOSIP_ESIGNET_HOST=localhost:8080
@@ -51,14 +52,13 @@ services:
     pull_policy: build
     build: ./../esignet-service
     user: root
-    ports:
-      - 8080:8080
+    network_mode: host
     environment:
       - container_user=mosip
       - PORT=8080
       - LOG_LEVEL=debug
-      - DATABASE_HOST=database
-      - DATABASE_PORT=5432
+      - DATABASE_HOST=localhost
+      - DATABASE_PORT=5455
       - DATABASE_USERNAME=postgres
       - DATABASE_PASSWORD=postgres
       - KEYMANAGER_KEYSTORE_TYPE=PKCS12
@@ -68,12 +68,12 @@ services:
       - KEYMANAGER_PKCS12_ALLOW_INSECURE_SOFTWARE_KEYSTORE=true
       - MOSIP_ESIGNET_CACHE_TYPE=inmemory
       - MOSIP_ESIGNET_HOST=http://localhost:3000
-      - MOSIP_ESIGNET_BASE_URL=http://esignet-ui:3000/v1/esignet
+      - MOSIP_ESIGNET_BASE_URL=http://localhost:3000/v1/esignet
       - MOSIP_ESIGNET_OIDC_UI_HOSTNAME=localhost
       - MOSIP_ESIGNET_CAPTCHA_SITE_PROVIDER=hcaptcha
       - MOSIP_ESIGNET_CAPTCHA_SITE_KEY=10000000-ffff-ffff-ffff-000000000001
       - MOSIP_ESIGNET_AUTHN_PROVIDER=mock
-      - MOSIP_ESIGNET_MOCK_DOMAIN_URL=http://mock-identity-system:8082
+      - MOSIP_ESIGNET_MOCK_DOMAIN_URL=http://localhost:8082
     depends_on:
       database:
         condition: service_healthy
@@ -89,8 +89,7 @@ services:
     pull_policy: build
     build: ./../oidc-ui
     user: root
-    ports:
-      - 3000:3000
+    network_mode: host
     environment:
       - container_user=mosip
       - DEFAULT_LANG=en
@@ -108,15 +107,14 @@ services:
     container_name: mock-rp-service
     image: 'mosipqa/mock-relying-party-service:0.14.x'
     user: root
-    ports:
-      - 8888:8888
+    network_mode: host
     environment:
       - container_user=mosip
-      - ESIGNET_SERVICE_URL=http://esignet-ui:3000/v1/esignet
+      - ESIGNET_SERVICE_URL=http://localhost:3000/v1/esignet
       - TOKEN_ENDPOINT=/oauth2/token
       - USERINFO_ENDPOINT=/oauth2/userinfo
       - ESIGNET_AUD_URL=http://localhost:3000
-      - ESIGNET_PAR_ENDPOINT=http://esignet-ui:3000/v1/esignet/oauth2/par
+      - ESIGNET_PAR_ENDPOINT=http://localhost:3000/v1/esignet/oauth2/par
       - ESIGNET_PAR_AUD_URL=http://localhost:3000
       - REDIRECT_URI=http://localhost:5000/userprofile
       - CLAIMS_USER_PROFILE={"userinfo":{"given_name":{"essential":true},"phone_number":{"essential":true},"email":{"essential":true},"picture":{"essential":true},"gender":{"essential":false},"birthdate":{"essential":false},"address":{"essential":false}},"id_token":{}}
@@ -139,8 +137,7 @@ services:
     container_name: mock-rp-ui
     image: 'mosipqa/mock-relying-party-ui:0.14.x'
     user: root
-    ports:
-      - 5000:5000
+    network_mode: host
     depends_on:
       mock-relying-party-service:
         condition: service_healthy
@@ -173,11 +170,12 @@ services:
     build: ./../api-test
     image: apitest-esignet:ci
     user: root
+    network_mode: host
     depends_on:
       esignet:
         condition: service_healthy
     environment:
-      MOSIP_ESIGNET_BASE_URL: http://esignet:8080
+      MOSIP_ESIGNET_BASE_URL: http://localhost:3000/v1/esignet
       CONFIG: /app/data/config/config.mock.json
       REPORT_DIR: /home/esignet/test-report
       ADMIN_TOKEN: local-no-scope
@@ -195,8 +193,6 @@ services:
     pull_policy: build
     build: ./../ui-test
     user: root
-    # The browser in this container must open the same localhost:5000 / localhost:3000
-    # URLs the RP UI redirects to, so it shares the host network.
     network_mode: host
     depends_on:
       esignet-ui:
@@ -207,7 +203,6 @@ services:
       CHROME_DRIVER_CPU_LIMIT: '2'
       CHROME_DRIVER_MEMORY: 3g
       NS: uitestrig
-      # Host networking bypasses Docker DNS, so service names don't resolve here.
       baseurl: http://localhost:5000/
       eSignetbaseurl: http://localhost:3000/
       emailLoginId: siddhartha.km@gmail.com
