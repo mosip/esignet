@@ -10,13 +10,3 @@ sql:
         emit_db_tags: true
         emit_json_tags: true
         emit_interface: true
-  - engine: "postgresql"
-    queries: "internal/consentmgmt/db/query.sql"
-    schema:  "internal/consentmgmt/db/schema.sql"
-    gen:
-      go:
-        package:      "db"
-        out:          "internal/consentmgmt/db"
-        emit_db_tags: true
-        emit_json_tags: true
-        emit_interface: true
