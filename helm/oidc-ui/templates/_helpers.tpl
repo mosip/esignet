@@ -61,7 +61,10 @@ so a user- or metrics-supplied value for that key must never override it.
 {{- $rendered := include "common.tplvalues.render" (dict "value" $annotations "context" .context) }}
 {{- $parsed := $rendered | fromYaml }}
 {{- if kindIs "map" $parsed }}
-{{ omit $parsed "checksum/nginx-config" | toYaml }}
+{{- $filtered := omit $parsed "checksum/nginx-config" }}
+{{- if $filtered }}
+{{ $filtered | toYaml }}
+{{- end }}
 {{- end }}
 {{- end }}
 {{- end -}}
