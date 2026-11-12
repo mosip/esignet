@@ -46,13 +46,34 @@ Compile all warnings into a single message.
 {{- end -}}
 
 {{/*
+Render one podAnnotations source without the reserved checksum annotation.
+The generated checksum/nginx-config value in the Deployment is authoritative,
+so a user- or metrics-supplied value for that key must never override it.
+*/}}
+{{- define "oidc-ui.podAnnotations.render" -}}
+{{- $annotations := .annotations -}}
+{{- if kindIs "map" $annotations }}
+{{- $annotations = omit $annotations "checksum/nginx-config" }}
+{{- if $annotations }}
+{{ include "common.tplvalues.render" (dict "value" $annotations "context" .context) }}
+{{- end }}
+{{- else }}
+{{- $rendered := include "common.tplvalues.render" (dict "value" $annotations "context" .context) }}
+{{- $parsed := $rendered | fromYaml }}
+{{- if kindIs "map" $parsed }}
+{{ omit $parsed "checksum/nginx-config" | toYaml }}
+{{- end }}
+{{- end }}
+{{- end -}}
+
+{{/*
 Return podAnnotations
 */}}
 {{- define "oidc-ui.podAnnotations" -}}
 {{- if .Values.podAnnotations }}
-{{ include "common.tplvalues.render" (dict "value" .Values.podAnnotations "context" $) }}
+{{ include "oidc-ui.podAnnotations.render" (dict "annotations" .Values.podAnnotations "context" $) }}
 {{- end }}
 {{- if and .Values.metrics.enabled .Values.metrics.podAnnotations }}
-{{ include "common.tplvalues.render" (dict "value" .Values.metrics.podAnnotations "context" $) }}
+{{ include "oidc-ui.podAnnotations.render" (dict "annotations" .Values.metrics.podAnnotations "context" $) }}
 {{- end }}
 {{- end -}}
