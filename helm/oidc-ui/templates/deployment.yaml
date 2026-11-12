@@ -20,6 +20,7 @@ spec:
   template:
     metadata:
       annotations:
+        checksum/nginx-config: {{ include (print $.Template.BasePath "/configmap.yaml") $ | sha256sum }}
         {{- if or .Values.podAnnotations .Values.metrics.enabled }}
         {{- include "oidc-ui.podAnnotations" . | nindent 8 }}
         {{- end }}
