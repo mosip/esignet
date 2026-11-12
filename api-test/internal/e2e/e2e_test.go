@@ -12,6 +12,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/mosip/esignet/api-test/internal/esignet"
 	"github.com/mosip/esignet/api-test/internal/result"
 )
 
@@ -328,8 +329,11 @@ func TestShippedSpecsParseAndAreConsistent(t *testing.T) {
 				if sc.AuthFactor == "" {
 					t.Errorf("scenario %q has no auth_factor", sc.Name)
 				}
-				if msg := sc.ClientLifecycle.validate(); msg != "" {
+				if msg := scenarioConfigError(sc); msg != "" {
 					t.Errorf("scenario %q: %s", sc.Name, msg)
+				}
+				if sc.RequiresCredential != "" && !esignet.KnownAnswerKey(sc.RequiresCredential) {
+					t.Errorf("scenario %q: requires_credential %q is not a known answer key", sc.Name, sc.RequiresCredential)
 				}
 				cfg := ClientConfig{}
 				if sc.ClientConfig != nil {
@@ -364,8 +368,8 @@ func TestShippedSpecsParseAndAreConsistent(t *testing.T) {
 					}
 				}
 
-				// A rejected login never reaches RecordConsent, so it stores nothing.
-				if !sc.ExpectLoginFailure {
+				// A rejected login never reaches RecordConsent, so it stores nothing; nor does a script that stops before its finish step.
+				if !sc.ExpectLoginFailure && (len(sc.Steps) == 0 || sc.Steps[len(sc.Steps)-1].Finish) {
 					if _, ok := consented[key]; !ok {
 						consented[key] = sc.Name
 					}
@@ -436,16 +440,38 @@ func TestRSAPubFromJWKRejectsDegenerateKeys(t *testing.T) {
 	}
 }
 
-// requireHTTPS is the last line of defense against sending AdminToken in cleartext; it must accept exactly absolute https URLs.
+// requireHTTPS is the last line of defense against sending AdminToken in cleartext; it must accept absolute https URLs, and http only on loopback.
 func TestRequireHTTPSAcceptsAbsoluteHTTPS(t *testing.T) {
 	if err := requireHTTPS("esignet base URL", "https://esignet.example.org/v1/esignet"); err != nil {
 		t.Fatalf("requireHTTPS rejected a valid https URL: %v", err)
 	}
 }
 
+// A local/CI docker-compose run serves esignet over plain http on loopback; the token never leaves the machine there.
+func TestRequireHTTPSAcceptsLoopbackHTTP(t *testing.T) {
+	for _, raw := range []string{
+		"http://localhost:3000/v1/esignet",
+		"http://LOCALHOST:3000/v1/esignet",
+		"http://127.0.0.1:8088/v1/esignet",
+		"http://127.1.2.3/v1/esignet",
+		"http://[::1]:3000/v1/esignet",
+	} {
+		t.Run(raw, func(t *testing.T) {
+			if err := requireHTTPS("esignet base URL", raw); err != nil {
+				t.Fatalf("requireHTTPS rejected loopback http URL: %v", err)
+			}
+		})
+	}
+}
+
 func TestRequireHTTPSRejectsNonHTTPS(t *testing.T) {
 	for _, tc := range []struct{ name, raw string }{
 		{"http scheme", "http://esignet.example.org/v1/esignet"},
+		{"http, localhost-prefixed name", "http://localhost.example.org/v1/esignet"},
+		{"http, localhost subdomain", "http://esignet.localhost.example.org/v1/esignet"},
+		{"http, private non-loopback IP", "http://10.0.0.5:3000/v1/esignet"},
+		{"http, unspecified address", "http://0.0.0.0:3000/v1/esignet"},
+		{"loopback, non-http scheme", "ftp://localhost/v1/esignet"},
 		{"empty", ""},
 		{"scheme only, no host", "https://"},
 		{"no scheme", "esignet.example.org/v1/esignet"},

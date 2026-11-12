@@ -17,7 +17,7 @@ Selected by `e2e.spec`, or overridden for one run with `-spec`.
 
 **Contents:** [File shape](#file-shape) · [Scenario fields](#scenario-fields) · [Filtering](#filtering) ·
 [Protocol combinations](#protocol-combinations) · [Introspection](#introspection-coverage) ·
-[Consent](#consent-coverage) · [Captcha](#captcha-coverage)
+[Consent](#consent-coverage) · [Captcha](#captcha-coverage) · [Scripted scenarios](#scripted-scenarios)
 
 ---
 
@@ -64,6 +64,10 @@ one authentication factor against it.
 | `consent` | How to answer the consent step and what to assert — see below |
 | `client_lifecycle` | Deactivates the scenario's client partway through the flow — see [Client status](#client-status-coverage) |
 | `known_issue` | A reason string for an already-tracked environment gap. A **claim-assertion** failure or a **login** failure then lands in the **Known** bucket with that reason instead of Failed, leaving the exit code alone; the failing check is still shown. A scenario that starts passing is still reported as passed |
+| `acr_values` | Replaces the `acr_values` sent at `authorize` (by default every registered ACR). A single ACR skips the factor choice and lands on that factor's first prompt |
+| `steps` | Drives the login by hand instead of with the automatic driver — see [Scripted scenarios](#scripted-scenarios) |
+| `expect_id_token_values` | Exact claim values the ID token itself must carry, e.g. `{"acr": "mosip:idp:acr:biometrics"}` |
+| `expect_capture_not_echoed` | Asserts that no part of any biometric capture the script submitted comes back in any eSignet response, the JWTs inside them, the token or userinfo |
 | `requires_credential` | Names an answer key (e.g. `password`) that must be non-empty, after `credentials` overrides are merged in, for the scenario to run at all. Left unconfigured on this deployment, the scenario is reported **SKIPPED** instead of attempting a login with no credential to use |
 
 > **Scenarios for unavailable factors are kept and reported failed, deliberately** — unless marked
@@ -349,3 +353,105 @@ rather than per-client configuration, and it is only reachable as a flow input. 
 call with a made-up `executionId` is rejected at the execution lookup before inputs are examined, so
 a standalone "bad captcha token" API case would assert nothing. The same reasoning applies to
 consent *behaviour*: both are wired as engine providers with no REST endpoint of their own.
+
+---
+
+## Scripted scenarios
+
+The automatic driver picks the happy-path action at each view and answers every input it is asked
+for, so it can only show that a login succeeds or that it is refused somewhere. A scenario with
+`steps` drives `/flow/execute` by hand instead: each step sends exactly the action and inputs it
+names and asserts on the response. That is what reaches the per-step cases — a refused capture that
+re-prompts, a retry in the same login, an undeclared action, a capture replayed into another login.
+The biometric cases (`bio TC_BIO_*`, from the BIO-Auth test sheet) are written this way, in both
+`e2e-scenarios-mosip.json` and `e2e-scenarios.json` (mock).
+
+```jsonc
+{ "name": "bio TC_BIO_30: a valid capture still authenticates after a refused one in the same login",
+  "auth_factor": "bio", "acr_values": ["mosip:idp:acr:biometrics"], "scopes": ["openid"],
+  "steps": [
+    {"expect": {"flow_status": "INCOMPLETE", "required_inputs": ["username"]}},
+    {"action": "submit_uin", "inputs": {"username": "{{username}}"},
+     "expect": {"required_inputs": ["biometric"]}},
+    {"capture": {"as": "other", "profile": "Automatic"}, "action": "SBI_ID",
+     "inputs": {"biometric": "{{capture.other}}"},
+     "expect": {"has_error": true, "required_inputs": ["biometric"], "authenticated": false}},
+    {"capture": {"as": "good"}, "action": "SBI_ID", "inputs": {"biometric": "{{capture.good}}"},
+     "expect": {"authenticated": true, "no_error": true}}
+  ] }
+```
+
+A script starts at the login page the authorize request redirects to; the first step is usually one
+with no action, which returns the current view. A script ending in `{"finish": true}` hands the flow
+to the automatic driver at that point — consent is answered, the assertion delivered to the
+callback — and the scenario goes on to token and userinfo with every claim check available. A script
+without one ends after its last step, and its step checks are the whole result.
+
+| Step field | Meaning |
+|---|---|
+| `name` | Label in the report; default is the step number and action |
+| `action` | Sent as given. Omitted sends no `action` field; `""` sends an empty one |
+| `inputs` | Sent exactly as given — earlier steps' inputs are not re-sent, since the engine keeps them itself. Omitted sends no `inputs`; `{}` sends an empty object |
+| `encode_base64` | Inputs whose resolved value is sent base64-encoded, as the UI encodes a capture |
+| `capture` | Takes a capture from the mock MDS for the current execution before the request: `as` (name, default `default`), `modality` (`Finger` default, `Face`, `Iris`), `profile` (mock MDS profile; `Automatic` gives a well-formed capture of someone else), `tamper` (alter the signed data so its signature fails) |
+| `capture_only` | Takes `capture` and sends nothing, keeping it for a later login |
+| `repeat` | Sends the step this many times, each with a fresh capture |
+| `restart` | Sends the authorize request again; later steps drive the new login |
+| `finish` | Hands over to the automatic driver for consent and the callback. Last step only |
+| `expect` | Checked against every response the step gets — see below. Omitted still requires HTTP 200 |
+
+Placeholders in `inputs`: `{{capture.<as>}}` (a capture taken by this or an earlier step, kept across
+`restart`), `{{filler:<n>}}` (`n` base64-safe characters, for size limits), and any answer key —
+`{{username}}`, `{{password}}`. All of them are checked before the run,
+so a typo fails the scenario as a spec error.
+
+| `expect` field | Asserts |
+|---|---|
+| `http_status` / `http_status_below` | The exact status (default 200), or any status under the bound — `500` for "refused cleanly" |
+| `flow_status` | `INCOMPLETE`, `COMPLETE`, `ERROR` |
+| `has_error` / `no_error` | Whether the response carries an error (an `error` object, or the flat `code` of an entry-point error). The code is reported but not asserted: flow/execute codes are ThunderID's own, not part of eSignet's API |
+| `inputs` / `required_inputs` / `not_inputs` | Identifiers the returned view requests (and marks required), or must not |
+| `actions` / `not_actions` | Action refs the returned view offers, or must not |
+| `authenticated` | `true`: past authentication — the consent prompt, or `COMPLETE` when consent was stored. `false`: not |
+| `field_errors` | Whether `data.fieldErrors` is present and non-empty |
+| `body_excludes` | Strings that must not appear in the response body |
+
+**Captures** come from the mock MDS the harness image runs (`e2e.mock_mds.base_url`, set by the
+container entrypoint). A capture is bound to the IDA transaction id derived from the execution it was
+taken in — the same derivation the login UI and esignet-service use — so it is only valid in that
+login. The MDS returns the same biometrics for every identity, from its `Default` profile, so the
+identities under test must be enrolled from that profile. Without a configured MDS, every scenario
+whose script takes a capture is reported **ENV_NOT_READY** rather than failed.
+
+**On the mock plugin** the mock identity system accepts any non-empty biometric without checking it,
+so its scenarios submit a capture-shaped literal and need no MDS. Cases whose refusal only a real
+check would produce (a blank value, a 5 MB value) are `known_issue` there.
+Cases that need a non-matching, altered, old or replayed capture, an injection payload refused, or a
+swapped login id (TC_BIO_04–08, 10–13, 18, 30), a
+MOSIP ID integration (28) or a failing ID system (24, 25) are not in the mock file. TC_BIO_19
+and TC_BIO_29 (mobile and email login ids) are not automated on either plugin: biometric scenarios
+log in with the configured individual id only.
+
+**Two identities**: TC_BIO_18 (login-id swap), TC_BIO_23 (going back and logging in as someone else) and
+TC_BIO_28 log in with `esignet.identity.secondary_individual_id` (`SECONDARY_INDIVIDUAL_ID`) as well as
+`individual_id`. Like `individual_id`, it is checked when the config loads: an e2e run on `mock` or
+`mosip` that includes bio fails with a config error without it (leave `bio` out of `e2e.auth_factors` to
+run without it). On `mosip` it must also be enrolled from the mock MDS's `Default` profile.
+
+**Refusals** are asserted as a response carrying an error (`has_error`), never by code: flow/execute
+error codes are ThunderID's own and carry no meaning in eSignet's API.
+
+**TC_BIO_27** (the integration journey) is not a scenario of its own: each of its checkpoints already is
+(TC_BIO_06, 30, 08, 01), and its ID token `acr` check is in TC_BIO_01.
+
+**TC_BIO_26** (biometric data never leaves the authentication step) is not a scenario of its own:
+TC_BIO_01 carries `expect_capture_not_echoed`. Nor is the finger modality of **TC_BIO_11**: a capture
+with no `modality` is a Finger capture, so TC_BIO_01 already is one.
+
+**TC_BIO_14** (the UIN biometric prompt) is not a scenario of its own: TC_BIO_01's first step already
+asserts that prompt.
+
+**Not automated** on MOSIP ID from the BIO-Auth sheet: TC_BIO_07 (waits out IDA's capture validity window),
+TC_BIO_24 and TC_BIO_25 (need IDA made to fail or stall), and TC_BIO_19 and TC_BIO_29 (mobile and email
+login ids: biometric scenarios log in with configured individual ids only). TC_BIO_26's log check is outside the harness's reach; its response, token and userinfo checks
+are automated, in TC_BIO_01.

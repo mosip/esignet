@@ -9,9 +9,11 @@ import (
 	"fmt"
 	"io"
 	"maps"
+	"net"
 	"net/http"
 	"net/url"
 	"regexp"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -151,6 +153,18 @@ type Scenario struct {
 	// Left unconfigured on this deployment, the scenario is reported in the
 	// Skipped bucket instead of attempting a login that has no credential to use.
 	RequiresCredential string `json:"requires_credential"`
+
+	// AcrValues replaces the acr_values sent at authorize (by default every registered ACR); a single ACR skips the factor choice and lands on that factor's first prompt.
+	AcrValues []string `json:"acr_values"`
+
+	// Steps drives the login by hand instead of with the automatic driver: each step is one flow/execute call with its own expectations. A script ending in a finish step goes on to token and userinfo like any other scenario; one that does not ends after its last step.
+	Steps []esignet.ScriptStep `json:"steps"`
+
+	// ExpectIDTokenValues asserts claims of the ID token itself (acr, say), which userinfo does not carry.
+	ExpectIDTokenValues map[string]string `json:"expect_id_token_values"`
+
+	// ExpectCaptureNotEchoed asserts that no part of any biometric the script took or submitted comes back in a response, token or userinfo.
+	ExpectCaptureNotEchoed bool `json:"expect_capture_not_echoed"`
 }
 
 // ConsentSpec is a scenario's consent behaviour and expectations.
@@ -252,6 +266,9 @@ type Runner struct {
 	// PMSClientAPI selects which registration endpoint under PMSBaseURL to use; see pmsClientPath.
 	PMSClientAPI string
 
+	// Capturer takes the biometric captures scripted scenarios submit; nil reports those scenarios as not runnable.
+	Capturer esignet.Capturer
+
 	acr    []string // registered ACRs, set from the spec in Run
 	client *http.Client
 }
@@ -264,12 +281,28 @@ func (r *Runner) httpClient() *http.Client {
 }
 
 // requireHTTPS rejects a base URL that would send AdminToken in cleartext, since the client's redirect policy does not strip it on a scheme downgrade.
+// Plain http is accepted only for a loopback host (a local or CI docker-compose run), where the token never leaves the machine; any other host must be https.
 func requireHTTPS(label, raw string) error {
 	u, err := url.Parse(raw)
-	if err != nil || u.Scheme != "https" || u.Host == "" {
+	if err != nil || u.Host == "" {
 		return fmt.Errorf("%s must be an absolute https URL, got %q", label, raw)
 	}
-	return nil
+	switch {
+	case u.Scheme == "https":
+		return nil
+	case u.Scheme == "http" && isLoopbackHost(u.Hostname()):
+		return nil
+	}
+	return fmt.Errorf("%s must be an absolute https URL, got %q", label, raw)
+}
+
+// isLoopbackHost reports whether host is "localhost" or a loopback IP literal; a name that merely starts with "localhost" does not count.
+func isLoopbackHost(host string) bool {
+	if strings.EqualFold(host, "localhost") {
+		return true
+	}
+	ip := net.ParseIP(host)
+	return ip != nil && ip.IsLoopback()
 }
 
 // do performs an HTTP call and records it (Authorization redacted) into calls.
@@ -425,6 +458,16 @@ func (r *Runner) Run(ctx context.Context, spec Spec) []result.ModuleResult {
 			}
 		}
 
+		if esignet.ScriptNeedsCapture(sc.Steps) && r.Capturer == nil {
+			row.HarnessOutcome = result.OutcomeEnvNotReady
+			row.Status = "NOT_RUN"
+			row.OutcomeDetail = "no mock MDS configured (e2e.mock_mds.base_url / MOCK_MDS_BASE_URL) to take the biometric captures this scenario submits"
+			row.DurationMs = time.Since(start).Milliseconds()
+			logf("e2e: %-55s -> NOT RUN (no mock MDS)", sc.Name)
+			out = append(out, row)
+			continue
+		}
+
 		preferred := append(esignet.AuthFactorTokens(sc.AuthFactor), esignet.IDTypeTokens(r.IDType)...)
 
 		claims, calls, consentSeen, protoAsserts, ferr := r.runScenario(ctx, cl, spec.RedirectURI, sc, answers, preferred)
@@ -441,6 +484,12 @@ func (r *Runner) Run(ctx context.Context, spec Spec) []result.ModuleResult {
 		}
 		if sc.ClientLifecycle != nil {
 			loginField = fmt.Sprintf("flow (acr=%s, client %s)", sc.AuthFactor, sc.ClientLifecycle.label())
+		}
+		// A script asserts its own outcome step by step, so "accepted" would misread one that only checks rejections.
+		accepted := "accepted"
+		if len(sc.Steps) > 0 {
+			loginField = fmt.Sprintf("scripted flow (acr=%s, %d steps)", sc.AuthFactor, len(sc.Steps))
+			accepted = "ran every step"
 		}
 		switch {
 		case ferr != nil && sc.ExpectLoginFailure:
@@ -469,7 +518,7 @@ func (r *Runner) Run(ctx context.Context, spec Spec) []result.ModuleResult {
 		case ferr != nil && !sc.ExpectLoginFailure:
 			// Positive case that couldn't log in — real failure, reported rather than silently skipped.
 			row.Assertions = append([]result.Assertion{
-				{Field: loginField, Expected: "accepted", Actual: "rejected: " + ferr.Error(), Passed: false},
+				{Field: loginField, Expected: accepted, Actual: "rejected: " + ferr.Error(), Passed: false},
 			}, consentAssertions...)
 			row.Assertions = append(row.Assertions, protoAsserts...)
 			row.Result = "FAILED"
@@ -502,7 +551,7 @@ func (r *Runner) Run(ctx context.Context, spec Spec) []result.ModuleResult {
 		}
 
 		// Positive case, login succeeded as expected — proceed to claim checks.
-		loginAssertion := result.Assertion{Field: loginField, Expected: "accepted", Actual: "accepted", Passed: true}
+		loginAssertion := result.Assertion{Field: loginField, Expected: accepted, Actual: accepted, Passed: true}
 		assertions := append([]result.Assertion{loginAssertion}, consentAssertions...)
 		assertions = append(assertions, protoAsserts...)
 		assertions = append(assertions, assertClaims(sc, claims)...)
@@ -829,6 +878,22 @@ func scenarioConfigError(sc Scenario) string {
 	if msg := sc.ClientLifecycle.validate(); msg != "" {
 		return msg
 	}
+	if len(sc.Steps) > 0 {
+		// A script asserts each rejection itself; expect_login_failure would also pass it on any harness error.
+		if sc.ExpectLoginFailure {
+			return "steps and expect_login_failure are mutually exclusive — a script asserts its rejections step by step"
+		}
+		if msg := esignet.ValidateScript(sc.Steps); msg != "" {
+			return msg
+		}
+		// A script without a finish step ends before token, so these checks would be skipped and the scenario pass without them.
+		if !sc.Steps[len(sc.Steps)-1].Finish && (len(sc.ExpectIDTokenValues) > 0 || len(sc.Introspect) > 0) {
+			return "expect_id_token_values and introspect need a script that ends with a finish step — without one the flow stops before a token is issued"
+		}
+	}
+	if sc.ExpectCaptureNotEchoed && !esignet.ScriptSubmitsBiometric(sc.Steps) {
+		return "expect_capture_not_echoed needs a script that takes or submits a biometric"
+	}
 	return ""
 }
 
@@ -883,7 +948,9 @@ func (r *Runner) runScenario(ctx context.Context, cl *testClient, redirectURI st
 	case pkceNone:
 		// No challenge at all: a client with require_pkce must refuse.
 	}
-	if len(r.acrForClaims()) > 0 {
+	if len(sc.AcrValues) > 0 {
+		q.Set("acr_values", strings.Join(sc.AcrValues, " "))
+	} else if len(r.acrForClaims()) > 0 {
 		q.Set("acr_values", strings.Join(r.acrForClaims(), " "))
 	}
 	if len(sc.UserinfoClaims) > 0 {
@@ -923,9 +990,27 @@ func (r *Runner) runScenario(ctx context.Context, cl *testClient, redirectURI st
 		driver.SetOTPProvider(r.OTP)
 	}
 	driver.SetConsentPolicy(sc.Consent.consentPolicy())
-	fr := driver.Run(ctx, r.Base, authURL)
+	var fr esignet.FlowResult
+	var script esignet.ScriptResult
+	if len(sc.Steps) > 0 {
+		script = driver.RunScript(ctx, r.Base, authURL, sc.Steps, r.Capturer)
+		fr = script.FlowResult
+		proto = append(proto, script.Assertions...)
+	} else {
+		fr = driver.Run(ctx, r.Base, authURL)
+	}
 	calls = append(calls, fr.Calls...)
 	consentSeen := consentObservation{prompted: fr.ConsentPrompted, denied: fr.ConsentDenied}
+	if len(sc.Steps) > 0 && !script.Finished {
+		// A script without a finish step ends here: its step assertions are the result.
+		if fr.Error != "" {
+			return nil, calls, consentSeen, proto, fmt.Errorf("scripted flow: %s", fr.Error)
+		}
+		if sc.ExpectCaptureNotEchoed {
+			proto = append(proto, assertCaptureNotEchoed(calls, script.Captures))
+		}
+		return nil, calls, consentSeen, proto, nil
+	}
 	if !fr.OK() {
 		return nil, calls, consentSeen, proto,
 			fmt.Errorf("login flow failed: %s", firstNonEmpty(fr.Error, "no redirect_uri"))
@@ -1022,7 +1107,8 @@ func (r *Runner) runScenario(ctx context.Context, cl *testClient, redirectURI st
 	// nonce echo: OIDC Core 3.1.3.7 requires the ID token to carry back the authorize request's nonce.
 	if tok.IDToken != "" {
 		got := ""
-		if payload, derr := decodeJWTPayload(tok.IDToken); derr == nil {
+		payload, derr := decodeJWTPayload(tok.IDToken)
+		if derr == nil {
 			got, _ = payload["nonce"].(string)
 			// The subject the introspection response must agree with.
 			tk.sub, _ = payload["sub"].(string)
@@ -1031,6 +1117,15 @@ func (r *Runner) runScenario(ctx context.Context, cl *testClient, redirectURI st
 			Field: "id_token nonce echo", Expected: nonce, Actual: firstNonEmpty(got, "(absent)"),
 			Passed: got == nonce,
 		})
+		for _, k := range slices.Sorted(maps.Keys(sc.ExpectIDTokenValues)) {
+			want, actual := sc.ExpectIDTokenValues[k], "(absent)"
+			if v, ok := payload[k]; ok {
+				actual = fmt.Sprintf("%v", v)
+			}
+			proto = append(proto, result.Assertion{Field: "id_token claim " + k, Expected: want, Actual: actual, Passed: actual == want})
+		}
+	} else if len(sc.ExpectIDTokenValues) > 0 {
+		proto = append(proto, result.Assertion{Field: "id_token", Expected: "issued", Actual: "(absent from the token response)"})
 	}
 
 	lcAsserts, lcErr = r.applyAt(ctx, &calls, cl, sc.ClientLifecycle, stageAfterToken)
@@ -1064,6 +1159,9 @@ func (r *Runner) runScenario(ctx context.Context, cl *testClient, redirectURI st
 	// Introspection runs last, on tokens the flow has just proven usable, so a failure here is the endpoint's, not a stale token's.
 	if len(introspectCases) > 0 {
 		proto = append(proto, r.introspect(ctx, &calls, cl, introspectCases, tk)...)
+	}
+	if sc.ExpectCaptureNotEchoed {
+		proto = append(proto, assertCaptureNotEchoed(calls, script.Captures))
 	}
 	return claims, calls, consentSeen, proto, nil
 }

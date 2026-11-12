@@ -19,6 +19,7 @@ import (
 	"github.com/mosip/esignet/api-test/internal/config"
 	"github.com/mosip/esignet/api-test/internal/e2e"
 	"github.com/mosip/esignet/api-test/internal/esignet"
+	"github.com/mosip/esignet/api-test/internal/mds"
 	"github.com/mosip/esignet/api-test/internal/result"
 	"github.com/mosip/esignet/api-test/internal/wsotp"
 )
@@ -136,6 +137,15 @@ func main() {
 		PolicyID:           es.PMS.PolicyID,
 		PMSClientAPI:       es.PMS.ClientAPI,
 	}
+	// Scripted biometric scenarios capture from the mock MDS; without one they report as not runnable.
+	if m := cfg.E2E.MockMDS; m.BaseURL != "" {
+		domain := m.DomainURI
+		if domain == "" {
+			domain = originOf(base)
+		}
+		runner.Capturer = mds.New(m.BaseURL, m.Env, domain)
+		logger.Printf("mock MDS: %s (env=%s domainUri=%s)", m.BaseURL, m.Env, domain)
+	}
 
 	rows := runner.Run(ctx, spec)
 	if err := writeEnvelope(*outPath, rows); err != nil {
@@ -190,6 +200,15 @@ func fetchDiscovery(ctx context.Context, url string, tlsVerify bool) (*discovery
 		return nil, fmt.Errorf("discovery %s: %w", url, err)
 	}
 	return &d, nil
+}
+
+// originOf returns scheme://host of u — the origin the login UI, and so its SBI widget, is served from.
+func originOf(u string) string {
+	p, err := url.Parse(u)
+	if err != nil || p.Host == "" {
+		return u
+	}
+	return p.Scheme + "://" + p.Host
 }
 
 // sameOrigin reports whether every non-empty URL in others shares ref's scheme and host.

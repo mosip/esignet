@@ -42,7 +42,7 @@ build fails, the stack does not start, or esignet never becomes healthy.
 
 | Service | Image | Host port | Notes |
 |---|---|---|---|
-| `database` | `postgres:16-bookworm` | 5455 | Seeded by `init-ci.sql` |
+| `database` | `postgres:16-bookworm` | 5455 (host) | Seeded by `init-ci.sql` |
 | `mock-identity-system` | `mosipqa/mock-identity-system:0.14.x` | 8082 | |
 | `esignet` | built from `esignet-service/` | 8080 | `MOSIP_ESIGNET_AUTHN_PROVIDER=mock` |
 | `esignet-ui` | built from `oidc-ui/` | 3000 | nginx config: `nginx-ci.conf` |
@@ -63,8 +63,8 @@ its dependencies' health checks.
 | [`.github/workflows/push-trigger.yml`](../.github/workflows/push-trigger.yml) | New `run-apitest-pr` job |
 | [`docker-compose/docker-compose-ci.yaml`](docker-compose-ci.yaml) | The CI stack and both test runners |
 | [`docker-compose/init-ci.sql`](init-ci.sql) | Creates `mosip_esignet` and `mosip_mockidentitysystem`, key policies, the `esignet-mock-client` OIDC client and a mock identity (synthetic CI data) |
-| [`docker-compose/nginx-ci.conf`](nginx-ci.conf) | esignet-ui on port 3000; proxies `/v1/esignet/` and `/.well-known/*` to `esignet:8080` |
-| [`docker-compose/nginx-ci-mock.conf`](nginx-ci-mock.conf) | Mock RP UI on port 5000; proxies `/mock-relying-party-service/` to `mock-relying-party-service:8888` |
+| [`docker-compose/nginx-ci.conf`](nginx-ci.conf) | esignet-ui on port 3000; proxies `/v1/esignet/` and `/.well-known/*` to `localhost:8080` |
+| [`docker-compose/nginx-ci-mock.conf`](nginx-ci-mock.conf) | Mock RP UI on port 5000; proxies `/mock-relying-party-service/` to `localhost:8888` |
 | [`ui-test/Dockerfile`](../ui-test/Dockerfile) | Switched from Google Chrome to Debian Chromium (see below) |
 | [`ui-test/entrypoint.sh`](../ui-test/entrypoint.sh) | Unsets `DISPLAY` before starting the tests |
 
@@ -126,21 +126,25 @@ The same image now runs natively on both amd64 (GitHub's `ubuntu-latest`) and ar
 
 ## Other changes needed for the UI tests
 
-### Test URLs use `localhost`
+### Every service uses the host network
 
-The `ui-test` service runs with `network_mode: host`. The browser must open the same
-`localhost:5000` / `localhost:3000` URLs that the mock RP UI redirects to, so it has to share the
-host's network.
+All services run with `network_mode: host`, so `localhost:<port>` is the same address for the
+browser, the test runners and the containers. There are no Compose service names to resolve.
 
-Host networking bypasses Docker's DNS, so Compose service names do not resolve inside this
-container. The test URLs therefore point at the published host ports:
+This matters for DPoP. eSignet validates the proof's `htu` against the PAR endpoint it advertises
+in discovery (`http://localhost:3000/v1/esignet/oauth2/par`), and the mock relying party signs
+`htu` with the URL it posts to. Both must be the same string, and the relying party must be able to
+reach it, so everything uses `http://localhost:3000`.
+
+Ports: `5455` database (`postgres -p 5455`), `8082` mock identity, `8080` eSignet, `3000`
+esignet-ui, `8888` mock RP service, `5000` mock RP UI. They must be free on the host.
+
+The UI test URLs are:
 
 ```yaml
 baseurl: http://localhost:5000/
 eSignetbaseurl: http://localhost:3000/
 ```
-
-For the same reason the database is reached at `localhost:5455`.
 
 ### Images are built by Compose
 
@@ -242,8 +246,7 @@ EsignetUi-<env>-<lang>-<timestamp>-T-<total>-P-<passed>-F-<failed>-S-<skipped>-K
 
 Prerequisites: Docker with Compose v2, JDK 21 and Maven. On **Docker Desktop**, host networking
 must be turned on (Docker Desktop 4.34+, *Settings → Resources → Network → Enable host
-networking*). Without it, `localhost` inside the `ui-test` container does not reach the other
-services.
+networking*). Without it, `localhost` inside a container does not reach the other services.
 
 From the repository root:
 

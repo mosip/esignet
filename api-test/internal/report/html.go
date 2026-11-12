@@ -539,7 +539,7 @@ func headerStr(h map[string][]string) string {
 }
 
 // sensitiveBodyKeys are JSON field names scrubbed from captured bodies before they reach the report.
-var sensitiveBodyKeys = []string{"password", "otp", "assertion", "secret", "token"}
+var sensitiveBodyKeys = []string{"password", "otp", "assertion", "secret", "token", "biometric"}
 
 // identityKeys are the login inputs the driver posts to /flow/execute.
 var identityKeys = []string{"individualid", "individual_id", "username", "fullname", "full_name", "name", "dob"}
