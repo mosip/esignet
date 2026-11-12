@@ -104,6 +104,15 @@ func (ts *AuthenticatorTestSuite) TestAuthenticate() {
 		require.Same(t, shared.InvalidRequestError, svcErr)
 	})
 
+	t.Run("whitespace-only credential value", func(t *testing.T) {
+		p := newTestProvider("http://unused", "http://unused")
+		identifiers := map[string]interface{}{sunbirdIndividualIDKey: "POL123"}
+		credentials := map[string]interface{}{"fullName": "Jane Doe", "dob": "   "}
+		result, svcErr := p.Authenticate(context.Background(), identifiers, credentials, nil)
+		require.Nil(t, result)
+		require.Same(t, shared.InvalidRequestError, svcErr)
+	})
+
 	t.Run("successful match", func(t *testing.T) {
 		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			require.Equal(t, http.MethodPost, r.Method)
