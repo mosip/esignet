@@ -34,9 +34,6 @@ var ErrDuplicateClientID = errors.New("duplicate client id")
 // ErrDuplicatePublicKey is returned when the public key hash already exists.
 var ErrDuplicatePublicKey = errors.New("public key already registered")
 
-// ErrClientConflict is returned when a PATCH races with another update.
-var ErrClientConflict = errors.New("client was modified concurrently")
-
 // clientCacheNamespace isolates cached client rows in the shared runtime store.
 const clientCacheNamespace providers.RuntimeStoreNamespace = "client:detail"
 
@@ -348,21 +345,32 @@ func (s *Service) PatchClient(ctx context.Context, clientID string, req PatchCli
 
 	now := time.Now().UTC()
 	params := db.PatchClientParams{
-		ID:                clientID,
-		Name:              marshalClientName(merged.ClientName, merged.ClientNameLangMap, ProfileClient),
-		LogoURI:           merged.LogoURI,
-		RedirectUris:      redirectURIs,
-		Claims:            claims,
-		AcrValues:         acrValues,
-		GrantTypes:        grantTypes,
-		AuthMethods:       authMethods,
-		Status:            status,
-		AdditionalConfig:  additionalConfig,
-		EncPublicKey:      encPK,
-		EncPublicKeyHash:  encPKHash,
-		EncPublicKeyCert:  encPKCert,
-		ExpectedUpdDtimes: existing.UpdDtimes,
-		UpdDtimes:         sql.NullTime{Time: now, Valid: true},
+		ID: clientID,
+		Fields: db.PatchClientFields{
+			Name:             fields.ClientName || fields.ClientNameLangMap,
+			LogoURI:          fields.LogoURI,
+			RedirectURIs:     fields.RedirectURIs,
+			Claims:           fields.Claims,
+			AcrValues:        fields.AcrValues,
+			GrantTypes:       fields.GrantTypes,
+			AuthMethods:      fields.AuthMethods,
+			Status:           fields.Status,
+			AdditionalConfig: fields.AdditionalConfig,
+			EncPublicKey:     fields.EncPublicKey,
+		},
+		Name:             marshalClientName(merged.ClientName, merged.ClientNameLangMap, ProfileClient),
+		LogoURI:          merged.LogoURI,
+		RedirectUris:     redirectURIs,
+		Claims:           claims,
+		AcrValues:        acrValues,
+		GrantTypes:       grantTypes,
+		AuthMethods:      authMethods,
+		Status:           status,
+		AdditionalConfig: additionalConfig,
+		EncPublicKey:     encPK,
+		EncPublicKeyHash: encPKHash,
+		EncPublicKeyCert: encPKCert,
+		UpdDtimes:        sql.NullTime{Time: now, Valid: true},
 	}
 
 	row, err := s.runWrite(ctx, func(q db.Querier) (db.ClientDetail, error) {
@@ -370,7 +378,7 @@ func (s *Service) PatchClient(ctx context.Context, clientID string, req PatchCli
 	})
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return ClientResponse{}, ErrClientConflict
+			return ClientResponse{}, ErrClientNotFound
 		}
 		if isDuplicatePublicKeyHash(err) {
 			return ClientResponse{}, &ValidationError{Code: "invalid_public_key"}

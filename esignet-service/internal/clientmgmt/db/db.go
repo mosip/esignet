@@ -6,7 +6,7 @@
 
 // Package db implements the clientmgmt persistence layer for the client_detail
 // table using jmoiron/sqlx. Queries are written with "?" placeholders and
-// rebound once per driver in New (see persistence.Rebind), so the same query
+// rebound for the selected driver (see persistence.Rebind), so the same query
 // text runs on PostgreSQL and MySQL. The public surface — Querier,
 // ClientDetail, and the *Params types — is hand-maintained.
 package db
@@ -14,6 +14,7 @@ package db
 import (
 	"context"
 	"database/sql"
+	"strings"
 	"time"
 
 	"github.com/mosip/esignet/internal/persistence"
@@ -38,22 +39,21 @@ const clientColumns = `id, name, rp_id, logo_uri, redirect_uris, claims, acr_val
 	public_key, public_key_hash, enc_public_key, enc_public_key_hash, enc_public_key_cert,
 	grant_types, auth_methods, status, additional_config, cr_dtimes, upd_dtimes`
 
-// Queries is the sqlx-backed Querier implementation. Query strings are built once
-// in New, rebound to the driver's placeholder style; WithTx rebinds a Queries to
-// a transaction without rebuilding them.
+// Queries is the sqlx-backed Querier implementation. Fixed query strings are
+// built once in New; PatchClient builds its SET list from requested fields.
+// WithTx binds a Queries to a transaction without rebuilding the fixed queries.
 type Queries struct {
-	db TX
+	db         TX
+	driverName string
 
 	// usesReturning selects the write dialect: PostgreSQL appends RETURNING and
 	// reads the row back in the write statement; MySQL writes, then SELECTs.
 	usesReturning bool
 
-	getClient               string
-	getActiveClient         string
-	createClient            string
-	updateClient            string
-	patchClientExpected     string
-	patchClientExpectedNull string
+	getClient       string
+	getActiveClient string
+	createClient    string
+	updateClient    string
 }
 
 var _ Querier = (*Queries)(nil)
@@ -61,9 +61,9 @@ var _ Querier = (*Queries)(nil)
 // New returns a Queries backed by conn (a *sqlx.DB or *sqlx.Tx). driverName
 // selects the placeholder style via persistence.Rebind and the write dialect via
 // persistence.SupportsReturning, and must be the sql/sqlx driver name
-// ("postgres" or "mysql"). Queries are written with "?" and rebound here once.
+// ("postgres" or "mysql"). Fixed queries are written with "?" and rebound here.
 func New(conn TX, driverName string) *Queries {
-	q := &Queries{db: conn, usesReturning: persistence.SupportsReturning(driverName)}
+	q := &Queries{db: conn, driverName: driverName, usesReturning: persistence.SupportsReturning(driverName)}
 
 	q.getClient = persistence.Rebind(driverName,
 		`SELECT `+clientColumns+` FROM client_detail WHERE id = ? LIMIT 1`)
@@ -84,17 +84,6 @@ func New(conn TX, driverName string) *Queries {
 		grant_types = ?, auth_methods = ?, status = ?, additional_config = ?, upd_dtimes = ?
 		WHERE id = ?`
 
-	// PatchClient carries an optimistic-lock guard on upd_dtimes. Postgres'
-	// null-safe "IS NOT DISTINCT FROM" isn't portable, so the guard is expressed
-	// as two variants chosen in Go by whether the expected value is NULL.
-	const patchSet = `UPDATE client_detail SET
-		name = ?, logo_uri = ?, redirect_uris = ?, claims = ?, acr_values = ?,
-		grant_types = ?, auth_methods = ?, status = ?, additional_config = ?,
-		enc_public_key = ?, enc_public_key_hash = ?, enc_public_key_cert = ?, upd_dtimes = ?
-		WHERE id = ?`
-	patchExpected := patchSet + ` AND upd_dtimes = ?`
-	patchExpectedNull := patchSet + ` AND upd_dtimes IS NULL`
-
 	// PostgreSQL returns the written row atomically with RETURNING, so the write
 	// methods read it back in the same statement — no transaction needed. MySQL
 	// has no RETURNING, so there the write methods do a separate SELECT read-back
@@ -104,15 +93,10 @@ func New(conn TX, driverName string) *Queries {
 		returning := ` RETURNING ` + clientColumns
 		insert += returning
 		update += returning
-		patchExpected += returning
-		patchExpectedNull += returning
 	}
 
 	q.createClient = persistence.Rebind(driverName, insert)
 	q.updateClient = persistence.Rebind(driverName, update)
-	q.patchClientExpected = persistence.Rebind(driverName, patchExpected)
-	q.patchClientExpectedNull = persistence.Rebind(driverName, patchExpectedNull)
-
 	return q
 }
 
@@ -161,25 +145,39 @@ type UpdateClientParams struct {
 	UpdDtimes        sql.NullTime   `db:"upd_dtimes" json:"upd_dtimes"`
 }
 
-// PatchClientParams holds the inputs for PatchClient. ExpectedUpdDtimes is the
-// optimistic-lock guard: the update applies only if the row's current
-// upd_dtimes still matches it (including the NULL case).
+// PatchClientFields identifies the stored columns affected by a PATCH request.
+// Name covers both clientName and clientNameLangMap; EncPublicKey covers the
+// key, hash, and certificate columns, which must be written together.
+type PatchClientFields struct {
+	Name             bool
+	LogoURI          bool
+	RedirectURIs     bool
+	Claims           bool
+	AcrValues        bool
+	GrantTypes       bool
+	AuthMethods      bool
+	Status           bool
+	AdditionalConfig bool
+	EncPublicKey     bool
+}
+
+// PatchClientParams holds the values and selected columns for PatchClient.
 type PatchClientParams struct {
-	ID                string         `db:"id" json:"id"`
-	Name              string         `db:"name" json:"name"`
-	LogoURI           string         `db:"logo_uri" json:"logo_uri"`
-	RedirectUris      string         `db:"redirect_uris" json:"redirect_uris"`
-	Claims            string         `db:"claims" json:"claims"`
-	AcrValues         string         `db:"acr_values" json:"acr_values"`
-	GrantTypes        string         `db:"grant_types" json:"grant_types"`
-	AuthMethods       string         `db:"auth_methods" json:"auth_methods"`
-	Status            string         `db:"status" json:"status"`
-	AdditionalConfig  sql.NullString `db:"additional_config" json:"additional_config"`
-	EncPublicKey      sql.NullString `db:"enc_public_key" json:"enc_public_key"`
-	EncPublicKeyHash  sql.NullString `db:"enc_public_key_hash" json:"enc_public_key_hash"`
-	EncPublicKeyCert  sql.NullString `db:"enc_public_key_cert" json:"enc_public_key_cert"`
-	UpdDtimes         sql.NullTime   `db:"upd_dtimes" json:"upd_dtimes"`
-	ExpectedUpdDtimes sql.NullTime   `db:"expected_upd_dtimes" json:"expected_upd_dtimes"`
+	ID               string            `db:"id" json:"id"`
+	Fields           PatchClientFields `json:"-"`
+	Name             string            `db:"name" json:"name"`
+	LogoURI          string            `db:"logo_uri" json:"logo_uri"`
+	RedirectUris     string            `db:"redirect_uris" json:"redirect_uris"`
+	Claims           string            `db:"claims" json:"claims"`
+	AcrValues        string            `db:"acr_values" json:"acr_values"`
+	GrantTypes       string            `db:"grant_types" json:"grant_types"`
+	AuthMethods      string            `db:"auth_methods" json:"auth_methods"`
+	Status           string            `db:"status" json:"status"`
+	AdditionalConfig sql.NullString    `db:"additional_config" json:"additional_config"`
+	EncPublicKey     sql.NullString    `db:"enc_public_key" json:"enc_public_key"`
+	EncPublicKeyHash sql.NullString    `db:"enc_public_key_hash" json:"enc_public_key_hash"`
+	EncPublicKeyCert sql.NullString    `db:"enc_public_key_cert" json:"enc_public_key_cert"`
+	UpdDtimes        sql.NullTime      `db:"upd_dtimes" json:"upd_dtimes"`
 }
 
 // GetClient implements Querier.
@@ -249,25 +247,38 @@ func (q *Queries) UpdateClient(ctx context.Context, arg UpdateClientParams) (Cli
 	return q.GetClient(ctx, arg.ID)
 }
 
-// PatchClient updates a client_detail row under an optimistic lock on upd_dtimes.
-// An absent id or a stale expected upd_dtimes (concurrent modification) maps to
-// sql.ErrNoRows, which the caller translates to ErrClientConflict. On PostgreSQL
-// the guarded UPDATE uses RETURNING, so a failed guard matches no row and
-// GetContext returns sql.ErrNoRows. On MySQL the guard is evaluated via
-// RowsAffected()==0 — which requires clientFoundRows=true in the DSN so matched
-// rows are counted even when no column value changed (see persistence) — and the
-// row is then read back in the caller's transaction.
+// PatchClient updates only the selected columns and upd_dtimes. An absent id
+// maps to sql.ErrNoRows. PostgreSQL returns the written row with RETURNING;
+// MySQL checks matched rows and reads the row back in the caller's transaction.
 func (q *Queries) PatchClient(ctx context.Context, arg PatchClientParams) (ClientDetail, error) {
-	query := q.patchClientExpectedNull
-	args := []interface{}{
-		arg.Name, arg.LogoURI, arg.RedirectUris, arg.Claims, arg.AcrValues,
-		arg.GrantTypes, arg.AuthMethods, arg.Status, arg.AdditionalConfig,
-		arg.EncPublicKey, arg.EncPublicKeyHash, arg.EncPublicKeyCert, arg.UpdDtimes, arg.ID,
+	set := make([]string, 0, 13)
+	args := make([]interface{}, 0, 14)
+	add := func(selected bool, column string, value interface{}) {
+		if selected {
+			set = append(set, column+" = ?")
+			args = append(args, value)
+		}
 	}
-	if arg.ExpectedUpdDtimes.Valid {
-		query = q.patchClientExpected
-		args = append(args, arg.ExpectedUpdDtimes)
+	add(arg.Fields.Name, "name", arg.Name)
+	add(arg.Fields.LogoURI, "logo_uri", arg.LogoURI)
+	add(arg.Fields.RedirectURIs, "redirect_uris", arg.RedirectUris)
+	add(arg.Fields.Claims, "claims", arg.Claims)
+	add(arg.Fields.AcrValues, "acr_values", arg.AcrValues)
+	add(arg.Fields.GrantTypes, "grant_types", arg.GrantTypes)
+	add(arg.Fields.AuthMethods, "auth_methods", arg.AuthMethods)
+	add(arg.Fields.Status, "status", arg.Status)
+	add(arg.Fields.AdditionalConfig, "additional_config", arg.AdditionalConfig)
+	add(arg.Fields.EncPublicKey, "enc_public_key", arg.EncPublicKey)
+	add(arg.Fields.EncPublicKey, "enc_public_key_hash", arg.EncPublicKeyHash)
+	add(arg.Fields.EncPublicKey, "enc_public_key_cert", arg.EncPublicKeyCert)
+	add(true, "upd_dtimes", arg.UpdDtimes)
+
+	query := `UPDATE client_detail SET ` + strings.Join(set, ", ") + ` WHERE id = ?`
+	args = append(args, arg.ID)
+	if q.usesReturning {
+		query += ` RETURNING ` + clientColumns
 	}
+	query = persistence.Rebind(q.driverName, query)
 
 	if q.usesReturning {
 		var row ClientDetail

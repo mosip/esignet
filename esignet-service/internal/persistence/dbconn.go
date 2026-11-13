@@ -205,9 +205,8 @@ func resolveMySQLDSN(yamlDSN string) string {
 //     columns into []byte rather than time.Time, breaking every time.Time /
 //     sql.NullTime destination in the query layer.
 //   - clientFoundRows=true: makes UPDATE report matched rows rather than only
-//     changed rows, so PatchClient's RowsAffected()==0 optimistic-lock guard
-//     means "row absent / version mismatch" (matching PostgreSQL) instead of
-//     firing a false conflict when a PATCH re-writes identical column values.
+//     changed rows, so PatchClient's RowsAffected()==0 means the row is absent
+//     even when a PATCH writes the same values already stored.
 func ensureMySQLParams(dsn string) string {
 	if !mysqlHasParam(dsn, "parseTime") {
 		dsn += mysqlParamSep(dsn) + "parseTime=true&loc=UTC"

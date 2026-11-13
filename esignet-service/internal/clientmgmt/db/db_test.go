@@ -50,34 +50,16 @@ func (ts *DBTestSuite) TestNewUpdateClientIDLast() {
 		"updateClient: expected 'WHERE id = ?' last, got %q", my.updateClient)
 }
 
-func (ts *DBTestSuite) TestNewPatchClientVariants() {
-	my := New(nil, "mysql")
-
-	// Expected-value variant: 13 SET + WHERE id + optimistic-lock guard = 15.
-	ts.Assert().Equal(15, strings.Count(my.patchClientExpected, "?"),
-		"patchClientExpected: expected 15 placeholders in %q", my.patchClientExpected)
-	ts.Assert().True(strings.HasSuffix(strings.TrimSpace(my.patchClientExpected), "AND upd_dtimes = ?"),
-		"patchClientExpected: expected trailing 'AND upd_dtimes = ?', got %q", my.patchClientExpected)
-
-	// NULL variant: 13 SET + WHERE id = 14, guard is a literal IS NULL (no bind).
-	ts.Assert().Equal(14, strings.Count(my.patchClientExpectedNull, "?"),
-		"patchClientExpectedNull: expected 14 placeholders in %q", my.patchClientExpectedNull)
-	ts.Assert().True(strings.HasSuffix(strings.TrimSpace(my.patchClientExpectedNull), "AND upd_dtimes IS NULL"),
-		"patchClientExpectedNull: expected trailing 'AND upd_dtimes IS NULL', got %q", my.patchClientExpectedNull)
-}
-
 // TestNewAppendsReturningForPostgresOnly checks the write dialect: PostgreSQL
 // appends RETURNING to the write statements, MySQL does not.
 func (ts *DBTestSuite) TestNewAppendsReturningForPostgresOnly() {
 	pg := New(nil, "postgres")
 	ts.Assert().Contains(pg.createClient, "RETURNING", "postgres createClient should use RETURNING")
 	ts.Assert().Contains(pg.updateClient, "RETURNING", "postgres updateClient should use RETURNING")
-	ts.Assert().Contains(pg.patchClientExpected, "RETURNING", "postgres patchClientExpected should use RETURNING")
 
 	my := New(nil, "mysql")
 	ts.Assert().NotContains(my.createClient, "RETURNING", "mysql createClient must not use RETURNING")
 	ts.Assert().NotContains(my.updateClient, "RETURNING", "mysql updateClient must not use RETURNING")
-	ts.Assert().NotContains(my.patchClientExpected, "RETURNING", "mysql patchClientExpected must not use RETURNING")
 }
 
 // TestClientColumnsMatchClientDetail guards the hand-maintained clientColumns

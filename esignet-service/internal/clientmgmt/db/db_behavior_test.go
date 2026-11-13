@@ -155,53 +155,69 @@ func (ts *DBTestSuite) TestUpdateClientNotFound() {
 	ts.Assert().ErrorIs(err, sql.ErrNoRows)
 }
 
-// TestPatchClientNullExpectedVariant covers the IS NULL guard (ExpectedUpdDtimes
-// invalid): the NULL variant is used and no expected value is appended.
-func (ts *DBTestSuite) TestPatchClientNullExpectedVariant() {
+// TestPatchClientUpdatesOnlySelectedColumns proves a PATCH cannot write values
+// copied from an earlier read of unrelated columns.
+func (ts *DBTestSuite) TestPatchClientUpdatesOnlySelectedColumns() {
 	rec := &recordingDBTX{getRow: sampleRow(), rowsAffected: 1}
 	q := New(rec, "mysql")
 	p := samplePatchParams()
-	p.ExpectedUpdDtimes = sql.NullTime{}
+	p.Fields = PatchClientFields{LogoURI: true, Status: true}
 
 	_, err := q.PatchClient(context.Background(), p)
 
 	ts.Require().NoError(err)
-	ts.Assert().Contains(rec.execQuery, "upd_dtimes IS NULL")
-	ts.Assert().Len(rec.execArgs, 14, "NULL variant binds 13 SET + id, no expected value")
-	ts.Assert().Equal(p.ID, rec.execArgs[13])
+	ts.Assert().Equal("UPDATE client_detail SET logo_uri = ?, status = ?, upd_dtimes = ? WHERE id = ?", rec.execQuery)
+	ts.Assert().Equal([]interface{}{p.LogoURI, p.Status, p.UpdDtimes, p.ID}, rec.execArgs)
+	ts.Assert().Equal([]interface{}{p.ID}, rec.getArgs)
 }
 
-// TestPatchClientExpectedVariant covers the valued guard (ExpectedUpdDtimes set):
-// the expected value is appended as the final bound arg.
-func (ts *DBTestSuite) TestPatchClientExpectedVariant() {
+// TestPatchClientEncKeyColumns covers one request attribute spanning three
+// nullable stored columns, including an explicit clear.
+func (ts *DBTestSuite) TestPatchClientEncKeyColumns() {
 	rec := &recordingDBTX{getRow: sampleRow(), rowsAffected: 1}
 	q := New(rec, "mysql")
 	p := samplePatchParams()
-	p.ExpectedUpdDtimes = sql.NullTime{Time: fixedTime, Valid: true}
+	p.Fields = PatchClientFields{EncPublicKey: true}
 
 	_, err := q.PatchClient(context.Background(), p)
 
 	ts.Require().NoError(err)
-	ts.Assert().Contains(rec.execQuery, "AND upd_dtimes = ?")
-	ts.Assert().Len(rec.execArgs, 15, "valued variant appends the expected upd_dtimes")
-	ts.Assert().Equal(p.ExpectedUpdDtimes, rec.execArgs[14])
+	ts.Assert().Equal("UPDATE client_detail SET enc_public_key = ?, enc_public_key_hash = ?, enc_public_key_cert = ?, upd_dtimes = ? WHERE id = ?", rec.execQuery)
+	ts.Assert().Equal([]interface{}{p.EncPublicKey, p.EncPublicKeyHash, p.EncPublicKeyCert, p.UpdDtimes, p.ID}, rec.execArgs)
 }
 
-// TestPatchClientNoRowsIsErrNoRows covers the MySQL conflict path: RowsAffected()
-// == 0 maps to sql.ErrNoRows, and no read-back is attempted.
+// TestPatchClientPostgresReturning covers dynamic placeholder rebinding and
+// one-statement read-back on PostgreSQL.
+func (ts *DBTestSuite) TestPatchClientPostgresReturning() {
+	rec := &recordingDBTX{getRow: sampleRow()}
+	q := New(rec, "postgres")
+	p := samplePatchParams()
+	p.Fields = PatchClientFields{Name: true}
+
+	_, err := q.PatchClient(context.Background(), p)
+
+	ts.Require().NoError(err)
+	ts.Assert().Empty(rec.execQuery)
+	ts.Assert().Contains(rec.getQuery, "UPDATE client_detail SET name = $1, upd_dtimes = $2 WHERE id = $3 RETURNING")
+	ts.Assert().Equal([]interface{}{p.Name, p.UpdDtimes, p.ID}, rec.getArgs)
+}
+
+// TestPatchClientNoRowsIsErrNoRows covers the MySQL absent-row path:
+// RowsAffected()==0 maps to sql.ErrNoRows, without a read-back.
 func (ts *DBTestSuite) TestPatchClientNoRowsIsErrNoRows() {
 	rec := &recordingDBTX{rowsAffected: 0}
 	q := New(rec, "mysql")
+	p := samplePatchParams()
+	p.Fields = PatchClientFields{Status: true}
 
-	_, err := q.PatchClient(context.Background(), samplePatchParams())
+	_, err := q.PatchClient(context.Background(), p)
 
 	ts.Assert().ErrorIs(err, sql.ErrNoRows)
-	ts.Assert().Empty(rec.getQuery, "no read-back after a failed guard")
+	ts.Assert().Empty(rec.getQuery, "no read-back when the row is absent")
 }
 
-// TestPatchClientReturningConflictIsErrNoRows covers the Postgres conflict path: a
-// failed guard matches no row, so RETURNING yields sql.ErrNoRows.
-func (ts *DBTestSuite) TestPatchClientReturningConflictIsErrNoRows() {
+// TestPatchClientReturningNotFound covers PostgreSQL's absent-row path.
+func (ts *DBTestSuite) TestPatchClientReturningNotFound() {
 	rec := &recordingDBTX{getErr: sql.ErrNoRows}
 	q := New(rec, "postgres")
 

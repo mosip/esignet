@@ -254,7 +254,6 @@ func (ts *ServiceTestSuite) TestUpdateClient() {
 		_, err := s.UpdateClient(context.Background(), ProfileOIDC, "client-1", validUpdateRequest())
 		require.Error(t, err)
 		require.False(t, errors.Is(err, ErrClientNotFound))
-		require.False(t, errors.Is(err, ErrClientConflict))
 	})
 }
 
@@ -303,7 +302,7 @@ func (ts *ServiceTestSuite) TestPatchClient() {
 		resp, err := s.PatchClient(context.Background(), "client-1", PatchClientRequest{}, PatchFields{})
 		require.NoError(t, err)
 		require.Equal(t, "client-1", resp.ClientID)
-		require.Equal(t, "ACTIVE", q.patchParams.Status)
+		require.Equal(t, db.PatchClientFields{}, q.patchParams.Fields)
 	})
 
 	t.Run("status field patched", func(t *testing.T) {
@@ -318,6 +317,17 @@ func (ts *ServiceTestSuite) TestPatchClient() {
 		require.NoError(t, err)
 		require.Equal(t, "INACTIVE", resp.Status)
 		require.Equal(t, "INACTIVE", q.patchParams.Status)
+		require.Equal(t, db.PatchClientFields{Status: true}, q.patchParams.Fields)
+	})
+
+	t.Run("client name and language map share the name column", func(t *testing.T) {
+		q := &fakeQuerier{getRow: existingClientRow(), patchRow: existingClientRow()}
+		s := NewServiceWithQuerier(q, nil, 0, nil)
+		req := PatchClientRequest{ClientNameLangMap: map[string]string{"eng": "Test Client"}}
+		_, err := s.PatchClient(context.Background(), "client-1", req, PatchFields{ClientNameLangMap: true})
+		require.NoError(t, err)
+		require.Equal(t, db.PatchClientFields{Name: true}, q.patchParams.Fields)
+		require.Contains(t, q.patchParams.Name, `"eng":"Test Client"`)
 	})
 
 	t.Run("invalid status value", func(t *testing.T) {
@@ -343,6 +353,7 @@ func (ts *ServiceTestSuite) TestPatchClient() {
 		require.False(t, q.patchParams.EncPublicKey.Valid)
 		require.False(t, q.patchParams.EncPublicKeyHash.Valid)
 		require.False(t, q.patchParams.EncPublicKeyCert.Valid)
+		require.Equal(t, db.PatchClientFields{EncPublicKey: true}, q.patchParams.Fields)
 	})
 
 	t.Run("enc public key updated with new value", func(t *testing.T) {
@@ -365,11 +376,11 @@ func (ts *ServiceTestSuite) TestPatchClient() {
 		require.Error(t, err)
 	})
 
-	t.Run("patch conflict", func(t *testing.T) {
+	t.Run("client removed between read and patch", func(t *testing.T) {
 		q := &fakeQuerier{getRow: existingClientRow(), patchErr: sql.ErrNoRows}
 		s := NewServiceWithQuerier(q, nil, 0, nil)
 		_, err := s.PatchClient(context.Background(), "client-1", PatchClientRequest{}, PatchFields{})
-		require.ErrorIs(t, err, ErrClientConflict)
+		require.ErrorIs(t, err, ErrClientNotFound)
 	})
 
 	t.Run("duplicate public key hash on patch", func(t *testing.T) {
@@ -386,7 +397,7 @@ func (ts *ServiceTestSuite) TestPatchClient() {
 		s := NewServiceWithQuerier(q, nil, 0, nil)
 		_, err := s.PatchClient(context.Background(), "client-1", PatchClientRequest{}, PatchFields{})
 		require.Error(t, err)
-		require.False(t, errors.Is(err, ErrClientConflict))
+		require.False(t, errors.Is(err, ErrClientNotFound))
 	})
 
 	t.Run("invalidates cache on success", func(t *testing.T) {
