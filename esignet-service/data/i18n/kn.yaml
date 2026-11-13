@@ -1227,6 +1227,7 @@ button:
   continue: ಮುಂದುವರಿಸಿ
   login: ಲಾಗಿನ್
   verify: ಪರಿಶೀಲಿಸಿ
+  cancel: ರದ್ದುಮಾಡಿ
   get_otp: OTP ಪಡೆಯಿರಿ
   login_otp: OTP ಮೂಲಕ ಲಾಗಿನ್ ಮಾಡಿ
   login_password: ಪಾಸ್‌ವರ್ಡ್ ಮೂಲಕ ಲಾಗಿನ್ ಮಾಡಿ
@@ -1240,6 +1241,9 @@ otp:
   enter_otp_title: OTP ನಮೂದಿಸಿ
   otp_sent_msg: ನಿಮ್ಮ ನೋಂದಾಯಿತ ಸಂಪರ್ಕಕ್ಕೆ ಕಳುಹಿಸಲಾದ 6 ಅಂಕಿಯ OTP ನಮೂದಿಸಿ
   resend_otp: OTP ಮರುಕಳುಹಿಸಿ
+  didnt_receive_otp: OTP ಪ್ರಾಪ್ತಿಸಲಾಗಲಿಲ್ಲ
+  resend_captcha_prompt: ನೀವು ರೋಬೋಟ್ ಅಲ್ಲ ಎಂದು ದೃಢೀಕರಿಸಿ; ನಾವು ನಿಮಗೆ ಹೊಸ OTP ಕಳುಹಿಸುತ್ತೇವೆ.
+  resend_limit_reached: OTP ಅನ್ನು ಮರುಕಳುಹಿಸುವ ಮಿತಿಯನ್ನು ನೀವು ತಲುಪಿದ್ದೀರಿ. ದಯವಿಟ್ಟು ಮತ್ತೊಮ್ಮೆ ಸೈನ್-ಇನ್ ಮಾಡಿ.
 
 biometric:
   title: ನಿಮ್ಮ ಬಯೋಮೆಟ್ರಿಕ್ಸ್ ಅನ್ನು ಒದಗಿಸಿ
