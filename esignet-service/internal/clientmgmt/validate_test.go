@@ -505,6 +505,19 @@ func (ts *ValidateTestSuite) TestValidatePatch() {
 			NullableJWK{IsNull: true}, nil, true)
 		assert.Equal(t, "invalid_additional_config", errCode(t, err))
 	})
+
+	t.Run("patch removing enc public key rejects retained jwe additional config", func(t *testing.T) {
+		for _, config := range []string{
+			`{"userinfo_response_type":"JWE"}`,
+			`{"id_token_response_type":"JWE"}`,
+		} {
+			merged := base
+			merged.AdditionalConfig = json.RawMessage(config)
+			err := ValidatePatch(ProfileClient, merged, PatchFields{EncPublicKey: true},
+				NullableJWK{IsNull: true}, nil, true)
+			assert.Equal(t, "invalid_additional_config", errCode(t, err), config)
+		}
+	})
 }
 
 func (ts *ValidateTestSuite) TestValidateClientNameLangMap() {

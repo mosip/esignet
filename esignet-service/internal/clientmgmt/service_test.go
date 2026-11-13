@@ -239,9 +239,9 @@ func (ts *ServiceTestSuite) TestUpdateClient() {
 		require.False(t, errors.Is(err, ErrClientNotFound))
 	})
 
-	// The UPDATE is a plain WHERE id = $1, so a write that matches nothing means
-	// the client was deleted between the read and the write.
-	t.Run("update returns no rows when client removed", func(t *testing.T) {
+	// A mock-backed service can report no rows at write time. Production holds
+	// a row lock from the read until the write commits.
+	t.Run("update returns no rows", func(t *testing.T) {
 		q := &fakeQuerier{getRow: existingClientRow(), updateErr: sql.ErrNoRows}
 		s := NewServiceWithQuerier(q, nil, 0, nil)
 		_, err := s.UpdateClient(context.Background(), ProfileOIDC, "client-1", validUpdateRequest())
@@ -356,6 +356,20 @@ func (ts *ServiceTestSuite) TestPatchClient() {
 		require.Equal(t, db.PatchClientFields{EncPublicKey: true}, q.patchParams.Fields)
 	})
 
+	t.Run("enc public key cannot be cleared while jwe config is retained", func(t *testing.T) {
+		existing := existingClientRow()
+		existing.EncPublicKey = sql.NullString{String: `{"kty":"RSA"}`, Valid: true}
+		existing.AdditionalConfig = sql.NullString{String: `{"userinfo_response_type":"JWE"}`, Valid: true}
+		q := &fakeQuerier{getRow: existing}
+		s := NewServiceWithQuerier(q, nil, 0, nil)
+		req := PatchClientRequest{EncPublicKey: NullableJWK{Defined: true, IsNull: true}}
+		_, err := s.PatchClient(context.Background(), "client-1", req, PatchFields{EncPublicKey: true})
+		var ve *ValidationError
+		require.ErrorAs(t, err, &ve)
+		require.Equal(t, "invalid_additional_config", ve.Code)
+		require.Empty(t, q.patchParams.ID, "invalid state must not be written")
+	})
+
 	t.Run("enc public key updated with new value", func(t *testing.T) {
 		q := &fakeQuerier{getRow: existingClientRow(), patchRow: existingClientRow()}
 		s := NewServiceWithQuerier(q, nil, 0, nil)
@@ -376,7 +390,7 @@ func (ts *ServiceTestSuite) TestPatchClient() {
 		require.Error(t, err)
 	})
 
-	t.Run("client removed between read and patch", func(t *testing.T) {
+	t.Run("patch write returns no rows", func(t *testing.T) {
 		q := &fakeQuerier{getRow: existingClientRow(), patchErr: sql.ErrNoRows}
 		s := NewServiceWithQuerier(q, nil, 0, nil)
 		_, err := s.PatchClient(context.Background(), "client-1", PatchClientRequest{}, PatchFields{})

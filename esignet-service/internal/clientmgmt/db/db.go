@@ -50,10 +50,11 @@ type Queries struct {
 	// reads the row back in the write statement; MySQL writes, then SELECTs.
 	usesReturning bool
 
-	getClient       string
-	getActiveClient string
-	createClient    string
-	updateClient    string
+	getClient          string
+	getClientForUpdate string
+	getActiveClient    string
+	createClient       string
+	updateClient       string
 }
 
 var _ Querier = (*Queries)(nil)
@@ -67,6 +68,8 @@ func New(conn TX, driverName string) *Queries {
 
 	q.getClient = persistence.Rebind(driverName,
 		`SELECT `+clientColumns+` FROM client_detail WHERE id = ? LIMIT 1`)
+	q.getClientForUpdate = persistence.Rebind(driverName,
+		`SELECT `+clientColumns+` FROM client_detail WHERE id = ? FOR UPDATE`)
 
 	q.getActiveClient = persistence.Rebind(driverName,
 		`SELECT `+clientColumns+` FROM client_detail WHERE id = ? AND status = 'ACTIVE' LIMIT 1`)
@@ -84,11 +87,9 @@ func New(conn TX, driverName string) *Queries {
 		grant_types = ?, auth_methods = ?, status = ?, additional_config = ?, upd_dtimes = ?
 		WHERE id = ?`
 
-	// PostgreSQL returns the written row atomically with RETURNING, so the write
-	// methods read it back in the same statement — no transaction needed. MySQL
-	// has no RETURNING, so there the write methods do a separate SELECT read-back
-	// and rely on the caller's transaction for a consistent read (the clientmgmt
-	// service supplies one; see Service.runWrite).
+	// PostgreSQL returns the written row with RETURNING. MySQL has no RETURNING,
+	// so write methods read it back separately within the caller's transaction.
+	// PUT and PATCH also use a transaction on both drivers for their locked read.
 	if q.usesReturning {
 		returning := ` RETURNING ` + clientColumns
 		insert += returning
@@ -187,6 +188,16 @@ func (q *Queries) GetClient(ctx context.Context, id string) (ClientDetail, error
 		return ClientDetail{}, err
 	}
 	return i, nil
+}
+
+// GetClientForUpdate reads and locks a client row until the caller's transaction
+// ends. It must be called on a Queries bound to a transaction.
+func (q *Queries) GetClientForUpdate(ctx context.Context, id string) (ClientDetail, error) {
+	var row ClientDetail
+	if err := q.db.GetContext(ctx, &row, q.getClientForUpdate, id); err != nil {
+		return ClientDetail{}, err
+	}
+	return row, nil
 }
 
 // GetActiveClient implements Querier.

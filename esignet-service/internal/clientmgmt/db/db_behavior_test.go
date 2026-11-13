@@ -87,6 +87,21 @@ func samplePatchParams() PatchClientParams {
 	}
 }
 
+// TestGetClientForUpdateUsesLockingRead verifies that the read used for PUT and
+// PATCH holds a row lock when its Queries is bound to a transaction.
+func (ts *DBTestSuite) TestGetClientForUpdateUsesLockingRead() {
+	for _, driver := range []string{"postgres", "mysql"} {
+		rec := &recordingDBTX{getRow: sampleRow()}
+		q := New(rec, driver)
+		row, err := q.GetClientForUpdate(context.Background(), "client-1")
+		ts.Require().NoError(err, driver)
+		ts.Assert().Equal("client-1", row.ID, driver)
+		ts.Assert().Contains(rec.getQuery, "WHERE id = ", driver)
+		ts.Assert().Contains(rec.getQuery, "FOR UPDATE", driver)
+		ts.Assert().Equal([]interface{}{"client-1"}, rec.getArgs, driver)
+	}
+}
+
 // TestCreateClientMySQLArgOrder covers the MySQL path: a write with the 17 columns
 // in declared order, then a read-back SELECT by id.
 func (ts *DBTestSuite) TestCreateClientMySQLArgOrder() {
