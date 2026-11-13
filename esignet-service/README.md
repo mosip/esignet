@@ -125,6 +125,7 @@ Minimum to start the service:
 | `MOSIP_ESIGNET_AUTHN_PROVIDER` | `mock` | `mock`, `mosip`, or `sunbird` — see [`docs/configuration.md`](../docs/configuration.md) §7 for what each requires |
 | `PORT` | `8088` | HTTP listen port |
 | `MOSIP_ESIGNET_HOST` | `http://localhost:<PORT>` | OIDC issuer / discovery base |
+| `MOSIP_ESIGNET_DEVICE_SECRET_VALIDITY_SECONDS` | `2592000` | Validity of a Native SSO device secret, in seconds (30 days); see [`docs/native-sso.md`](../docs/native-sso.md) |
 | `LOG_LEVEL` | `info` | `debug` for verbose tracing |
 
 Copy `.env.example` to `.env` for copy-paste local values (including MOSIP/SunbirdRC overrides).

@@ -8,12 +8,30 @@ All OAuth clients are **confidential** and must use `clientAuthMethods: ["privat
 
 Variable names follow the standard eSignet Postman convention (snake_case: `baseUrl`, `client_id`, `client_private_key`, `redirect_uri`, `code`, `access_token`, `dpop_*`, …).
 
+## Native SSO for Mobile Apps
+
+`Go-eSignet-NativeSSO.postman_collection.json` plays the whole Native SSO protocol against a local
+stack: super-app login with `device_sso` (PAR, PKCE, DPoP, private_key_jwt, OTP login and consent
+through the login-flow API), the child app's token exchange with `actor_token_type=device-secret`,
+userinfo, and the negative cases (scope escalation, `device_sso` on exchange, foreign vendor, wrong
+DPoP key, tampered secret, `interaction_required`). It needs an environment with `baseUrl`,
+`audience` (= the issuer) and the three demo clients' ids and private keys as JWK JSON strings with a
+`kid` (`client_id`/`client_private_key` for the super app, `child_client_*` for the sibling app,
+`other_client_*` for a client of another relying party). Register the clients first with the
+**Client Management → Create client** requests of `Go-eSignet.postman_collection.json`
+(`private_key_jwt`, grant types `authorization_code` plus `token_exchange` for the child, and
+`allowed_authorization_scopes` containing `device_sso` for the super app), or let the
+[relying-party guide](../docs/relying-party-integration.md) walk you through it. Run it in the Postman app:
+the scripts use WebCrypto and top-level `await`, which newman does not provide. See
+[`../docs/native-sso.md`](../docs/native-sso.md).
+
 ## Files
 
 | File | Purpose |
 |------|---------|
 | `Go-eSignet (local).postman_environment.json` | Environment variables (`baseUrl`, audiences, credentials, runtime tokens/keys) |
 | `Go-eSignet.postman_collection.json` | The collection: client management + mock identity creation + a single FAPI2.0 (PAR + DPoP) flow covering OTP, password, and Sunbird KBI authentication + Sunbird registry CRUD |
+| `Go-eSignet-NativeSSO.postman_collection.json` | Native SSO for Mobile Apps: super-app login with `device_sso`, child-app token exchange with a device-secret actor token, userinfo, and the negative and `interaction_required` cases |
 
 ## Quick start
 
