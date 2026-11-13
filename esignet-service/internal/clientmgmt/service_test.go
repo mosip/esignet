@@ -16,6 +16,7 @@ import (
 	"time"
 
 	"github.com/jackc/pgx/v5/pgconn"
+	"github.com/jmoiron/sqlx"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/providers"
@@ -96,7 +97,7 @@ func existingClientRow() db.ClientDetail {
 		ID:            "client-1",
 		Name:          `{"@none":"Test Client"}`,
 		RpID:          "rp-1",
-		LogoUri:       "https://example.com/logo.png",
+		LogoURI:       "https://example.com/logo.png",
 		RedirectUris:  `["https://example.com/callback"]`,
 		Claims:        `["name","email"]`,
 		AcrValues:     `["mosip:idp:acr:static-code"]`,
@@ -238,9 +239,9 @@ func (ts *ServiceTestSuite) TestUpdateClient() {
 		require.False(t, errors.Is(err, ErrClientNotFound))
 	})
 
-	// The UPDATE is a plain WHERE id = $1, so a write that matches nothing means
-	// the client was deleted between the read and the write.
-	t.Run("update returns no rows when client removed", func(t *testing.T) {
+	// A mock-backed service can report no rows at write time. Production holds
+	// a row lock from the read until the write commits.
+	t.Run("update returns no rows", func(t *testing.T) {
 		q := &fakeQuerier{getRow: existingClientRow(), updateErr: sql.ErrNoRows}
 		s := NewServiceWithQuerier(q, nil, 0, nil)
 		_, err := s.UpdateClient(context.Background(), ProfileOIDC, "client-1", validUpdateRequest())
@@ -253,7 +254,6 @@ func (ts *ServiceTestSuite) TestUpdateClient() {
 		_, err := s.UpdateClient(context.Background(), ProfileOIDC, "client-1", validUpdateRequest())
 		require.Error(t, err)
 		require.False(t, errors.Is(err, ErrClientNotFound))
-		require.False(t, errors.Is(err, ErrClientConflict))
 	})
 }
 
@@ -302,7 +302,7 @@ func (ts *ServiceTestSuite) TestPatchClient() {
 		resp, err := s.PatchClient(context.Background(), "client-1", PatchClientRequest{}, PatchFields{})
 		require.NoError(t, err)
 		require.Equal(t, "client-1", resp.ClientID)
-		require.Equal(t, "ACTIVE", q.patchParams.Status)
+		require.Equal(t, db.PatchClientFields{}, q.patchParams.Fields)
 	})
 
 	t.Run("status field patched", func(t *testing.T) {
@@ -317,6 +317,17 @@ func (ts *ServiceTestSuite) TestPatchClient() {
 		require.NoError(t, err)
 		require.Equal(t, "INACTIVE", resp.Status)
 		require.Equal(t, "INACTIVE", q.patchParams.Status)
+		require.Equal(t, db.PatchClientFields{Status: true}, q.patchParams.Fields)
+	})
+
+	t.Run("client name and language map share the name column", func(t *testing.T) {
+		q := &fakeQuerier{getRow: existingClientRow(), patchRow: existingClientRow()}
+		s := NewServiceWithQuerier(q, nil, 0, nil)
+		req := PatchClientRequest{ClientNameLangMap: map[string]string{"eng": "Test Client"}}
+		_, err := s.PatchClient(context.Background(), "client-1", req, PatchFields{ClientNameLangMap: true})
+		require.NoError(t, err)
+		require.Equal(t, db.PatchClientFields{Name: true}, q.patchParams.Fields)
+		require.Contains(t, q.patchParams.Name, `"eng":"Test Client"`)
 	})
 
 	t.Run("invalid status value", func(t *testing.T) {
@@ -342,6 +353,21 @@ func (ts *ServiceTestSuite) TestPatchClient() {
 		require.False(t, q.patchParams.EncPublicKey.Valid)
 		require.False(t, q.patchParams.EncPublicKeyHash.Valid)
 		require.False(t, q.patchParams.EncPublicKeyCert.Valid)
+		require.Equal(t, db.PatchClientFields{EncPublicKey: true}, q.patchParams.Fields)
+	})
+
+	t.Run("enc public key cannot be cleared while jwe config is retained", func(t *testing.T) {
+		existing := existingClientRow()
+		existing.EncPublicKey = sql.NullString{String: `{"kty":"RSA"}`, Valid: true}
+		existing.AdditionalConfig = sql.NullString{String: `{"userinfo_response_type":"JWE"}`, Valid: true}
+		q := &fakeQuerier{getRow: existing}
+		s := NewServiceWithQuerier(q, nil, 0, nil)
+		req := PatchClientRequest{EncPublicKey: NullableJWK{Defined: true, IsNull: true}}
+		_, err := s.PatchClient(context.Background(), "client-1", req, PatchFields{EncPublicKey: true})
+		var ve *ValidationError
+		require.ErrorAs(t, err, &ve)
+		require.Equal(t, "invalid_additional_config", ve.Code)
+		require.Empty(t, q.patchParams.ID, "invalid state must not be written")
 	})
 
 	t.Run("enc public key updated with new value", func(t *testing.T) {
@@ -364,11 +390,11 @@ func (ts *ServiceTestSuite) TestPatchClient() {
 		require.Error(t, err)
 	})
 
-	t.Run("patch conflict", func(t *testing.T) {
+	t.Run("patch write returns no rows", func(t *testing.T) {
 		q := &fakeQuerier{getRow: existingClientRow(), patchErr: sql.ErrNoRows}
 		s := NewServiceWithQuerier(q, nil, 0, nil)
 		_, err := s.PatchClient(context.Background(), "client-1", PatchClientRequest{}, PatchFields{})
-		require.ErrorIs(t, err, ErrClientConflict)
+		require.ErrorIs(t, err, ErrClientNotFound)
 	})
 
 	t.Run("duplicate public key hash on patch", func(t *testing.T) {
@@ -385,7 +411,7 @@ func (ts *ServiceTestSuite) TestPatchClient() {
 		s := NewServiceWithQuerier(q, nil, 0, nil)
 		_, err := s.PatchClient(context.Background(), "client-1", PatchClientRequest{}, PatchFields{})
 		require.Error(t, err)
-		require.False(t, errors.Is(err, ErrClientConflict))
+		require.False(t, errors.Is(err, ErrClientNotFound))
 	})
 
 	t.Run("invalidates cache on success", func(t *testing.T) {
@@ -743,7 +769,9 @@ func (ts *ServiceTestSuite) TestToResponse() {
 func (ts *ServiceTestSuite) TestNewService() {
 	t := ts.T()
 	require.NotPanics(t, func() {
-		_ = NewService(nil, nil, 0, nil)
+		// sqlx.NewDb sets the driver name without opening a connection, so
+		// NewService can derive it via conn.DriverName() during construction.
+		_ = NewService(sqlx.NewDb(nil, "postgres"), nil, 0, nil)
 	})
 }
 

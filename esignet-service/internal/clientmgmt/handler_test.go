@@ -434,7 +434,7 @@ func (ts *HandlerTestSuite) TestPatchClientHandler() {
 		})
 	}
 
-	t.Run("patch conflict", func(t *testing.T) {
+	t.Run("client removed before patch", func(t *testing.T) {
 		h := newTestHandler(&fakeQuerier{getRow: existingClientRow(), patchErr: sql.ErrNoRows})
 		mux := http.NewServeMux()
 		h.RegisterRoutes(mux, nil)
@@ -446,7 +446,7 @@ func (ts *HandlerTestSuite) TestPatchClientHandler() {
 		decoded := decodeEnvelope(t, rec.Body.Bytes())
 		errs := decoded["errors"].([]any)
 		errObj := errs[0].(map[string]any)
-		require.Equal(t, "patch_conflict", errObj["errorCode"])
+		require.Equal(t, "invalid_client_id", errObj["errorCode"])
 	})
 }
 

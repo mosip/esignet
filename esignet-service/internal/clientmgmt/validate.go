@@ -204,7 +204,8 @@ func ValidateUpdate(profile Profile, req UpdateClientRequest, hasEncPublicKey bo
 // restriction. hasEncPublicKey reports whether the client currently has a
 // stored encPublicKey; this function derives the post-patch value from
 // encPublicKey when this patch changes it, which is required when
-// additionalConfig requests a JWE response type.
+// additionalConfig requests a JWE response type. Clearing an encryption key
+// also revalidates the retained additionalConfig against the key's absence.
 func ValidatePatch(profile Profile, merged UpdateClientRequest, fields PatchFields, encPublicKey NullableJWK, supportedEncAlgs []string, hasEncPublicKey bool) error {
 	if fields.EncPublicKey {
 		hasEncPublicKey = !encPublicKey.IsNull
@@ -254,7 +255,7 @@ func ValidatePatch(profile Profile, merged UpdateClientRequest, fields PatchFiel
 			return err
 		}
 	}
-	if fields.AdditionalConfig && len(merged.AdditionalConfig) > 0 {
+	if (fields.AdditionalConfig || (fields.EncPublicKey && encPublicKey.IsNull)) && len(merged.AdditionalConfig) > 0 {
 		if err := validateAdditionalConfig(merged.AdditionalConfig, hasEncPublicKey); err != nil {
 			return err
 		}
