@@ -18,6 +18,8 @@ import (
 	applog "github.com/mosip/esignet/internal/log"
 )
 
+const errMsgRequestRequired = "request is required"
+
 // Handler exposes client management HTTP endpoints.
 type Handler struct {
 	svc    *Service
@@ -68,7 +70,7 @@ func (h *Handler) createClient(profile Profile) http.HandlerFunc {
 			return
 		}
 		if !hasRequestObject(body) {
-			writeSpecError(r.Context(), w, "invalid_request", "request is required")
+			writeSpecError(r.Context(), w, "invalid_request", errMsgRequestRequired)
 			return
 		}
 		createReq, err := DecodeCreateRequest(body)
@@ -115,7 +117,7 @@ func (h *Handler) updateClient(profile Profile) http.HandlerFunc {
 			return
 		}
 		if !hasRequestObject(body) {
-			writeSpecError(r.Context(), w, "invalid_request", "request is required")
+			writeSpecError(r.Context(), w, "invalid_request", errMsgRequestRequired)
 			return
 		}
 		updateReq, err := DecodeUpdateRequest(body)
@@ -161,7 +163,7 @@ func (h *Handler) patchClient(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if !hasRequestObject(body) {
-		writeSpecError(r.Context(), w, "invalid_request", "request is required")
+		writeSpecError(r.Context(), w, "invalid_request", errMsgRequestRequired)
 		return
 	}
 	req, fields, err := DecodePatchRequest(body)
