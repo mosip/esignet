@@ -260,7 +260,7 @@ func (q *Queries) UpdateClient(ctx context.Context, arg UpdateClientParams) (Cli
 
 // PatchClient updates only the selected columns and upd_dtimes. An absent id
 // maps to sql.ErrNoRows. PostgreSQL returns the written row with RETURNING;
-// MySQL checks matched rows and reads the row back in the caller's transaction.
+// MySQL reads the row back in the caller's transaction.
 func (q *Queries) PatchClient(ctx context.Context, arg PatchClientParams) (ClientDetail, error) {
 	set := make([]string, 0, 13)
 	args := make([]interface{}, 0, 14)
@@ -299,16 +299,8 @@ func (q *Queries) PatchClient(ctx context.Context, arg PatchClientParams) (Clien
 		return row, nil
 	}
 
-	res, err := q.db.ExecContext(ctx, query, args...)
-	if err != nil {
+	if _, err := q.db.ExecContext(ctx, query, args...); err != nil {
 		return ClientDetail{}, err
-	}
-	n, err := res.RowsAffected()
-	if err != nil {
-		return ClientDetail{}, err
-	}
-	if n == 0 {
-		return ClientDetail{}, sql.ErrNoRows
 	}
 	return q.GetClient(ctx, arg.ID)
 }

@@ -169,8 +169,8 @@ func resolveDBDSN(yamlDSN string) string {
 // resolveDBDSN: env var (DATABASE_URL) > yamlDSN (already parsed from
 // deployment.yaml) > compiled-in default construction from the individual
 // DATABASE_* vars. The built DSN uses go-sql-driver's form
-// (user:pass@tcp(host:port)/dbname?...); ensureMySQLParams adds the parameters
-// the query layer requires (parseTime/loc and clientFoundRows).
+// (user:pass@tcp(host:port)/dbname?...); ensureMySQLParams adds parseTime/loc
+// and preserves the existing clientFoundRows default.
 func resolveMySQLDSN(yamlDSN string) string {
 	if dsn := os.Getenv("DATABASE_URL"); dsn != "" {
 		return ensureMySQLParams(dsn)
@@ -205,8 +205,8 @@ func resolveMySQLDSN(yamlDSN string) string {
 //     columns into []byte rather than time.Time, breaking every time.Time /
 //     sql.NullTime destination in the query layer.
 //   - clientFoundRows=true: makes UPDATE report matched rows rather than only
-//     changed rows, so PatchClient's RowsAffected()==0 means the row is absent
-//     even when a PATCH writes the same values already stored.
+//     changed rows. PatchClient uses a read-back to detect missing clients,
+//     regardless of this setting.
 func ensureMySQLParams(dsn string) string {
 	if !mysqlHasParam(dsn, "parseTime") {
 		dsn += mysqlParamSep(dsn) + "parseTime=true&loc=UTC"

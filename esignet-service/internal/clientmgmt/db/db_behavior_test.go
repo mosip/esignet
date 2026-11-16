@@ -217,10 +217,27 @@ func (ts *DBTestSuite) TestPatchClientPostgresReturning() {
 	ts.Assert().Equal([]interface{}{p.Name, p.UpdDtimes, p.ID}, rec.getArgs)
 }
 
-// TestPatchClientNoRowsIsErrNoRows covers the MySQL absent-row path:
-// RowsAffected()==0 maps to sql.ErrNoRows, without a read-back.
-func (ts *DBTestSuite) TestPatchClientNoRowsIsErrNoRows() {
-	rec := &recordingDBTX{rowsAffected: 0}
+// TestPatchClientNoOpReadsExistingRow covers MySQL reporting zero changed rows
+// for an UPDATE that still matches an existing client.
+func (ts *DBTestSuite) TestPatchClientNoOpReadsExistingRow() {
+	rec := &recordingDBTX{rowsAffected: 0, getRow: sampleRow()}
+	q := New(rec, "mysql")
+	p := samplePatchParams()
+	p.Fields = PatchClientFields{Status: true}
+
+	got, err := q.PatchClient(context.Background(), p)
+
+	ts.Require().NoError(err)
+	ts.Assert().Equal(sampleRow(), got)
+	ts.Assert().Contains(rec.execQuery, "UPDATE client_detail SET")
+	ts.Assert().Contains(rec.getQuery, "SELECT ")
+	ts.Assert().Equal([]interface{}{p.ID}, rec.getArgs)
+}
+
+// TestPatchClientMySQLNotFound uses the read-back to distinguish an absent
+// client from an UPDATE that changed no stored value.
+func (ts *DBTestSuite) TestPatchClientMySQLNotFound() {
+	rec := &recordingDBTX{rowsAffected: 0, getErr: sql.ErrNoRows}
 	q := New(rec, "mysql")
 	p := samplePatchParams()
 	p.Fields = PatchClientFields{Status: true}
@@ -228,7 +245,7 @@ func (ts *DBTestSuite) TestPatchClientNoRowsIsErrNoRows() {
 	_, err := q.PatchClient(context.Background(), p)
 
 	ts.Assert().ErrorIs(err, sql.ErrNoRows)
-	ts.Assert().Empty(rec.getQuery, "no read-back when the row is absent")
+	ts.Assert().Contains(rec.getQuery, "SELECT ")
 }
 
 // TestPatchClientReturningNotFound covers PostgreSQL's absent-row path.
