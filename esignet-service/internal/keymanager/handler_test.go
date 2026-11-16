@@ -185,6 +185,26 @@ func TestUploadCertificate_BodyTooLarge(t *testing.T) {
 	requireError(t, rec, http.StatusOK, "invalid_request", "malformed request body")
 }
 
+func TestUploadCertificate_InvalidCertificateData(t *testing.T) {
+	q := &fakeQuerier{
+		getKeyPolicyFn: func(_ context.Context, _ string) (db.KeyPolicy, error) { return alwaysActivePolicy(), nil },
+		getKeyAliasesByAppRefFn: func(_ context.Context, _, _ string) ([]db.KeyAlias, error) {
+			return []db.KeyAlias{validAliasRow("alias-1")}, nil
+		},
+	}
+	mux := newTestMux(keymanager.NewServiceWithQuerier(q, newFakeKeyStore(), testConfig()))
+
+	rec := do(mux, http.MethodPost, "/system-info/uploadCertificate",
+		uploadBody(t, "ESIGNET", "RSA_2048", "not-a-certificate"))
+	require.Equal(t, http.StatusOK, rec.Code)
+	var resp errorEnvelope
+	require.NoError(t, json.Unmarshal(rec.Body.Bytes(), &resp))
+	require.Len(t, resp.Errors, 1)
+	require.Equal(t, "invalid_certificate", resp.Errors[0].ErrorCode)
+	require.True(t, strings.HasPrefix(resp.Errors[0].ErrorMessage, keymanager.ErrInvalidCertificate.Error()),
+		"expected message to start with %q, got %q", keymanager.ErrInvalidCertificate.Error(), resp.Errors[0].ErrorMessage)
+}
+
 func TestUploadCertificate_ThumbprintMismatch(t *testing.T) {
 	ks := newFakeKeyStore()
 	require.NoError(t, ks.GenerateAndStoreAsymmetricKey("root-alias", "root-alias", testCertTemplateParams(), "RSA", ""))
