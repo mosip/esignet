@@ -185,7 +185,8 @@ func TestUploadCertificate_BodyTooLarge(t *testing.T) {
 	requireError(t, rec, http.StatusOK, "invalid_request", "malformed request body")
 }
 
-func TestUploadCertificate_InvalidCertificateData(t *testing.T) {
+func (ts *KeymanagerTestSuite) TestUploadCertificate_InvalidCertificateData() {
+	t := ts.T()
 	q := &fakeQuerier{
 		getKeyPolicyFn: func(_ context.Context, _ string) (db.KeyPolicy, error) { return alwaysActivePolicy(), nil },
 		getKeyAliasesByAppRefFn: func(_ context.Context, _, _ string) ([]db.KeyAlias, error) {

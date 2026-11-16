@@ -825,7 +825,7 @@ func (s *Service) UploadCertificate(ctx context.Context, req UploadCertificateRe
 	}
 	newCert, err := parseCertPEM(req.CertificateData)
 	if err != nil {
-		return UploadCertificateResponse{}, fmt.Errorf("%w: %s", ErrInvalidCertificate, err)
+		return UploadCertificateResponse{}, fmt.Errorf("%w: %w", ErrInvalidCertificate, err)
 	}
 	newThumbprint := thumbprintForCert(newCert)
 	if current.CertThumbprint != nil && *current.CertThumbprint == newThumbprint {
@@ -904,7 +904,7 @@ func (s *Service) UploadOtherDomainCertificate(ctx context.Context, req UploadCe
 
 	cert, err := parseCertPEM(req.CertificateData)
 	if err != nil {
-		return UploadCertificateResponse{}, fmt.Errorf("%w: %s", ErrInvalidCertificate, err)
+		return UploadCertificateResponse{}, fmt.Errorf("%w: %w", ErrInvalidCertificate, err)
 	}
 	thumbprint := thumbprintForCert(cert)
 
