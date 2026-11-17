@@ -263,25 +263,37 @@ func (ts *ServiceTestSuite) TestPatchClient() {
 	t.Run("client not found", func(t *testing.T) {
 		q := &fakeQuerier{getErr: sql.ErrNoRows}
 		s := NewServiceWithQuerier(q, nil, 0, nil)
-		_, err := s.PatchClient(context.Background(), "missing", PatchClientRequest{}, PatchFields{})
+		_, err := s.PatchClient(context.Background(), "missing", PatchClientRequest{Status: "ACTIVE"}, PatchFields{Status: true})
 		require.ErrorIs(t, err, ErrClientNotFound)
 	})
 
 	t.Run("get client generic error", func(t *testing.T) {
 		q := &fakeQuerier{getErr: errors.New("boom")}
 		s := NewServiceWithQuerier(q, nil, 0, nil)
-		_, err := s.PatchClient(context.Background(), "client-1", PatchClientRequest{}, PatchFields{})
+		_, err := s.PatchClient(context.Background(), "client-1", PatchClientRequest{Status: "ACTIVE"}, PatchFields{Status: true})
 		require.Error(t, err)
 		require.False(t, errors.Is(err, ErrClientNotFound))
 	})
 
-	t.Run("merge patch error on corrupt redirect uris", func(t *testing.T) {
+	t.Run("stored redirect uris must be decodable", func(t *testing.T) {
 		row := existingClientRow()
 		row.RedirectUris = "not-json"
 		q := &fakeQuerier{getRow: row}
 		s := NewServiceWithQuerier(q, nil, 0, nil)
-		_, err := s.PatchClient(context.Background(), "client-1", PatchClientRequest{}, PatchFields{})
+		_, err := s.PatchClient(context.Background(), "client-1", PatchClientRequest{Status: "ACTIVE"}, PatchFields{Status: true})
 		require.Error(t, err)
+	})
+
+	t.Run("unchanged invalid stored field still rejects patch", func(t *testing.T) {
+		row := existingClientRow()
+		row.RedirectUris = `[]`
+		q := &fakeQuerier{getRow: row}
+		s := NewServiceWithQuerier(q, nil, 0, nil)
+		_, err := s.PatchClient(context.Background(), "client-1", PatchClientRequest{Status: "INACTIVE"}, PatchFields{Status: true})
+		var ve *ValidationError
+		require.ErrorAs(t, err, &ve)
+		require.Equal(t, "invalid_redirect_uri", ve.Code)
+		require.Empty(t, q.patchParams.ID, "invalid client state must not be written")
 	})
 
 	t.Run("validation error on patched field", func(t *testing.T) {
@@ -296,13 +308,33 @@ func (ts *ServiceTestSuite) TestPatchClient() {
 		require.Equal(t, "invalid_uri", ve.Code)
 	})
 
-	t.Run("success with no field changes", func(t *testing.T) {
+	t.Run("supplied empty required list is rejected", func(t *testing.T) {
+		q := &fakeQuerier{getRow: existingClientRow()}
+		s := NewServiceWithQuerier(q, nil, 0, nil)
+		_, err := s.PatchClient(context.Background(), "client-1", PatchClientRequest{RedirectURIs: []string{}}, PatchFields{RedirectURIs: true})
+		var ve *ValidationError
+		require.ErrorAs(t, err, &ve)
+		require.Equal(t, "invalid_redirect_uri", ve.Code)
+		require.Empty(t, q.patchParams.ID)
+	})
+
+	t.Run("empty patch rejected before reading client", func(t *testing.T) {
+		q := &fakeQuerier{getErr: errors.New("client read must not run")}
+		s := NewServiceWithQuerier(q, nil, 0, nil)
+		_, err := s.PatchClient(context.Background(), "client-1", PatchClientRequest{}, PatchFields{})
+		var ve *ValidationError
+		require.ErrorAs(t, err, &ve)
+		require.Equal(t, "invalid_request", ve.Code)
+		require.Empty(t, q.patchParams.ID)
+	})
+
+	t.Run("selected field with unchanged value succeeds", func(t *testing.T) {
 		q := &fakeQuerier{getRow: existingClientRow(), patchRow: existingClientRow()}
 		s := NewServiceWithQuerier(q, nil, 0, nil)
-		resp, err := s.PatchClient(context.Background(), "client-1", PatchClientRequest{}, PatchFields{})
+		resp, err := s.PatchClient(context.Background(), "client-1", PatchClientRequest{Status: "ACTIVE"}, PatchFields{Status: true})
 		require.NoError(t, err)
 		require.Equal(t, "client-1", resp.ClientID)
-		require.Equal(t, db.PatchClientFields{}, q.patchParams.Fields)
+		require.Equal(t, db.PatchClientFields{Status: true}, q.patchParams.Fields)
 	})
 
 	t.Run("status field patched", func(t *testing.T) {
@@ -318,6 +350,48 @@ func (ts *ServiceTestSuite) TestPatchClient() {
 		require.Equal(t, "INACTIVE", resp.Status)
 		require.Equal(t, "INACTIVE", q.patchParams.Status)
 		require.Equal(t, db.PatchClientFields{Status: true}, q.patchParams.Fields)
+		require.True(t, q.patchParams.UpdDtimes.Valid)
+		prepared := q.patchParams
+		prepared.UpdDtimes = sql.NullTime{}
+		require.Equal(t, db.PatchClientParams{
+			ID: "client-1", Fields: db.PatchClientFields{Status: true}, Status: "INACTIVE",
+		}, prepared, "status-only patch must not prepare omitted values")
+	})
+
+	t.Run("supplied independent fields select only their columns", func(t *testing.T) {
+		q := &fakeQuerier{getRow: existingClientRow(), patchRow: existingClientRow()}
+		s := NewServiceWithQuerier(q, nil, 0, nil)
+		req := PatchClientRequest{
+			LogoURI:          "https://example.com/new-logo.png",
+			RedirectURIs:     []string{"https://example.com/new-callback"},
+			Claims:           []string{"name"},
+			AcrValues:        []string{"mosip:idp:acr:static-code"},
+			GrantTypes:       []string{"authorization_code"},
+			AuthMethods:      []string{"private_key_jwt"},
+			AdditionalConfig: json.RawMessage(`{"userinfo_response_type":"JWS"}`),
+		}
+		fields := PatchFields{
+			LogoURI: true, RedirectURIs: true, Claims: true, AcrValues: true,
+			GrantTypes: true, AuthMethods: true, AdditionalConfig: true,
+		}
+		_, err := s.PatchClient(context.Background(), "client-1", req, fields)
+		require.NoError(t, err)
+		prepared := q.patchParams
+		prepared.UpdDtimes = sql.NullTime{}
+		require.Equal(t, db.PatchClientParams{
+			ID: "client-1",
+			Fields: db.PatchClientFields{
+				LogoURI: true, RedirectURIs: true, Claims: true, AcrValues: true,
+				GrantTypes: true, AuthMethods: true, AdditionalConfig: true,
+			},
+			LogoURI:          req.LogoURI,
+			RedirectUris:     `["https://example.com/new-callback"]`,
+			Claims:           `["name"]`,
+			AcrValues:        `["mosip:idp:acr:static-code"]`,
+			GrantTypes:       `["authorization_code"]`,
+			AuthMethods:      `["private_key_jwt"]`,
+			AdditionalConfig: sql.NullString{String: `{"userinfo_response_type":"JWS"}`, Valid: true},
+		}, prepared)
 	})
 
 	t.Run("client name and language map share the name column", func(t *testing.T) {
@@ -328,6 +402,18 @@ func (ts *ServiceTestSuite) TestPatchClient() {
 		require.NoError(t, err)
 		require.Equal(t, db.PatchClientFields{Name: true}, q.patchParams.Fields)
 		require.Contains(t, q.patchParams.Name, `"eng":"Test Client"`)
+		require.Contains(t, q.patchParams.Name, `"@none":"Test Client"`)
+	})
+
+	t.Run("client name patch retains stored language map", func(t *testing.T) {
+		row := existingClientRow()
+		row.Name = `{"@none":"Old Name","eng":"English Name"}`
+		q := &fakeQuerier{getRow: row, patchRow: row}
+		s := NewServiceWithQuerier(q, nil, 0, nil)
+		_, err := s.PatchClient(context.Background(), "client-1", PatchClientRequest{ClientName: "New Name"}, PatchFields{ClientName: true})
+		require.NoError(t, err)
+		require.Equal(t, db.PatchClientFields{Name: true}, q.patchParams.Fields)
+		require.Equal(t, `{"@none":"New Name","eng":"English Name"}`, q.patchParams.Name)
 	})
 
 	t.Run("invalid status value", func(t *testing.T) {
@@ -381,6 +467,41 @@ func (ts *ServiceTestSuite) TestPatchClient() {
 		require.True(t, q.patchParams.EncPublicKeyHash.Valid)
 	})
 
+	t.Run("enc public key and JWE config are prepared together", func(t *testing.T) {
+		q := &fakeQuerier{getRow: existingClientRow(), patchRow: existingClientRow()}
+		s := NewServiceWithQuerier(q, nil, 0, nil)
+		req := PatchClientRequest{
+			AdditionalConfig: json.RawMessage(`{"userinfo_response_type":"JWE"}`),
+			EncPublicKey:     NullableJWK{Defined: true, Value: validJWK()},
+		}
+		_, err := s.PatchClient(context.Background(), "client-1", req, PatchFields{AdditionalConfig: true, EncPublicKey: true})
+		require.NoError(t, err)
+		require.Equal(t, db.PatchClientFields{AdditionalConfig: true, EncPublicKey: true}, q.patchParams.Fields)
+		require.Equal(t, sql.NullString{String: `{"userinfo_response_type":"JWE"}`, Valid: true}, q.patchParams.AdditionalConfig)
+		require.True(t, q.patchParams.EncPublicKey.Valid)
+		require.True(t, q.patchParams.EncPublicKeyHash.Valid)
+		require.False(t, q.patchParams.EncPublicKeyCert.Valid)
+	})
+
+	t.Run("enc public key can be cleared with non-JWE config", func(t *testing.T) {
+		row := existingClientRow()
+		row.EncPublicKey = sql.NullString{String: `{"kty":"RSA"}`, Valid: true}
+		row.AdditionalConfig = sql.NullString{String: `{"userinfo_response_type":"JWE"}`, Valid: true}
+		q := &fakeQuerier{getRow: row, patchRow: existingClientRow()}
+		s := NewServiceWithQuerier(q, nil, 0, nil)
+		req := PatchClientRequest{
+			AdditionalConfig: json.RawMessage(`{"userinfo_response_type":"JWS"}`),
+			EncPublicKey:     NullableJWK{Defined: true, IsNull: true},
+		}
+		_, err := s.PatchClient(context.Background(), "client-1", req, PatchFields{AdditionalConfig: true, EncPublicKey: true})
+		require.NoError(t, err)
+		require.Equal(t, db.PatchClientFields{AdditionalConfig: true, EncPublicKey: true}, q.patchParams.Fields)
+		require.Equal(t, sql.NullString{String: `{"userinfo_response_type":"JWS"}`, Valid: true}, q.patchParams.AdditionalConfig)
+		require.False(t, q.patchParams.EncPublicKey.Valid)
+		require.False(t, q.patchParams.EncPublicKeyHash.Valid)
+		require.False(t, q.patchParams.EncPublicKeyCert.Valid)
+	})
+
 	t.Run("enc public key invalid new value", func(t *testing.T) {
 		q := &fakeQuerier{getRow: existingClientRow()}
 		s := NewServiceWithQuerier(q, nil, 0, nil)
@@ -393,14 +514,14 @@ func (ts *ServiceTestSuite) TestPatchClient() {
 	t.Run("patch write returns no rows", func(t *testing.T) {
 		q := &fakeQuerier{getRow: existingClientRow(), patchErr: sql.ErrNoRows}
 		s := NewServiceWithQuerier(q, nil, 0, nil)
-		_, err := s.PatchClient(context.Background(), "client-1", PatchClientRequest{}, PatchFields{})
+		_, err := s.PatchClient(context.Background(), "client-1", PatchClientRequest{Status: "ACTIVE"}, PatchFields{Status: true})
 		require.ErrorIs(t, err, ErrClientNotFound)
 	})
 
 	t.Run("duplicate public key hash on patch", func(t *testing.T) {
 		q := &fakeQuerier{getRow: existingClientRow(), patchErr: &pgconn.PgError{Code: "23505", ConstraintName: "uk_clntdtl_public_key_hash"}}
 		s := NewServiceWithQuerier(q, nil, 0, nil)
-		_, err := s.PatchClient(context.Background(), "client-1", PatchClientRequest{}, PatchFields{})
+		_, err := s.PatchClient(context.Background(), "client-1", PatchClientRequest{EncPublicKey: NullableJWK{Defined: true, Value: validJWK()}}, PatchFields{EncPublicKey: true})
 		var ve *ValidationError
 		require.ErrorAs(t, err, &ve)
 		require.Equal(t, "invalid_public_key", ve.Code)
@@ -409,7 +530,7 @@ func (ts *ServiceTestSuite) TestPatchClient() {
 	t.Run("generic patch db error", func(t *testing.T) {
 		q := &fakeQuerier{getRow: existingClientRow(), patchErr: errors.New("boom")}
 		s := NewServiceWithQuerier(q, nil, 0, nil)
-		_, err := s.PatchClient(context.Background(), "client-1", PatchClientRequest{}, PatchFields{})
+		_, err := s.PatchClient(context.Background(), "client-1", PatchClientRequest{Status: "ACTIVE"}, PatchFields{Status: true})
 		require.Error(t, err)
 		require.False(t, errors.Is(err, ErrClientNotFound))
 	})
@@ -423,12 +544,30 @@ func (ts *ServiceTestSuite) TestPatchClient() {
 
 		q := &fakeQuerier{getRow: row, patchRow: row}
 		s := NewServiceWithQuerier(q, cache, 60, nil)
-		_, err = s.PatchClient(context.Background(), "client-1", PatchClientRequest{}, PatchFields{})
+		_, err = s.PatchClient(context.Background(), "client-1", PatchClientRequest{Status: "ACTIVE"}, PatchFields{Status: true})
 		require.NoError(t, err)
 
 		cached, err := cache.Get(context.Background(), clientCacheNamespace, "client-1")
 		require.NoError(t, err)
 		require.Nil(t, cached)
+	})
+
+	t.Run("response conversion failure does not invalidate cache", func(t *testing.T) {
+		cache := inmemory.Initialize("test")
+		row := existingClientRow()
+		data, err := json.Marshal(row)
+		require.NoError(t, err)
+		require.NoError(t, cache.Put(context.Background(), clientCacheNamespace, "client-1", data, 60))
+
+		invalidResponse := existingClientRow()
+		invalidResponse.Claims = "not-json"
+		q := &fakeQuerier{getRow: row, patchRow: invalidResponse}
+		s := NewServiceWithQuerier(q, cache, 60, nil)
+		_, err = s.PatchClient(context.Background(), "client-1", PatchClientRequest{Status: "INACTIVE"}, PatchFields{Status: true})
+		require.Error(t, err)
+		cached, err := cache.Get(context.Background(), clientCacheNamespace, "client-1")
+		require.NoError(t, err)
+		require.NotNil(t, cached)
 	})
 }
 

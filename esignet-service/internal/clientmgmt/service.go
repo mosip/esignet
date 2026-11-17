@@ -293,6 +293,10 @@ func (s *Service) UpdateClient(ctx context.Context, profile Profile, clientID st
 
 // PatchClient partially updates an existing OIDC client.
 func (s *Service) PatchClient(ctx context.Context, clientID string, req PatchClientRequest, fields PatchFields) (ClientResponse, error) {
+	if fields == (PatchFields{}) {
+		return ClientResponse{}, &ValidationError{Code: "invalid_request", Message: "request must contain at least one field"}
+	}
+
 	q, tx, existing, err := s.lockClient(ctx, clientID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -304,7 +308,11 @@ func (s *Service) PatchClient(ctx context.Context, clientID string, req PatchCli
 		defer func() { _ = tx.Rollback() }()
 	}
 
-	merged, err := mergePatch(existing, req, fields)
+	merged, err := clientStateForPatchValidation(existing)
+	if err != nil {
+		return ClientResponse{}, err
+	}
+	params, err := preparePatchParams(clientID, req, fields, &merged)
 	if err != nil {
 		return ClientResponse{}, err
 	}
@@ -313,91 +321,23 @@ func (s *Service) PatchClient(ctx context.Context, clientID string, req PatchCli
 	if err := ValidatePatch(ProfileClient, merged, fields, req.EncPublicKey, s.supportedEncAlgs, existing.EncPublicKey.Valid); err != nil {
 		return ClientResponse{}, err
 	}
-
-	status := existing.Status
 	if fields.Status {
-		status, err = normalizeStatus(merged.Status)
+		params.Status, err = normalizeStatus(merged.Status)
 		if err != nil {
 			return ClientResponse{}, err
 		}
 	}
-
-	redirectURIs, err := marshalStringSlice(merged.RedirectURIs)
-	if err != nil {
-		return ClientResponse{}, err
-	}
-	claims, err := marshalStringSlice(merged.Claims)
-	if err != nil {
-		return ClientResponse{}, err
-	}
-	acrValues, err := marshalStringSlice(merged.AcrValues)
-	if err != nil {
-		return ClientResponse{}, err
-	}
-	grantTypes, err := marshalStringSlice(merged.GrantTypes)
-	if err != nil {
-		return ClientResponse{}, err
-	}
-	authMethods, err := marshalStringSlice(merged.AuthMethods)
-	if err != nil {
-		return ClientResponse{}, err
-	}
-	additionalConfig, err := marshalAdditionalConfigRaw(merged.AdditionalConfig)
-	if err != nil {
-		return ClientResponse{}, err
-	}
-
-	encPK := existing.EncPublicKey
-	encPKHash := existing.EncPublicKeyHash
-	encPKCert := existing.EncPublicKeyCert
 	if fields.EncPublicKey {
-		if req.EncPublicKey.IsNull {
-			encPK = sql.NullString{}
-			encPKHash = sql.NullString{}
-			encPKCert = sql.NullString{}
-		} else {
-			if err := validateEncJWK(req.EncPublicKey.Value, s.supportedEncAlgs); err != nil {
-				return ClientResponse{}, err
-			}
+		if !req.EncPublicKey.IsNull {
 			pkJSON, err := marshalJWK(req.EncPublicKey.Value)
 			if err != nil {
 				return ClientResponse{}, err
 			}
-			encPK = sql.NullString{String: pkJSON, Valid: true}
-			encPKHash = sql.NullString{String: hashJWK(req.EncPublicKey.Value), Valid: true}
-			encPKCert = sql.NullString{}
+			params.EncPublicKey = sql.NullString{String: pkJSON, Valid: true}
+			params.EncPublicKeyHash = sql.NullString{String: hashJWK(req.EncPublicKey.Value), Valid: true}
 		}
 	}
-
-	now := time.Now().UTC()
-	params := db.PatchClientParams{
-		ID: clientID,
-		Fields: db.PatchClientFields{
-			Name:             fields.ClientName || fields.ClientNameLangMap,
-			LogoURI:          fields.LogoURI,
-			RedirectURIs:     fields.RedirectURIs,
-			Claims:           fields.Claims,
-			AcrValues:        fields.AcrValues,
-			GrantTypes:       fields.GrantTypes,
-			AuthMethods:      fields.AuthMethods,
-			Status:           fields.Status,
-			AdditionalConfig: fields.AdditionalConfig,
-			EncPublicKey:     fields.EncPublicKey,
-		},
-		Name:             marshalClientName(merged.ClientName, merged.ClientNameLangMap, ProfileClient),
-		LogoURI:          merged.LogoURI,
-		RedirectUris:     redirectURIs,
-		Claims:           claims,
-		AcrValues:        acrValues,
-		GrantTypes:       grantTypes,
-		AuthMethods:      authMethods,
-		Status:           status,
-		AdditionalConfig: additionalConfig,
-		EncPublicKey:     encPK,
-		EncPublicKeyHash: encPKHash,
-		EncPublicKeyCert: encPKCert,
-		UpdDtimes:        sql.NullTime{Time: now, Valid: true},
-	}
+	params.UpdDtimes = sql.NullTime{Time: time.Now().UTC(), Valid: true}
 
 	row, err := q.PatchClient(ctx, params)
 	if err != nil {
@@ -409,6 +349,10 @@ func (s *Service) PatchClient(ctx context.Context, clientID string, req PatchCli
 		}
 		return ClientResponse{}, fmt.Errorf("patch client: %w", err)
 	}
+	resp, err := toResponse(row)
+	if err != nil {
+		return ClientResponse{}, err
+	}
 	if tx != nil {
 		if err := tx.Commit(); err != nil {
 			return ClientResponse{}, fmt.Errorf("commit client tx: %w", err)
@@ -417,7 +361,7 @@ func (s *Service) PatchClient(ctx context.Context, clientID string, req PatchCli
 	if err := s.invalidateCache(ctx, clientID); err != nil {
 		return ClientResponse{}, err
 	}
-	return toResponse(row)
+	return resp, nil
 }
 
 // GetClient retrieves a client by ID, serving from cache when possible.
@@ -565,7 +509,9 @@ func (s *Service) invalidateCache(ctx context.Context, clientID string) error {
 	return nil
 }
 
-func mergePatch(existing db.ClientDetail, req PatchClientRequest, fields PatchFields) (UpdateClientRequest, error) {
+// clientStateForPatchValidation decodes the stored mutable fields so PATCH can
+// validate the complete resulting client without rewriting unchanged columns.
+func clientStateForPatchValidation(existing db.ClientDetail) (UpdateClientRequest, error) {
 	clientName, langMap, err := parseClientName(existing.Name)
 	if err != nil {
 		return UpdateClientRequest{}, err
@@ -595,7 +541,7 @@ func mergePatch(existing db.ClientDetail, req PatchClientRequest, fields PatchFi
 		additionalConfig = json.RawMessage(existing.AdditionalConfig.String)
 	}
 
-	merged := UpdateClientRequest{
+	return UpdateClientRequest{
 		ClientName:        clientName,
 		ClientNameLangMap: langMap,
 		Status:            existing.Status,
@@ -606,39 +552,70 @@ func mergePatch(existing db.ClientDetail, req PatchClientRequest, fields PatchFi
 		GrantTypes:        grantTypes,
 		AuthMethods:       authMethods,
 		AdditionalConfig:  additionalConfig,
-	}
+	}, nil
+}
 
-	if fields.ClientName {
-		merged.ClientName = req.ClientName
-	}
-	if fields.ClientNameLangMap {
-		merged.ClientNameLangMap = req.ClientNameLangMap
-	}
-	if fields.Status {
-		merged.Status = req.Status
+// preparePatchParams applies supplied fields to the validation state and
+// prepares only the columns selected for the eventual UPDATE.
+func preparePatchParams(clientID string, req PatchClientRequest, fields PatchFields, merged *UpdateClientRequest) (db.PatchClientParams, error) {
+	params := db.PatchClientParams{ID: clientID}
+	if fields.ClientName || fields.ClientNameLangMap {
+		if fields.ClientName {
+			merged.ClientName = req.ClientName
+		}
+		if fields.ClientNameLangMap {
+			merged.ClientNameLangMap = req.ClientNameLangMap
+		}
+		params.Fields.Name = true
+		params.Name = marshalClientName(merged.ClientName, merged.ClientNameLangMap, ProfileClient)
 	}
 	if fields.LogoURI {
 		merged.LogoURI = req.LogoURI
+		params.Fields.LogoURI = true
+		params.LogoURI = req.LogoURI
 	}
-	if fields.RedirectURIs {
-		merged.RedirectURIs = req.RedirectURIs
+	// These list fields share the same replacement and JSON storage behavior.
+	for _, field := range []struct {
+		selected bool
+		request  []string
+		merged   *[]string
+		value    *string
+		mask     *bool
+	}{
+		{fields.RedirectURIs, req.RedirectURIs, &merged.RedirectURIs, &params.RedirectUris, &params.Fields.RedirectURIs},
+		{fields.Claims, req.Claims, &merged.Claims, &params.Claims, &params.Fields.Claims},
+		{fields.AcrValues, req.AcrValues, &merged.AcrValues, &params.AcrValues, &params.Fields.AcrValues},
+		{fields.GrantTypes, req.GrantTypes, &merged.GrantTypes, &params.GrantTypes, &params.Fields.GrantTypes},
+		{fields.AuthMethods, req.AuthMethods, &merged.AuthMethods, &params.AuthMethods, &params.Fields.AuthMethods},
+	} {
+		if !field.selected {
+			continue
+		}
+		encoded, err := marshalStringSlice(field.request)
+		if err != nil {
+			return db.PatchClientParams{}, err
+		}
+		*field.merged = field.request
+		*field.value = encoded
+		*field.mask = true
 	}
-	if fields.Claims {
-		merged.Claims = req.Claims
-	}
-	if fields.AcrValues {
-		merged.AcrValues = req.AcrValues
-	}
-	if fields.GrantTypes {
-		merged.GrantTypes = req.GrantTypes
-	}
-	if fields.AuthMethods {
-		merged.AuthMethods = req.AuthMethods
+	if fields.Status {
+		merged.Status = req.Status
+		params.Fields.Status = true
 	}
 	if fields.AdditionalConfig {
 		merged.AdditionalConfig = req.AdditionalConfig
+		params.Fields.AdditionalConfig = true
+		value, err := marshalAdditionalConfigRaw(req.AdditionalConfig)
+		if err != nil {
+			return db.PatchClientParams{}, err
+		}
+		params.AdditionalConfig = value
 	}
-	return merged, nil
+	if fields.EncPublicKey {
+		params.Fields.EncPublicKey = true
+	}
+	return params, nil
 }
 
 func marshalClientName(clientName string, langMap map[string]string, profile Profile) string {

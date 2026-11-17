@@ -148,7 +148,7 @@ The `request` object of every POST, PUT and PATCH is decoded strictly: a field o
 |--------|------|---------|
 | POST | `/client-mgmt/client` | Create client (v3 schema) |
 | PUT | `/client-mgmt/client/{client_id}` | Full update; `status` is `active` or `inactive` in the request body |
-| PATCH | `/client-mgmt/client/{client_id}` | Partial update; all fields optional; `status` is `ACTIVE` or `INACTIVE`; supports nullable `encPublicKey` for JWE userinfo |
+| PATCH | `/client-mgmt/client/{client_id}` | Partial update; at least one mutable field required; `status` is `ACTIVE` or `INACTIVE`; supports nullable `encPublicKey` for JWE userinfo |
 | GET | `/client-mgmt/client/{client_id}` | Fetch client metadata (engine use) |
 
 v3 create requires `clientId`, `clientName`, `clientNameLangMap`, `relyingPartyId`, `logoUri`, `authContextRefs`, `publicKey`, `userClaims`, `grantTypes`, and `clientAuthMethods`. `redirectUris`, `encPublicKey`, `encPublicKeyCert` and `additionalConfig` are optional; `status` is not accepted. `clientNameLangMap` is stored in `client_detail.name` as JSON with `@none` set to `clientName`.
@@ -208,6 +208,8 @@ PATCH /client-mgmt/client/{client_id}
 ```
 
 Accepted fields: the PUT mutable fields above plus `encPublicKey` (a JWK, or `null` to clear it). As with PUT, `clientId`, `relyingPartyId`, `publicKey` or any other field fails the request with `invalid_request`.
+
+The `request` object must contain at least one accepted field. An empty object fails with `invalid_request` without changing the client.
 
 ### Database schema
 

@@ -321,14 +321,24 @@ Feature: PATCH /client-mgmt/client/{clientId} — partially update a client
     Then the response status should be 200
     And the JSON value at "errors.0.errorCode" should be "invalid_request"
 
-  # An envelope with no "request" at all is distinct from an empty one: there is
-  # nothing to merge, which is reported rather than treating as a no-op
-  # patch that would rewrite the record with itself.
+  # Both an omitted request and an empty request are rejected before a client
+  # row is updated.
   Scenario: Patch with no request object is rejected
     When I send a "PATCH" request to "/client-mgmt/client/{{cid}}" with body:
       """
       {
         "requestTime": "{{now}}"
+      }
+      """
+    Then the response status should be 200
+    And the JSON value at "errors.0.errorCode" should be "invalid_request"
+
+  Scenario: Patch with an empty request object is rejected
+    When I send a "PATCH" request to "/client-mgmt/client/{{cid}}" with body:
+      """
+      {
+        "requestTime": "{{now}}",
+        "request": {}
       }
       """
     Then the response status should be 200

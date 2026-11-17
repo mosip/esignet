@@ -363,6 +363,26 @@ func (ts *HandlerTestSuite) TestPatchClientHandler() {
 		require.Nil(t, decoded["errors"])
 	})
 
+	t.Run("empty request is rejected", func(t *testing.T) {
+		q := &fakeQuerier{getRow: existingClientRow()}
+		h := newTestHandler(q)
+		mux := http.NewServeMux()
+		h.RegisterRoutes(mux, nil)
+		body := []byte(`{"requestTime":"2026-07-27T00:00:00.000Z","request":{}}`)
+		req := httptest.NewRequest(http.MethodPatch, "/client-mgmt/client/client-1", bytes.NewReader(body))
+		rec := httptest.NewRecorder()
+		mux.ServeHTTP(rec, req)
+
+		require.Equal(t, http.StatusOK, rec.Code)
+		decoded := decodeEnvelope(t, rec.Body.Bytes())
+		errs := decoded["errors"].([]any)
+		require.Len(t, errs, 1)
+		errObj := errs[0].(map[string]any)
+		require.Equal(t, "invalid_request", errObj["errorCode"])
+		require.Nil(t, decoded["response"])
+		require.Empty(t, q.patchParams.ID, "empty patch must not reach the database")
+	})
+
 	t.Run("malformed body", func(t *testing.T) {
 		h := newTestHandler(&fakeQuerier{})
 		mux := http.NewServeMux()

@@ -252,8 +252,10 @@ func (ts *DBTestSuite) TestPatchClientMySQLNotFound() {
 func (ts *DBTestSuite) TestPatchClientReturningNotFound() {
 	rec := &recordingDBTX{getErr: sql.ErrNoRows}
 	q := New(rec, "postgres")
+	p := samplePatchParams()
+	p.Fields = PatchClientFields{Status: true}
 
-	_, err := q.PatchClient(context.Background(), samplePatchParams())
+	_, err := q.PatchClient(context.Background(), p)
 
 	ts.Assert().ErrorIs(err, sql.ErrNoRows)
 }
