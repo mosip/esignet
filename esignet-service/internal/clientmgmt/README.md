@@ -1,103 +1,87 @@
 # Client-management PATCH flow
 
-This document traces the current `PATCH /client-mgmt/client/{client_id}` implementation from the HTTP handler through the service and database layer. It also walks through two requests in detail, including what happens when each races with another PATCH on the same client.
+This document traces `PATCH /client-mgmt/client/{client_id}` through the HTTP handler, service, validation, and database layer. It follows the current PATCH policy: **validate supplied values and affected dependencies, then update only selected database columns**.
 
-The central idea is:
-
-> PATCH builds a complete **in-memory client state for validation**, but builds an SQL `UPDATE` containing **only the requested columns**. A transaction and `SELECT ... FOR UPDATE` keep the row locked from the initial read through validation and writing.
+A transaction and `SELECT ... FOR UPDATE` protect the read, validation, and write as one operation for a client row. PATCH does not build a full PUT-shaped request or run full PUT validation.
 
 ```text
 PATCH /client-mgmt/client/{client_id}
-        │
-        ▼
-handler.patchClient
-  Read envelope → decode request + field-presence flags
-        │
-        ▼
-service.PatchClient
-  Reject empty patch
-  Begin transaction → SELECT row FOR UPDATE
-  Build proposed complete client state
-  Validate proposed state
-  Build values for requested columns only
-        │
-        ▼
-db.Queries.PatchClient
-  Construct UPDATE ... SET selected columns, upd_dtimes
-  PostgreSQL: UPDATE ... RETURNING
-  MySQL: UPDATE, then SELECT row in the same transaction
-        │
-        ▼
-service.PatchClient
-  Convert row to response → commit → invalidate cache
-        │
-        ▼
-handler.patchClient
-  Write API response
+  ? handler.patchClient: read envelope and record which fields are present
+  ? service.PatchClient: reject empty PATCH, begin transaction, lock and read row
+  ? ValidatePatch: check supplied values and affected key/config dependencies
+  ? preparePatchParams: serialize selected values; read stored name only if needed
+  ? db.Queries.PatchClient: UPDATE selected columns and upd_dtimes
+  ? service.PatchClient: convert returned row, commit, invalidate cache
+  ? handler.patchClient: write response
 ```
 
-The route is registered in [handler.go](handler.go#L49). It is specifically the `/client-mgmt/client/{client_id}` PATCH route. The OIDC and OAuth client routes shown nearby have PUT handlers, but no PATCH route there.
+The route is registered in [handler.go](handler.go). This PATCH endpoint exists for `/client-mgmt/client/{client_id}`; the nearby OIDC and OAuth client routes use PUT.
 
-## 1. Handler: accept and decode the HTTP request
+## 1. Handler: read and decode the request
 
-The handler starts at [handler.go:141](handler.go#L141). In execution order:
+`Handler.patchClient` in [handler.go](handler.go) performs these steps:
 
-| Lines | What happens |
+1. Read `client_id` from the path. An empty ID produces `invalid_input`.
+2. Limit the body to 1 MiB, read it, and decode the outer `PatchRequestWrapper`. Malformed input produces `invalid_input`.
+3. Require a nonblank `requestTime` and a non-null `request` member. These failures produce `invalid_request`. This handler checks that `requestTime` is present; it does not itself validate the timestamp format.
+4. Call `DecodePatchRequest`. This returns a `PatchClientRequest` containing values and a `PatchFields` mask recording which JSON attributes were supplied.
+5. Call `Service.PatchClient`. Map validation and not-found errors to the client-management API envelope.
+6. On success, log the selected fields and return HTTP 200 with `clientId` and the canonical status.
+
+The presence mask in [model.go](model.go) distinguishes an omitted attribute from an explicitly supplied empty value. For example, an omitted `logoUri` and `"logoUri": ""` both decode to an empty Go string, but only the latter sets `fields.LogoURI`. An explicit empty value is validated; an omitted value is untouched.
+
+`encPublicKey` has three states: omitted means retain the key, `null` means clear it, and a JWK object means replace it. Unknown request attributes are rejected. An empty `"request": {}` reaches the service with no flags and is rejected there before database access.
+
+## 2. Service: lock, validate, prepare, write
+
+The main method is `Service.PatchClient` in [service.go](service.go).
+
+### Reject an empty PATCH and lock the row
+
+The first check rejects `fields == (PatchFields{})` as `invalid_request`. This prevents a timestamp-only UPDATE for an empty request.
+
+`lockClient` then starts a database transaction, binds the query object to it, and calls `GetClientForUpdate`. The query in [db/db.go](db/db.go) is `SELECT <client columns> FROM client_detail WHERE id = ? FOR UPDATE`, with placeholders adapted to the driver. The row lock is held through validation and the UPDATE until commit or rollback. A second PATCH of the same row waits at its locking read and then sees the first transaction's committed changes under the usual isolation settings. See the [PostgreSQL](https://www.postgresql.org/docs/current/explicit-locking.html) and [MySQL InnoDB](https://dev.mysql.com/doc/refman/8.4/en/innodb-locking-reads.html) documentation.
+
+If the row is absent, the service maps `sql.ErrNoRows` to `ErrClientNotFound`. The deferred rollback releases the lock on any later error. Injected fake-querier tests use a branch without a real transaction; production services use the transaction path.
+
+The lock is taken **before validation**. A write-time database lock alone would allow two requests to validate against the same earlier state.
+
+### Validate the requested change
+
+`ValidatePatch` in [validate.go](validate.go) takes the supplied `PatchClientRequest`, its `PatchFields` mask, the stored key-presence flag, and the stored configuration for the key-clear dependency. It returns a validated copy of the request. If status was supplied, that copy contains canonical `ACTIVE` or `INACTIVE`; status is normalized once.
+
+Only fields marked present are validated. Supplied lists are replacement values with these bounds:
+
+| Supplied list | Allowed number of items |
+|---|---:|
+| `redirectUris` | 1?5 |
+| `userClaims` | 1?30 |
+| `authContextRefs` | 1?30 |
+| `grantTypes` | 1?3 |
+| `clientAuthMethods` | 1?3 |
+
+Existing URI, name, element, uniqueness, and encryption-algorithm validators still apply. A supplied empty required list fails. An omitted list is neither decoded for validation nor rewritten. An unrelated retained value that fails a current business rule does not by itself block a valid PATCH.
+
+The key/configuration dependency is checked only when it can change:
+
+- If `encPublicKey` is omitted, effective key presence comes from the locked row.
+- If it is `null`, the resulting client has no key.
+- If a JWK is supplied, the JWK is validated and the resulting client has a key.
+- If `additionalConfig` is supplied, its replacement value is validated against that effective key state.
+- If the key is cleared and configuration is omitted, the retained configuration is validated against the absence of a key.
+- An unrelated logo, status, or list change does not revalidate retained configuration. A valid key replacement alone likewise does not require full validation of retained configuration under the current key-presence rule.
+
+A resulting configuration requesting JWE without an encryption key is rejected. Supplying `additionalConfig` replaces the entire column value; individual JSON properties are not recursively merged. The low-level PUT and Create validators and their callers remain unchanged.
+
+Validation runs **after the locking read and inside the transaction**. This preserves the not-found-before-field-validation order for nonempty PATCH requests.
+
+### Prepare only selected database parameters
+
+`preparePatchParams` in [service.go](service.go) receives the validated request and the stored `name` string. It sets only the values and `db.PatchClientFields` flags selected by the request.
+
+| PATCH attribute | Selected DB column(s) |
 |---|---|
-| 142–146 | Read `client_id` from the URL. An empty value produces `invalid_input`. |
-| 148–153 | Limit the body to 1 MiB and read it. A read failure produces `invalid_input`. |
-| 154–158 | Decode the outer JSON envelope into `PatchRequestWrapper`. Malformed JSON produces `invalid_input`. |
-| 159–162 | Require a nonblank `requestTime`. This handler checks presence, not the timestamp's format. |
-| 163–166 | Require a non-null `request` member. |
-| 167–175 | Call `DecodePatchRequest`, which gives back both request values and flags saying which fields appeared in JSON. |
-| 177–181 | Call `Service.PatchClient`; pass service errors to `handleServiceError`. |
-| 183–188 | On success, log the selected fields and write the API response. |
-
-The decoder matters because a Go zero value cannot tell us whether a field was **omitted** or explicitly supplied with an empty value. For example, omitted `logoUri` and `"logoUri": ""` would both produce an empty Go string. [DecodePatchRequest](model.go#L184) iterates over the JSON keys and sets a corresponding `PatchFields` boolean whenever a key appears.
-
-For `encPublicKey`, the decoder records three meaningful states: omitted, explicit `null`, or a JWK object. Explicit `null` means “clear the key”; omitted means “leave it alone” ([model.go:252](model.go#L252)). Unknown request fields are rejected rather than silently ignored.
-
-An empty `"request": {}` passes the handler's “request exists” check. The service rejects it because all presence flags are false. No SQL update is attempted.
-
-## 2. Service: lock, propose, validate, prepare, write
-
-The main method is [Service.PatchClient](service.go#L295).
-
-### Lines 296–309: reject an empty PATCH and obtain the locked row
-
-At lines 296–298, `fields == (PatchFields{})` rejects a request with no recognized PATCH fields as `invalid_request`.
-
-At line 300, `lockClient` is called. Its implementation begins at [service.go:119](service.go#L119):
-
-1. For a real database service, `BeginTxx(ctx, nil)` opens a transaction.
-2. `s.txBase.WithTx(tx)` binds the query object to **that transaction**.
-3. `GetClientForUpdate` reads the client row with `SELECT ... WHERE id = ? FOR UPDATE`.
-4. The method returns the row, transaction, and transaction-bound query object.
-
-The SQL is built at [db.go:71–72](db/db.go#L71). The row lock stays held until the transaction commits or rolls back. Another transaction asking for `FOR UPDATE` on the same row waits. Once it proceeds, its locking read sees the committed row from the earlier transaction under the usual isolation settings. This behavior is documented by [PostgreSQL](https://www.postgresql.org/docs/current/explicit-locking.html) and [MySQL InnoDB](https://dev.mysql.com/doc/refman/8.4/en/innodb-locking-reads.html).
-
-The placement of the lock matters: it happens **before validation**, not merely when the eventual `UPDATE` runs.
-
-If the client does not exist, `GetClientForUpdate` yields `sql.ErrNoRows`; lines 301–305 turn that into `ErrClientNotFound`. Lines 307–309 set up a deferred rollback, so an error later in validation or writing releases the lock without persisting the PATCH. After a successful commit, the deferred rollback has no effect and its error is ignored.
-
-The `s.db == nil` branch in `lockClient` uses an injected `Querier` without a transaction. That is for fake-backed unit-test services, not the real database path ([service.go:120–123](service.go#L120)).
-
-### Lines 311–318: build two different things
-
-At line 311, `clientStateForPatchValidation(existing)` decodes stored mutable values into an `UpdateClientRequest` shape. It reads the stored name, list fields, status, logo, and additional config ([service.go:514–555](service.go#L514)). This is the **validation candidate**. It begins as the state currently held under the lock.
-
-At line 315, `preparePatchParams(clientID, req, fields, &merged)` does two jobs together ([service.go:560–618](service.go#L560)):
-
-- It overlays supplied request values onto that validation candidate.
-- It fills `db.PatchClientParams` and its column mask **only for supplied fields**.
-
-This keeps “validate the whole resulting client” separate from “write only selected columns.” If only `status` is supplied, the candidate still contains all stored redirect URIs, claims, grant types, and other values for validation. Yet the DB parameter mask has only `Status: true`. Those other values are **not** placed in the SQL `SET` list.
-
-The field-to-column mapping is explicit:
-
-| PATCH JSON field | DB column selected |
-|---|---|
-| `clientName`, `clientNameLangMap` | `name` — these share one stored JSON value |
+| `clientName`, `clientNameLangMap` | `name` |
 | `logoUri` | `logo_uri` |
 | `redirectUris` | `redirect_uris` |
 | `userClaims` | `claims` |
@@ -106,208 +90,95 @@ The field-to-column mapping is explicit:
 | `clientAuthMethods` | `auth_methods` |
 | `status` | `status` |
 | `additionalConfig` | `additional_config` |
-| `encPublicKey` | `enc_public_key`, `enc_public_key_hash`, and `enc_public_key_cert` together |
+| `encPublicKey` | `enc_public_key`, `enc_public_key_hash`, `enc_public_key_cert` |
 
-The five list fields share the loop at [service.go:577–601](service.go#L577). The loop skips an absent field; for a present one it JSON-encodes the new list, replaces that list in the validation candidate, and sets its DB mask.
+`clientName` and `clientNameLangMap` share one stored JSON column. If only one is supplied, preparation parses the stored name to retain the omitted component. If both are supplied, it serializes both submitted components without parsing the stored name. The submitted language map replaces the old map; it is not recursively merged. If neither is supplied, the stored name is not parsed or serialized during preparation.
 
-There are two useful exceptions to a simple one-field/one-column mapping:
+Only supplied lists and configuration are serialized. A supplied non-null encryption key is stored with its computed hash; its certificate column is cleared. Explicit `null` selects all three encryption-key columns with SQL `NULL` values. Serialization errors are returned before UPDATE.
 
-- `clientName` and `clientNameLangMap` both live in `name`. Supplying either causes the service to combine the supplied part with the retained part and serialize the one `name` column ([service.go:562–570](service.go#L562)).
-- `encPublicKey` controls three DB columns. A key cannot be changed without updating its hash and certificate columns at the same time.
+The service also sets `upd_dtimes` to the current UTC time for every accepted PATCH.
 
-`additionalConfig` is replaced as a **whole field** when supplied. The code does not recursively merge individual properties inside its JSON object.
+### Write, convert response, commit, invalidate cache
 
-### Lines 319–340: validate the resulting state and finish selected values
+The transaction-bound `q.PatchClient` performs the UPDATE. The service maps missing rows to `ErrClientNotFound` and duplicate encryption-key hashes to `invalid_public_key`.
 
-At line 321, `ValidatePatch` receives the proposed full client state, the presence flags, the requested key state, and whether a key exists in the locked row ([validate.go:209](validate.go#L209)). Its flow is:
+`toResponse` converts the returned database row **before commit**. It still decodes the full returned row, including stored JSON lists. If that conversion fails, the service rolls back. This response-conversion behavior is separate from PATCH's targeted business validation.
 
-1. If `encPublicKey` was supplied, determine whether the client **will have** a key after this PATCH (lines 210–212).
-2. Validate each supplied field using its PATCH-specific rules (lines 213–257).
-3. If `additionalConfig` changes, or the key is being cleared, check the resulting config against the resulting key state (lines 258–261).
-4. If a new key was supplied, validate that JWK, including its `alg` (lines 263–267).
-5. Call `ValidateUpdate` on the **entire resulting mutable client** (line 269).
+The transaction commits next, releasing the lock. Cache invalidation follows commit. If cache invalidation fails, the database write has already committed, but the service returns an error so the caller sees the partial failure. Finally the handler exposes the minimal API response containing `clientId` and `status`.
 
-That last call matters. PATCH-specific list checks allow the list's lower bound to be zero while checking a supplied list, but the complete-client check requires the required lists to remain nonempty ([validate.go:159–190](validate.go#L159)). A PATCH that clears a required list does not slip through.
+## 3. Database layer: the selected-column UPDATE
 
-This validates the complete **mutable client state represented by `UpdateClientRequest`**. It does not revalidate every column in `client_detail`, such as immutable registration fields.
+`db.Queries.PatchClient` in [db/db.go](db/db.go) has a fixed, hardcoded mapping from field masks to columns. It appends `column = ?` and its value only when the corresponding mask is true. It always appends `upd_dtimes = ?`, followed by `WHERE id = ?`.
 
-After validation:
-
-- Lines 324–329 normalize a supplied status to stored `ACTIVE` or `INACTIVE` ([validate.go:615](validate.go#L615)).
-- Lines 330–339 serialize a supplied non-null encryption key and compute its hash. If `encPublicKey` was explicitly `null`, those three `sql.NullString` parameters remain invalid, which writes SQL `NULL` to all three selected columns.
-- Line 340 sets `upd_dtimes` to the current UTC time. It is an output column in this design; there is no timestamp comparison in the `WHERE` clause.
-
-### Lines 342–364: write, convert response, commit, clear cache
-
-Line 342 calls `q.PatchClient(ctx, params)`. On the real service path, `q` is transaction-bound.
-
-Lines 343–350 classify a missing row or duplicate encryption-key hash and wrap other DB errors. A missing row at this point is a defensive path; the earlier locked read normally established and protected the row.
-
-Lines 352–355 convert the written row into a `ClientResponse` **before commit**. `toResponse` decodes the stored JSON lists and additional config ([service.go:723–771](service.go#L723)). If this conversion fails, the transaction rolls back.
-
-Line 357 commits. The lock is released then. Lines 361–363 invalidate the cached client row after commit, and line 364 returns the response. If cache invalidation fails, the DB transaction has already committed, but the service returns an error so the caller is told about that partial failure ([service.go:501–509](service.go#L501)).
-
-## 3. DB layer: construct an actual partial UPDATE
-
-The DB method is [db.Queries.PatchClient](db/db.go#L264).
-
-Lines 265–272 create a `set` list, positional argument list, and a small `add` helper. `add` appends a column assignment **only when its mask is true**.
-
-Lines 273–284 call `add` in a fixed order for the possible PATCH columns. Line 285 always adds `upd_dtimes`. Lines 287–288 construct:
+For example, status alone generates:
 
 ```sql
-UPDATE client_detail SET <selected assignments>, upd_dtimes = ? WHERE id = ?
+UPDATE client_detail SET status = ?, upd_dtimes = ? WHERE id = ?
 ```
 
-There is no `SET` assignment for an absent request field. There is also no `upd_dtimes = <old value>` guard in the predicate; the concurrency mechanism here is the row lock held across read, validation, and write.
+A request for logo and status generates:
 
-For PostgreSQL, lines 289–299 append `RETURNING` for the full row, rebind placeholders as `$1`, `$2`, etc., and retrieve the written row from that same update statement.
+```sql
+UPDATE client_detail SET logo_uri = ?, status = ?, upd_dtimes = ? WHERE id = ?
+```
 
-For MySQL, lines 302–305 execute the update and then call `GetClient` **through the same transaction-bound `q`**. This readback is why an existing client can succeed even when MySQL reports zero *changed* rows for a no-op value update. The code does not decide “missing client” from `RowsAffected()`.
+Absent request attributes do not appear in `SET`. `upd_dtimes` is updated but is not an optimistic-version predicate in `WHERE`; the transaction's row lock protects the read/validate/write sequence.
 
-## Scenario 1: a one-field status PATCH
+PostgreSQL rebinds `?` to `$1`, `$2`, and so on, appends `RETURNING`, and obtains the row from the UPDATE. MySQL runs the UPDATE, then reads the row back in the same transaction. The MySQL path does not use `RowsAffected()` to decide whether a client exists, so a PATCH of an already-stored value is not mistaken for a missing row.
 
-Assume client `client-1` is currently `ACTIVE`, has `logo_uri = https://example.org/old.png`, and its other required fields are valid. The request is:
+## Scenario 1: status PATCH, then a parallel logo PATCH
+
+Assume `client-1` is `ACTIVE`, has `logo_uri = https://example.org/old.png`, and has stored `redirect_uris = []`. The stored list is well-formed JSON but fails today's minimum-item business rule. Request A sends:
 
 ```json
 {
   "requestTime": "2026-11-17T10:00:00Z",
-  "request": {
-    "status": "inactive"
-  }
+  "request": { "status": "inactive" }
 }
 ```
 
-1. **Handler:** Decoding produces `req.Status = "inactive"` and `fields.Status = true`. Every other `PatchFields` flag is false.
-2. **Service empty check:** Passes, because one flag is true.
-3. **Lock and read:** A transaction starts; `SELECT ... FOR UPDATE` returns the `ACTIVE` row and locks it.
-4. **Validation candidate:** The service decodes the stored row. Its candidate includes the old logo, stored lists, stored config, and `Status = "ACTIVE"`.
-5. **Prepare parameters:** Only the status branch runs. It changes the candidate's status to `"inactive"` and sets `params.Fields.Status = true`. It does **not** mark `LogoURI`, `Claims`, or any other column.
-6. **Validate:** `ValidatePatch` checks the supplied status and then checks the complete proposed client. Assuming the rest of the row is valid, it passes.
-7. **Normalize:** `"inactive"` becomes `"INACTIVE"` for storage.
-8. **DB write:** The generated SQL is effectively:
+1. The handler decodes `Status = "inactive"` and `fields.Status = true`.
+2. The request passes the empty-PATCH check. The service opens a transaction and locks `client-1`.
+3. `ValidatePatch` validates the supplied status and returns a request copy with `Status = "INACTIVE"`. It does not decode or validate the retained redirect list.
+4. Preparation selects only `status` and sets its value to `INACTIVE`.
+5. The DB layer updates `status` and `upd_dtimes`, returning the row. `toResponse` can decode the well-formed stored `[]`.
+6. The service commits, invalidates the cache, and returns `INACTIVE`.
 
-   ```sql
-   UPDATE client_detail
-   SET status = ?, upd_dtimes = ?
-   WHERE id = ?
-   ```
+The row's unrelated redirect list remains `[]`. This is the intended policy change: PATCH does not make an unrelated stored business-rule failure the caller's responsibility. If the stored list were malformed JSON instead, `toResponse` could still fail before commit; this refactor does not change response conversion.
 
-   The arguments are, in order, `INACTIVE`, the new UTC timestamp, and `client-1`. PostgreSQL uses `$1`, `$2`, `$3` and adds `RETURNING`. MySQL executes this statement and reads the row back within the transaction.
+Now request B arrives at nearly the same time with `{"logoUri":"https://example.org/new.png"}`. If A obtains the lock first:
 
-9. **Finish:** The service converts the row, commits, invalidates the cache, and returns. The handler writes HTTP 200 with a response containing `clientId` and canonical status `INACTIVE`. `APIResponse()` deliberately exposes only those two values ([model.go:163–166](model.go#L163)).
-
-The complete client was used to decide whether the PATCH is valid; only `status` and `upd_dtimes` were written.
-
-### Scenario 1 with a parallel PATCH
-
-Now request A is that status PATCH. At nearly the same time, request B sends:
-
-```json
-{
-  "requestTime": "2026-11-17T10:00:01Z",
-  "request": {
-    "logoUri": "https://example.org/new.png"
-  }
-}
-```
-
-Suppose A obtains the row lock first:
-
-| Time | Request A: status | Request B: logo |
+| Step | Request A: status | Request B: logo |
 |---|---|---|
-| 1 | Begins transaction and locks `client-1`. Reads `ACTIVE`, old logo. | Begins transaction. |
-| 2 | Builds and validates `INACTIVE` with old logo. | Reaches `SELECT ... FOR UPDATE` and waits for A's lock. |
-| 3 | Updates only `status` and `upd_dtimes`; commits. | Still waiting. |
-| 4 | Invalidates cache. | Obtains lock and reads the now-committed row: `INACTIVE`, old logo. |
-| 5 | Returns `INACTIVE`. | Builds and validates `INACTIVE` with new logo. Updates only `logo_uri` and `upd_dtimes`; commits. |
+| 1 | Locks and reads the row. | Begins a transaction. |
+| 2 | Validates status and prepares only `status`. | Waits at `SELECT ... FOR UPDATE`. |
+| 3 | Updates status and commits. | Obtains the lock after A commits; reads the updated status. |
+| 4 | Invalidates cache and returns. | Validates logo and prepares only `logo_uri`. |
+| 5 | Done. | Updates logo, commits, and invalidates cache. |
 
-The final row has **`INACTIVE` and the new logo**. B did not put an old status back into the database, because its SQL did not include `status`.
+The final row contains both `INACTIVE` and the new logo. B never rewrites status. If B locks first, the final row still contains both changes; B's response may report the status that existed when B completed.
 
-If B gets the lock first, the final row still has both changes. B's own response may show `ACTIVE` because that was the status at the time *its* transaction completed; A's later response shows `INACTIVE`. Each response reflects its own completed operation.
+## Scenario 2: JWE configuration races with clearing the key
 
-The transaction means each request validates a row that was locked and current for its turn. The partial SQL prevents an unrelated field from being overwritten.
+Assume `client-1` starts with a valid encryption key and `additional_config = {"userinfo_response_type":"JWS"}`.
 
-## Scenario 2: JWE config and encryption-key dependency
+Request A submits `{"additionalConfig":{"userinfo_response_type":"JWE"}}`. Its locked read sees the key. `ValidatePatch` checks the replacement configuration against effective key presence and accepts it. Preparation selects only `additional_config`; the DB updates that column and `upd_dtimes`.
 
-Assume `client-1` starts with:
+Request B concurrently submits `{"encPublicKey":null}`.
 
-```text
-additional_config = {"userinfo_response_type":"JWS"}
-enc_public_key    = a valid encryption JWK
-```
+**If A locks first:** A commits JWE with the retained key. B then reads JWE plus key. Clearing the key would leave JWE without a key, so `ValidatePatch` returns `invalid_additional_config`; B rolls back without UPDATE. Final state: **JWE plus key**.
 
-Request A changes the response type to JWE:
+**If B locks first:** B reads JWS plus key. It can clear all three key-related columns while JWS remains. After B commits, A reads JWS without a key. Switching to JWE would leave JWE without a key, so A is rejected before UPDATE. Final state: **JWS without key**.
 
-```json
-{
-  "requestTime": "2026-11-17T10:05:00Z",
-  "request": {
-    "additionalConfig": {
-      "userinfo_response_type": "JWE"
-    }
-  }
-}
-```
+In either order, the second request validates against the first request's committed row. The invalid JWE-without-key combination is never written by these PATCH operations. Supplying a valid key and JWE configuration together in one PATCH is accepted, because validation evaluates their combined resulting state.
 
-Its path is the same handler → service → DB route, but the dependency check matters:
+## Errors and boundaries
 
-1. Decoder sets only `fields.AdditionalConfig = true`.
-2. Locked read returns the stored JWS config **and** `existing.EncPublicKey.Valid = true`.
-3. `preparePatchParams` replaces the candidate's entire `AdditionalConfig` value with the requested JWE object and selects only the `additional_config` DB column.
-4. `ValidatePatch` checks the new config using the *post-PATCH* key state. The key was not patched, so it remains present.
-5. `validateAdditionalConfig` allows `userinfo_response_type = "JWE"` only when that key state is present ([validate.go:522–529](validate.go#L522)). The full proposed client is then validated.
-6. The SQL selects just:
+- A missing client becomes API error `invalid_client_id`.
+- Empty PATCH becomes `invalid_request` before any database read.
+- Invalid supplied values return their existing field-specific validation codes. An invalid change never reaches UPDATE.
+- Expected client-management errors use the HTTP 200 response envelope with `errors`; unexpected failures use HTTP 500 with `server_error`.
+- A successful no-op value PATCH still selects the supplied column and updates `upd_dtimes`; MySQL reads the row back instead of interpreting zero changed rows as ?not found.?
+- Direct database writes and other code paths have their own validation behavior. The row-lock sequence described here applies to this service's transactional PATCH path.
 
-   ```sql
-   UPDATE client_detail
-   SET additional_config = ?, upd_dtimes = ?
-   WHERE id = ?
-   ```
-
-7. The service commits and returns success.
-
-### Scenario 2 with a parallel key-clear PATCH
-
-At the same time, request B sends:
-
-```json
-{
-  "requestTime": "2026-11-17T10:05:01Z",
-  "request": {
-    "encPublicKey": null
-  }
-}
-```
-
-The decoder marks `EncPublicKey` as **present and null**, which means “remove it.” The two possible lock orders are worth examining separately.
-
-**If A locks first:**
-
-1. A reads JWS + key, validates JWE + key, writes JWE, and commits.
-2. B has been waiting at `SELECT ... FOR UPDATE`. After A commits, B reads **JWE + key**.
-3. B's proposed state retains JWE config but has **no key**.
-4. `ValidatePatch` sees that the key is being cleared and rechecks the retained config. JWE without a key produces `invalid_additional_config`.
-5. B returns that validation error and rolls back. It never reaches `db.PatchClient`.
-
-Final state: **JWE + key**. A succeeds; B is rejected.
-
-**If B locks first:**
-
-1. B reads JWS + key. Its proposed state is JWS + no key, which is valid.
-2. Its `EncPublicKey` mask causes the DB layer to set all three related columns to `NULL` together: `enc_public_key`, `enc_public_key_hash`, and `enc_public_key_cert`, plus a new `upd_dtimes`.
-3. B commits. A then obtains the lock and reads **JWS + no key**.
-4. A proposes JWE + no key. `validateAdditionalConfig` rejects it before any update.
-
-Final state: **JWS + no key**. B succeeds; A is rejected.
-
-Neither order persists the invalid combination **JWE + no encryption key**. The database's lock on the eventual write alone would not establish this guarantee: both requests could otherwise validate against the same old row before either write. Here, the second request cannot even **read for validation** until the first request has finished.
-
-## What the caller sees on errors and no-op updates
-
-- A missing client is mapped from `sql.ErrNoRows` to `ErrClientNotFound`, then to the API error code `invalid_client_id` ([service.go:300–305](service.go#L300), [handler.go:216–218](handler.go#L216)).
-- Validation failures, such as empty PATCH or JWE without a key, use their `ValidationError` code ([handler.go:210–215](handler.go#L210)).
-- These documented client-management errors are written in an HTTP 200 envelope with an `errors` entry. Unexpected service errors use HTTP 500 with `server_error` ([handler.go:225–245](handler.go#L225)).
-- Sending an already-stored value is still a valid, nonempty PATCH. The DB method does not rely on MySQL's changed-row count; it reads the existing row back after the update. That prevents a no-op value update from being misreported as a nonexistent client ([db.go:302–305](db/db.go#L302)).
-
-The distinction to keep in mind when reading this code is: **`merged` answers “would the client be valid after this request?”; `params.Fields` answers “which columns may this request write?”** Those questions require different data, and the row lock makes the validation answer remain relevant until the write commits.
+The two questions to keep separate are: **Which supplied values and resulting dependencies must be valid?** and **Which columns may this PATCH write?** `ValidatePatch` answers the first; `preparePatchParams` and `db.Queries.PatchClient` answer the second.

@@ -9,9 +9,12 @@ package clientmgmt
 import (
 	"context"
 	"database/sql"
+	"database/sql/driver"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
+	"io"
+	"strings"
 	"testing"
 	"time"
 
@@ -275,25 +278,32 @@ func (ts *ServiceTestSuite) TestPatchClient() {
 		require.False(t, errors.Is(err, ErrClientNotFound))
 	})
 
-	t.Run("stored redirect uris must be decodable", func(t *testing.T) {
+	t.Run("response conversion still rejects malformed stored JSON", func(t *testing.T) {
 		row := existingClientRow()
 		row.RedirectUris = "not-json"
-		q := &fakeQuerier{getRow: row}
+		q := &fakeQuerier{getRow: row, patchRow: row}
 		s := NewServiceWithQuerier(q, nil, 0, nil)
 		_, err := s.PatchClient(context.Background(), "client-1", PatchClientRequest{Status: "ACTIVE"}, PatchFields{Status: true})
 		require.Error(t, err)
+		require.Equal(t, "client-1", q.patchParams.ID, "validation must not decode retained lists")
 	})
 
-	t.Run("unchanged invalid stored field still rejects patch", func(t *testing.T) {
+	t.Run("unrelated invalid stored value does not block logo and status", func(t *testing.T) {
 		row := existingClientRow()
 		row.RedirectUris = `[]`
-		q := &fakeQuerier{getRow: row}
+		patched := row
+		patched.Status = "INACTIVE"
+		patched.LogoURI = "https://example.com/new-logo.png"
+		q := &fakeQuerier{getRow: row, patchRow: patched}
 		s := NewServiceWithQuerier(q, nil, 0, nil)
-		_, err := s.PatchClient(context.Background(), "client-1", PatchClientRequest{Status: "INACTIVE"}, PatchFields{Status: true})
-		var ve *ValidationError
-		require.ErrorAs(t, err, &ve)
-		require.Equal(t, "invalid_redirect_uri", ve.Code)
-		require.Empty(t, q.patchParams.ID, "invalid client state must not be written")
+		resp, err := s.PatchClient(context.Background(), "client-1", PatchClientRequest{
+			Status: "inactive", LogoURI: patched.LogoURI,
+		}, PatchFields{Status: true, LogoURI: true})
+		require.NoError(t, err)
+		require.Equal(t, "INACTIVE", resp.Status)
+		require.Equal(t, db.PatchClientFields{Status: true, LogoURI: true}, q.patchParams.Fields)
+		require.Equal(t, "INACTIVE", q.patchParams.Status)
+		require.Equal(t, patched.LogoURI, q.patchParams.LogoURI)
 	})
 
 	t.Run("validation error on patched field", func(t *testing.T) {
@@ -306,6 +316,7 @@ func (ts *ServiceTestSuite) TestPatchClient() {
 		var ve *ValidationError
 		require.ErrorAs(t, err, &ve)
 		require.Equal(t, "invalid_uri", ve.Code)
+		require.Empty(t, q.patchParams.ID)
 	})
 
 	t.Run("supplied empty required list is rejected", func(t *testing.T) {
@@ -395,14 +406,30 @@ func (ts *ServiceTestSuite) TestPatchClient() {
 	})
 
 	t.Run("client name and language map share the name column", func(t *testing.T) {
-		q := &fakeQuerier{getRow: existingClientRow(), patchRow: existingClientRow()}
+		row := existingClientRow()
+		row.Name = `{"@none":"Stored Base","fra":"Stored French"}`
+		q := &fakeQuerier{getRow: row, patchRow: row}
 		s := NewServiceWithQuerier(q, nil, 0, nil)
 		req := PatchClientRequest{ClientNameLangMap: map[string]string{"eng": "Test Client"}}
 		_, err := s.PatchClient(context.Background(), "client-1", req, PatchFields{ClientNameLangMap: true})
 		require.NoError(t, err)
 		require.Equal(t, db.PatchClientFields{Name: true}, q.patchParams.Fields)
 		require.Contains(t, q.patchParams.Name, `"eng":"Test Client"`)
-		require.Contains(t, q.patchParams.Name, `"@none":"Test Client"`)
+		require.Contains(t, q.patchParams.Name, `"@none":"Stored Base"`)
+		require.NotContains(t, q.patchParams.Name, `"fra"`, "language map is replaced, not merged")
+	})
+
+	t.Run("both name attributes replace stored name without parsing it", func(t *testing.T) {
+		row := existingClientRow()
+		row.Name = "not-json"
+		q := &fakeQuerier{getRow: row, patchRow: existingClientRow()}
+		s := NewServiceWithQuerier(q, nil, 0, nil)
+		_, err := s.PatchClient(context.Background(), "client-1", PatchClientRequest{
+			ClientName: "New Base", ClientNameLangMap: map[string]string{"eng": "New English"},
+		}, PatchFields{ClientName: true, ClientNameLangMap: true})
+		require.NoError(t, err)
+		require.Equal(t, db.PatchClientFields{Name: true}, q.patchParams.Fields)
+		require.Equal(t, `{"@none":"New Base","eng":"New English"}`, q.patchParams.Name)
 	})
 
 	t.Run("client name patch retains stored language map", func(t *testing.T) {
@@ -423,6 +450,7 @@ func (ts *ServiceTestSuite) TestPatchClient() {
 		fields := PatchFields{Status: true}
 		_, err := s.PatchClient(context.Background(), "client-1", req, fields)
 		require.Error(t, err)
+		require.Empty(t, q.patchParams.ID)
 	})
 
 	t.Run("enc public key cleared with null", func(t *testing.T) {
@@ -454,6 +482,30 @@ func (ts *ServiceTestSuite) TestPatchClient() {
 		require.ErrorAs(t, err, &ve)
 		require.Equal(t, "invalid_additional_config", ve.Code)
 		require.Empty(t, q.patchParams.ID, "invalid state must not be written")
+	})
+
+	t.Run("jwe config without effective key is rejected", func(t *testing.T) {
+		q := &fakeQuerier{getRow: existingClientRow()}
+		s := NewServiceWithQuerier(q, nil, 0, nil)
+		_, err := s.PatchClient(context.Background(), "client-1", PatchClientRequest{
+			AdditionalConfig: json.RawMessage(`{"userinfo_response_type":"JWE"}`),
+		}, PatchFields{AdditionalConfig: true})
+		var ve *ValidationError
+		require.ErrorAs(t, err, &ve)
+		require.Equal(t, "invalid_additional_config", ve.Code)
+		require.Empty(t, q.patchParams.ID)
+	})
+
+	t.Run("unrelated patch does not revalidate retained config", func(t *testing.T) {
+		row := existingClientRow()
+		row.AdditionalConfig = sql.NullString{String: `{"userinfo_response_type":"JWE"}`, Valid: true}
+		q := &fakeQuerier{getRow: row, patchRow: row}
+		s := NewServiceWithQuerier(q, nil, 0, nil)
+		_, err := s.PatchClient(context.Background(), "client-1", PatchClientRequest{
+			LogoURI: "https://example.com/new.png",
+		}, PatchFields{LogoURI: true})
+		require.NoError(t, err)
+		require.Equal(t, db.PatchClientFields{LogoURI: true}, q.patchParams.Fields)
 	})
 
 	t.Run("enc public key updated with new value", func(t *testing.T) {
@@ -500,6 +552,21 @@ func (ts *ServiceTestSuite) TestPatchClient() {
 		require.False(t, q.patchParams.EncPublicKey.Valid)
 		require.False(t, q.patchParams.EncPublicKeyHash.Valid)
 		require.False(t, q.patchParams.EncPublicKeyCert.Valid)
+	})
+
+	t.Run("explicit null configuration keeps its replacement semantics", func(t *testing.T) {
+		row := existingClientRow()
+		row.EncPublicKey = sql.NullString{String: `{"kty":"RSA"}`, Valid: true}
+		row.AdditionalConfig = sql.NullString{String: `{"userinfo_response_type":"JWE"}`, Valid: true}
+		q := &fakeQuerier{getRow: row, patchRow: existingClientRow()}
+		s := NewServiceWithQuerier(q, nil, 0, nil)
+		_, err := s.PatchClient(context.Background(), row.ID, PatchClientRequest{
+			AdditionalConfig: json.RawMessage(`null`),
+			EncPublicKey:     NullableJWK{Defined: true, IsNull: true},
+		}, PatchFields{AdditionalConfig: true, EncPublicKey: true})
+		require.NoError(t, err)
+		require.Equal(t, sql.NullString{String: "null", Valid: true}, q.patchParams.AdditionalConfig)
+		require.False(t, q.patchParams.EncPublicKey.Valid)
 	})
 
 	t.Run("enc public key invalid new value", func(t *testing.T) {
@@ -911,6 +978,176 @@ func (ts *ServiceTestSuite) TestNewService() {
 		// sqlx.NewDb sets the driver name without opening a connection, so
 		// NewService can derive it via conn.DriverName() during construction.
 		_ = NewService(sqlx.NewDb(nil, "postgres"), nil, 0, nil)
+	})
+}
+
+// patchTxDriver records the transaction boundary while exercising the real
+// Service -> db.Queries path without requiring a running database.
+type patchTxDriver struct {
+	row      db.ClientDetail
+	events   []string
+	onCommit func()
+}
+
+func (d *patchTxDriver) Connect(context.Context) (driver.Conn, error) {
+	return &patchTxConn{d: d}, nil
+}
+
+func (d *patchTxDriver) Driver() driver.Driver { return d }
+
+func (d *patchTxDriver) Open(string) (driver.Conn, error) {
+	return &patchTxConn{d: d}, nil
+}
+
+type patchTxConn struct{ d *patchTxDriver }
+
+func (c *patchTxConn) Prepare(string) (driver.Stmt, error) {
+	return nil, errors.New("unexpected prepared statement")
+}
+
+func (c *patchTxConn) Close() error { return nil }
+
+func (c *patchTxConn) Begin() (driver.Tx, error) {
+	c.d.events = append(c.d.events, "begin")
+	return &patchTx{d: c.d}, nil
+}
+
+func (c *patchTxConn) BeginTx(context.Context, driver.TxOptions) (driver.Tx, error) {
+	return c.Begin()
+}
+
+func (c *patchTxConn) QueryContext(_ context.Context, query string, _ []driver.NamedValue) (driver.Rows, error) {
+	if strings.Contains(query, "FOR UPDATE") {
+		c.d.events = append(c.d.events, "lock")
+	} else {
+		c.d.events = append(c.d.events, "readback")
+	}
+	return &patchTxRows{row: c.d.row}, nil
+}
+
+func (c *patchTxConn) ExecContext(_ context.Context, query string, args []driver.NamedValue) (driver.Result, error) {
+	if !strings.HasPrefix(query, "UPDATE client_detail SET status = ?") {
+		return nil, errors.New("unexpected update")
+	}
+	c.d.events = append(c.d.events, "update")
+	c.d.row.Status = args[0].Value.(string)
+	return driver.RowsAffected(1), nil
+}
+
+type patchTx struct{ d *patchTxDriver }
+
+func (tx *patchTx) Commit() error {
+	tx.d.events = append(tx.d.events, "commit")
+	if tx.d.onCommit != nil {
+		tx.d.onCommit()
+	}
+	return nil
+}
+
+func (tx *patchTx) Rollback() error {
+	tx.d.events = append(tx.d.events, "rollback")
+	return nil
+}
+
+type patchTxRows struct {
+	row  db.ClientDetail
+	done bool
+}
+
+func (r *patchTxRows) Columns() []string {
+	return []string{
+		"id", "name", "rp_id", "logo_uri", "redirect_uris", "claims", "acr_values",
+		"public_key", "public_key_hash", "enc_public_key", "enc_public_key_hash",
+		"enc_public_key_cert", "grant_types", "auth_methods", "status",
+		"additional_config", "cr_dtimes", "upd_dtimes",
+	}
+}
+
+func (r *patchTxRows) Close() error { return nil }
+
+func (r *patchTxRows) Next(values []driver.Value) error {
+	if r.done {
+		return io.EOF
+	}
+	r.done = true
+	raw := []driver.Value{
+		r.row.ID, r.row.Name, r.row.RpID, r.row.LogoURI, r.row.RedirectUris,
+		r.row.Claims, r.row.AcrValues, r.row.PublicKey, r.row.PublicKeyHash,
+		nullString(r.row.EncPublicKey), nullString(r.row.EncPublicKeyHash),
+		nullString(r.row.EncPublicKeyCert), r.row.GrantTypes, r.row.AuthMethods,
+		r.row.Status, nullString(r.row.AdditionalConfig), r.row.CrDtimes, nil,
+	}
+	if r.row.UpdDtimes.Valid {
+		raw[17] = r.row.UpdDtimes.Time
+	}
+	copy(values, raw)
+	return nil
+}
+
+func nullString(value sql.NullString) driver.Value {
+	if value.Valid {
+		return value.String
+	}
+	return nil
+}
+
+func (ts *ServiceTestSuite) TestPatchClientTransactionBoundary() {
+	t := ts.T()
+
+	t.Run("invalid supplied value rolls back before update", func(t *testing.T) {
+		driver := &patchTxDriver{row: existingClientRow()}
+		rawDB := sql.OpenDB(driver)
+		t.Cleanup(func() { require.NoError(t, rawDB.Close()) })
+		s := NewService(sqlx.NewDb(rawDB, "mysql"), nil, 0, nil)
+
+		_, err := s.PatchClient(context.Background(), "client-1",
+			PatchClientRequest{Status: "invalid"}, PatchFields{Status: true})
+		var ve *ValidationError
+		require.ErrorAs(t, err, &ve)
+		require.Equal(t, "invalid_input", ve.Code)
+		require.Equal(t, []string{"begin", "lock", "rollback"}, driver.events)
+	})
+
+	t.Run("response conversion failure rolls back after update", func(t *testing.T) {
+		row := existingClientRow()
+		row.Claims = "not-json"
+		driver := &patchTxDriver{row: row}
+		rawDB := sql.OpenDB(driver)
+		t.Cleanup(func() { require.NoError(t, rawDB.Close()) })
+		s := NewService(sqlx.NewDb(rawDB, "mysql"), nil, 0, nil)
+
+		_, err := s.PatchClient(context.Background(), row.ID,
+			PatchClientRequest{Status: "inactive"}, PatchFields{Status: true})
+		require.Error(t, err)
+		require.Equal(t, []string{"begin", "lock", "update", "readback", "rollback"}, driver.events)
+	})
+
+	t.Run("successful patch commits before cache invalidation", func(t *testing.T) {
+		ctx := context.Background()
+		cache := inmemory.Initialize("test")
+		row := existingClientRow()
+		encoded, err := json.Marshal(row)
+		require.NoError(t, err)
+		require.NoError(t, cache.Put(ctx, clientCacheNamespace, row.ID, encoded, 60))
+
+		driver := &patchTxDriver{row: row}
+		driver.onCommit = func() {
+			cached, err := cache.Get(ctx, clientCacheNamespace, row.ID)
+			require.NoError(t, err)
+			require.NotNil(t, cached, "cache must still exist at commit")
+		}
+		rawDB := sql.OpenDB(driver)
+		t.Cleanup(func() { require.NoError(t, rawDB.Close()) })
+		s := NewService(sqlx.NewDb(rawDB, "mysql"), cache, 60, nil)
+
+		resp, err := s.PatchClient(ctx, row.ID,
+			PatchClientRequest{Status: "inactive"}, PatchFields{Status: true})
+		require.NoError(t, err)
+		require.Equal(t, "INACTIVE", resp.Status)
+		require.Equal(t, []string{"begin", "lock", "update", "readback", "commit"}, driver.events)
+		cached, err := cache.Get(ctx, clientCacheNamespace, row.ID)
+		require.NoError(t, err)
+		require.Nil(t, cached)
 	})
 }
 

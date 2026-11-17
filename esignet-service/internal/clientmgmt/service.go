@@ -308,34 +308,18 @@ func (s *Service) PatchClient(ctx context.Context, clientID string, req PatchCli
 		defer func() { _ = tx.Rollback() }()
 	}
 
-	merged, err := clientStateForPatchValidation(existing)
+	// Validation stays inside the transaction, using the row locked above.
+	var retainedConfig json.RawMessage
+	if fields.EncPublicKey && req.EncPublicKey.IsNull && !fields.AdditionalConfig && existing.AdditionalConfig.Valid {
+		retainedConfig = json.RawMessage(existing.AdditionalConfig.String)
+	}
+	req, err = ValidatePatch(req, fields, s.supportedEncAlgs, existing.EncPublicKey.Valid, retainedConfig)
 	if err != nil {
 		return ClientResponse{}, err
 	}
-	params, err := preparePatchParams(clientID, req, fields, &merged)
+	params, err := preparePatchParams(clientID, req, fields, existing.Name)
 	if err != nil {
 		return ClientResponse{}, err
-	}
-	// Pass the stored encPublicKey state; ValidatePatch derives the post-patch
-	// value from req.EncPublicKey when this patch changes it.
-	if err := ValidatePatch(ProfileClient, merged, fields, req.EncPublicKey, s.supportedEncAlgs, existing.EncPublicKey.Valid); err != nil {
-		return ClientResponse{}, err
-	}
-	if fields.Status {
-		params.Status, err = normalizeStatus(merged.Status)
-		if err != nil {
-			return ClientResponse{}, err
-		}
-	}
-	if fields.EncPublicKey {
-		if !req.EncPublicKey.IsNull {
-			pkJSON, err := marshalJWK(req.EncPublicKey.Value)
-			if err != nil {
-				return ClientResponse{}, err
-			}
-			params.EncPublicKey = sql.NullString{String: pkJSON, Valid: true}
-			params.EncPublicKeyHash = sql.NullString{String: hashJWK(req.EncPublicKey.Value), Valid: true}
-		}
 	}
 	params.UpdDtimes = sql.NullTime{Time: time.Now().UTC(), Valid: true}
 
@@ -509,111 +493,86 @@ func (s *Service) invalidateCache(ctx context.Context, clientID string) error {
 	return nil
 }
 
-// clientStateForPatchValidation decodes the stored mutable fields so PATCH can
-// validate the complete resulting client without rewriting unchanged columns.
-func clientStateForPatchValidation(existing db.ClientDetail) (UpdateClientRequest, error) {
-	clientName, langMap, err := parseClientName(existing.Name)
-	if err != nil {
-		return UpdateClientRequest{}, err
-	}
-	redirectURIs, err := unmarshalStringSlice(existing.RedirectUris)
-	if err != nil {
-		return UpdateClientRequest{}, err
-	}
-	claims, err := unmarshalStringSlice(existing.Claims)
-	if err != nil {
-		return UpdateClientRequest{}, err
-	}
-	acrValues, err := unmarshalStringSlice(existing.AcrValues)
-	if err != nil {
-		return UpdateClientRequest{}, err
-	}
-	grantTypes, err := unmarshalStringSlice(existing.GrantTypes)
-	if err != nil {
-		return UpdateClientRequest{}, err
-	}
-	authMethods, err := unmarshalStringSlice(existing.AuthMethods)
-	if err != nil {
-		return UpdateClientRequest{}, err
-	}
-	var additionalConfig json.RawMessage
-	if existing.AdditionalConfig.Valid && existing.AdditionalConfig.String != "" {
-		additionalConfig = json.RawMessage(existing.AdditionalConfig.String)
-	}
-
-	return UpdateClientRequest{
-		ClientName:        clientName,
-		ClientNameLangMap: langMap,
-		Status:            existing.Status,
-		LogoURI:           existing.LogoURI,
-		RedirectURIs:      redirectURIs,
-		Claims:            claims,
-		AcrValues:         acrValues,
-		GrantTypes:        grantTypes,
-		AuthMethods:       authMethods,
-		AdditionalConfig:  additionalConfig,
-	}, nil
-}
-
-// preparePatchParams applies supplied fields to the validation state and
-// prepares only the columns selected for the eventual UPDATE.
-func preparePatchParams(clientID string, req PatchClientRequest, fields PatchFields, merged *UpdateClientRequest) (db.PatchClientParams, error) {
+// preparePatchParams serializes only supplied attributes for the UPDATE.
+// It reads the stored name only when one of its two components must be retained.
+func preparePatchParams(clientID string, req PatchClientRequest, fields PatchFields, storedName string) (db.PatchClientParams, error) {
 	params := db.PatchClientParams{ID: clientID}
 	if fields.ClientName || fields.ClientNameLangMap {
-		if fields.ClientName {
-			merged.ClientName = req.ClientName
+		clientName, langMap := req.ClientName, req.ClientNameLangMap
+		if !fields.ClientName || !fields.ClientNameLangMap {
+			storedClientName, storedLangMap, err := parseClientName(storedName)
+			if err != nil {
+				return db.PatchClientParams{}, err
+			}
+			if !fields.ClientName {
+				clientName = storedClientName
+			}
+			if !fields.ClientNameLangMap {
+				langMap = storedLangMap
+			}
 		}
-		if fields.ClientNameLangMap {
-			merged.ClientNameLangMap = req.ClientNameLangMap
+		name := make(map[string]string, len(langMap)+1)
+		for code, value := range langMap {
+			name[code] = value
+		}
+		name["@none"] = clientName
+		encoded, err := json.Marshal(name)
+		if err != nil {
+			return db.PatchClientParams{}, fmt.Errorf("marshal client name: %w", err)
 		}
 		params.Fields.Name = true
-		params.Name = marshalClientName(merged.ClientName, merged.ClientNameLangMap, ProfileClient)
+		params.Name = string(encoded)
 	}
 	if fields.LogoURI {
-		merged.LogoURI = req.LogoURI
 		params.Fields.LogoURI = true
 		params.LogoURI = req.LogoURI
 	}
 	// These list fields share the same replacement and JSON storage behavior.
 	for _, field := range []struct {
 		selected bool
+		label    string
 		request  []string
-		merged   *[]string
 		value    *string
 		mask     *bool
 	}{
-		{fields.RedirectURIs, req.RedirectURIs, &merged.RedirectURIs, &params.RedirectUris, &params.Fields.RedirectURIs},
-		{fields.Claims, req.Claims, &merged.Claims, &params.Claims, &params.Fields.Claims},
-		{fields.AcrValues, req.AcrValues, &merged.AcrValues, &params.AcrValues, &params.Fields.AcrValues},
-		{fields.GrantTypes, req.GrantTypes, &merged.GrantTypes, &params.GrantTypes, &params.Fields.GrantTypes},
-		{fields.AuthMethods, req.AuthMethods, &merged.AuthMethods, &params.AuthMethods, &params.Fields.AuthMethods},
+		{fields.RedirectURIs, "redirect_uris", req.RedirectURIs, &params.RedirectUris, &params.Fields.RedirectURIs},
+		{fields.Claims, "claims", req.Claims, &params.Claims, &params.Fields.Claims},
+		{fields.AcrValues, "acr_values", req.AcrValues, &params.AcrValues, &params.Fields.AcrValues},
+		{fields.GrantTypes, "grant_types", req.GrantTypes, &params.GrantTypes, &params.Fields.GrantTypes},
+		{fields.AuthMethods, "auth_methods", req.AuthMethods, &params.AuthMethods, &params.Fields.AuthMethods},
 	} {
 		if !field.selected {
 			continue
 		}
 		encoded, err := marshalStringSlice(field.request)
 		if err != nil {
-			return db.PatchClientParams{}, err
+			return db.PatchClientParams{}, fmt.Errorf("marshal %s: %w", field.label, err)
 		}
-		*field.merged = field.request
 		*field.value = encoded
 		*field.mask = true
 	}
 	if fields.Status {
-		merged.Status = req.Status
 		params.Fields.Status = true
+		params.Status = req.Status
 	}
 	if fields.AdditionalConfig {
-		merged.AdditionalConfig = req.AdditionalConfig
-		params.Fields.AdditionalConfig = true
 		value, err := marshalAdditionalConfigRaw(req.AdditionalConfig)
 		if err != nil {
-			return db.PatchClientParams{}, err
+			return db.PatchClientParams{}, fmt.Errorf("marshal additional_config: %w", err)
 		}
+		params.Fields.AdditionalConfig = true
 		params.AdditionalConfig = value
 	}
 	if fields.EncPublicKey {
 		params.Fields.EncPublicKey = true
+		if !req.EncPublicKey.IsNull {
+			pkJSON, err := marshalJWK(req.EncPublicKey.Value)
+			if err != nil {
+				return db.PatchClientParams{}, fmt.Errorf("marshal enc_public_key: %w", err)
+			}
+			params.EncPublicKey = sql.NullString{String: pkJSON, Valid: true}
+			params.EncPublicKeyHash = sql.NullString{String: hashJWK(req.EncPublicKey.Value), Valid: true}
+		}
 	}
 	return params, nil
 }

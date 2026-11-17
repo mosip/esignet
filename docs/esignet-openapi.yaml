@@ -1469,6 +1469,8 @@ paths:
         API to partially update existing OAuth/Open ID Connect (OIDC) client. Only provided fields will be updated.
 
         The request object must contain at least one accepted field. An empty request object is rejected with "invalid_request".
+        Supplied values and affected dependencies are validated. Omitted attributes are not revalidated or rewritten.
+        Supplied replacement lists must contain at least one item. The additionalConfig object is replaced as a whole.
         
         **Special handling for encPublicKey:**
         - When set/updated: validates format (including a mandatory non-empty "kid") and computes enc_public_key_hash
