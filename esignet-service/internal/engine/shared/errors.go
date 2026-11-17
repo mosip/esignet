@@ -221,3 +221,45 @@ var InternalServerError = &common.ServiceError{
 		DefaultValue: "An unexpected error occurred while processing the request",
 	},
 }
+
+// UserNotFoundError is returned when the authenticated individual cannot be found in the ID system.
+var UserNotFoundError = &common.ServiceError{
+	Code: "AUTHN-WLA-001",
+	Type: common.ClientErrorType,
+	Error: common.I18nMessage{
+		Key:          "user_not_found",
+		DefaultValue: "User not found",
+	},
+	ErrorDescription: common.I18nMessage{
+		Key:          "user_not_found_description",
+		DefaultValue: "No account was found for the identity presented in the verifiable credential",
+	},
+}
+
+// PolicyDeniedError is returned when the ID system rejects the authentication due to a policy check failure.
+var PolicyDeniedError = &common.ServiceError{
+	Code: "AUTHN-WLA-002",
+	Type: common.ClientErrorType,
+	Error: common.I18nMessage{
+		Key:          "policy_denied",
+		DefaultValue: "Policy check failed",
+	},
+	ErrorDescription: common.I18nMessage{
+		Key:          "policy_denied_description",
+		DefaultValue: "Authentication was denied because the relying party policy check failed",
+	},
+}
+
+// VPTokenMissingOrInvalidError is returned when the vp_token credential is absent or cannot be parsed.
+var VPTokenMissingOrInvalidError = &common.ServiceError{
+	Code: "AUTHN-WLA-003",
+	Type: common.ClientErrorType,
+	Error: common.I18nMessage{
+		Key:          "vp_token_missing_or_invalid",
+		DefaultValue: "VP token missing or invalid",
+	},
+	ErrorDescription: common.I18nMessage{
+		Key:          "vp_token_missing_or_invalid_description",
+		DefaultValue: "The vp_token credential is missing or cannot be parsed",
+	},
+}

@@ -50,6 +50,22 @@ const (
 	mosipEnvStaging           = "Staging" // default MOSIP_ENV; see config.LoadMosipAuthn
 	runtimeKeyClientID        = "initiator_query_client_id"
 
+	// Credential/identifier keys for OpenID4VP wallet-based authentication.
+	credentialVPToken           = "vp_token"
+	credentialVPTokenFormat     = "vp_token_format"
+	identifierKeyWalletClientID = "wallet_client_identifier"
+
+	// vpIndividualIDType is the IDA individualIdType used for VP token (WLA) KYC auth requests.
+	vpIndividualIDType = "WALLET"
+	// vpKeyBindedTokenType is the KeyBindedToken.Type value that IDA expects for a VP token.
+	vpKeyBindedTokenType = "WLA"
+	// vpDefaultTokenFormat is the KeyBindedToken.Format used when no format is supplied by the caller.
+	vpDefaultTokenFormat = "ldp_vp"
+
+	// IDA error codes for VP/WLA authentication that map to specific eSignet errors.
+	idaVPUserNotFoundCode  = "IDA-MUA-004"
+	idaVPPolicyDeniedCode  = "IDA-KYC-002"
+
 	// idaMPACertMismatchCode and idaMPACertExpiredCode are the IDA error
 	// codes indicating the cached IDA partner certificate is no longer
 	// valid for a KYC auth request (wrong/stale cert vs. an expired one).
@@ -128,6 +144,11 @@ func NewMosipAuthnProvider(cfg *config.AppConfig, clientSvc *clientmgmt.Service,
 
 func (p *mosipAuthnProvider) Authenticate(ctx context.Context, identifiers, credentials map[string]interface{},
 	metadata *providers.AuthnMetadata) (*providers.AuthnResult, *common.ServiceError) {
+
+	// VP token (OpenID4VP / WLA) path: detected before classic credential handling.
+	if vpToken, ok := credentials[credentialVPToken].(string); ok && vpToken != "" {
+		return p.authenticateWithVP(ctx, vpToken, identifiers, credentials, metadata)
+	}
 
 	individualID, ok := identifiers["username"].(string)
 	if !ok || individualID == "" {
@@ -278,6 +299,137 @@ func (p *mosipAuthnProvider) Authenticate(ctx context.Context, identifiers, cred
 		EntityReferenceToken: psut,
 		AttributeToken:       strings.Join([]string{kycToken, individualID, transactionID}, "||"),
 	}, nil
+}
+
+// authenticateWithVP handles OpenID4VP wallet-based authentication (WLA). It passes
+// the vp_token to IDA as a KeyBindedToken in the KYC auth request and maps the
+// IDA response (or error codes) to an AuthnResult or the appropriate eSignet error.
+func (p *mosipAuthnProvider) authenticateWithVP(ctx context.Context, vpToken string,
+	identifiers, credentials map[string]interface{},
+	metadata *providers.AuthnMetadata) (*providers.AuthnResult, *common.ServiceError) {
+
+	walletClientID, _ := identifiers[identifierKeyWalletClientID].(string)
+	if walletClientID == "" {
+		return nil, shared.InvalidIndividualIDError
+	}
+
+	tokenFormat := vpDefaultTokenFormat
+	if f, ok := credentials[credentialVPTokenFormat].(string); ok && f != "" {
+		tokenFormat = f
+	}
+
+	requestTime := GetUTCDateTime()
+	authRequest := &AuthRequest{
+		Timestamp: requestTime,
+		KeyBindedTokens: []KeyBindedToken{
+			{Type: vpKeyBindedTokenType, Token: vpToken, Format: tokenFormat},
+		},
+	}
+
+	transactionID, err := shared.GenerateTransactionID(metadata.RuntimeMetadata, p.appConfig.AuthTransactionIDLength)
+	if err != nil {
+		return nil, shared.InvalidRequestError
+	}
+
+	claimsMetadataRequired := false
+	idaKycAuthRequest := &IdaKycAuthRequest{
+		ID:                     mosipKycAuthRequestID,
+		Version:                mosipRequestVersion,
+		RequestTime:            requestTime,
+		DomainURI:              p.cfg.DomainURI,
+		Env:                    p.cfg.Env,
+		ConsentObtained:        true,
+		IndividualID:           walletClientID,
+		IndividualIDType:       vpIndividualIDType,
+		TransactionID:          transactionID,
+		ClaimsMetadataRequired: &claimsMetadataRequired,
+	}
+
+	var (
+		clientDtl     clientmgmt.ClientResponse
+		clientErr     error
+		generatedCert *x509.Certificate
+		certErr       error
+		wg            sync.WaitGroup
+	)
+	wg.Go(func() {
+		clientDtl, clientErr = p.getApplicationAndClientID(ctx, metadata.RuntimeMetadata)
+	})
+	wg.Go(func() {
+		generatedCert, certErr = p.fetchIDAPartnerCertificate(ctx)
+	})
+
+	authRequestBytes, marshalErr := json.Marshal(authRequest)
+	if marshalErr != nil {
+		applog.GetLogger().Error(ctx, "VP auth request marshal failed", applog.Error(marshalErr))
+		return nil, shared.AuthenticationFailedError
+	}
+
+	requestHash, hashErr := GenerateHashWithErr(authRequestBytes)
+	if hashErr != nil {
+		applog.GetLogger().Error(ctx, "VP auth request hash generation failed", applog.Error(hashErr))
+		return nil, shared.AuthenticationFailedError
+	}
+	hexEncodedRequestHash, hexErr := EncodeBytesToHexUpper(requestHash)
+	if hexErr != nil {
+		applog.GetLogger().Error(ctx, "VP auth request hash encoding failed", applog.Error(hexErr))
+		return nil, shared.AuthenticationFailedError
+	}
+
+	symmetricKey, symErr := GenerateAESKey()
+	if symErr != nil {
+		applog.GetLogger().Error(ctx, "VP auth symmetric key generation failed", applog.Error(symErr))
+		return nil, shared.AuthenticationFailedError
+	}
+
+	encryptedRequest, encErr := SymmetricEncrypt(authRequestBytes, symmetricKey)
+	if encErr != nil {
+		applog.GetLogger().Error(ctx, "VP auth request encryption failed", applog.Error(encErr))
+		return nil, shared.AuthenticationFailedError
+	}
+	encryptedRequestHash, encHashErr := SymmetricEncrypt(hexEncodedRequestHash, symmetricKey)
+	if encHashErr != nil {
+		applog.GetLogger().Error(ctx, "VP auth request hash encryption failed", applog.Error(encHashErr))
+		return nil, shared.AuthenticationFailedError
+	}
+
+	wg.Wait()
+	if clientErr != nil {
+		return nil, shared.ClientNotFoundError
+	}
+	if certErr != nil {
+		applog.GetLogger().Error(ctx, "IDA partner certificate fetch failed for VP auth", applog.Error(certErr))
+		return nil, shared.AuthenticationFailedError
+	}
+
+	psut, kycToken, kycErr := p.performKycAuth(ctx, idaKycAuthRequest, generatedCert, encryptedRequest,
+		encryptedRequestHash, symmetricKey, clientDtl.RpID, clientDtl.ClientID, claimsMetadataRequired)
+	if kycErr != nil {
+		applog.GetLogger().Error(ctx, "IDA VP KYC auth failed", applog.Error(kycErr))
+		if strings.Contains(kycErr.Error(), idaMPACertMismatchCode) || strings.Contains(kycErr.Error(), idaMPACertExpiredCode) {
+			p.invalidateCachedIDAPartnerCertificate(ctx)
+		}
+		return nil, mapVPAuthError(kycErr)
+	}
+
+	return &providers.AuthnResult{
+		EntityReferenceToken: psut,
+		AttributeToken:       strings.Join([]string{kycToken, walletClientID, transactionID}, "||"),
+	}, nil
+}
+
+// mapVPAuthError maps IDA error codes from VP/WLA KYC auth responses to the
+// appropriate eSignet service error. Known IDA VP error codes produce specific
+// user-facing errors; anything else falls back to AuthenticationFailedError.
+func mapVPAuthError(err error) *common.ServiceError {
+	msg := err.Error()
+	if strings.Contains(msg, idaVPUserNotFoundCode) {
+		return shared.UserNotFoundError
+	}
+	if strings.Contains(msg, idaVPPolicyDeniedCode) {
+		return shared.PolicyDeniedError
+	}
+	return shared.AuthenticationFailedError
 }
 
 func (p *mosipAuthnProvider) GetEntityReference(_ context.Context, entityReferenceToken any) (*providers.EntityReference,

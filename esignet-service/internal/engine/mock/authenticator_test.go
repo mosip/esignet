@@ -11,6 +11,7 @@ import (
 	"database/sql"
 	"encoding/base64"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -714,6 +715,277 @@ func (ts *AuthenticatorTestSuite) TestAcceptedClaimsFromRequest() {
 		claims := acceptedClaimsFromRequest(req)
 		require.ElementsMatch(t, []string{"email", "phone_number"}, claims)
 	})
+}
+
+func (ts *AuthenticatorTestSuite) TestAuthenticateWithVP() {
+	t := ts.T()
+
+	t.Run("missing vp_token falls through to classic path and fails without individual id", func(t *testing.T) {
+		p := newTestProvider(t, "http://unused", "http://unused", "http://unused")
+		result, svcErr := p.Authenticate(context.Background(),
+			map[string]interface{}{},
+			map[string]interface{}{credentialVPToken: ""},
+			metadataWithClientID("client-1"))
+		require.Nil(t, result)
+		require.Same(t, shared.InvalidIndividualIDError, svcErr)
+	})
+
+	t.Run("unknown client returns client not found", func(t *testing.T) {
+		vpToken := buildTestVPToken(t, "ind-1", "sub")
+		p := newTestProvider(t, "http://unused", "http://unused", "http://unused")
+		result, svcErr := p.Authenticate(context.Background(),
+			map[string]interface{}{identifierKeyWalletClientID: "wallet-1"},
+			map[string]interface{}{credentialVPToken: vpToken},
+			metadataWithClientID("no-such-client"))
+		require.Nil(t, result)
+		require.Same(t, shared.ClientNotFoundError, svcErr)
+	})
+
+	t.Run("invalid JWT returns vp token missing or invalid", func(t *testing.T) {
+		p := newTestProvider(t, "http://unused", "http://unused", "http://unused")
+		result, svcErr := p.Authenticate(context.Background(),
+			map[string]interface{}{identifierKeyWalletClientID: "wallet-1"},
+			map[string]interface{}{credentialVPToken: "not.a.valid.jwt"},
+			metadataWithClientID("client-1"))
+		require.Nil(t, result)
+		require.Same(t, shared.VPTokenMissingOrInvalidError, svcErr)
+	})
+
+	t.Run("individual ID claim missing returns vp token missing or invalid", func(t *testing.T) {
+		vpToken := buildTestVPToken(t, "ind-1", "other_claim")
+		p := newTestProvider(t, "http://unused", "http://unused", "http://unused")
+		result, svcErr := p.Authenticate(context.Background(),
+			map[string]interface{}{identifierKeyWalletClientID: "wallet-1"},
+			map[string]interface{}{credentialVPToken: vpToken},
+			metadataWithClientID("client-1"))
+		require.Nil(t, result)
+		require.Same(t, shared.VPTokenMissingOrInvalidError, svcErr)
+	})
+
+	t.Run("successful VP authentication with default sub claim", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			require.Equal(t, http.MethodPost, r.Method)
+			var req KycAuthRequestDto
+			body, _ := io.ReadAll(r.Body)
+			require.NoError(t, json.Unmarshal(body, &req))
+			require.Equal(t, "ind-vp-1", req.IndividualID)
+			require.NotEmpty(t, req.Tokens)
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = w.Write([]byte(`{"response":{"authStatus":true,"kycToken":"kyc-vp-token","partnerSpecificUserToken":"psut-vp-1"}}`))
+		}))
+		defer server.Close()
+
+		vpToken := buildTestVPToken(t, "ind-vp-1", "sub")
+		p := newTestProvider(t, server.URL, "http://unused", "http://unused")
+		result, svcErr := p.Authenticate(context.Background(),
+			map[string]interface{}{identifierKeyWalletClientID: "wallet-1"},
+			map[string]interface{}{credentialVPToken: vpToken},
+			metadataWithClientID("client-1"))
+		require.Nil(t, svcErr)
+		require.NotNil(t, result)
+		require.Equal(t, "psut-vp-1", result.EntityReferenceToken)
+		require.Contains(t, result.AttributeToken, "kyc-vp-token||ind-vp-1||")
+	})
+
+	t.Run("successful VP authentication with custom individual_id_claim", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			var req KycAuthRequestDto
+			body, _ := io.ReadAll(r.Body)
+			require.NoError(t, json.Unmarshal(body, &req))
+			require.Equal(t, "uid-999", req.IndividualID)
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = w.Write([]byte(`{"response":{"authStatus":true,"kycToken":"kc","partnerSpecificUserToken":"psut-2"}}`))
+		}))
+		defer server.Close()
+
+		vpToken := buildTestVPToken(t, "uid-999", "uid")
+		p := newTestProvider(t, server.URL, "http://unused", "http://unused")
+		result, svcErr := p.Authenticate(context.Background(),
+			map[string]interface{}{
+				identifierKeyWalletClientID:   "wallet-2",
+				identifierKeyIndividualIDClaim: "uid",
+			},
+			map[string]interface{}{credentialVPToken: vpToken},
+			metadataWithClientID("client-1"))
+		require.Nil(t, svcErr)
+		require.Equal(t, "psut-2", result.EntityReferenceToken)
+	})
+
+	t.Run("wallet_client_identifier is included in token list sent to mock", func(t *testing.T) {
+		var capturedReq KycAuthRequestDto
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			body, _ := io.ReadAll(r.Body)
+			_ = json.Unmarshal(body, &capturedReq)
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = w.Write([]byte(`{"response":{"authStatus":true,"kycToken":"kc","partnerSpecificUserToken":"psut"}}`))
+		}))
+		defer server.Close()
+
+		vpToken := buildTestVPToken(t, "ind-1", "sub")
+		p := newTestProvider(t, server.URL, "http://unused", "http://unused")
+		_, svcErr := p.Authenticate(context.Background(),
+			map[string]interface{}{identifierKeyWalletClientID: "wallet-xyz"},
+			map[string]interface{}{credentialVPToken: vpToken},
+			metadataWithClientID("client-1"))
+		require.Nil(t, svcErr)
+		require.Len(t, capturedReq.Tokens, 2)
+		require.Equal(t, vpToken, capturedReq.Tokens[0])
+		require.Equal(t, "wallet-xyz", capturedReq.Tokens[1])
+	})
+
+	t.Run("mock returns user_not_found maps to UserNotFoundError", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = w.Write([]byte(`{"errors":[{"errorCode":"user_not_found","message":"User not found"}]}`))
+		}))
+		defer server.Close()
+
+		vpToken := buildTestVPToken(t, "ind-1", "sub")
+		p := newTestProvider(t, server.URL, "http://unused", "http://unused")
+		result, svcErr := p.Authenticate(context.Background(),
+			map[string]interface{}{identifierKeyWalletClientID: "wallet-1"},
+			map[string]interface{}{credentialVPToken: vpToken},
+			metadataWithClientID("client-1"))
+		require.Nil(t, result)
+		require.Same(t, shared.UserNotFoundError, svcErr)
+	})
+
+	t.Run("mock returns policy_denied maps to PolicyDeniedError", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = w.Write([]byte(`{"errors":[{"errorCode":"policy_denied","message":"Policy denied"}]}`))
+		}))
+		defer server.Close()
+
+		vpToken := buildTestVPToken(t, "ind-1", "sub")
+		p := newTestProvider(t, server.URL, "http://unused", "http://unused")
+		result, svcErr := p.Authenticate(context.Background(),
+			map[string]interface{}{identifierKeyWalletClientID: "wallet-1"},
+			map[string]interface{}{credentialVPToken: vpToken},
+			metadataWithClientID("client-1"))
+		require.Nil(t, result)
+		require.Same(t, shared.PolicyDeniedError, svcErr)
+	})
+
+	t.Run("mock HTTP error returns AuthenticationFailedError", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+			w.WriteHeader(http.StatusInternalServerError)
+		}))
+		defer server.Close()
+
+		vpToken := buildTestVPToken(t, "ind-1", "sub")
+		p := newTestProvider(t, server.URL, "http://unused", "http://unused")
+		result, svcErr := p.Authenticate(context.Background(),
+			map[string]interface{}{identifierKeyWalletClientID: "wallet-1"},
+			map[string]interface{}{credentialVPToken: vpToken},
+			metadataWithClientID("client-1"))
+		require.Nil(t, result)
+		require.Same(t, shared.AuthenticationFailedError, svcErr)
+	})
+
+	t.Run("SD-JWT vp_token (tilde-separated) extracts individual ID from VC portion", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			var req KycAuthRequestDto
+			body, _ := io.ReadAll(r.Body)
+			_ = json.Unmarshal(body, &req)
+			require.Equal(t, "sd-jwt-ind", req.IndividualID)
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = w.Write([]byte(`{"response":{"authStatus":true,"kycToken":"kc","partnerSpecificUserToken":"psut"}}`))
+		}))
+		defer server.Close()
+
+		vcJWT := buildTestVPToken(t, "sd-jwt-ind", "sub")
+		sdJWT := vcJWT + "~disclosure1~disclosure2~"
+		p := newTestProvider(t, server.URL, "http://unused", "http://unused")
+		result, svcErr := p.Authenticate(context.Background(),
+			map[string]interface{}{identifierKeyWalletClientID: "wallet-1"},
+			map[string]interface{}{credentialVPToken: sdJWT},
+			metadataWithClientID("client-1"))
+		require.Nil(t, svcErr)
+		require.NotNil(t, result)
+	})
+}
+
+func (ts *AuthenticatorTestSuite) TestExtractIndividualIDFromVPToken() {
+	t := ts.T()
+
+	t.Run("empty vp_token returns error", func(t *testing.T) {
+		_, err := extractIndividualIDFromVPToken("", "sub")
+		require.Error(t, err)
+	})
+
+	t.Run("invalid JWT format returns error", func(t *testing.T) {
+		_, err := extractIndividualIDFromVPToken("only.two", "sub")
+		require.Error(t, err)
+	})
+
+	t.Run("non-base64 payload returns error", func(t *testing.T) {
+		_, err := extractIndividualIDFromVPToken("header.!!!notbase64!!!.sig", "sub")
+		require.Error(t, err)
+	})
+
+	t.Run("claim not found returns error", func(t *testing.T) {
+		token := buildTestVPToken(t, "ind-1", "sub")
+		_, err := extractIndividualIDFromVPToken(token, "uid")
+		require.Error(t, err)
+	})
+
+	t.Run("extracts sub claim successfully", func(t *testing.T) {
+		token := buildTestVPToken(t, "ind-123", "sub")
+		id, err := extractIndividualIDFromVPToken(token, "sub")
+		require.NoError(t, err)
+		require.Equal(t, "ind-123", id)
+	})
+
+	t.Run("extracts custom claim successfully", func(t *testing.T) {
+		token := buildTestVPToken(t, "uid-456", "uid")
+		id, err := extractIndividualIDFromVPToken(token, "uid")
+		require.NoError(t, err)
+		require.Equal(t, "uid-456", id)
+	})
+
+	t.Run("strips SD-JWT disclosures before parsing", func(t *testing.T) {
+		vcJWT := buildTestVPToken(t, "sd-ind", "sub")
+		sdJWT := vcJWT + "~disc1~disc2~kb_jwt"
+		id, err := extractIndividualIDFromVPToken(sdJWT, "sub")
+		require.NoError(t, err)
+		require.Equal(t, "sd-ind", id)
+	})
+}
+
+func (ts *AuthenticatorTestSuite) TestMapVPAuthError() {
+	t := ts.T()
+
+	t.Run("user_not_found code maps to UserNotFoundError", func(t *testing.T) {
+		err := fmt.Errorf("IDA: user_not_found")
+		require.Same(t, shared.UserNotFoundError, mapVPAuthError(err))
+	})
+
+	t.Run("invalid_individual_id maps to UserNotFoundError", func(t *testing.T) {
+		err := fmt.Errorf("IDA: invalid_individual_id")
+		require.Same(t, shared.UserNotFoundError, mapVPAuthError(err))
+	})
+
+	t.Run("policy_denied maps to PolicyDeniedError", func(t *testing.T) {
+		err := fmt.Errorf("policy_denied: not allowed")
+		require.Same(t, shared.PolicyDeniedError, mapVPAuthError(err))
+	})
+
+	t.Run("unknown error falls back to AuthenticationFailedError", func(t *testing.T) {
+		err := fmt.Errorf("unexpected IDA failure")
+		require.Same(t, shared.AuthenticationFailedError, mapVPAuthError(err))
+	})
+}
+
+// buildTestVPToken builds a minimal unsigned JWT carrying one claim (claimName=value),
+// suitable for testing extractIndividualIDFromVPToken and VP authentication flows.
+func buildTestVPToken(t *testing.T, value, claimName string) string {
+	t.Helper()
+	header := base64.RawURLEncoding.EncodeToString([]byte(`{"alg":"none","typ":"JWT"}`))
+	payloadBytes, err := json.Marshal(map[string]interface{}{claimName: value})
+	require.NoError(t, err)
+	payload := base64.RawURLEncoding.EncodeToString(payloadBytes)
+	return header + "." + payload + "."
 }
 
 func (ts *AuthenticatorTestSuite) TestGetApplicationAndClientID() {

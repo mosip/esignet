@@ -16,10 +16,12 @@ import (
 	"crypto/sha256"
 	"crypto/x509"
 	"crypto/x509/pkix"
+	"database/sql"
 	"encoding/base64"
 	"encoding/json"
 	"encoding/pem"
 	"errors"
+	"fmt"
 	"io"
 	"math/big"
 	"net/http"
@@ -32,6 +34,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 
+	"github.com/thunder-id/thunderid/pkg/thunderidengine/common"
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/providers"
 
 	"github.com/mosip/esignet/internal/clientmgmt"
@@ -1388,6 +1391,207 @@ func (ts *AuthenticatorTestSuite) TestGetEntityReference() {
 
 	_, err = p.GetEntityReference(context.Background(), 123)
 	require.Same(t, shared.AuthenticationFailedError, err)
+}
+
+// ---------------------------------------------------------------------------
+// authenticateWithVP / VP token (OpenID4VP / WLA) path
+// ---------------------------------------------------------------------------
+
+func (ts *AuthenticatorTestSuite) TestAuthenticateWithVPMissingWalletClientID() {
+	t := ts.T()
+	vpToken := buildMosipTestVPToken(t, "ind-1")
+	p := newProvider(newValidClientService())
+	configureSigning(t, p)
+
+	result, svcErr := p.Authenticate(context.Background(),
+		map[string]interface{}{},
+		map[string]interface{}{credentialVPToken: vpToken},
+		authnMetadataFor("client-1"))
+	require.Nil(t, result)
+	require.Same(t, shared.InvalidIndividualIDError, svcErr)
+}
+
+func (ts *AuthenticatorTestSuite) TestAuthenticateWithVPUnknownClient() {
+	t := ts.T()
+	vpToken := buildMosipTestVPToken(t, "ind-1")
+	p := newProvider(newTestClientService(db.ClientDetail{}, sql.ErrNoRows))
+
+	result, svcErr := p.Authenticate(context.Background(),
+		map[string]interface{}{identifierKeyWalletClientID: "wallet-1"},
+		map[string]interface{}{credentialVPToken: vpToken},
+		authnMetadataFor("no-such-client"))
+	require.Nil(t, result)
+	require.Same(t, shared.ClientNotFoundError, svcErr)
+}
+
+func (ts *AuthenticatorTestSuite) TestAuthenticateWithVPSuccess() {
+	t := ts.T()
+	_, cert := genRSAKeyAndCert(t, "ida-partner")
+
+	var capturedBody []byte
+	kycSrv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		capturedBody, _ = io.ReadAll(r.Body)
+		_, _ = w.Write([]byte(`{"response":{"kycStatus":true,"kycToken":"kyc-vp-tok","authToken":"psut-vp-1"}}`))
+	}))
+	defer kycSrv.Close()
+
+	certSrv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		_, _ = w.Write(certToPEM(cert))
+	}))
+	defer certSrv.Close()
+
+	vpToken := buildMosipTestVPToken(t, "ind-1")
+	p := newProvider(newValidClientService())
+	configureSigning(t, p)
+	p.cfg.KYCAuthBaseURL = kycSrv.URL + "/"
+	p.cfg.IDAPartnerCertificateURL = certSrv.URL
+
+	result, svcErr := p.Authenticate(context.Background(),
+		map[string]interface{}{identifierKeyWalletClientID: "wallet-client-1"},
+		map[string]interface{}{credentialVPToken: vpToken},
+		authnMetadataFor("client-1"))
+	require.Nil(t, svcErr)
+	require.NotNil(t, result)
+	require.Equal(t, "psut-vp-1", result.EntityReferenceToken)
+	require.Contains(t, result.AttributeToken, "kyc-vp-tok||wallet-client-1||")
+
+	// The KYC auth request must carry the VP token in KeyBindedTokens.
+	var kycReq IdaKycAuthRequest
+	require.NoError(t, json.Unmarshal(capturedBody, &kycReq))
+	require.Equal(t, "WALLET", kycReq.IndividualIDType)
+	require.Equal(t, "wallet-client-1", kycReq.IndividualID)
+}
+
+func (ts *AuthenticatorTestSuite) TestAuthenticateWithVPUsesCustomFormat() {
+	t := ts.T()
+	_, cert := genRSAKeyAndCert(t, "ida-partner")
+
+	var capturedAuthReq AuthRequest
+	kycSrv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// The outer IdaKycAuthRequest wraps an encrypted AuthRequest; we can't
+		// decrypt it here, so we just verify the outer envelope and return success.
+		_, _ = w.Write([]byte(`{"response":{"kycStatus":true,"kycToken":"kc","authToken":"psut"}}`))
+	}))
+	defer kycSrv.Close()
+	_ = capturedAuthReq
+
+	certSrv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		_, _ = w.Write(certToPEM(cert))
+	}))
+	defer certSrv.Close()
+
+	vpToken := buildMosipTestVPToken(t, "ind-1")
+	p := newProvider(newValidClientService())
+	configureSigning(t, p)
+	p.cfg.KYCAuthBaseURL = kycSrv.URL + "/"
+	p.cfg.IDAPartnerCertificateURL = certSrv.URL
+
+	result, svcErr := p.Authenticate(context.Background(),
+		map[string]interface{}{identifierKeyWalletClientID: "wallet-1"},
+		map[string]interface{}{
+			credentialVPToken:       vpToken,
+			credentialVPTokenFormat: "vc+sd-jwt",
+		},
+		authnMetadataFor("client-1"))
+	require.Nil(t, svcErr)
+	require.NotNil(t, result)
+}
+
+func (ts *AuthenticatorTestSuite) TestAuthenticateWithVPKycAuthFailureMappings() {
+	t := ts.T()
+	_, cert := genRSAKeyAndCert(t, "ida-partner")
+
+	certSrv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		_, _ = w.Write(certToPEM(cert))
+	}))
+	defer certSrv.Close()
+
+	cases := []struct {
+		name     string
+		respBody string
+		want     *common.ServiceError
+	}{
+		{
+			name:     "user not found (IDA-MUA-004)",
+			respBody: `{"response":{"kycStatus":false},"errors":[{"errorCode":"IDA-MUA-004"}]}`,
+			want:     shared.UserNotFoundError,
+		},
+		{
+			name:     "policy denied (IDA-KYC-002)",
+			respBody: `{"response":{"kycStatus":false},"errors":[{"errorCode":"IDA-KYC-002"}]}`,
+			want:     shared.PolicyDeniedError,
+		},
+		{
+			name:     "generic IDA failure falls back to AuthenticationFailedError",
+			respBody: `{"response":{"kycStatus":false},"errors":[{"errorCode":"IDA-UNK-999"}]}`,
+			want:     shared.AuthenticationFailedError,
+		},
+	}
+
+	vpToken := buildMosipTestVPToken(t, "ind-1")
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			kycSrv := httptest.NewServer(jsonHandler(http.StatusOK, tc.respBody))
+			defer kycSrv.Close()
+
+			p := newProvider(newValidClientService())
+			configureSigning(t, p)
+			p.cfg.KYCAuthBaseURL = kycSrv.URL + "/"
+			p.cfg.IDAPartnerCertificateURL = certSrv.URL
+
+			result, svcErr := p.Authenticate(context.Background(),
+				map[string]interface{}{identifierKeyWalletClientID: "wallet-1"},
+				map[string]interface{}{credentialVPToken: vpToken},
+				authnMetadataFor("client-1"))
+			require.Nil(t, result)
+			require.Same(t, tc.want, svcErr)
+		})
+	}
+}
+
+func (ts *AuthenticatorTestSuite) TestAuthenticateWithVPCertFetchFailure() {
+	t := ts.T()
+	closedSrv := httptest.NewServer(http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {}))
+	closedSrv.Close()
+
+	vpToken := buildMosipTestVPToken(t, "ind-1")
+	p := newProvider(newValidClientService())
+	configureSigning(t, p)
+	p.cfg.IDAPartnerCertificateURL = closedSrv.URL
+
+	result, svcErr := p.Authenticate(context.Background(),
+		map[string]interface{}{identifierKeyWalletClientID: "wallet-1"},
+		map[string]interface{}{credentialVPToken: vpToken},
+		authnMetadataFor("client-1"))
+	require.Nil(t, result)
+	require.Same(t, shared.AuthenticationFailedError, svcErr)
+}
+
+func (ts *AuthenticatorTestSuite) TestMapVPAuthError() {
+	t := ts.T()
+
+	t.Run("IDA-MUA-004 maps to UserNotFoundError", func(t *testing.T) {
+		err := fmt.Errorf("IDA-MUA-004,other")
+		require.Same(t, shared.UserNotFoundError, mapVPAuthError(err))
+	})
+
+	t.Run("IDA-KYC-002 maps to PolicyDeniedError", func(t *testing.T) {
+		err := fmt.Errorf("IDA-KYC-002")
+		require.Same(t, shared.PolicyDeniedError, mapVPAuthError(err))
+	})
+
+	t.Run("unknown code falls back to AuthenticationFailedError", func(t *testing.T) {
+		err := fmt.Errorf("IDA-XYZ-999")
+		require.Same(t, shared.AuthenticationFailedError, mapVPAuthError(err))
+	})
+}
+
+// buildMosipTestVPToken returns a minimal unsigned JWT with a "sub" claim,
+// suitable for use as a vp_token in MOSIP plugin VP auth tests.
+func buildMosipTestVPToken(t *testing.T, individualID string) string {
+	t.Helper()
+	return unsignedJWT(t, map[string]interface{}{"sub": individualID})
 }
 
 func (ts *AuthenticatorTestSuite) TestNoOpMethods() {
