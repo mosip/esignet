@@ -1036,6 +1036,8 @@ system:
   "flows.executor.errors.magic_link_generation_failed_desc": මැජික් ලින්ක් උත්පාදනය කිරීම අසාර්ථක විය
   "flows.executor.errors.max_otp_attempts_reached": උපරිම OTP උත්සාහ ගණන ඉකුත්වී ඇත
   "flows.executor.errors.max_otp_attempts_reached_desc": OTP සත්‍යාපන උත්සාහයන්හි උපරිම ගණන ඉකුත්වී ඇත
+  "flows.executor.errors.otp_resend_too_early": නව OTP එකක් ඉල්ලීමට පෙර කරුණාකර රැඳී සිටින්න
+  "flows.executor.errors.otp_resend_too_early_desc": වත්මන් OTP එකේ කාලය ඉකුත් වූ පසු පමණක් නව OTP එකක් ඉල්ලිය හැක
   "flows.executor.errors.no_registered_passkeys": ලියාපදිංචි කළ පාස්කී සොයාගත නොහැක
   "flows.executor.errors.no_registered_passkeys_desc": පරිශීලකයා සඳහා ලියාපදිංචි කළ පාස්කී සොයාගත නොහැකි විය
   "flows.executor.errors.no_user_types_available": පරිශීලක වර්ග ලබා ගත නොහැක

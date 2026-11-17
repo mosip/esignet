@@ -55,8 +55,9 @@ const (
 	// valid for a KYC auth request (wrong/stale cert vs. an expired one).
 	// Only these codes should trigger dropping the cache; other KYC auth
 	// failures (bad OTP, unknown individual, etc.) don't mean the cert is bad.
-	idaMPACertMismatchCode = "IDA-MPA-003"
-	idaMPACertExpiredCode  = "IDA-MPA-004"
+	idaMPACertMismatchCode     = "IDA-MPA-003"
+	idaMPACertExpiredCode      = "IDA-MPA-004"
+	idaOTPInvalidOrExpiredCode = "IDA-OTA-003"
 
 	// mosipRequestSignAlgorithm is the JWS algorithm the "signature" header
 	// on outbound IDA requests is signed with — MOSIP IDA's partner request
@@ -264,6 +265,11 @@ func (p *mosipAuthnProvider) Authenticate(ctx context.Context, identifiers, cred
 		// KYC auth failures don't warrant discarding a still-valid cache.
 		if strings.Contains(err.Error(), idaMPACertMismatchCode) || strings.Contains(err.Error(), idaMPACertExpiredCode) {
 			p.invalidateCachedIDAPartnerCertificate(ctx)
+		}
+
+		// if "IDA-OTA-003" is returned, it means the OTP is invalid or expired. Return a specific error for that case.
+		if strings.Contains(err.Error(), idaOTPInvalidOrExpiredCode) {
+			return nil, shared.OTPInvalidOrExpiredError
 		}
 		return nil, shared.AuthenticationFailedError
 	}

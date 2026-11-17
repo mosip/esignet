@@ -79,6 +79,20 @@ var AuthenticationFailedError = &common.ServiceError{
 	},
 }
 
+// OTPInvalidOrExpiredError is returned when the OTP is invalid or expired.
+var OTPInvalidOrExpiredError = &common.ServiceError{
+	Code: "otp_invalid_or_expired",
+	Type: common.ClientErrorType,
+	Error: common.I18nMessage{
+		Key:          "otp_invalid_or_expired",
+		DefaultValue: "OTP invalid or expired",
+	},
+	ErrorDescription: common.I18nMessage{
+		Key:          "otp_invalid_or_expired_description",
+		DefaultValue: "The OTP is invalid or has expired",
+	},
+}
+
 // SendOTPFailedError is returned when the send OTP failed.
 var SendOTPFailedError = &common.ServiceError{
 	Code: "send_otp_failed",
@@ -105,6 +119,21 @@ var MaxOTPAttemptsReachedError = &common.ServiceError{
 	ErrorDescription: common.I18nMessage{
 		Key:          "flows.executor.errors.max_otp_attempts_reached_desc",
 		DefaultValue: "The maximum number of OTP verification attempts has been reached",
+	},
+}
+
+// OTPResendTooEarlyError is returned when a resend is requested while the previously sent OTP
+// is still valid.
+var OTPResendTooEarlyError = &common.ServiceError{
+	Code: "otp_resend_too_early",
+	Type: common.ClientErrorType,
+	Error: common.I18nMessage{
+		Key:          "flows.executor.errors.otp_resend_too_early",
+		DefaultValue: "OTP resend too early",
+	},
+	ErrorDescription: common.I18nMessage{
+		Key:          "flows.executor.errors.otp_resend_too_early_desc",
+		DefaultValue: "A new OTP can be requested only after the current OTP has expired",
 	},
 }
 

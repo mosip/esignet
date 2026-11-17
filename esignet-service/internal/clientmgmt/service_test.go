@@ -405,6 +405,17 @@ func (ts *ServiceTestSuite) TestPatchClient() {
 		}, prepared)
 	})
 
+	t.Run("supplied duplicate claims are stored once", func(t *testing.T) {
+		q := &fakeQuerier{getRow: existingClientRow(), patchRow: existingClientRow()}
+		s := NewServiceWithQuerier(q, nil, 0, nil)
+		_, err := s.PatchClient(context.Background(), "client-1", PatchClientRequest{
+			Claims: []string{"name", "email", "name"},
+		}, PatchFields{Claims: true})
+		require.NoError(t, err)
+		require.Equal(t, db.PatchClientFields{Claims: true}, q.patchParams.Fields)
+		require.JSONEq(t, `["name","email"]`, q.patchParams.Claims)
+	})
+
 	t.Run("client name and language map share the name column", func(t *testing.T) {
 		row := existingClientRow()
 		row.Name = `{"@none":"Stored Base","fra":"Stored French"}`

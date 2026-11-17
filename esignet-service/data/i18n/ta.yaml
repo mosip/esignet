@@ -1036,6 +1036,8 @@ system:
   "flows.executor.errors.magic_link_generation_failed_desc": மேஜிக் இணைப்பை உருவாக்குவதில் தோல்வி
   "flows.executor.errors.max_otp_attempts_reached": அதிகபட்ச OTP முயற்சிகள் எட்டப்பட்டன
   "flows.executor.errors.max_otp_attempts_reached_desc": OTP சரிபார்ப்பு முயற்சிகளின் அதிகபட்ச எண்ணிக்கை எட்டப்பட்டது
+  "flows.executor.errors.otp_resend_too_early": புதிய OTP-ஐக் கோருவதற்கு முன் தயவுசெய்து காத்திருக்கவும்
+  "flows.executor.errors.otp_resend_too_early_desc": தற்போதைய OTP காலாவதியான பிறகு மட்டுமே புதிய OTP-ஐக் கோர முடியும்
   "flows.executor.errors.no_registered_passkeys": பதிவு செய்யப்பட்ட passkeys கண்டுபிடிக்கப்படவில்லை
   "flows.executor.errors.no_registered_passkeys_desc": பயனருக்கு பதிவு செய்யப்பட்ட passkeys கண்டுபிடிக்கப்படவில்லை
   "flows.executor.errors.no_user_types_available": பயனர் வகைகள் கிடைக்கவில்லை

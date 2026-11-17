@@ -145,7 +145,7 @@ oauth:
   authorization_code:
     validity_period: 60  # override via MOSIP_ESIGNET_OAUTH_AUTH_CODE_LIFETIME_SECONDS
   par:
-    expires_in: 3600     # override via MOSIP_ESIGNET_OAUTH_PAR_EXPIRY_SECONDS
+    expires_in: 90       # RFC 9126 §2.2 short-lived; override via MOSIP_ESIGNET_OAUTH_PAR_EXPIRY_SECONDS
   dpop:
     required: false
     iat_window: 60

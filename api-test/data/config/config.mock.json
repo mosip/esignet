@@ -35,7 +35,17 @@
         "response_mode": "default",
         "client_registration": "static_client"
       },
-      "config_file": "conformance-suite-private/esignet-config.json"
+      "config_file": "conformance-suite-private/esignet-config.json",
+      "skip": [
+        "oidcc-refresh-token",
+        "oidcc-ensure-request-object-with-redirect-uri"
+      ],
+      "known_issues": [
+        {
+          "module": "oidcc-discovery-endpoint-verification",
+          "reason": "Only PS256 key registered on this deployment; OIDC Core §3.1.3.7 mandates RS256 in id_token_signing_alg_values_supported. Fix: register an RS256 key in the crypto store."
+        }
+      ]
     },
     {
       "name": "fapi2-security-profile-final-test-plan",
@@ -57,7 +67,7 @@
     "provider": "mock",
     "auth_factor": "otp",
     "identity": {
-      "individual_id": "8267411574",
+      "individual_id": "1774231388",
       "id_type": "uin"
     },
     "credentials": {

@@ -150,7 +150,7 @@ func (s *Service) CreateClient(ctx context.Context, profile Profile, req CreateC
 	if err != nil {
 		return ClientResponse{}, fmt.Errorf("redirect_uris: %w", err)
 	}
-	claims, err := marshalStringSlice(req.Claims)
+	claims, err := marshalStringSlice(uniqueStrings(req.Claims))
 	if err != nil {
 		return ClientResponse{}, fmt.Errorf("claims: %w", err)
 	}
@@ -237,7 +237,7 @@ func (s *Service) UpdateClient(ctx context.Context, profile Profile, clientID st
 	if err != nil {
 		return ClientResponse{}, fmt.Errorf("redirect_uris: %w", err)
 	}
-	claims, err := marshalStringSlice(req.Claims)
+	claims, err := marshalStringSlice(uniqueStrings(req.Claims))
 	if err != nil {
 		return ClientResponse{}, fmt.Errorf("claims: %w", err)
 	}
@@ -316,6 +316,9 @@ func (s *Service) PatchClient(ctx context.Context, clientID string, req PatchCli
 	req, err = ValidatePatch(req, fields, s.supportedEncAlgs, existing.EncPublicKey.Valid, retainedConfig)
 	if err != nil {
 		return ClientResponse{}, err
+	}
+	if fields.Claims {
+		req.Claims = uniqueStrings(req.Claims)
 	}
 	params, err := preparePatchParams(clientID, req, fields, existing.Name)
 	if err != nil {
@@ -626,6 +629,19 @@ func encKeyColumns(encKey map[string]string, cert string, supportedEncAlgs []str
 		encCert = sql.NullString{String: cert, Valid: true}
 	}
 	return encPK, encHash, encCert, nil
+}
+
+// uniqueStrings returns a new slice with duplicate entries removed, preserving order.
+func uniqueStrings(s []string) []string {
+	seen := make(map[string]bool, len(s))
+	out := make([]string, 0, len(s))
+	for _, v := range s {
+		if !seen[v] {
+			seen[v] = true
+			out = append(out, v)
+		}
+	}
+	return out
 }
 
 func marshalStringSlice(s []string) (string, error) {

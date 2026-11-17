@@ -23,7 +23,7 @@ func Initialize(
 ) map[string]providers.Executor {
 	executors := map[string]providers.Executor{
 		ExecutorNameEsignetClearInputs:   NewClearInputsExecutor(),
-		ExecutorNameEsignetOTP:           NewOtpExecutor(authnProvider),
+		ExecutorNameEsignetOTP:           NewOtpExecutor(authnProvider, appConfig.OTPValidityMins),
 		ExecutorNameEsignetAuthorization: NewAuthorizationExecutor(clientSvc, resourceSvc),
 		ExecutorNameEsignetTransactionID: NewTransactionIDExecutor(appConfig),
 	}

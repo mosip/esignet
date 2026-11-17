@@ -1036,6 +1036,8 @@ system:
   "flows.executor.errors.magic_link_generation_failed_desc": Failed to generate the magic link
   "flows.executor.errors.max_otp_attempts_reached": Maximum OTP attempts reached
   "flows.executor.errors.max_otp_attempts_reached_desc": The maximum number of OTP verification attempts has been reached
+  "flows.executor.errors.otp_resend_too_early": Please wait before requesting a new OTP
+  "flows.executor.errors.otp_resend_too_early_desc": A new OTP can be requested only after the current OTP has expired
   "flows.executor.errors.no_registered_passkeys": No registered passkeys found
   "flows.executor.errors.no_registered_passkeys_desc": No registered passkeys were found for the user
   "flows.executor.errors.no_user_types_available": No user types available

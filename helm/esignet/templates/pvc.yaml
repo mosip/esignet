@@ -12,7 +12,7 @@ metadata:
     {{- if .Values.commonAnnotations }}
     {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
     {{- end }}
-    "helm.sh/resource-policy": keep 
+    "helm.sh/resource-policy": keep
 spec:
   accessModes:
   {{- if not (empty .Values.persistence.accessModes) }}

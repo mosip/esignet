@@ -1036,6 +1036,8 @@ system:
   "flows.executor.errors.magic_link_generation_failed_desc": Échec de la génération du lien magique
   "flows.executor.errors.max_otp_attempts_reached": Nombre maximal de tentatives OTP atteint
   "flows.executor.errors.max_otp_attempts_reached_desc": Le nombre maximal de tentatives de vérification OTP a été atteint
+  "flows.executor.errors.otp_resend_too_early": Veuillez patienter avant de demander un nouvel OTP
+  "flows.executor.errors.otp_resend_too_early_desc": Un nouvel OTP ne peut être demandé qu'après l'expiration de l'OTP actuel
   "flows.executor.errors.no_registered_passkeys": Aucune clé d'accès enregistrée trouvée
   "flows.executor.errors.no_registered_passkeys_desc": Aucune clé d'accès enregistrée n'a été trouvée pour l'utilisateur
   "flows.executor.errors.no_user_types_available": Aucun type d'utilisateur disponible
