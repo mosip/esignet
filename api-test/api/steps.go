@@ -471,9 +471,9 @@ func theJSONPathShouldBeNull(ctx context.Context, path string) error {
 // sensitiveValueRe matches a JSON "key": "value" pair whose key names a
 // credential. Prose-wrapped bodies (see snippet) are not parseable JSON, so
 // this is a scan rather than a decode. "code" is deliberately absent:
-// flow/execute answers with {code, message} and the features assert FES-1004
-// on it, so masking it would blank the value the failure is read for — and no
-// feature on this surface calls /token or /userinfo, so no OAuth code lands here.
+// flow/execute answers with {code, message} and the features assert on it, so
+// masking it would blank the value the failure is read for — and no feature on
+// this surface calls /token or /userinfo, so no OAuth code lands here.
 var sensitiveValueRe = regexp.MustCompile(
 	`(?i)("[a-z_]*(?:password|otp|secret|assertion|token)[a-z_]*"\s*:\s*)"[^"]*"`)
 

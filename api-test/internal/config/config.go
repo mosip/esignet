@@ -142,6 +142,10 @@ type PMS struct {
 type Identity struct {
 	IndividualID string `json:"individual_id"`
 	IDType       string `json:"id_type"`
+	// SecondaryIndividualID is a second registered identity, of the same id type, for the biometric
+	// scenarios that need two (a login id swap, going back to log in as someone else). Required for
+	// an e2e run that includes bio on a plugin with a biometric factor.
+	SecondaryIndividualID string `json:"secondary_individual_id"`
 }
 
 type Credentials struct {
@@ -195,6 +199,16 @@ type E2E struct {
 	// Exclude drops scenarios whose name matches any regex. Applied after
 	// Include, so it always wins.
 	Exclude []string `json:"exclude"`
+	// MockMDS is the biometric device service the scripted biometric scenarios capture from.
+	MockMDS MockMDS `json:"mock_mds"`
+}
+
+// MockMDS locates the mock MDS (SBI device service). The harness image starts one on loopback and exports MOCK_MDS_BASE_URL.
+type MockMDS struct {
+	BaseURL string `json:"base_url"`
+	// Env and DomainURI are signed into each capture and must equal the env and domain URI the authn provider sends IDA. DomainURI defaults to the origin of esignet.base_url, which is the UI origin the SBI widget would send.
+	Env       string `json:"env"`
+	DomainURI string `json:"domain_uri"`
 }
 
 type Run struct {
@@ -437,11 +451,28 @@ func (c *Config) ValidateSurface(name string) error {
 		return fmt.Errorf("unknown surface %q (want conformance|api|e2e)", name)
 	}
 
-	// The seeded mock identity is synthetic; a real deployment must name the identity under test.
-	if name != SurfaceAPI && c.Esignet.Provider != "mock" && c.Esignet.Identity.IndividualID == "" {
+	// Every deployment, mock included, must name the identity under test: no identity is seeded on every target.
+	if name != SurfaceAPI && c.Esignet.Identity.IndividualID == "" {
 		return fmt.Errorf("esignet.identity.individual_id (INDIVIDUAL_ID) is required for the %q plugin", c.Esignet.Provider)
 	}
+	// The biometric scenarios that need two identities (a login id swap, going back to log in as someone else) cannot run without the second. Sunbird has no biometric factor.
+	if name == SurfaceE2E && c.Esignet.Provider != "sunbird" && c.Esignet.Identity.SecondaryIndividualID == "" && c.e2eRunsFactor("bio") {
+		return fmt.Errorf("esignet.identity.secondary_individual_id (SECONDARY_INDIVIDUAL_ID) is required for the e2e surface on the %q plugin: the biometric scenarios log in with two identities (or leave bio out of e2e.auth_factors)", c.Esignet.Provider)
+	}
 	return nil
+}
+
+// e2eRunsFactor reports whether the e2e surface keeps scenarios of this auth factor: every factor when e2e.auth_factors is empty.
+func (c *Config) e2eRunsFactor(factor string) bool {
+	if len(c.E2E.AuthFactors) == 0 {
+		return true
+	}
+	for _, f := range c.E2E.AuthFactors {
+		if strings.EqualFold(strings.TrimSpace(f), factor) {
+			return true
+		}
+	}
+	return false
 }
 
 // HasSurface reports whether the named surface is selected for this run.
@@ -473,6 +504,7 @@ func (c *Config) applyEnv() (int, error) {
 	envBool(&c.Esignet.TLSVerify, "ESIGNET_TLS_VERIFY", &n, &bad)
 	envStr(&c.Esignet.Identity.IndividualID, "INDIVIDUAL_ID", &n)
 	envStr(&c.Esignet.Identity.IDType, "ID_TYPE", &n)
+	envStr(&c.Esignet.Identity.SecondaryIndividualID, "SECONDARY_INDIVIDUAL_ID", &n)
 	envStr(&c.Esignet.Credentials.Username, "TEST_USERNAME", &n)
 	envStr(&c.Esignet.Credentials.Password, "TEST_PASSWORD", &n)
 	envStr(&c.Esignet.Credentials.Biometric, "TEST_BIOMETRIC", &n)
@@ -499,6 +531,9 @@ func (c *Config) applyEnv() (int, error) {
 	envList(&c.E2E.AuthFactors, "E2E_AUTH_FACTORS", &n)
 	envList(&c.E2E.Include, "E2E_INCLUDE", &n)
 	envList(&c.E2E.Exclude, "E2E_EXCLUDE", &n)
+	envStr(&c.E2E.MockMDS.BaseURL, "MOCK_MDS_BASE_URL", &n)
+	envStr(&c.E2E.MockMDS.Env, "MOCK_MDS_ENV", &n)
+	envStr(&c.E2E.MockMDS.DomainURI, "MOCK_MDS_DOMAIN_URI", &n)
 
 	envList(&c.Run.Surfaces, "SURFACES", &n)
 	envStr(&c.Run.Profile, "TEST_PROFILE", &n)
@@ -649,6 +684,10 @@ func (c *Config) defaults() {
 	}
 	if c.Esignet.PMS.ClientAPI == "" {
 		c.Esignet.PMS.ClientAPI = "oidc-clients"
+	}
+	// The SBI widget's env; the MOSIP authn provider's default env matches it.
+	if c.E2E.MockMDS.Env == "" {
+		c.E2E.MockMDS.Env = "Staging"
 	}
 	// full, not smoke: a run that silently grades a curated subset and reports
 	// it as "conformance" overstates what was checked. Only oidcc-test-plan
@@ -801,6 +840,7 @@ func (c *Config) Redacted() string {
 	clone.Esignet.OTP.Value = mask(clone.Esignet.OTP.Value)
 	clone.Esignet.OTP.RecipientEmail = mask(clone.Esignet.OTP.RecipientEmail)
 	clone.Esignet.Identity.IndividualID = mask(clone.Esignet.Identity.IndividualID)
+	clone.Esignet.Identity.SecondaryIndividualID = mask(clone.Esignet.Identity.SecondaryIndividualID)
 	clone.Esignet.Knowledge.FullName = mask(clone.Esignet.Knowledge.FullName)
 	clone.Esignet.Knowledge.DOB = mask(clone.Esignet.Knowledge.DOB)
 	data, err := json.MarshalIndent(clone, "", "  ")
