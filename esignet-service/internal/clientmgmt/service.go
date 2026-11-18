@@ -273,13 +273,17 @@ func (s *Service) UpdateClient(ctx context.Context, profile Profile, clientID st
 		}
 		return ClientResponse{}, fmt.Errorf("update client: %w", err)
 	}
+	resp, err := toResponse(row)
+	if err != nil {
+		return ClientResponse{}, err
+	}
 	if err := tx.Commit(); err != nil {
 		return ClientResponse{}, fmt.Errorf("commit client tx: %w", err)
 	}
 	if err := s.invalidateCache(ctx, clientID); err != nil {
 		return ClientResponse{}, err
 	}
-	return toResponse(row)
+	return resp, nil
 }
 
 // PatchClient partially updates an existing OIDC client.

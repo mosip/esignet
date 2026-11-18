@@ -37,23 +37,23 @@ func newLockedTestHandler(t *testing.T, q *fakeQuerier, method string) *Handler 
 	}
 	expectLockedRead(mock, "postgres", id, q.getRow, q.getErr)
 	switch {
-    case q.getErr != nil:
-        mock.ExpectRollback()
-    case method == http.MethodPut:
-        expectPutWrite(mock, "postgres", id, q.updateRow, q.updateErr)
-        if q.updateErr != nil {
-            mock.ExpectRollback()
-        } else {
-            mock.ExpectCommit()
-        }
-    default:
-        expectPatchWrite(mock, "postgres", id, db.PatchClientFields{LogoURI: true}, q.patchRow, q.patchErr)
-        if q.patchErr != nil {
-            mock.ExpectRollback()
-        } else {
-            mock.ExpectCommit()
-        }
-    }
+	case q.getErr != nil:
+		mock.ExpectRollback()
+	case method == http.MethodPut:
+		expectPutWrite(mock, "postgres", id, q.updateRow, q.updateErr)
+		if q.updateErr != nil {
+			mock.ExpectRollback()
+		} else {
+			mock.ExpectCommit()
+		}
+	default:
+		expectPatchWrite(mock, "postgres", id, db.PatchClientFields{LogoURI: true}, q.patchRow, q.patchErr)
+		if q.patchErr != nil {
+			mock.ExpectRollback()
+		} else {
+			mock.ExpectCommit()
+		}
+	}
 	return NewHandler(svc, applog.GetLogger().Named("clientmgmt-test"))
 }
 

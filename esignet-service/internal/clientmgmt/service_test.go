@@ -50,7 +50,18 @@ func newSQLMockService(t *testing.T, dialect string, cache providers.RuntimeStor
 		require.NoError(t, raw.Close())
 		require.NoError(t, mock.ExpectationsWereMet())
 	})
-	return NewService(sqlx.NewDb(raw, dialect), cache, cacheTTLSecs, supportedEncAlgs), mock
+	conn := sqlx.NewDb(raw, dialect)
+	// A single connection is held by the transaction, so any query routed
+	// through the pool blocks until the test context expires and fails.
+	conn.SetMaxOpenConns(1)
+	return NewService(conn, cache, cacheTTLSecs, supportedEncAlgs), mock
+}
+
+func testContext(t *testing.T) context.Context {
+	t.Helper()
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	t.Cleanup(cancel)
+	return ctx
 }
 
 func newLockedTestService(t *testing.T, q *fakeQuerier, cache providers.RuntimeStoreProvider, cacheTTLSecs int64, supportedEncAlgs []string) *lockedTestService {
@@ -224,6 +235,8 @@ func (s *lockedTestService) UpdateClient(ctx context.Context, profile Profile, i
 	} else {
 		s.mock.ExpectRollback()
 	}
+	ctx, cancel := context.WithTimeout(ctx, 2*time.Second)
+	defer cancel()
 	resp, err := s.Service.UpdateClient(ctx, profile, id, req)
 	if values != nil && values[10] != nil {
 		s.q.updateParams = db.UpdateClientParams{ID: values[10].(string), Name: values[0].(string), LogoURI: values[1].(string), RedirectUris: values[2].(string), Claims: values[3].(string), AcrValues: values[4].(string), GrantTypes: values[5].(string), AuthMethods: values[6].(string), Status: values[7].(string), AdditionalConfig: asNullString(values[8]), UpdDtimes: asNullTime(values[9])}
@@ -250,6 +263,8 @@ func (s *lockedTestService) PatchClient(ctx context.Context, id string, req Patc
 	} else {
 		s.mock.ExpectRollback()
 	}
+	ctx, cancel := context.WithTimeout(ctx, 2*time.Second)
+	defer cancel()
 	resp, err := s.Service.PatchClient(ctx, id, req, fields)
 	if values != nil && values[len(values)-1] != nil {
 		s.q.patchParams = patchParamsFromArgs(fields, values)
@@ -1288,7 +1303,7 @@ func (ts *ServiceTestSuite) TestPatchClientTransactionBoundary() {
 		require.NoError(t, cache.Put(context.Background(), clientCacheNamespace, row.ID, encoded, 60))
 		s, mock := newSQLMockService(t, "postgres", cache, 60, nil)
 		mock.ExpectBegin().WillReturnError(errors.New("begin failed"))
-		_, err = s.PatchClient(context.Background(), row.ID,
+		_, err = s.PatchClient(testContext(t), row.ID,
 			PatchClientRequest{Status: "inactive"}, PatchFields{Status: true})
 		require.ErrorContains(t, err, "begin client tx: begin failed")
 		cached, err := cache.Get(context.Background(), clientCacheNamespace, row.ID)
@@ -1300,7 +1315,7 @@ func (ts *ServiceTestSuite) TestPatchClientTransactionBoundary() {
 		s, mock := newSQLMockService(t, "postgres", nil, 0, nil)
 		expectLockedRead(mock, "postgres", "missing", db.ClientDetail{}, sql.ErrNoRows)
 		mock.ExpectRollback()
-		_, err := s.PatchClient(context.Background(), "missing",
+		_, err := s.PatchClient(testContext(t), "missing",
 			PatchClientRequest{Status: "inactive"}, PatchFields{Status: true})
 		require.ErrorIs(t, err, ErrClientNotFound)
 	})
@@ -1309,7 +1324,7 @@ func (ts *ServiceTestSuite) TestPatchClientTransactionBoundary() {
 		s, mock := newSQLMockService(t, "mysql", nil, 0, nil)
 		expectLockedRead(mock, "mysql", "client-1", existingClientRow(), nil)
 		mock.ExpectRollback()
-		_, err := s.PatchClient(context.Background(), "client-1",
+		_, err := s.PatchClient(testContext(t), "client-1",
 			PatchClientRequest{Status: "invalid"}, PatchFields{Status: true})
 		var ve *ValidationError
 		require.ErrorAs(t, err, &ve)
@@ -1321,7 +1336,7 @@ func (ts *ServiceTestSuite) TestPatchClientTransactionBoundary() {
 		expectLockedRead(mock, "postgres", "client-1", existingClientRow(), nil)
 		expectPatchWrite(mock, "postgres", "client-1", db.PatchClientFields{Status: true}, db.ClientDetail{}, errors.New("write failed"))
 		mock.ExpectRollback()
-		_, err := s.PatchClient(context.Background(), "client-1",
+		_, err := s.PatchClient(testContext(t), "client-1",
 			PatchClientRequest{Status: "inactive"}, PatchFields{Status: true})
 		require.ErrorContains(t, err, "write failed")
 	})
@@ -1333,7 +1348,7 @@ func (ts *ServiceTestSuite) TestPatchClientTransactionBoundary() {
 		expectLockedRead(mock, "postgres", patched.ID, existingClientRow(), nil)
 		args := expectPatchWrite(mock, "postgres", patched.ID, db.PatchClientFields{Status: true}, patched, nil)
 		mock.ExpectCommit()
-		resp, err := s.PatchClient(context.Background(), patched.ID,
+		resp, err := s.PatchClient(testContext(t), patched.ID,
 			PatchClientRequest{Status: "inactive"}, PatchFields{Status: true})
 		require.NoError(t, err)
 		require.Equal(t, "INACTIVE", resp.Status)
@@ -1349,13 +1364,13 @@ func (ts *ServiceTestSuite) TestPatchClientTransactionBoundary() {
 		expectLockedRead(mock, "mysql", row.ID, row, nil)
 		expectPatchWrite(mock, "mysql", row.ID, db.PatchClientFields{Status: true}, row, nil)
 		mock.ExpectRollback()
-		_, err := s.PatchClient(context.Background(), row.ID,
+		_, err := s.PatchClient(testContext(t), row.ID,
 			PatchClientRequest{Status: "inactive"}, PatchFields{Status: true})
 		require.Error(t, err)
 	})
 
 	t.Run("successful MySQL patch invalidates cache after commit", func(t *testing.T) {
-		ctx := context.Background()
+		ctx := testContext(t)
 		cache := inmemory.Initialize("test")
 		row := existingClientRow()
 		encoded, err := json.Marshal(row)
@@ -1377,7 +1392,7 @@ func (ts *ServiceTestSuite) TestPatchClientTransactionBoundary() {
 	})
 
 	t.Run("commit failure leaves cache entry intact", func(t *testing.T) {
-		ctx := context.Background()
+		ctx := testContext(t)
 		cache := inmemory.Initialize("test")
 		row := existingClientRow()
 		encoded, err := json.Marshal(row)
@@ -1404,10 +1419,31 @@ func (ts *ServiceTestSuite) TestPutTransactionDialects() {
 			expectLockedRead(mock, dialect, row.ID, row, nil)
 			expectPutWrite(mock, dialect, row.ID, row, nil)
 			mock.ExpectCommit()
-			_, err := s.UpdateClient(context.Background(), ProfileOIDC, row.ID, validUpdateRequest())
+			_, err := s.UpdateClient(testContext(t), ProfileOIDC, row.ID, validUpdateRequest())
 			require.NoError(t, err)
 		})
 	}
+}
+
+func (ts *ServiceTestSuite) TestPutResponseConversionFailureRollsBack() {
+	t := ts.T()
+	row := existingClientRow()
+	badRow := row
+	badRow.Claims = "not-json"
+	cache := inmemory.Initialize("test")
+	encoded, err := json.Marshal(row)
+	require.NoError(t, err)
+	ctx := testContext(t)
+	require.NoError(t, cache.Put(ctx, clientCacheNamespace, row.ID, encoded, 60))
+	s, mock := newSQLMockService(t, "postgres", cache, 60, nil)
+	expectLockedRead(mock, "postgres", row.ID, row, nil)
+	expectPutWrite(mock, "postgres", row.ID, badRow, nil)
+	mock.ExpectRollback()
+	_, err = s.UpdateClient(ctx, ProfileOIDC, row.ID, validUpdateRequest())
+	require.Error(t, err)
+	cached, err := cache.Get(ctx, clientCacheNamespace, row.ID)
+	require.NoError(t, err)
+	require.NotNil(t, cached)
 }
 
 type ServiceTestSuite struct {
