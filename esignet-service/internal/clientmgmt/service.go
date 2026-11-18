@@ -74,8 +74,8 @@ func NewService(conn *sqlx.DB, cache providers.RuntimeStoreProvider, cacheTTLSec
 	}
 }
 
-// NewServiceWithQuerier creates a Service with an explicit Querier; use in tests
-// to inject a mock without a real database connection.
+// NewServiceWithQuerier supports tests that do not call lockClient. PUT/PATCH
+// tests must use NewService with a database connection.
 func NewServiceWithQuerier(q db.Querier, cache providers.RuntimeStoreProvider, cacheTTLSecs int64, supportedEncAlgs []string) *Service {
 	return &Service{
 		q: q, cache: cache, cacheTTLSecs: cacheTTLSecs,
@@ -114,13 +114,8 @@ func (s *Service) runWrite(ctx context.Context, fn func(q db.Querier) (db.Client
 }
 
 // lockClient starts a transaction before reading the row and holds its lock
-// through validation and the subsequent PUT or PATCH. Test services with an
-// injected Querier have no connection to lock and use their existing fake read.
+// through validation and the subsequent PUT or PATCH.
 func (s *Service) lockClient(ctx context.Context, id string) (db.Querier, *sqlx.Tx, db.ClientDetail, error) {
-	if s.db == nil {
-		row, err := s.q.GetClient(ctx, id)
-		return s.q, nil, row, err
-	}
 	tx, err := s.db.BeginTxx(ctx, nil)
 	if err != nil {
 		return nil, nil, db.ClientDetail{}, fmt.Errorf("begin client tx: %w", err)
@@ -220,9 +215,7 @@ func (s *Service) UpdateClient(ctx context.Context, profile Profile, clientID st
 		}
 		return ClientResponse{}, fmt.Errorf("get client: %w", err)
 	}
-	if tx != nil {
-		defer func() { _ = tx.Rollback() }()
-	}
+	defer func() { _ = tx.Rollback() }()
 	// PUT cannot change encPublicKey, so its presence is carried over as-is.
 	if err := ValidateUpdate(profile, req, existing.EncPublicKey.Valid); err != nil {
 		return ClientResponse{}, err
@@ -280,10 +273,8 @@ func (s *Service) UpdateClient(ctx context.Context, profile Profile, clientID st
 		}
 		return ClientResponse{}, fmt.Errorf("update client: %w", err)
 	}
-	if tx != nil {
-		if err := tx.Commit(); err != nil {
-			return ClientResponse{}, fmt.Errorf("commit client tx: %w", err)
-		}
+	if err := tx.Commit(); err != nil {
+		return ClientResponse{}, fmt.Errorf("commit client tx: %w", err)
 	}
 	if err := s.invalidateCache(ctx, clientID); err != nil {
 		return ClientResponse{}, err
@@ -304,11 +295,11 @@ func (s *Service) PatchClient(ctx context.Context, clientID string, req PatchCli
 		}
 		return ClientResponse{}, fmt.Errorf("get client: %w", err)
 	}
-	if tx != nil {
-		defer func() { _ = tx.Rollback() }()
-	}
+	defer func() { _ = tx.Rollback() }()
 
 	// Validation stays inside the transaction, using the row locked above.
+	// If the request clears the key, does not replace configuration,
+	// and stored configuration exists, pass that retained configuration to validation.
 	var retainedConfig json.RawMessage
 	if fields.EncPublicKey && req.EncPublicKey.IsNull && !fields.AdditionalConfig && existing.AdditionalConfig.Valid {
 		retainedConfig = json.RawMessage(existing.AdditionalConfig.String)
@@ -340,10 +331,8 @@ func (s *Service) PatchClient(ctx context.Context, clientID string, req PatchCli
 	if err != nil {
 		return ClientResponse{}, err
 	}
-	if tx != nil {
-		if err := tx.Commit(); err != nil {
-			return ClientResponse{}, fmt.Errorf("commit client tx: %w", err)
-		}
+	if err := tx.Commit(); err != nil {
+		return ClientResponse{}, fmt.Errorf("commit client tx: %w", err)
 	}
 	if err := s.invalidateCache(ctx, clientID); err != nil {
 		return ClientResponse{}, err
