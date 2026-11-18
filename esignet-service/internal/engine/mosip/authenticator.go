@@ -63,8 +63,8 @@ const (
 	vpDefaultTokenFormat = "ldp_vp"
 
 	// IDA error codes for VP/WLA authentication that map to specific eSignet errors.
-	idaVPUserNotFoundCode  = "IDA-MUA-004"
-	idaVPPolicyDeniedCode  = "IDA-KYC-002"
+	idaVPUserNotFoundCode = "IDA-MUA-004"
+	idaVPPolicyDeniedCode = "IDA-KYC-002"
 
 	// idaMPACertMismatchCode and idaMPACertExpiredCode are the IDA error
 	// codes indicating the cached IDA partner certificate is no longer

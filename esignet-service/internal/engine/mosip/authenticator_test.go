@@ -1467,7 +1467,7 @@ func (ts *AuthenticatorTestSuite) TestAuthenticateWithVPUsesCustomFormat() {
 	_, cert := genRSAKeyAndCert(t, "ida-partner")
 
 	var capturedAuthReq AuthRequest
-	kycSrv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	kycSrv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		// The outer IdaKycAuthRequest wraps an encrypted AuthRequest; we can't
 		// decrypt it here, so we just verify the outer envelope and return success.
 		_, _ = w.Write([]byte(`{"response":{"kycStatus":true,"kycToken":"kc","authToken":"psut"}}`))

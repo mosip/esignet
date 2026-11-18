@@ -802,7 +802,7 @@ func (ts *AuthenticatorTestSuite) TestAuthenticateWithVP() {
 		p := newTestProvider(t, server.URL, "http://unused", "http://unused")
 		result, svcErr := p.Authenticate(context.Background(),
 			map[string]interface{}{
-				identifierKeyWalletClientID:   "wallet-2",
+				identifierKeyWalletClientID:    "wallet-2",
 				identifierKeyIndividualIDClaim: "uid",
 			},
 			map[string]interface{}{credentialVPToken: vpToken},
