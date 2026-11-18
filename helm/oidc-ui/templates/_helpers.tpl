@@ -46,13 +46,27 @@ Compile all warnings into a single message.
 {{- end -}}
 
 {{/*
+Render annotations while reserving the nginx config checksum for the chart.
+*/}}
+{{- define "oidc-ui.podAnnotations.render" -}}
+{{- $rendered := include "common.tplvalues.render" (dict "value" .annotations "context" .context) }}
+{{- $parsed := $rendered | fromYaml }}
+{{- if kindIs "map" $parsed }}
+{{- $filtered := omit $parsed "checksum/nginx-config" }}
+{{- if $filtered }}
+{{ $filtered | toYaml }}
+{{- end }}
+{{- end }}
+{{- end -}}
+
+{{/*
 Return podAnnotations
 */}}
 {{- define "oidc-ui.podAnnotations" -}}
 {{- if .Values.podAnnotations }}
-{{ include "common.tplvalues.render" (dict "value" .Values.podAnnotations "context" $) }}
+{{ include "oidc-ui.podAnnotations.render" (dict "annotations" .Values.podAnnotations "context" $) }}
 {{- end }}
 {{- if and .Values.metrics.enabled .Values.metrics.podAnnotations }}
-{{ include "common.tplvalues.render" (dict "value" .Values.metrics.podAnnotations "context" $) }}
+{{ include "oidc-ui.podAnnotations.render" (dict "annotations" .Values.metrics.podAnnotations "context" $) }}
 {{- end }}
 {{- end -}}
