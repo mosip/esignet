@@ -11,7 +11,7 @@ reference and API docs.
 
 ```text
 cmd/esignet/main.go          HTTP entrypoint
-internal/clientmgmt/         OIDC client management API + sqlc-generated db/ layer
+internal/clientmgmt/         OIDC client management API + hand-written sqlx db/ layer
 internal/config/             env-based config (app, DB, Redis)
 internal/engine/             Thunder engine providers/executors
   mock/                      Mock authenticator (local/dev)
@@ -30,7 +30,7 @@ internal/common/             Shared models/utils
 data/                        Declarative YAML (deployment.yaml, flows/, i18n/, layouts/, themes/)
 keys/                        signing.key + signing.crt (generated locally, gitignored) — legacy;
                               JWT signing now goes through internal/keymanager, not this file pair
-sqlc.yaml                    SQLC codegen config for internal/clientmgmt/db
+sqlc.yaml                    SQLC codegen config for internal/consentmgmt/db
 make.sh                      build/run/test entry point (Linux + Git Bash)
 ```
 
@@ -56,9 +56,11 @@ End-to-end / client-mgmt API checks are done via the [Postman collection](../pos
   keystore backend at startup, so local runs need
   `KEYMANAGER_KEYSTORE_TYPE=PKCS12`. Build/test with `CGO_ENABLED=1` (and a
   C toolchain) to exercise the real PKCS#11 backend.
-- After changing `internal/clientmgmt/db/query.sql` or `schema.sql`, regenerate
-  the generated Go DB layer with `./make.sh sqlc-install` (one-time) then
-  `./make.sh sqlc` — never hand-edit `internal/clientmgmt/db/*.go` generated files.
+- Client-management SQL is hand-written in `internal/clientmgmt/db/db.go` — edit
+  it there. `./make.sh sqlc` regenerates only `internal/consentmgmt/db`; after
+  changing `internal/consentmgmt/db/query.sql` or `schema.sql`, run
+  `./make.sh sqlc-install` (one-time) then `./make.sh sqlc`, and never hand-edit
+  that package's generated `*.go` files.
 - `go.mod` has a `replace` directive pinning a Thunder engine fork/branch;
   refresh it with `./make.sh update-thunder`, don't hand-edit the pinned SHA.
 

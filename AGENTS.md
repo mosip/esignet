@@ -37,9 +37,10 @@ own `README.md`/`AGENTS.md` over guessing conventions from a sibling.
   `internal/` package boundaries have no equivalent in `oidc-ui/`). Each
   subproject is built, tested, and versioned independently.
 - SQL changes belong in `db_scripts/` (base schema) or `db_upgrade_script/`
-  (versioned migrations) — `esignet-service/internal/clientmgmt/db/schema.sql`
-  is the sqlc-facing source of truth for the `client_detail` table
-  specifically; keep it in sync if you change that table elsewhere.
+  (versioned migrations). `esignet-service/internal/clientmgmt/db` is now a
+  hand-written sqlx layer (`db.go`), so there is no generated client schema to
+  keep in sync; `esignet-service/internal/consentmgmt/db/schema.sql` remains the
+  sqlc-facing source of truth for that package's tables.
 
 ## Conventions
 

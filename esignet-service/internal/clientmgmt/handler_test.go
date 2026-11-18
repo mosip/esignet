@@ -29,6 +29,34 @@ func newTestHandler(q db.Querier) *Handler {
 	return NewHandler(svc, applog.GetLogger().Named("clientmgmt-test"))
 }
 
+func newLockedTestHandler(t *testing.T, q *fakeQuerier, method string) *Handler {
+	svc, mock := newSQLMockService(t, "postgres", nil, 0, nil)
+	id := "client-1"
+	if q.getErr != nil {
+		id = "missing"
+	}
+	expectLockedRead(mock, "postgres", id, q.getRow, q.getErr)
+	switch {
+	case q.getErr != nil:
+		mock.ExpectRollback()
+	case method == http.MethodPut:
+		expectPutWrite(mock, "postgres", id, q.updateRow, q.updateErr)
+		if q.updateErr != nil {
+			mock.ExpectRollback()
+		} else {
+			mock.ExpectCommit()
+		}
+	default:
+		expectPatchWrite(mock, "postgres", id, db.PatchClientFields{LogoURI: true}, q.patchRow, q.patchErr)
+		if q.patchErr != nil {
+			mock.ExpectRollback()
+		} else {
+			mock.ExpectCommit()
+		}
+	}
+	return NewHandler(svc, applog.GetLogger().Named("clientmgmt-test"))
+}
+
 func decodeEnvelope(t *testing.T, body []byte) map[string]any {
 	t.Helper()
 	var decoded map[string]any
@@ -220,7 +248,7 @@ func (ts *HandlerTestSuite) TestUpdateClientHandler() {
 	})
 
 	t.Run("success via mux with path value", func(t *testing.T) {
-		h := newTestHandler(&fakeQuerier{updateRow: existingClientRow()})
+		h := newLockedTestHandler(t, &fakeQuerier{updateRow: existingClientRow()}, http.MethodPut)
 		mux := http.NewServeMux()
 		h.RegisterRoutes(mux, nil)
 
@@ -237,7 +265,7 @@ func (ts *HandlerTestSuite) TestUpdateClientHandler() {
 	})
 
 	t.Run("client not found", func(t *testing.T) {
-		h := newTestHandler(&fakeQuerier{getErr: sql.ErrNoRows})
+		h := newLockedTestHandler(t, &fakeQuerier{getErr: sql.ErrNoRows}, http.MethodPut)
 		mux := http.NewServeMux()
 		h.RegisterRoutes(mux, nil)
 
@@ -255,7 +283,7 @@ func (ts *HandlerTestSuite) TestUpdateClientHandler() {
 	})
 
 	t.Run("client removed before update", func(t *testing.T) {
-		h := newTestHandler(&fakeQuerier{getRow: existingClientRow(), updateErr: sql.ErrNoRows})
+		h := newLockedTestHandler(t, &fakeQuerier{getRow: existingClientRow(), updateErr: sql.ErrNoRows}, http.MethodPut)
 		mux := http.NewServeMux()
 		h.RegisterRoutes(mux, nil)
 
@@ -349,7 +377,7 @@ func (ts *HandlerTestSuite) TestPatchClientHandler() {
 	})
 
 	t.Run("success via mux", func(t *testing.T) {
-		h := newTestHandler(&fakeQuerier{getRow: existingClientRow(), patchRow: existingClientRow()})
+		h := newLockedTestHandler(t, &fakeQuerier{getRow: existingClientRow(), patchRow: existingClientRow()}, http.MethodPatch)
 		mux := http.NewServeMux()
 		h.RegisterRoutes(mux, nil)
 
@@ -361,6 +389,26 @@ func (ts *HandlerTestSuite) TestPatchClientHandler() {
 		require.Equal(t, http.StatusOK, rec.Code)
 		decoded := decodeEnvelope(t, rec.Body.Bytes())
 		require.Nil(t, decoded["errors"])
+	})
+
+	t.Run("empty request is rejected", func(t *testing.T) {
+		q := &fakeQuerier{getRow: existingClientRow()}
+		h := newTestHandler(q)
+		mux := http.NewServeMux()
+		h.RegisterRoutes(mux, nil)
+		body := []byte(`{"requestTime":"2026-07-27T00:00:00.000Z","request":{}}`)
+		req := httptest.NewRequest(http.MethodPatch, "/client-mgmt/client/client-1", bytes.NewReader(body))
+		rec := httptest.NewRecorder()
+		mux.ServeHTTP(rec, req)
+
+		require.Equal(t, http.StatusOK, rec.Code)
+		decoded := decodeEnvelope(t, rec.Body.Bytes())
+		errs := decoded["errors"].([]any)
+		require.Len(t, errs, 1)
+		errObj := errs[0].(map[string]any)
+		require.Equal(t, "invalid_request", errObj["errorCode"])
+		require.Nil(t, decoded["response"])
+		require.Empty(t, q.patchParams.ID, "empty patch must not reach the database")
 	})
 
 	t.Run("malformed body", func(t *testing.T) {
@@ -434,8 +482,8 @@ func (ts *HandlerTestSuite) TestPatchClientHandler() {
 		})
 	}
 
-	t.Run("patch conflict", func(t *testing.T) {
-		h := newTestHandler(&fakeQuerier{getRow: existingClientRow(), patchErr: sql.ErrNoRows})
+	t.Run("client removed before patch", func(t *testing.T) {
+		h := newLockedTestHandler(t, &fakeQuerier{getRow: existingClientRow(), patchErr: sql.ErrNoRows}, http.MethodPatch)
 		mux := http.NewServeMux()
 		h.RegisterRoutes(mux, nil)
 		body := []byte(`{"requestTime":"2026-07-27T00:00:00.000Z","request":{"logoUri":"https://example.com/new-logo.png"}}`)
@@ -446,7 +494,7 @@ func (ts *HandlerTestSuite) TestPatchClientHandler() {
 		decoded := decodeEnvelope(t, rec.Body.Bytes())
 		errs := decoded["errors"].([]any)
 		errObj := errs[0].(map[string]any)
-		require.Equal(t, "patch_conflict", errObj["errorCode"])
+		require.Equal(t, "invalid_client_id", errObj["errorCode"])
 	})
 }
 

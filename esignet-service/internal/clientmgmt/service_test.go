@@ -9,13 +9,18 @@ package clientmgmt
 import (
 	"context"
 	"database/sql"
+	"database/sql/driver"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
+	"fmt"
+	"strings"
 	"testing"
 	"time"
 
+	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/jackc/pgx/v5/pgconn"
+	"github.com/jmoiron/sqlx"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/providers"
@@ -23,6 +28,297 @@ import (
 	"github.com/mosip/esignet/internal/clientmgmt/db"
 	"github.com/mosip/esignet/internal/engine/runtimestores/inmemory"
 )
+
+const testClientColumns = `id, name, rp_id, logo_uri, redirect_uris, claims, acr_values,
+	public_key, public_key_hash, enc_public_key, enc_public_key_hash, enc_public_key_cert,
+	grant_types, auth_methods, status, additional_config, cr_dtimes, upd_dtimes`
+
+var testColumnNames = strings.FieldsFunc(strings.ReplaceAll(testClientColumns, "\n", " "), func(r rune) bool { return r == ',' || r == ' ' || r == '\t' })
+
+type lockedTestService struct {
+	*Service
+	mock sqlmock.Sqlmock
+	q    *fakeQuerier
+}
+
+func newSQLMockService(t *testing.T, dialect string, cache providers.RuntimeStoreProvider, cacheTTLSecs int64, supportedEncAlgs []string) (*Service, sqlmock.Sqlmock) {
+	t.Helper()
+	raw, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+	require.NoError(t, err)
+	t.Cleanup(func() {
+		mock.ExpectClose()
+		require.NoError(t, raw.Close())
+		require.NoError(t, mock.ExpectationsWereMet())
+	})
+	conn := sqlx.NewDb(raw, dialect)
+	// A single connection is held by the transaction, so any query routed
+	// through the pool blocks until the test context expires and fails.
+	conn.SetMaxOpenConns(1)
+	return NewService(conn, cache, cacheTTLSecs, supportedEncAlgs), mock
+}
+
+func testContext(t *testing.T) context.Context {
+	t.Helper()
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	t.Cleanup(cancel)
+	return ctx
+}
+
+func newLockedTestService(t *testing.T, q *fakeQuerier, cache providers.RuntimeStoreProvider, cacheTTLSecs int64, supportedEncAlgs []string) *lockedTestService {
+	t.Helper()
+	s, mock := newSQLMockService(t, "postgres", cache, cacheTTLSecs, supportedEncAlgs)
+	return &lockedTestService{Service: s, mock: mock, q: q}
+}
+
+func testPlaceholder(dialect string, n int) string {
+	if dialect == "postgres" {
+		return fmt.Sprintf("$%d", n)
+	}
+	return "?"
+}
+
+func testLockedSQL(dialect string) string {
+	return "SELECT " + testClientColumns + " FROM client_detail WHERE id = " + testPlaceholder(dialect, 1) + " FOR UPDATE"
+}
+
+func testReadbackSQL(dialect string) string {
+	return "SELECT " + testClientColumns + " FROM client_detail WHERE id = " + testPlaceholder(dialect, 1) + " LIMIT 1"
+}
+
+func testRows(row db.ClientDetail) *sqlmock.Rows {
+	value := func(s sql.NullString) driver.Value {
+		if s.Valid {
+			return s.String
+		}
+		return nil
+	}
+	var updated driver.Value
+	if row.UpdDtimes.Valid {
+		updated = row.UpdDtimes.Time
+	}
+	return sqlmock.NewRows(testColumnNames).AddRow(
+		row.ID, row.Name, row.RpID, row.LogoURI, row.RedirectUris, row.Claims, row.AcrValues,
+		row.PublicKey, row.PublicKeyHash, value(row.EncPublicKey), value(row.EncPublicKeyHash), value(row.EncPublicKeyCert),
+		row.GrantTypes, row.AuthMethods, row.Status, value(row.AdditionalConfig), row.CrDtimes, updated,
+	)
+}
+
+func expectLockedRead(mock sqlmock.Sqlmock, dialect, id string, row db.ClientDetail, readErr error) {
+	mock.ExpectBegin()
+	query := mock.ExpectQuery(testLockedSQL(dialect)).WithArgs(id)
+	if readErr != nil {
+		query.WillReturnError(readErr)
+	} else {
+		query.WillReturnRows(testRows(row))
+	}
+}
+
+type capturedArg struct {
+	values []driver.Value
+	index  int
+}
+
+func (a capturedArg) Match(value driver.Value) bool {
+	a.values[a.index] = value
+	return true
+}
+
+func captureArgs(n int) ([]driver.Value, []driver.Value) {
+	values := make([]driver.Value, n)
+	matchers := make([]driver.Value, n)
+	for i := range matchers {
+		matchers[i] = capturedArg{values: values, index: i}
+	}
+	return matchers, values
+}
+
+func testUpdateSQL(dialect string) string {
+	columns := []string{"name", "logo_uri", "redirect_uris", "claims", "acr_values", "grant_types", "auth_methods", "status", "additional_config", "upd_dtimes"}
+	set := make([]string, len(columns))
+	for i, column := range columns {
+		set[i] = column + " = " + testPlaceholder(dialect, i+1)
+	}
+	query := "UPDATE client_detail SET " + strings.Join(set, ", ") + " WHERE id = " + testPlaceholder(dialect, 11)
+	if dialect == "postgres" {
+		query += " RETURNING " + testClientColumns
+	}
+	return query
+}
+
+func patchColumns(fields db.PatchClientFields) []string {
+	columns := make([]string, 0, 13)
+	add := func(selected bool, name string) {
+		if selected {
+			columns = append(columns, name)
+		}
+	}
+	add(fields.Name, "name")
+	add(fields.LogoURI, "logo_uri")
+	add(fields.RedirectURIs, "redirect_uris")
+	add(fields.Claims, "claims")
+	add(fields.AcrValues, "acr_values")
+	add(fields.GrantTypes, "grant_types")
+	add(fields.AuthMethods, "auth_methods")
+	add(fields.Status, "status")
+	add(fields.AdditionalConfig, "additional_config")
+	add(fields.EncPublicKey, "enc_public_key")
+	add(fields.EncPublicKey, "enc_public_key_hash")
+	add(fields.EncPublicKey, "enc_public_key_cert")
+	return append(columns, "upd_dtimes")
+}
+
+func testPatchSQL(dialect string, fields db.PatchClientFields) string {
+	columns := patchColumns(fields)
+	set := make([]string, len(columns))
+	for i, column := range columns {
+		set[i] = column + " = " + testPlaceholder(dialect, i+1)
+	}
+	query := "UPDATE client_detail SET " + strings.Join(set, ", ") + " WHERE id = " + testPlaceholder(dialect, len(columns)+1)
+	if dialect == "postgres" {
+		query += " RETURNING " + testClientColumns
+	}
+	return query
+}
+
+func expectPutWrite(mock sqlmock.Sqlmock, dialect, id string, row db.ClientDetail, writeErr error) []driver.Value {
+	matchers, values := captureArgs(11)
+	if dialect == "postgres" {
+		query := mock.ExpectQuery(testUpdateSQL(dialect)).WithArgs(matchers...)
+		if writeErr != nil {
+			query.WillReturnError(writeErr)
+		} else {
+			query.WillReturnRows(testRows(row))
+		}
+	} else {
+		exec := mock.ExpectExec(testUpdateSQL(dialect)).WithArgs(matchers...)
+		if writeErr != nil {
+			exec.WillReturnError(writeErr)
+		} else {
+			exec.WillReturnResult(sqlmock.NewResult(0, 1))
+			mock.ExpectQuery(testReadbackSQL(dialect)).WithArgs(id).WillReturnRows(testRows(row))
+		}
+	}
+	return values
+}
+
+func expectPatchWrite(mock sqlmock.Sqlmock, dialect, id string, fields db.PatchClientFields, row db.ClientDetail, writeErr error) []driver.Value {
+	matchers, values := captureArgs(len(patchColumns(fields)) + 1)
+	if dialect == "postgres" {
+		query := mock.ExpectQuery(testPatchSQL(dialect, fields)).WithArgs(matchers...)
+		if writeErr != nil {
+			query.WillReturnError(writeErr)
+		} else {
+			query.WillReturnRows(testRows(row))
+		}
+	} else {
+		exec := mock.ExpectExec(testPatchSQL(dialect, fields)).WithArgs(matchers...)
+		if writeErr != nil {
+			exec.WillReturnError(writeErr)
+		} else {
+			exec.WillReturnResult(sqlmock.NewResult(0, 1))
+			mock.ExpectQuery(testReadbackSQL(dialect)).WithArgs(id).WillReturnRows(testRows(row))
+		}
+	}
+	return values
+}
+
+func (s *lockedTestService) UpdateClient(ctx context.Context, profile Profile, id string, req UpdateClientRequest) (ClientResponse, error) {
+	expectLockedRead(s.mock, "postgres", id, s.q.getRow, s.q.getErr)
+	var values []driver.Value
+	if s.q.getErr == nil && (s.q.updateRow != (db.ClientDetail{}) || s.q.updateErr != nil) {
+		values = expectPutWrite(s.mock, "postgres", id, s.q.updateRow, s.q.updateErr)
+		if s.q.updateErr == nil {
+			s.mock.ExpectCommit()
+		} else {
+			s.mock.ExpectRollback()
+		}
+	} else {
+		s.mock.ExpectRollback()
+	}
+	ctx, cancel := context.WithTimeout(ctx, 2*time.Second)
+	defer cancel()
+	resp, err := s.Service.UpdateClient(ctx, profile, id, req)
+	if values != nil && values[10] != nil {
+		s.q.updateParams = db.UpdateClientParams{ID: values[10].(string), Name: values[0].(string), LogoURI: values[1].(string), RedirectUris: values[2].(string), Claims: values[3].(string), AcrValues: values[4].(string), GrantTypes: values[5].(string), AuthMethods: values[6].(string), Status: values[7].(string), AdditionalConfig: asNullString(values[8]), UpdDtimes: asNullTime(values[9])}
+	}
+	return resp, err
+}
+
+func (s *lockedTestService) PatchClient(ctx context.Context, id string, req PatchClientRequest, fields PatchFields) (ClientResponse, error) {
+	if fields == (PatchFields{}) {
+		return s.Service.PatchClient(ctx, id, req, fields)
+	}
+	expectLockedRead(s.mock, "postgres", id, s.q.getRow, s.q.getErr)
+	var values []driver.Value
+	if s.q.getErr == nil && (s.q.patchRow != (db.ClientDetail{}) || s.q.patchErr != nil) {
+		selected := db.PatchClientFields{Name: fields.ClientName || fields.ClientNameLangMap, LogoURI: fields.LogoURI, RedirectURIs: fields.RedirectURIs, Claims: fields.Claims, AcrValues: fields.AcrValues, GrantTypes: fields.GrantTypes, AuthMethods: fields.AuthMethods, Status: fields.Status, AdditionalConfig: fields.AdditionalConfig, EncPublicKey: fields.EncPublicKey}
+		values = expectPatchWrite(s.mock, "postgres", id, selected, s.q.patchRow, s.q.patchErr)
+		if s.q.patchErr != nil {
+			s.mock.ExpectRollback()
+		} else if _, conversionErr := toResponse(s.q.patchRow); conversionErr != nil {
+			s.mock.ExpectRollback()
+		} else {
+			s.mock.ExpectCommit()
+		}
+	} else {
+		s.mock.ExpectRollback()
+	}
+	ctx, cancel := context.WithTimeout(ctx, 2*time.Second)
+	defer cancel()
+	resp, err := s.Service.PatchClient(ctx, id, req, fields)
+	if values != nil && values[len(values)-1] != nil {
+		s.q.patchParams = patchParamsFromArgs(fields, values)
+	}
+	return resp, err
+}
+
+func asNullString(value driver.Value) sql.NullString {
+	if value == nil {
+		return sql.NullString{}
+	}
+	return sql.NullString{String: value.(string), Valid: true}
+}
+
+func asNullTime(value driver.Value) sql.NullTime {
+	if value == nil {
+		return sql.NullTime{}
+	}
+	return sql.NullTime{Time: value.(time.Time), Valid: true}
+}
+
+func patchParamsFromArgs(fields PatchFields, values []driver.Value) db.PatchClientParams {
+	selected := db.PatchClientFields{Name: fields.ClientName || fields.ClientNameLangMap, LogoURI: fields.LogoURI, RedirectURIs: fields.RedirectURIs, Claims: fields.Claims, AcrValues: fields.AcrValues, GrantTypes: fields.GrantTypes, AuthMethods: fields.AuthMethods, Status: fields.Status, AdditionalConfig: fields.AdditionalConfig, EncPublicKey: fields.EncPublicKey}
+	params := db.PatchClientParams{ID: values[len(values)-1].(string), Fields: selected, UpdDtimes: asNullTime(values[len(values)-2])}
+	for i, column := range patchColumns(selected)[:len(values)-2] {
+		switch column {
+		case "name":
+			params.Name = values[i].(string)
+		case "logo_uri":
+			params.LogoURI = values[i].(string)
+		case "redirect_uris":
+			params.RedirectUris = values[i].(string)
+		case "claims":
+			params.Claims = values[i].(string)
+		case "acr_values":
+			params.AcrValues = values[i].(string)
+		case "grant_types":
+			params.GrantTypes = values[i].(string)
+		case "auth_methods":
+			params.AuthMethods = values[i].(string)
+		case "status":
+			params.Status = values[i].(string)
+		case "additional_config":
+			params.AdditionalConfig = asNullString(values[i])
+		case "enc_public_key":
+			params.EncPublicKey = asNullString(values[i])
+		case "enc_public_key_hash":
+			params.EncPublicKeyHash = asNullString(values[i])
+		case "enc_public_key_cert":
+			params.EncPublicKeyCert = asNullString(values[i])
+		}
+	}
+	return params
+}
 
 // fakeQuerier is an in-memory db.Querier stand-in that lets tests script each
 // method's response and capture the params passed to write methods.
@@ -96,7 +392,7 @@ func existingClientRow() db.ClientDetail {
 		ID:            "client-1",
 		Name:          `{"@none":"Test Client"}`,
 		RpID:          "rp-1",
-		LogoUri:       "https://example.com/logo.png",
+		LogoURI:       "https://example.com/logo.png",
 		RedirectUris:  `["https://example.com/callback"]`,
 		Claims:        `["name","email"]`,
 		AcrValues:     `["mosip:idp:acr:static-code"]`,
@@ -197,7 +493,7 @@ func (ts *ServiceTestSuite) TestUpdateClient() {
 
 	t.Run("validation error", func(t *testing.T) {
 		q := &fakeQuerier{}
-		s := NewServiceWithQuerier(q, nil, 0, nil)
+		s := newLockedTestService(t, q, nil, 0, nil)
 		req := validUpdateRequest()
 		req.Status = "not-a-status"
 		_, err := s.UpdateClient(context.Background(), ProfileOIDC, "client-1", req)
@@ -212,7 +508,7 @@ func (ts *ServiceTestSuite) TestUpdateClient() {
 		require.NoError(t, cache.Put(context.Background(), clientCacheNamespace, "client-1", data, 60))
 
 		q := &fakeQuerier{getRow: row, updateRow: row}
-		s := NewServiceWithQuerier(q, cache, 60, nil)
+		s := newLockedTestService(t, q, cache, 60, nil)
 		resp, err := s.UpdateClient(context.Background(), ProfileOIDC, "client-1", validUpdateRequest())
 		require.NoError(t, err)
 		require.Equal(t, "client-1", resp.ClientID)
@@ -225,35 +521,34 @@ func (ts *ServiceTestSuite) TestUpdateClient() {
 
 	t.Run("not found", func(t *testing.T) {
 		q := &fakeQuerier{getErr: sql.ErrNoRows}
-		s := NewServiceWithQuerier(q, nil, 0, nil)
+		s := newLockedTestService(t, q, nil, 0, nil)
 		_, err := s.UpdateClient(context.Background(), ProfileOIDC, "missing", validUpdateRequest())
 		require.ErrorIs(t, err, ErrClientNotFound)
 	})
 
 	t.Run("get client generic error", func(t *testing.T) {
 		q := &fakeQuerier{getErr: errors.New("boom")}
-		s := NewServiceWithQuerier(q, nil, 0, nil)
+		s := newLockedTestService(t, q, nil, 0, nil)
 		_, err := s.UpdateClient(context.Background(), ProfileOIDC, "client-1", validUpdateRequest())
 		require.Error(t, err)
 		require.False(t, errors.Is(err, ErrClientNotFound))
 	})
 
-	// The UPDATE is a plain WHERE id = $1, so a write that matches nothing means
-	// the client was deleted between the read and the write.
-	t.Run("update returns no rows when client removed", func(t *testing.T) {
+	// A mock-backed service can report no rows at write time. Production holds
+	// a row lock from the read until the write commits.
+	t.Run("update returns no rows", func(t *testing.T) {
 		q := &fakeQuerier{getRow: existingClientRow(), updateErr: sql.ErrNoRows}
-		s := NewServiceWithQuerier(q, nil, 0, nil)
+		s := newLockedTestService(t, q, nil, 0, nil)
 		_, err := s.UpdateClient(context.Background(), ProfileOIDC, "client-1", validUpdateRequest())
 		require.ErrorIs(t, err, ErrClientNotFound)
 	})
 
 	t.Run("generic db error", func(t *testing.T) {
 		q := &fakeQuerier{getRow: existingClientRow(), updateErr: errors.New("boom")}
-		s := NewServiceWithQuerier(q, nil, 0, nil)
+		s := newLockedTestService(t, q, nil, 0, nil)
 		_, err := s.UpdateClient(context.Background(), ProfileOIDC, "client-1", validUpdateRequest())
 		require.Error(t, err)
 		require.False(t, errors.Is(err, ErrClientNotFound))
-		require.False(t, errors.Is(err, ErrClientConflict))
 	})
 }
 
@@ -262,31 +557,50 @@ func (ts *ServiceTestSuite) TestPatchClient() {
 
 	t.Run("client not found", func(t *testing.T) {
 		q := &fakeQuerier{getErr: sql.ErrNoRows}
-		s := NewServiceWithQuerier(q, nil, 0, nil)
-		_, err := s.PatchClient(context.Background(), "missing", PatchClientRequest{}, PatchFields{})
+		s := newLockedTestService(t, q, nil, 0, nil)
+		_, err := s.PatchClient(context.Background(), "missing", PatchClientRequest{Status: "ACTIVE"}, PatchFields{Status: true})
 		require.ErrorIs(t, err, ErrClientNotFound)
 	})
 
 	t.Run("get client generic error", func(t *testing.T) {
 		q := &fakeQuerier{getErr: errors.New("boom")}
-		s := NewServiceWithQuerier(q, nil, 0, nil)
-		_, err := s.PatchClient(context.Background(), "client-1", PatchClientRequest{}, PatchFields{})
+		s := newLockedTestService(t, q, nil, 0, nil)
+		_, err := s.PatchClient(context.Background(), "client-1", PatchClientRequest{Status: "ACTIVE"}, PatchFields{Status: true})
 		require.Error(t, err)
 		require.False(t, errors.Is(err, ErrClientNotFound))
 	})
 
-	t.Run("merge patch error on corrupt redirect uris", func(t *testing.T) {
+	t.Run("response conversion still rejects malformed stored JSON", func(t *testing.T) {
 		row := existingClientRow()
 		row.RedirectUris = "not-json"
-		q := &fakeQuerier{getRow: row}
-		s := NewServiceWithQuerier(q, nil, 0, nil)
-		_, err := s.PatchClient(context.Background(), "client-1", PatchClientRequest{}, PatchFields{})
+		q := &fakeQuerier{getRow: row, patchRow: row}
+		s := newLockedTestService(t, q, nil, 0, nil)
+		_, err := s.PatchClient(context.Background(), "client-1", PatchClientRequest{Status: "ACTIVE"}, PatchFields{Status: true})
 		require.Error(t, err)
+		require.Equal(t, "client-1", q.patchParams.ID, "validation must not decode retained lists")
+	})
+
+	t.Run("unrelated invalid stored value does not block logo and status", func(t *testing.T) {
+		row := existingClientRow()
+		row.RedirectUris = `[]`
+		patched := row
+		patched.Status = "INACTIVE"
+		patched.LogoURI = "https://example.com/new-logo.png"
+		q := &fakeQuerier{getRow: row, patchRow: patched}
+		s := newLockedTestService(t, q, nil, 0, nil)
+		resp, err := s.PatchClient(context.Background(), "client-1", PatchClientRequest{
+			Status: "inactive", LogoURI: patched.LogoURI,
+		}, PatchFields{Status: true, LogoURI: true})
+		require.NoError(t, err)
+		require.Equal(t, "INACTIVE", resp.Status)
+		require.Equal(t, db.PatchClientFields{Status: true, LogoURI: true}, q.patchParams.Fields)
+		require.Equal(t, "INACTIVE", q.patchParams.Status)
+		require.Equal(t, patched.LogoURI, q.patchParams.LogoURI)
 	})
 
 	t.Run("validation error on patched field", func(t *testing.T) {
 		q := &fakeQuerier{getRow: existingClientRow()}
-		s := NewServiceWithQuerier(q, nil, 0, nil)
+		s := newLockedTestService(t, q, nil, 0, nil)
 		req := PatchClientRequest{LogoURI: "not-a-uri"}
 		fields := PatchFields{LogoURI: true}
 		_, err := s.PatchClient(context.Background(), "client-1", req, fields)
@@ -294,15 +608,36 @@ func (ts *ServiceTestSuite) TestPatchClient() {
 		var ve *ValidationError
 		require.ErrorAs(t, err, &ve)
 		require.Equal(t, "invalid_uri", ve.Code)
+		require.Empty(t, q.patchParams.ID)
 	})
 
-	t.Run("success with no field changes", func(t *testing.T) {
-		q := &fakeQuerier{getRow: existingClientRow(), patchRow: existingClientRow()}
+	t.Run("supplied empty required list is rejected", func(t *testing.T) {
+		q := &fakeQuerier{getRow: existingClientRow()}
+		s := newLockedTestService(t, q, nil, 0, nil)
+		_, err := s.PatchClient(context.Background(), "client-1", PatchClientRequest{RedirectURIs: []string{}}, PatchFields{RedirectURIs: true})
+		var ve *ValidationError
+		require.ErrorAs(t, err, &ve)
+		require.Equal(t, "invalid_redirect_uri", ve.Code)
+		require.Empty(t, q.patchParams.ID)
+	})
+
+	t.Run("empty patch rejected before reading client", func(t *testing.T) {
+		q := &fakeQuerier{getErr: errors.New("client read must not run")}
 		s := NewServiceWithQuerier(q, nil, 0, nil)
-		resp, err := s.PatchClient(context.Background(), "client-1", PatchClientRequest{}, PatchFields{})
+		_, err := s.PatchClient(context.Background(), "client-1", PatchClientRequest{}, PatchFields{})
+		var ve *ValidationError
+		require.ErrorAs(t, err, &ve)
+		require.Equal(t, "invalid_request", ve.Code)
+		require.Empty(t, q.patchParams.ID)
+	})
+
+	t.Run("selected field with unchanged value succeeds", func(t *testing.T) {
+		q := &fakeQuerier{getRow: existingClientRow(), patchRow: existingClientRow()}
+		s := newLockedTestService(t, q, nil, 0, nil)
+		resp, err := s.PatchClient(context.Background(), "client-1", PatchClientRequest{Status: "ACTIVE"}, PatchFields{Status: true})
 		require.NoError(t, err)
 		require.Equal(t, "client-1", resp.ClientID)
-		require.Equal(t, "ACTIVE", q.patchParams.Status)
+		require.Equal(t, db.PatchClientFields{Status: true}, q.patchParams.Fields)
 	})
 
 	t.Run("status field patched", func(t *testing.T) {
@@ -310,22 +645,115 @@ func (ts *ServiceTestSuite) TestPatchClient() {
 		patched := existingClientRow()
 		patched.Status = "INACTIVE"
 		q := &fakeQuerier{getRow: existing, patchRow: patched}
-		s := NewServiceWithQuerier(q, nil, 0, nil)
+		s := newLockedTestService(t, q, nil, 0, nil)
 		req := PatchClientRequest{Status: "inactive"}
 		fields := PatchFields{Status: true}
 		resp, err := s.PatchClient(context.Background(), "client-1", req, fields)
 		require.NoError(t, err)
 		require.Equal(t, "INACTIVE", resp.Status)
 		require.Equal(t, "INACTIVE", q.patchParams.Status)
+		require.Equal(t, db.PatchClientFields{Status: true}, q.patchParams.Fields)
+		require.True(t, q.patchParams.UpdDtimes.Valid)
+		prepared := q.patchParams
+		prepared.UpdDtimes = sql.NullTime{}
+		require.Equal(t, db.PatchClientParams{
+			ID: "client-1", Fields: db.PatchClientFields{Status: true}, Status: "INACTIVE",
+		}, prepared, "status-only patch must not prepare omitted values")
+	})
+
+	t.Run("supplied independent fields select only their columns", func(t *testing.T) {
+		q := &fakeQuerier{getRow: existingClientRow(), patchRow: existingClientRow()}
+		s := newLockedTestService(t, q, nil, 0, nil)
+		req := PatchClientRequest{
+			LogoURI:          "https://example.com/new-logo.png",
+			RedirectURIs:     []string{"https://example.com/new-callback"},
+			Claims:           []string{"name"},
+			AcrValues:        []string{"mosip:idp:acr:static-code"},
+			GrantTypes:       []string{"authorization_code"},
+			AuthMethods:      []string{"private_key_jwt"},
+			AdditionalConfig: json.RawMessage(`{"userinfo_response_type":"JWS"}`),
+		}
+		fields := PatchFields{
+			LogoURI: true, RedirectURIs: true, Claims: true, AcrValues: true,
+			GrantTypes: true, AuthMethods: true, AdditionalConfig: true,
+		}
+		_, err := s.PatchClient(context.Background(), "client-1", req, fields)
+		require.NoError(t, err)
+		prepared := q.patchParams
+		prepared.UpdDtimes = sql.NullTime{}
+		require.Equal(t, db.PatchClientParams{
+			ID: "client-1",
+			Fields: db.PatchClientFields{
+				LogoURI: true, RedirectURIs: true, Claims: true, AcrValues: true,
+				GrantTypes: true, AuthMethods: true, AdditionalConfig: true,
+			},
+			LogoURI:          req.LogoURI,
+			RedirectUris:     `["https://example.com/new-callback"]`,
+			Claims:           `["name"]`,
+			AcrValues:        `["mosip:idp:acr:static-code"]`,
+			GrantTypes:       `["authorization_code"]`,
+			AuthMethods:      `["private_key_jwt"]`,
+			AdditionalConfig: sql.NullString{String: `{"userinfo_response_type":"JWS"}`, Valid: true},
+		}, prepared)
+	})
+
+	t.Run("supplied duplicate claims are stored once", func(t *testing.T) {
+		q := &fakeQuerier{getRow: existingClientRow(), patchRow: existingClientRow()}
+		s := newLockedTestService(t, q, nil, 0, nil)
+		_, err := s.PatchClient(context.Background(), "client-1", PatchClientRequest{
+			Claims: []string{"name", "email", "name"},
+		}, PatchFields{Claims: true})
+		require.NoError(t, err)
+		require.Equal(t, db.PatchClientFields{Claims: true}, q.patchParams.Fields)
+		require.JSONEq(t, `["name","email"]`, q.patchParams.Claims)
+	})
+
+	t.Run("client name and language map share the name column", func(t *testing.T) {
+		row := existingClientRow()
+		row.Name = `{"@none":"Stored Base","fra":"Stored French"}`
+		q := &fakeQuerier{getRow: row, patchRow: row}
+		s := newLockedTestService(t, q, nil, 0, nil)
+		req := PatchClientRequest{ClientNameLangMap: map[string]string{"eng": "Test Client"}}
+		_, err := s.PatchClient(context.Background(), "client-1", req, PatchFields{ClientNameLangMap: true})
+		require.NoError(t, err)
+		require.Equal(t, db.PatchClientFields{Name: true}, q.patchParams.Fields)
+		require.Contains(t, q.patchParams.Name, `"eng":"Test Client"`)
+		require.Contains(t, q.patchParams.Name, `"@none":"Stored Base"`)
+		require.NotContains(t, q.patchParams.Name, `"fra"`, "language map is replaced, not merged")
+	})
+
+	t.Run("both name attributes replace stored name without parsing it", func(t *testing.T) {
+		row := existingClientRow()
+		row.Name = "not-json"
+		q := &fakeQuerier{getRow: row, patchRow: existingClientRow()}
+		s := newLockedTestService(t, q, nil, 0, nil)
+		_, err := s.PatchClient(context.Background(), "client-1", PatchClientRequest{
+			ClientName: "New Base", ClientNameLangMap: map[string]string{"eng": "New English"},
+		}, PatchFields{ClientName: true, ClientNameLangMap: true})
+		require.NoError(t, err)
+		require.Equal(t, db.PatchClientFields{Name: true}, q.patchParams.Fields)
+		require.Equal(t, `{"@none":"New Base","eng":"New English"}`, q.patchParams.Name)
+	})
+
+	t.Run("client name patch retains stored language map", func(t *testing.T) {
+		row := existingClientRow()
+		row.Name = `{"@none":"Old Name","eng":"English Name"}`
+		q := &fakeQuerier{getRow: row, patchRow: row}
+		s := newLockedTestService(t, q, nil, 0, nil)
+		_, err := s.PatchClient(context.Background(), "client-1", PatchClientRequest{ClientName: "New Name"}, PatchFields{ClientName: true})
+		require.NoError(t, err)
+		require.Equal(t, db.PatchClientFields{Name: true}, q.patchParams.Fields)
+		require.Equal(t, `{"@none":"New Name","eng":"English Name"}`, q.patchParams.Name)
 	})
 
 	t.Run("invalid status value", func(t *testing.T) {
 		q := &fakeQuerier{getRow: existingClientRow()}
-		s := NewServiceWithQuerier(q, nil, 0, nil)
+		s := newLockedTestService(t, q, nil, 0, nil)
 		req := PatchClientRequest{Status: "bogus"}
 		fields := PatchFields{Status: true}
 		_, err := s.PatchClient(context.Background(), "client-1", req, fields)
 		require.Error(t, err)
+		require.Empty(t, q.patchParams.ID)
 	})
 
 	t.Run("enc public key cleared with null", func(t *testing.T) {
@@ -334,7 +762,7 @@ func (ts *ServiceTestSuite) TestPatchClient() {
 		existing.EncPublicKeyHash = sql.NullString{String: "hash", Valid: true}
 		existing.EncPublicKeyCert = sql.NullString{String: "cert", Valid: true}
 		q := &fakeQuerier{getRow: existing, patchRow: existingClientRow()}
-		s := NewServiceWithQuerier(q, nil, 0, nil)
+		s := newLockedTestService(t, q, nil, 0, nil)
 		req := PatchClientRequest{EncPublicKey: NullableJWK{Defined: true, IsNull: true}}
 		fields := PatchFields{EncPublicKey: true}
 		_, err := s.PatchClient(context.Background(), "client-1", req, fields)
@@ -342,11 +770,50 @@ func (ts *ServiceTestSuite) TestPatchClient() {
 		require.False(t, q.patchParams.EncPublicKey.Valid)
 		require.False(t, q.patchParams.EncPublicKeyHash.Valid)
 		require.False(t, q.patchParams.EncPublicKeyCert.Valid)
+		require.Equal(t, db.PatchClientFields{EncPublicKey: true}, q.patchParams.Fields)
+	})
+
+	t.Run("enc public key cannot be cleared while jwe config is retained", func(t *testing.T) {
+		existing := existingClientRow()
+		existing.EncPublicKey = sql.NullString{String: `{"kty":"RSA"}`, Valid: true}
+		existing.AdditionalConfig = sql.NullString{String: `{"userinfo_response_type":"JWE"}`, Valid: true}
+		q := &fakeQuerier{getRow: existing}
+		s := newLockedTestService(t, q, nil, 0, nil)
+		req := PatchClientRequest{EncPublicKey: NullableJWK{Defined: true, IsNull: true}}
+		_, err := s.PatchClient(context.Background(), "client-1", req, PatchFields{EncPublicKey: true})
+		var ve *ValidationError
+		require.ErrorAs(t, err, &ve)
+		require.Equal(t, "invalid_additional_config", ve.Code)
+		require.Empty(t, q.patchParams.ID, "invalid state must not be written")
+	})
+
+	t.Run("jwe config without effective key is rejected", func(t *testing.T) {
+		q := &fakeQuerier{getRow: existingClientRow()}
+		s := newLockedTestService(t, q, nil, 0, nil)
+		_, err := s.PatchClient(context.Background(), "client-1", PatchClientRequest{
+			AdditionalConfig: json.RawMessage(`{"userinfo_response_type":"JWE"}`),
+		}, PatchFields{AdditionalConfig: true})
+		var ve *ValidationError
+		require.ErrorAs(t, err, &ve)
+		require.Equal(t, "invalid_additional_config", ve.Code)
+		require.Empty(t, q.patchParams.ID)
+	})
+
+	t.Run("unrelated patch does not revalidate retained config", func(t *testing.T) {
+		row := existingClientRow()
+		row.AdditionalConfig = sql.NullString{String: `{"userinfo_response_type":"JWE"}`, Valid: true}
+		q := &fakeQuerier{getRow: row, patchRow: row}
+		s := newLockedTestService(t, q, nil, 0, nil)
+		_, err := s.PatchClient(context.Background(), "client-1", PatchClientRequest{
+			LogoURI: "https://example.com/new.png",
+		}, PatchFields{LogoURI: true})
+		require.NoError(t, err)
+		require.Equal(t, db.PatchClientFields{LogoURI: true}, q.patchParams.Fields)
 	})
 
 	t.Run("enc public key updated with new value", func(t *testing.T) {
 		q := &fakeQuerier{getRow: existingClientRow(), patchRow: existingClientRow()}
-		s := NewServiceWithQuerier(q, nil, 0, nil)
+		s := newLockedTestService(t, q, nil, 0, nil)
 		req := PatchClientRequest{EncPublicKey: NullableJWK{Defined: true, Value: validJWK()}}
 		fields := PatchFields{EncPublicKey: true}
 		_, err := s.PatchClient(context.Background(), "client-1", req, fields)
@@ -355,26 +822,76 @@ func (ts *ServiceTestSuite) TestPatchClient() {
 		require.True(t, q.patchParams.EncPublicKeyHash.Valid)
 	})
 
+	t.Run("enc public key and JWE config are prepared together", func(t *testing.T) {
+		q := &fakeQuerier{getRow: existingClientRow(), patchRow: existingClientRow()}
+		s := newLockedTestService(t, q, nil, 0, nil)
+		req := PatchClientRequest{
+			AdditionalConfig: json.RawMessage(`{"userinfo_response_type":"JWE"}`),
+			EncPublicKey:     NullableJWK{Defined: true, Value: validJWK()},
+		}
+		_, err := s.PatchClient(context.Background(), "client-1", req, PatchFields{AdditionalConfig: true, EncPublicKey: true})
+		require.NoError(t, err)
+		require.Equal(t, db.PatchClientFields{AdditionalConfig: true, EncPublicKey: true}, q.patchParams.Fields)
+		require.Equal(t, sql.NullString{String: `{"userinfo_response_type":"JWE"}`, Valid: true}, q.patchParams.AdditionalConfig)
+		require.True(t, q.patchParams.EncPublicKey.Valid)
+		require.True(t, q.patchParams.EncPublicKeyHash.Valid)
+		require.False(t, q.patchParams.EncPublicKeyCert.Valid)
+	})
+
+	t.Run("enc public key can be cleared with non-JWE config", func(t *testing.T) {
+		row := existingClientRow()
+		row.EncPublicKey = sql.NullString{String: `{"kty":"RSA"}`, Valid: true}
+		row.AdditionalConfig = sql.NullString{String: `{"userinfo_response_type":"JWE"}`, Valid: true}
+		q := &fakeQuerier{getRow: row, patchRow: existingClientRow()}
+		s := newLockedTestService(t, q, nil, 0, nil)
+		req := PatchClientRequest{
+			AdditionalConfig: json.RawMessage(`{"userinfo_response_type":"JWS"}`),
+			EncPublicKey:     NullableJWK{Defined: true, IsNull: true},
+		}
+		_, err := s.PatchClient(context.Background(), "client-1", req, PatchFields{AdditionalConfig: true, EncPublicKey: true})
+		require.NoError(t, err)
+		require.Equal(t, db.PatchClientFields{AdditionalConfig: true, EncPublicKey: true}, q.patchParams.Fields)
+		require.Equal(t, sql.NullString{String: `{"userinfo_response_type":"JWS"}`, Valid: true}, q.patchParams.AdditionalConfig)
+		require.False(t, q.patchParams.EncPublicKey.Valid)
+		require.False(t, q.patchParams.EncPublicKeyHash.Valid)
+		require.False(t, q.patchParams.EncPublicKeyCert.Valid)
+	})
+
+	t.Run("explicit null configuration keeps its replacement semantics", func(t *testing.T) {
+		row := existingClientRow()
+		row.EncPublicKey = sql.NullString{String: `{"kty":"RSA"}`, Valid: true}
+		row.AdditionalConfig = sql.NullString{String: `{"userinfo_response_type":"JWE"}`, Valid: true}
+		q := &fakeQuerier{getRow: row, patchRow: existingClientRow()}
+		s := newLockedTestService(t, q, nil, 0, nil)
+		_, err := s.PatchClient(context.Background(), row.ID, PatchClientRequest{
+			AdditionalConfig: json.RawMessage(`null`),
+			EncPublicKey:     NullableJWK{Defined: true, IsNull: true},
+		}, PatchFields{AdditionalConfig: true, EncPublicKey: true})
+		require.NoError(t, err)
+		require.Equal(t, sql.NullString{String: "null", Valid: true}, q.patchParams.AdditionalConfig)
+		require.False(t, q.patchParams.EncPublicKey.Valid)
+	})
+
 	t.Run("enc public key invalid new value", func(t *testing.T) {
 		q := &fakeQuerier{getRow: existingClientRow()}
-		s := NewServiceWithQuerier(q, nil, 0, nil)
+		s := newLockedTestService(t, q, nil, 0, nil)
 		req := PatchClientRequest{EncPublicKey: NullableJWK{Defined: true, Value: map[string]string{"kty": "bogus"}}}
 		fields := PatchFields{EncPublicKey: true}
 		_, err := s.PatchClient(context.Background(), "client-1", req, fields)
 		require.Error(t, err)
 	})
 
-	t.Run("patch conflict", func(t *testing.T) {
+	t.Run("patch write returns no rows", func(t *testing.T) {
 		q := &fakeQuerier{getRow: existingClientRow(), patchErr: sql.ErrNoRows}
-		s := NewServiceWithQuerier(q, nil, 0, nil)
-		_, err := s.PatchClient(context.Background(), "client-1", PatchClientRequest{}, PatchFields{})
-		require.ErrorIs(t, err, ErrClientConflict)
+		s := newLockedTestService(t, q, nil, 0, nil)
+		_, err := s.PatchClient(context.Background(), "client-1", PatchClientRequest{Status: "ACTIVE"}, PatchFields{Status: true})
+		require.ErrorIs(t, err, ErrClientNotFound)
 	})
 
 	t.Run("duplicate public key hash on patch", func(t *testing.T) {
 		q := &fakeQuerier{getRow: existingClientRow(), patchErr: &pgconn.PgError{Code: "23505", ConstraintName: "uk_clntdtl_public_key_hash"}}
-		s := NewServiceWithQuerier(q, nil, 0, nil)
-		_, err := s.PatchClient(context.Background(), "client-1", PatchClientRequest{}, PatchFields{})
+		s := newLockedTestService(t, q, nil, 0, nil)
+		_, err := s.PatchClient(context.Background(), "client-1", PatchClientRequest{EncPublicKey: NullableJWK{Defined: true, Value: validJWK()}}, PatchFields{EncPublicKey: true})
 		var ve *ValidationError
 		require.ErrorAs(t, err, &ve)
 		require.Equal(t, "invalid_public_key", ve.Code)
@@ -382,10 +899,10 @@ func (ts *ServiceTestSuite) TestPatchClient() {
 
 	t.Run("generic patch db error", func(t *testing.T) {
 		q := &fakeQuerier{getRow: existingClientRow(), patchErr: errors.New("boom")}
-		s := NewServiceWithQuerier(q, nil, 0, nil)
-		_, err := s.PatchClient(context.Background(), "client-1", PatchClientRequest{}, PatchFields{})
+		s := newLockedTestService(t, q, nil, 0, nil)
+		_, err := s.PatchClient(context.Background(), "client-1", PatchClientRequest{Status: "ACTIVE"}, PatchFields{Status: true})
 		require.Error(t, err)
-		require.False(t, errors.Is(err, ErrClientConflict))
+		require.False(t, errors.Is(err, ErrClientNotFound))
 	})
 
 	t.Run("invalidates cache on success", func(t *testing.T) {
@@ -396,13 +913,31 @@ func (ts *ServiceTestSuite) TestPatchClient() {
 		require.NoError(t, cache.Put(context.Background(), clientCacheNamespace, "client-1", data, 60))
 
 		q := &fakeQuerier{getRow: row, patchRow: row}
-		s := NewServiceWithQuerier(q, cache, 60, nil)
-		_, err = s.PatchClient(context.Background(), "client-1", PatchClientRequest{}, PatchFields{})
+		s := newLockedTestService(t, q, cache, 60, nil)
+		_, err = s.PatchClient(context.Background(), "client-1", PatchClientRequest{Status: "ACTIVE"}, PatchFields{Status: true})
 		require.NoError(t, err)
 
 		cached, err := cache.Get(context.Background(), clientCacheNamespace, "client-1")
 		require.NoError(t, err)
 		require.Nil(t, cached)
+	})
+
+	t.Run("response conversion failure does not invalidate cache", func(t *testing.T) {
+		cache := inmemory.Initialize("test")
+		row := existingClientRow()
+		data, err := json.Marshal(row)
+		require.NoError(t, err)
+		require.NoError(t, cache.Put(context.Background(), clientCacheNamespace, "client-1", data, 60))
+
+		invalidResponse := existingClientRow()
+		invalidResponse.Claims = "not-json"
+		q := &fakeQuerier{getRow: row, patchRow: invalidResponse}
+		s := newLockedTestService(t, q, cache, 60, nil)
+		_, err = s.PatchClient(context.Background(), "client-1", PatchClientRequest{Status: "INACTIVE"}, PatchFields{Status: true})
+		require.Error(t, err)
+		cached, err := cache.Get(context.Background(), clientCacheNamespace, "client-1")
+		require.NoError(t, err)
+		require.NotNil(t, cached)
 	})
 }
 
@@ -743,8 +1278,172 @@ func (ts *ServiceTestSuite) TestToResponse() {
 func (ts *ServiceTestSuite) TestNewService() {
 	t := ts.T()
 	require.NotPanics(t, func() {
-		_ = NewService(nil, nil, 0, nil)
+		// sqlx.NewDb sets the driver name without opening a connection, so
+		// NewService can derive it via conn.DriverName() during construction.
+		_ = NewService(sqlx.NewDb(nil, "postgres"), nil, 0, nil)
 	})
+}
+
+func (ts *ServiceTestSuite) TestPatchClientTransactionBoundary() {
+	t := ts.T()
+
+	t.Run("empty patch does not begin a transaction", func(t *testing.T) {
+		s, _ := newSQLMockService(t, "postgres", nil, 0, nil)
+		_, err := s.PatchClient(context.Background(), "client-1", PatchClientRequest{}, PatchFields{})
+		var validation *ValidationError
+		require.ErrorAs(t, err, &validation)
+		require.Equal(t, "invalid_request", validation.Code)
+	})
+
+	t.Run("begin failure performs no read or write", func(t *testing.T) {
+		cache := inmemory.Initialize("test")
+		row := existingClientRow()
+		encoded, err := json.Marshal(row)
+		require.NoError(t, err)
+		require.NoError(t, cache.Put(context.Background(), clientCacheNamespace, row.ID, encoded, 60))
+		s, mock := newSQLMockService(t, "postgres", cache, 60, nil)
+		mock.ExpectBegin().WillReturnError(errors.New("begin failed"))
+		_, err = s.PatchClient(testContext(t), row.ID,
+			PatchClientRequest{Status: "inactive"}, PatchFields{Status: true})
+		require.ErrorContains(t, err, "begin client tx: begin failed")
+		cached, err := cache.Get(context.Background(), clientCacheNamespace, row.ID)
+		require.NoError(t, err)
+		require.NotNil(t, cached)
+	})
+
+	t.Run("missing locked row rolls back", func(t *testing.T) {
+		s, mock := newSQLMockService(t, "postgres", nil, 0, nil)
+		expectLockedRead(mock, "postgres", "missing", db.ClientDetail{}, sql.ErrNoRows)
+		mock.ExpectRollback()
+		_, err := s.PatchClient(testContext(t), "missing",
+			PatchClientRequest{Status: "inactive"}, PatchFields{Status: true})
+		require.ErrorIs(t, err, ErrClientNotFound)
+	})
+
+	t.Run("invalid supplied value rolls back before update", func(t *testing.T) {
+		s, mock := newSQLMockService(t, "mysql", nil, 0, nil)
+		expectLockedRead(mock, "mysql", "client-1", existingClientRow(), nil)
+		mock.ExpectRollback()
+		_, err := s.PatchClient(testContext(t), "client-1",
+			PatchClientRequest{Status: "invalid"}, PatchFields{Status: true})
+		var ve *ValidationError
+		require.ErrorAs(t, err, &ve)
+		require.Equal(t, "invalid_input", ve.Code)
+	})
+
+	t.Run("write failure rolls back", func(t *testing.T) {
+		s, mock := newSQLMockService(t, "postgres", nil, 0, nil)
+		expectLockedRead(mock, "postgres", "client-1", existingClientRow(), nil)
+		expectPatchWrite(mock, "postgres", "client-1", db.PatchClientFields{Status: true}, db.ClientDetail{}, errors.New("write failed"))
+		mock.ExpectRollback()
+		_, err := s.PatchClient(testContext(t), "client-1",
+			PatchClientRequest{Status: "inactive"}, PatchFields{Status: true})
+		require.ErrorContains(t, err, "write failed")
+	})
+
+	t.Run("postgres success locks and commits", func(t *testing.T) {
+		patched := existingClientRow()
+		patched.Status = "INACTIVE"
+		s, mock := newSQLMockService(t, "postgres", nil, 0, nil)
+		expectLockedRead(mock, "postgres", patched.ID, existingClientRow(), nil)
+		args := expectPatchWrite(mock, "postgres", patched.ID, db.PatchClientFields{Status: true}, patched, nil)
+		mock.ExpectCommit()
+		resp, err := s.PatchClient(testContext(t), patched.ID,
+			PatchClientRequest{Status: "inactive"}, PatchFields{Status: true})
+		require.NoError(t, err)
+		require.Equal(t, "INACTIVE", resp.Status)
+		require.Equal(t, "INACTIVE", args[0])
+		require.WithinDuration(t, time.Now().UTC(), args[1].(time.Time), time.Second)
+		require.Equal(t, patched.ID, args[2])
+	})
+
+	t.Run("response conversion failure rolls back after MySQL readback", func(t *testing.T) {
+		row := existingClientRow()
+		row.Claims = "not-json"
+		s, mock := newSQLMockService(t, "mysql", nil, 0, nil)
+		expectLockedRead(mock, "mysql", row.ID, row, nil)
+		expectPatchWrite(mock, "mysql", row.ID, db.PatchClientFields{Status: true}, row, nil)
+		mock.ExpectRollback()
+		_, err := s.PatchClient(testContext(t), row.ID,
+			PatchClientRequest{Status: "inactive"}, PatchFields{Status: true})
+		require.Error(t, err)
+	})
+
+	t.Run("successful MySQL patch invalidates cache after commit", func(t *testing.T) {
+		ctx := testContext(t)
+		cache := inmemory.Initialize("test")
+		row := existingClientRow()
+		encoded, err := json.Marshal(row)
+		require.NoError(t, err)
+		require.NoError(t, cache.Put(ctx, clientCacheNamespace, row.ID, encoded, 60))
+		patched := row
+		patched.Status = "INACTIVE"
+		s, mock := newSQLMockService(t, "mysql", cache, 60, nil)
+		expectLockedRead(mock, "mysql", row.ID, row, nil)
+		expectPatchWrite(mock, "mysql", row.ID, db.PatchClientFields{Status: true}, patched, nil)
+		mock.ExpectCommit()
+		resp, err := s.PatchClient(ctx, row.ID,
+			PatchClientRequest{Status: "inactive"}, PatchFields{Status: true})
+		require.NoError(t, err)
+		require.Equal(t, "INACTIVE", resp.Status)
+		cached, err := cache.Get(ctx, clientCacheNamespace, row.ID)
+		require.NoError(t, err)
+		require.Nil(t, cached)
+	})
+
+	t.Run("commit failure leaves cache entry intact", func(t *testing.T) {
+		ctx := testContext(t)
+		cache := inmemory.Initialize("test")
+		row := existingClientRow()
+		encoded, err := json.Marshal(row)
+		require.NoError(t, err)
+		require.NoError(t, cache.Put(ctx, clientCacheNamespace, row.ID, encoded, 60))
+		s, mock := newSQLMockService(t, "postgres", cache, 60, nil)
+		expectLockedRead(mock, "postgres", row.ID, row, nil)
+		expectPatchWrite(mock, "postgres", row.ID, db.PatchClientFields{Status: true}, row, nil)
+		mock.ExpectCommit().WillReturnError(errors.New("commit failed"))
+		_, err = s.PatchClient(ctx, row.ID, PatchClientRequest{Status: "ACTIVE"}, PatchFields{Status: true})
+		require.ErrorContains(t, err, "commit client tx: commit failed")
+		cached, err := cache.Get(ctx, clientCacheNamespace, row.ID)
+		require.NoError(t, err)
+		require.NotNil(t, cached)
+	})
+}
+
+func (ts *ServiceTestSuite) TestPutTransactionDialects() {
+	t := ts.T()
+	for _, dialect := range []string{"postgres", "mysql"} {
+		t.Run(dialect, func(t *testing.T) {
+			row := existingClientRow()
+			s, mock := newSQLMockService(t, dialect, nil, 0, nil)
+			expectLockedRead(mock, dialect, row.ID, row, nil)
+			expectPutWrite(mock, dialect, row.ID, row, nil)
+			mock.ExpectCommit()
+			_, err := s.UpdateClient(testContext(t), ProfileOIDC, row.ID, validUpdateRequest())
+			require.NoError(t, err)
+		})
+	}
+}
+
+func (ts *ServiceTestSuite) TestPutResponseConversionFailureRollsBack() {
+	t := ts.T()
+	row := existingClientRow()
+	badRow := row
+	badRow.Claims = "not-json"
+	cache := inmemory.Initialize("test")
+	encoded, err := json.Marshal(row)
+	require.NoError(t, err)
+	ctx := testContext(t)
+	require.NoError(t, cache.Put(ctx, clientCacheNamespace, row.ID, encoded, 60))
+	s, mock := newSQLMockService(t, "postgres", cache, 60, nil)
+	expectLockedRead(mock, "postgres", row.ID, row, nil)
+	expectPutWrite(mock, "postgres", row.ID, badRow, nil)
+	mock.ExpectRollback()
+	_, err = s.UpdateClient(ctx, ProfileOIDC, row.ID, validUpdateRequest())
+	require.Error(t, err)
+	cached, err := cache.Get(ctx, clientCacheNamespace, row.ID)
+	require.NoError(t, err)
+	require.NotNil(t, cached)
 }
 
 type ServiceTestSuite struct {

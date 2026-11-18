@@ -8,6 +8,7 @@ package clientmgmt
 
 import (
 	"encoding/json"
+	"slices"
 	"strings"
 	"testing"
 
@@ -361,150 +362,115 @@ func (ts *ValidateTestSuite) TestValidateUpdate() {
 
 func (ts *ValidateTestSuite) TestValidatePatch() {
 	t := ts.T()
-	base := validUpdateRequest()
 
-	t.Run("no fields set falls through to ValidateUpdate", func(t *testing.T) {
-		assert.NoError(t, ValidatePatch(ProfileOIDC, base, PatchFields{}, NullableJWK{}, nil, false))
-	})
-
-	t.Run("patched client name validated", func(t *testing.T) {
-		merged := base
-		merged.ClientName = ""
-		err := ValidatePatch(ProfileOIDC, merged, PatchFields{ClientName: true}, NullableJWK{}, nil, false)
-		assert.Equal(t, "invalid_client_name", errCode(t, err))
-	})
-
-	t.Run("patched status validated", func(t *testing.T) {
-		merged := base
-		merged.Status = "bogus"
-		err := ValidatePatch(ProfileOIDC, merged, PatchFields{Status: true}, NullableJWK{}, nil, false)
-		assert.Equal(t, "invalid_input", errCode(t, err))
-	})
-
-	t.Run("patched redirect uris validated", func(t *testing.T) {
-		merged := base
-		merged.RedirectURIs = []string{"not a uri"}
-		err := ValidatePatch(ProfileOIDC, merged, PatchFields{RedirectURIs: true}, NullableJWK{}, nil, false)
-		assert.Equal(t, "invalid_redirect_uri", errCode(t, err))
-	})
-
-	t.Run("patched enc public key validated", func(t *testing.T) {
-		err := ValidatePatch(ProfileOIDC, base, PatchFields{EncPublicKey: true},
-			NullableJWK{Value: map[string]string{"kty": "bogus"}}, nil, false)
-		assert.Equal(t, "invalid_public_key", errCode(t, err))
-	})
-
-	t.Run("null enc public key skips validation", func(t *testing.T) {
-		err := ValidatePatch(ProfileOIDC, base, PatchFields{EncPublicKey: true}, NullableJWK{IsNull: true}, nil, false)
+	t.Run("supplied names and status", func(t *testing.T) {
+		req, err := ValidatePatch(PatchClientRequest{
+			ClientName: "Updated", ClientNameLangMap: map[string]string{"eng": "Updated"}, Status: "inactive",
+		}, PatchFields{ClientName: true, ClientNameLangMap: true, Status: true}, nil, false, nil)
 		assert.NoError(t, err)
+		assert.Equal(t, "INACTIVE", req.Status)
 	})
 
-	t.Run("patched enc public key missing alg rejected", func(t *testing.T) {
-		err := ValidatePatch(ProfileOIDC, base, PatchFields{EncPublicKey: true},
-			NullableJWK{Value: map[string]string{"kty": "RSA", "n": testRSAN, "e": "AQAB", "kid": "enc-1"}}, nil, false)
-		assert.Equal(t, "invalid_public_key", errCode(t, err))
-	})
+	for _, test := range []struct {
+		name   string
+		req    PatchClientRequest
+		fields PatchFields
+		code   string
+	}{
+		{"empty client name", PatchClientRequest{ClientName: ""}, PatchFields{ClientName: true}, "invalid_client_name"},
+		{"invalid language code", PatchClientRequest{ClientNameLangMap: map[string]string{"xx": "value"}}, PatchFields{ClientNameLangMap: true}, "invalid_language_code"},
+		{"nil language map", PatchClientRequest{}, PatchFields{ClientNameLangMap: true}, "invalid_input"},
+		{"long language value", PatchClientRequest{ClientNameLangMap: map[string]string{"eng": strings.Repeat("a", 51)}}, PatchFields{ClientNameLangMap: true}, "invalid_client_name_value"},
+		{"invalid status", PatchClientRequest{Status: "bogus"}, PatchFields{Status: true}, "invalid_input"},
+		{"invalid logo", PatchClientRequest{LogoURI: "not-a-uri"}, PatchFields{LogoURI: true}, "invalid_uri"},
+		{"empty redirects", PatchClientRequest{RedirectURIs: []string{}}, PatchFields{RedirectURIs: true}, "invalid_redirect_uri"},
+		{"too many redirects", PatchClientRequest{RedirectURIs: []string{"https://a.example", "https://b.example", "https://c.example", "https://d.example", "https://e.example", "https://f.example"}}, PatchFields{RedirectURIs: true}, "invalid_redirect_uri"},
+		{"duplicate redirects", PatchClientRequest{RedirectURIs: []string{"https://a.example", "https://a.example"}}, PatchFields{RedirectURIs: true}, "invalid_redirect_uri"},
+		{"invalid redirect", PatchClientRequest{RedirectURIs: []string{"not a uri"}}, PatchFields{RedirectURIs: true}, "invalid_redirect_uri"},
+		{"empty claims", PatchClientRequest{Claims: []string{}}, PatchFields{Claims: true}, "invalid_claim"},
+		{"too many claims", PatchClientRequest{Claims: slices.Repeat([]string{"name"}, 31)}, PatchFields{Claims: true}, "invalid_claim"},
+		{"invalid claim", PatchClientRequest{Claims: []string{"unknown"}}, PatchFields{Claims: true}, "invalid_claim"},
+		{"empty acr values", PatchClientRequest{AcrValues: []string{}}, PatchFields{AcrValues: true}, "invalid_acr"},
+		{"too many acr values", PatchClientRequest{AcrValues: slices.Repeat([]string{"mosip:idp:acr:static-code"}, 31)}, PatchFields{AcrValues: true}, "invalid_acr"},
+		{"duplicate acr values", PatchClientRequest{AcrValues: []string{"mosip:idp:acr:static-code", "mosip:idp:acr:static-code"}}, PatchFields{AcrValues: true}, "invalid_acr"},
+		{"invalid acr value", PatchClientRequest{AcrValues: []string{"unknown"}}, PatchFields{AcrValues: true}, "invalid_acr"},
+		{"empty grants", PatchClientRequest{GrantTypes: []string{}}, PatchFields{GrantTypes: true}, "invalid_grant_type"},
+		{"too many grants", PatchClientRequest{GrantTypes: slices.Repeat([]string{"authorization_code"}, 4)}, PatchFields{GrantTypes: true}, "invalid_grant_type"},
+		{"invalid grant", PatchClientRequest{GrantTypes: []string{"client_credentials"}}, PatchFields{GrantTypes: true}, "invalid_grant_type"},
+		{"empty auth methods", PatchClientRequest{AuthMethods: []string{}}, PatchFields{AuthMethods: true}, "invalid_client_auth"},
+		{"too many auth methods", PatchClientRequest{AuthMethods: slices.Repeat([]string{"private_key_jwt"}, 4)}, PatchFields{AuthMethods: true}, "invalid_client_auth"},
+		{"invalid auth method", PatchClientRequest{AuthMethods: []string{"client_secret_basic"}}, PatchFields{AuthMethods: true}, "invalid_client_auth"},
+		{"invalid config", PatchClientRequest{AdditionalConfig: json.RawMessage(`not-json`)}, PatchFields{AdditionalConfig: true}, "invalid_additional_config"},
+		{"jwe without key", PatchClientRequest{AdditionalConfig: json.RawMessage(`{"userinfo_response_type":"JWE"}`)}, PatchFields{AdditionalConfig: true}, "invalid_additional_config"},
+		{"invalid key", PatchClientRequest{EncPublicKey: NullableJWK{Value: map[string]string{"kty": "bogus"}}}, PatchFields{EncPublicKey: true}, "invalid_public_key"},
+		{"missing key alg", PatchClientRequest{EncPublicKey: NullableJWK{Value: map[string]string{"kty": "RSA", "n": testRSAN, "e": "AQAB", "kid": "enc-1"}}}, PatchFields{EncPublicKey: true}, "invalid_public_key"},
+		{"clear key retaining jwe", PatchClientRequest{EncPublicKey: NullableJWK{IsNull: true}}, PatchFields{EncPublicKey: true}, "invalid_additional_config"},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			var retained json.RawMessage
+			if test.name == "clear key retaining jwe" {
+				retained = json.RawMessage(`{"id_token_response_type":"JWE"}`)
+			}
+			_, err := ValidatePatch(test.req, test.fields, nil, false, retained)
+			assert.Equal(t, test.code, errCode(t, err))
+		})
+	}
 
-	t.Run("patched enc public key alg not in supported list rejected", func(t *testing.T) {
-		err := ValidatePatch(ProfileOIDC, base, PatchFields{EncPublicKey: true},
-			NullableJWK{Value: map[string]string{"kty": "RSA", "n": testRSAN, "e": "AQAB", "alg": "RSA-OAEP", "kid": "enc-1"}},
-			[]string{"RSA-OAEP-256"}, false)
-		assert.Equal(t, "invalid_public_key", errCode(t, err))
-	})
-
-	t.Run("status normalized before final ValidateUpdate", func(t *testing.T) {
-		merged := base
-		merged.Status = "ACTIVE"
-		assert.NoError(t, ValidatePatch(ProfileOIDC, merged, PatchFields{}, NullableJWK{}, nil, false))
-	})
-
-	t.Run("patched client name lang map validated", func(t *testing.T) {
-		merged := base
-		merged.ClientNameLangMap = map[string]string{"xx": "bad code"}
-		err := ValidatePatch(ProfileOIDC, merged, PatchFields{ClientNameLangMap: true}, NullableJWK{}, nil, false)
-		assert.Equal(t, "invalid_language_code", errCode(t, err))
-	})
-
-	t.Run("patched claims exceeding max rejected", func(t *testing.T) {
-		merged := base
-		many := make([]string, 0, 31)
-		for range 31 {
-			many = append(many, "name")
+	t.Run("accepted list boundaries", func(t *testing.T) {
+		for _, test := range []struct {
+			req    PatchClientRequest
+			fields PatchFields
+		}{
+			{PatchClientRequest{RedirectURIs: []string{"https://a.example"}}, PatchFields{RedirectURIs: true}},
+			{PatchClientRequest{Claims: slices.Repeat([]string{"name"}, 30)}, PatchFields{Claims: true}},
+			{PatchClientRequest{AcrValues: []string{"mosip:idp:acr:static-code"}}, PatchFields{AcrValues: true}},
+			{PatchClientRequest{GrantTypes: []string{"authorization_code"}}, PatchFields{GrantTypes: true}},
+			{PatchClientRequest{AuthMethods: []string{"private_key_jwt"}}, PatchFields{AuthMethods: true}},
+		} {
+			_, err := ValidatePatch(test.req, test.fields, nil, false, nil)
+			assert.NoError(t, err)
 		}
-		merged.Claims = many
-		err := ValidatePatch(ProfileOIDC, merged, PatchFields{Claims: true}, NullableJWK{}, nil, false)
-		assert.Equal(t, "invalid_claim", errCode(t, err))
 	})
 
-	t.Run("patched acr values exceeding max rejected", func(t *testing.T) {
-		merged := base
-		many := make([]string, 0, 31)
-		for range 31 {
-			many = append(many, "mosip:idp:acr:static-code")
-		}
-		merged.AcrValues = many
-		err := ValidatePatch(ProfileOIDC, merged, PatchFields{AcrValues: true}, NullableJWK{}, nil, false)
-		assert.Equal(t, "invalid_acr", errCode(t, err))
+	t.Run("supported key algorithm", func(t *testing.T) {
+		_, err := ValidatePatch(PatchClientRequest{EncPublicKey: NullableJWK{Value: validJWK()}},
+			PatchFields{EncPublicKey: true}, []string{"RSA-OAEP"}, false, nil)
+		assert.Equal(t, "invalid_public_key", errCode(t, err))
 	})
 
-	t.Run("patched grant types exceeding max rejected", func(t *testing.T) {
-		merged := base
-		merged.GrantTypes = []string{"authorization_code", "authorization_code", "authorization_code", "authorization_code"}
-		err := ValidatePatch(ProfileOIDC, merged, PatchFields{GrantTypes: true}, NullableJWK{}, nil, false)
-		assert.Equal(t, "invalid_grant_type", errCode(t, err))
-	})
-
-	t.Run("patched auth methods exceeding max rejected", func(t *testing.T) {
-		merged := base
-		merged.AuthMethods = []string{"private_key_jwt", "private_key_jwt", "private_key_jwt", "private_key_jwt"}
-		err := ValidatePatch(ProfileOIDC, merged, PatchFields{AuthMethods: true}, NullableJWK{}, nil, false)
-		assert.Equal(t, "invalid_client_auth", errCode(t, err))
-	})
-
-	t.Run("patched additional config validated for client profile", func(t *testing.T) {
-		merged := base
-		merged.ClientNameLangMap = map[string]string{"eng": "x"}
-		merged.AdditionalConfig = json.RawMessage(`not-json`)
-		err := ValidatePatch(ProfileClient, merged, PatchFields{AdditionalConfig: true}, NullableJWK{}, nil, false)
-		assert.Equal(t, "invalid_additional_config", errCode(t, err))
-	})
-
-	t.Run("patched jwe additional config without enc public key rejected", func(t *testing.T) {
-		merged := base
-		merged.ClientNameLangMap = map[string]string{"eng": "x"}
-		merged.AdditionalConfig = json.RawMessage(`{"userinfo_response_type":"JWE"}`)
-		err := ValidatePatch(ProfileClient, merged, PatchFields{AdditionalConfig: true}, NullableJWK{}, nil, false)
-		assert.Equal(t, "invalid_additional_config", errCode(t, err))
-	})
-
-	t.Run("patched jwe additional config with enc public key accepted", func(t *testing.T) {
-		merged := base
-		merged.ClientNameLangMap = map[string]string{"eng": "x"}
-		merged.AdditionalConfig = json.RawMessage(`{"userinfo_response_type":"JWE"}`)
-		err := ValidatePatch(ProfileClient, merged, PatchFields{AdditionalConfig: true}, NullableJWK{}, nil, true)
+	t.Run("jwe with supplied key", func(t *testing.T) {
+		_, err := ValidatePatch(PatchClientRequest{
+			AdditionalConfig: json.RawMessage(`{"userinfo_response_type":"JWE"}`),
+			EncPublicKey:     NullableJWK{Value: validJWK()},
+		}, PatchFields{AdditionalConfig: true, EncPublicKey: true}, nil, false, nil)
 		assert.NoError(t, err)
 	})
 
-	t.Run("patch adding enc public key satisfies jwe additional config even when none stored", func(t *testing.T) {
-		merged := base
-		merged.ClientNameLangMap = map[string]string{"eng": "x"}
-		merged.AdditionalConfig = json.RawMessage(`{"userinfo_response_type":"JWE"}`)
-		// stored hasEncPublicKey=false, but this patch supplies one, so
-		// ValidatePatch must derive the post-patch presence and accept.
-		err := ValidatePatch(ProfileClient, merged, PatchFields{AdditionalConfig: true, EncPublicKey: true},
-			NullableJWK{Value: map[string]string{"kty": "RSA", "n": testRSAN, "e": "AQAB", "alg": "RSA-OAEP-256", "kid": "enc-1"}}, nil, false)
+	t.Run("jwe with stored key", func(t *testing.T) {
+		_, err := ValidatePatch(PatchClientRequest{AdditionalConfig: json.RawMessage(`{"userinfo_response_type":"JWE"}`)},
+			PatchFields{AdditionalConfig: true}, nil, true, nil)
 		assert.NoError(t, err)
 	})
 
-	t.Run("patch removing enc public key rejects jwe additional config even when one stored", func(t *testing.T) {
-		merged := base
-		merged.ClientNameLangMap = map[string]string{"eng": "x"}
-		merged.AdditionalConfig = json.RawMessage(`{"userinfo_response_type":"JWE"}`)
-		// stored hasEncPublicKey=true, but this patch nulls it, so the derived
-		// post-patch presence is false and the JWE config must be rejected.
-		err := ValidatePatch(ProfileClient, merged, PatchFields{AdditionalConfig: true, EncPublicKey: true},
-			NullableJWK{IsNull: true}, nil, true)
-		assert.Equal(t, "invalid_additional_config", errCode(t, err))
+	t.Run("clear key and replace configuration", func(t *testing.T) {
+		_, err := ValidatePatch(PatchClientRequest{
+			AdditionalConfig: json.RawMessage(`{"userinfo_response_type":"JWS"}`),
+			EncPublicKey:     NullableJWK{IsNull: true},
+		}, PatchFields{AdditionalConfig: true, EncPublicKey: true}, nil, true,
+			json.RawMessage(`{"userinfo_response_type":"JWE"}`))
+		assert.NoError(t, err)
+	})
+
+	t.Run("unrelated change ignores retained config", func(t *testing.T) {
+		_, err := ValidatePatch(PatchClientRequest{LogoURI: "https://example.com/new.png"},
+			PatchFields{LogoURI: true}, nil, false, json.RawMessage(`{"userinfo_response_type":"JWE"}`))
+		assert.NoError(t, err)
+	})
+
+	t.Run("key replacement ignores retained config", func(t *testing.T) {
+		_, err := ValidatePatch(PatchClientRequest{EncPublicKey: NullableJWK{Value: validJWK()}},
+			PatchFields{EncPublicKey: true}, nil, false, json.RawMessage(`{"userinfo_response_type":"JWE"}`))
+		assert.NoError(t, err)
 	})
 }
 
