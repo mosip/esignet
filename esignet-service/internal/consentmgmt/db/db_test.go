@@ -11,21 +11,31 @@ import (
 	"testing"
 )
 
+// DBTestSuite groups the query-building tests of this package.
+type DBTestSuite struct {
+	suite.Suite
+}
+
+func TestDBTestSuite(t *testing.T) {
+	suite.Run(t, new(DBTestSuite))
+}
+
 // New only builds query strings (it never touches conn), so a nil TX is safe
 // here and lets these tests inspect the rebound SQL without a database.
 
-func TestNew_RebindsPlaceholdersPerDriver(t *testing.T) {
+func (ts *DBTestSuite) TestNew_RebindsPlaceholdersPerDriver() {
 	pg := New(nil, "postgres")
-	if !strings.Contains(pg.getConsent, "$1") || strings.Contains(pg.getConsent, "?") {
-		t.Errorf("postgres: expected $N placeholders, got %q", pg.getConsent)
-	}
+	ts.Contains(pg.getConsent, "$1")
+	ts.NotContains(pg.getConsent, "?")
+	ts.Contains(pg.upsertConsent, "$10")
+	ts.Contains(pg.insertConsentHistory, "$10")
+	ts.NotContains(pg.upsertConsent, "?")
 	my := New(nil, "mysql")
-	if !strings.Contains(my.getConsent, "?") || strings.Contains(my.getConsent, "$1") {
-		t.Errorf("mysql: expected ? placeholders, got %q", my.getConsent)
-	}
+	ts.Contains(my.getConsent, "?")
+	ts.NotContains(my.getConsent, "$1")
 }
 
-func TestNew_PlaceholderCounts(t *testing.T) {
+func (ts *DBTestSuite) TestNew_PlaceholderCounts() {
 	my := New(nil, "mysql")
 	cases := []struct {
 		name  string
@@ -38,37 +48,36 @@ func TestNew_PlaceholderCounts(t *testing.T) {
 		{"upsertConsent", my.upsertConsent, 10},
 	}
 	for _, c := range cases {
-		if got := strings.Count(c.query, "?"); got != c.want {
-			t.Errorf("%s: expected %d placeholders, got %d in %q", c.name, c.want, got, c.query)
-		}
+		ts.Equal(c.want, strings.Count(c.query, "?"), "%s: %q", c.name, c.query)
 	}
 }
 
-func TestNew_UpsertConsentIsDialectSpecific(t *testing.T) {
+func (ts *DBTestSuite) TestNew_UpsertConsentIsDialectSpecific() {
 	pg := New(nil, "postgres")
-	if !strings.Contains(pg.upsertConsent, "ON CONFLICT (client_id, psu_token) DO UPDATE") ||
-		strings.Contains(pg.upsertConsent, "ON DUPLICATE KEY") {
-		t.Errorf("postgres: expected an ON CONFLICT upsert, got %q", pg.upsertConsent)
-	}
+	ts.Contains(pg.upsertConsent, "ON CONFLICT (client_id, psu_token) DO UPDATE")
+	ts.NotContains(pg.upsertConsent, "ON DUPLICATE KEY")
 	my := New(nil, "mysql")
-	if !strings.Contains(my.upsertConsent, "ON DUPLICATE KEY UPDATE") ||
-		strings.Contains(my.upsertConsent, "ON CONFLICT") {
-		t.Errorf("mysql: expected an ON DUPLICATE KEY upsert, got %q", my.upsertConsent)
-	}
+	ts.Contains(my.upsertConsent, "ON DUPLICATE KEY UPDATE")
+	ts.NotContains(my.upsertConsent, "ON CONFLICT")
 	for name, q := range map[string]string{"postgres": pg.upsertConsent, "mysql": my.upsertConsent} {
-		if strings.Contains(q, "id = ") {
-			t.Errorf("%s: the upsert must keep the existing row id, got %q", name, q)
-		}
+		ts.NotContains(q, "id = ", "%s: the upsert must keep the existing row id", name)
 	}
 }
 
-func TestWithTx_ReusesQueriesAndSwapsConnection(t *testing.T) {
-	base := New(nil, "postgres")
-	tx := base.WithTx(nil)
-	if tx == base {
-		t.Fatal("WithTx must return a new Queries")
-	}
-	if tx.upsertConsent != base.upsertConsent || tx.getConsent != base.getConsent {
-		t.Error("WithTx must reuse the already-built query strings")
-	}
+func (ts *DBTestSuite) TestWithTx_ReusesQueriesAndSwapsConnection() {
+	mockDB, mock, err := sqlmock.New()
+	ts.Require().NoError(err)
+	ts.T().Cleanup(func() { _ = mockDB.Close() })
+	conn := sqlx.NewDb(mockDB, "postgres")
+	mock.ExpectBegin()
+	tx, err := conn.Beginx()
+	ts.Require().NoError(err)
+
+	base := New(conn, "postgres")
+	bound := base.WithTx(tx)
+	ts.NotSame(base, bound, "WithTx must return a new Queries")
+	ts.Same(tx, bound.db, "the copy must run on the transaction")
+	ts.Same(conn, base.db, "the original must keep its connection")
+	ts.Equal(base.upsertConsent, bound.upsertConsent)
+	ts.Equal(base.getConsent, bound.getConsent)
 }

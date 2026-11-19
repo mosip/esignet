@@ -69,14 +69,13 @@ func registeredClientRow(claims []string) clientdb.ClientDetail {
 // expectations are consumed one per query, and no test reads more often than this.
 const consentReadsScripted = 3
 
-func newConsentTestProvider(q *consentStubQuerier, cfg *config.AppConfig, registeredClaims ...string) *consentProvider {
+func (ts *ConsentProviderTestSuite) newConsentTestProvider(q *consentStubQuerier, cfg *config.AppConfig, registeredClaims ...string) *consentProvider {
 	if cfg == nil {
 		cfg = &config.AppConfig{}
 	}
 	mockDB, mock, err := sqlmock.New()
-	if err != nil {
-		panic(err)
-	}
+	ts.Require().NoError(err)
+	ts.T().Cleanup(func() { _ = mockDB.Close() })
 	for range consentReadsScripted {
 		expectation := mock.ExpectQuery("FROM consent_detail WHERE")
 		if q.getErr != nil {
@@ -182,12 +181,12 @@ func matchingConsentHash(ts *ConsentProviderTestSuite) string {
 }
 
 func (ts *ConsentProviderTestSuite) TestNewConsentProvider() {
-	p := newConsentTestProvider(&consentStubQuerier{getErr: sql.ErrNoRows}, nil)
+	p := ts.newConsentTestProvider(&consentStubQuerier{getErr: sql.ErrNoRows}, nil)
 	ts.Require().NotNil(p)
 }
 
 func (ts *ConsentProviderTestSuite) TestResolveConsent_FetchRecordError() {
-	p := newConsentTestProvider(&consentStubQuerier{getErr: errors.New("db down")}, nil)
+	p := ts.newConsentTestProvider(&consentStubQuerier{getErr: errors.New("db down")}, nil)
 
 	prompt, svcErr := p.ResolveConsent(context.Background(), "ou-1", "app-1", "App One", "user-1",
 		nil, nil, nil, nil, false, clientIDMeta("client-1"))
@@ -197,7 +196,7 @@ func (ts *ConsentProviderTestSuite) TestResolveConsent_FetchRecordError() {
 }
 
 func (ts *ConsentProviderTestSuite) TestResolveConsent_NoStoredConsent_BuildsPrompt() {
-	p := newConsentTestProvider(&consentStubQuerier{getErr: sql.ErrNoRows}, nil)
+	p := ts.newConsentTestProvider(&consentStubQuerier{getErr: sql.ErrNoRows}, nil)
 
 	prompt, svcErr := p.ResolveConsent(context.Background(), "ou-1", "app-1", "App One", "user-1",
 		[]string{"name"}, []string{"email"}, []string{"perm.write", "perm.read"}, nil, false,
@@ -220,7 +219,7 @@ func (ts *ConsentProviderTestSuite) TestResolveConsent_NoStoredConsent_BuildsPro
 }
 
 func (ts *ConsentProviderTestSuite) TestResolveConsent_NothingToPrompt_ReturnsNil() {
-	p := newConsentTestProvider(&consentStubQuerier{getErr: sql.ErrNoRows}, nil)
+	p := ts.newConsentTestProvider(&consentStubQuerier{getErr: sql.ErrNoRows}, nil)
 
 	prompt, svcErr := p.ResolveConsent(context.Background(), "ou-1", "app-1", "App One", "user-1",
 		nil, nil, nil, nil, false, clientIDMeta("client-1"))
@@ -235,7 +234,7 @@ func (ts *ConsentProviderTestSuite) TestResolveConsent_ForceReprompt() {
 		Claims: "{}", AuthorizationScopes: "{}",
 		Hash: sql.NullString{String: hash, Valid: true}, CrDtimes: time.Now().UTC(),
 	}}
-	p := newConsentTestProvider(q, nil)
+	p := ts.newConsentTestProvider(q, nil)
 
 	prompt, svcErr := p.ResolveConsent(context.Background(), "ou-1", "app-1", "App One", "user-1",
 		[]string{"name"}, nil, nil, nil, true, clientIDMeta("client-1"))
@@ -252,7 +251,7 @@ func (ts *ConsentProviderTestSuite) TestResolveConsent_ExpiredConsent_Reprompts(
 		CrDtimes:     time.Now().UTC().Add(-2 * time.Hour),
 		ExpireDtimes: sql.NullTime{Time: time.Now().UTC().Add(-time.Hour), Valid: true},
 	}}
-	p := newConsentTestProvider(q, nil)
+	p := ts.newConsentTestProvider(q, nil)
 
 	prompt, svcErr := p.ResolveConsent(context.Background(), "ou-1", "app-1", "App One", "user-1",
 		[]string{"name"}, nil, nil, nil, false, clientIDMeta("client-1"))
@@ -268,7 +267,7 @@ func (ts *ConsentProviderTestSuite) TestResolveConsent_HashMatches_SkipsPrompt()
 		Hash:     sql.NullString{String: hash, Valid: true},
 		CrDtimes: time.Now().UTC(),
 	}}
-	p := newConsentTestProvider(q, nil)
+	p := ts.newConsentTestProvider(q, nil)
 
 	prompt, svcErr := p.ResolveConsent(context.Background(), "ou-1", "app-1", "App One", "user-1",
 		nil, nil, nil, nil, false, clientIDMeta("client-1"))
@@ -283,7 +282,7 @@ func (ts *ConsentProviderTestSuite) TestResolveConsent_HashMismatch_ReturnsPromp
 		Hash:     sql.NullString{String: "stale-hash", Valid: true},
 		CrDtimes: time.Now().UTC(),
 	}}
-	p := newConsentTestProvider(q, nil)
+	p := ts.newConsentTestProvider(q, nil)
 
 	prompt, svcErr := p.ResolveConsent(context.Background(), "ou-1", "app-1", "App One", "user-1",
 		[]string{"name"}, nil, nil, nil, false, clientIDMeta("client-1"))
@@ -508,7 +507,7 @@ func (ts *ConsentProviderTestSuite) TestRecordConsent_EssentialAttributeDenied()
 }
 
 func (ts *ConsentProviderTestSuite) TestBuildPrompt_EmptyReturnsNil() {
-	p := newConsentTestProvider(&consentStubQuerier{}, nil)
+	p := ts.newConsentTestProvider(&consentStubQuerier{}, nil)
 	req := &requestedConsent{claimsRequest: map[string]any{}}
 	prompt := p.buildPrompt("app-1", req, nil, nil, nil, nil)
 	ts.Require().Nil(prompt)
@@ -617,7 +616,7 @@ func (ts *ConsentProviderTestSuite) TestClientError() {
 }
 
 func (ts *ConsentProviderTestSuite) TestGetConsentRequestHash() {
-	p := newConsentTestProvider(&consentStubQuerier{}, &config.AppConfig{})
+	p := ts.newConsentTestProvider(&consentStubQuerier{}, &config.AppConfig{})
 	req := &requestedConsent{claimsRequest: map[string]any{}, standardScopes: []string{"openid"}}
 	hash := p.getConsentRequestHash(context.Background(), req, nil)
 	ts.Require().NotEmpty(hash)
@@ -629,7 +628,7 @@ func (ts *ConsentProviderTestSuite) TestClaimsFromScopes() {
 		"email":   {"email", "name"},
 		"openid":  nil,
 	}}
-	p := newConsentTestProvider(&consentStubQuerier{}, cfg)
+	p := ts.newConsentTestProvider(&consentStubQuerier{}, cfg)
 
 	claims := p.claimsFromScopes([]string{"profile", "email", "openid"},
 		[]string{"name", "family_name", "email"})
@@ -668,7 +667,7 @@ func (ts *ConsentProviderTestSuite) TestReadAuthRequest() {
 	cfg := &config.AppConfig{ResourceServers: []config.ResourceServerConfig{
 		{ID: "rs-1", Identifier: "https://rs.example.com", Scopes: map[string]string{"perm.read": "read"}},
 	}}
-	p := newConsentTestProvider(&consentStubQuerier{}, cfg)
+	p := ts.newConsentTestProvider(&consentStubQuerier{}, cfg)
 	req, err := p.readAuthRequest(context.Background(), map[string][]string{
 		"initiator_query_claims": {`{"userinfo":{"name":{"essential":true}}}`},
 		"initiator_query_scope":  {"openid profile perm.read"},
@@ -683,7 +682,7 @@ func (ts *ConsentProviderTestSuite) TestReadAuthRequest() {
 }
 
 func (ts *ConsentProviderTestSuite) TestReadAuthRequest_Empty() {
-	p := newConsentTestProvider(&consentStubQuerier{}, nil)
+	p := ts.newConsentTestProvider(&consentStubQuerier{}, nil)
 	req, err := p.readAuthRequest(context.Background(), map[string][]string{})
 	ts.Require().NoError(err)
 	ts.Require().NotNil(req)
@@ -693,7 +692,7 @@ func (ts *ConsentProviderTestSuite) TestReadAuthRequest_Empty() {
 }
 
 func (ts *ConsentProviderTestSuite) TestReadAuthRequest_InvalidClaimsJSON() {
-	p := newConsentTestProvider(&consentStubQuerier{}, nil)
+	p := ts.newConsentTestProvider(&consentStubQuerier{}, nil)
 	req, err := p.readAuthRequest(context.Background(), map[string][]string{
 		"initiator_query_claims": {"not-json"},
 	})

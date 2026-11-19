@@ -135,9 +135,9 @@ type InsertConsentHistoryParams struct {
 	ExpireDtimes        sql.NullTime   `db:"expire_dtimes" json:"expire_dtimes"`
 }
 
-// UpsertConsentParams holds the inputs for UpsertConsent; it has the same shape
-// as InsertConsentHistoryParams, so one can be converted to the other.
-type UpsertConsentParams InsertConsentHistoryParams
+// UpsertConsentParams holds the inputs for UpsertConsent; it is an alias of
+// InsertConsentHistoryParams because both statements write the same ten columns.
+type UpsertConsentParams = InsertConsentHistoryParams
 
 // GetConsent implements Querier. The error is sql.ErrNoRows when no row exists
 // (callers treat that as "no stored consent"), so it is surfaced to the caller.

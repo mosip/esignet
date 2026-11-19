@@ -132,7 +132,7 @@ func (s *Service) SaveRecord(ctx context.Context, c *ConsentRecord) error {
 		CrDtimes:            c.CreatedAt,
 		ExpireDtimes:        c.ExpiresAt,
 	}
-	detailParams := db.UpsertConsentParams(historyParams)
+	detailParams := historyParams
 	detailParams.ID = c.ID
 
 	// The history snapshot and the consent upsert must be all-or-nothing, so they run in one
