@@ -66,37 +66,37 @@ func (ts *RequesttimeTestSuite) TestRequestTimeMiddleware() {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			var body *strings.Reader
-			if tt.body == "" {
-				body = strings.NewReader("")
-			} else {
-				body = strings.NewReader(tt.body)
-			}
-			req := httptest.NewRequest(http.MethodPost, "/client-mgmt/client", body)
-			if tt.body == "" {
-				req.Body = http.NoBody
-			}
-			rec := httptest.NewRecorder()
-
-			mw(next).ServeHTTP(rec, req)
-
-			if rec.Code != http.StatusOK {
-				t.Fatalf("got status %d, want %d (body: %s)", rec.Code, http.StatusOK, rec.Body.String())
-			}
-			var resp common.ResponseWrapper
-			if rec.Body.Len() > 0 {
-				if err := json.Unmarshal(rec.Body.Bytes(), &resp); err != nil {
-					t.Fatalf("decode response: %v", err)
-				}
-			}
-			gotCode := ""
-			if len(resp.Errors) > 0 {
-				gotCode = resp.Errors[0].ErrorCode
-			}
-			if gotCode != tt.wantCode {
-				t.Errorf("got errorCode %q, want %q (body: %s)", gotCode, tt.wantCode, rec.Body.String())
-			}
+			assertRequestTimeCase(t, mw, next, tt.body, tt.wantCode)
 		})
+	}
+}
+
+func assertRequestTimeCase(t *testing.T, mw func(http.Handler) http.Handler, next http.Handler, body, wantCode string) {
+	t.Helper()
+	bodyReader := strings.NewReader(body)
+	req := httptest.NewRequest(http.MethodPost, "/client-mgmt/client", bodyReader)
+	if body == "" {
+		req.Body = http.NoBody
+	}
+	rec := httptest.NewRecorder()
+
+	mw(next).ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Fatalf("got status %d, want %d (body: %s)", rec.Code, http.StatusOK, rec.Body.String())
+	}
+	var resp common.ResponseWrapper
+	if rec.Body.Len() > 0 {
+		if err := json.Unmarshal(rec.Body.Bytes(), &resp); err != nil {
+			t.Fatalf("decode response: %v", err)
+		}
+	}
+	gotCode := ""
+	if len(resp.Errors) > 0 {
+		gotCode = resp.Errors[0].ErrorCode
+	}
+	if gotCode != wantCode {
+		t.Errorf("got errorCode %q, want %q (body: %s)", gotCode, wantCode, rec.Body.String())
 	}
 }
 

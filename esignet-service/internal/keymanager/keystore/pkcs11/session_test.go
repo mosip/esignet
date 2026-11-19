@@ -13,6 +13,22 @@ import (
 
 func p11err(code uint) error { return pkcs11.Error(code) }
 
+func makeReloginFunc(firstLookups *sync.WaitGroup, loggedOut func() bool, notFound error) func(pkcs11.SessionHandle) error {
+	first := true
+	return func(pkcs11.SessionHandle) error {
+		out := loggedOut()
+		if first {
+			first = false
+			firstLookups.Done()
+			firstLookups.Wait()
+		}
+		if out {
+			return notFound
+		}
+		return nil
+	}
+}
+
 func (ts *PKCS11TestSuite) TestLogin() {
 	ts.Run("success", func() {
 		fm := newFakeModule()
@@ -270,19 +286,7 @@ func (ts *PKCS11TestSuite) TestRunWithRelogin() {
 			wg.Add(1)
 			go func() {
 				defer wg.Done()
-				first := true
-				errs <- s.runWithRelogin(1, func(pkcs11.SessionHandle) error {
-					out := loggedOut()
-					if first {
-						first = false
-						firstLookups.Done()
-						firstLookups.Wait()
-					}
-					if out {
-						return notFound
-					}
-					return nil
-				})
+				errs <- s.runWithRelogin(1, makeReloginFunc(&firstLookups, loggedOut, notFound))
 			}()
 		}
 		wg.Wait()

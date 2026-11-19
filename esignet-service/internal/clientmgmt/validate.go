@@ -121,11 +121,7 @@ func ValidateCreate(profile Profile, req CreateClientRequest, supportedEncAlgs [
 	return nil
 }
 
-// ValidateUpdate validates a full update request for the given API profile.
-// hasEncPublicKey reports whether the client already has (and, since PUT
-// cannot change it, will keep) an encPublicKey — required when
-// additionalConfig requests a JWE response type.
-func ValidateUpdate(profile Profile, req UpdateClientRequest, hasEncPublicKey bool) error {
+func validateUpdateProfileConstraints(profile Profile, req UpdateClientRequest) error {
 	if profile == ProfileOIDC {
 		if req.ClientNameLangMap != nil {
 			return validationErr("invalid_input")
@@ -140,6 +136,17 @@ func ValidateUpdate(profile Profile, req UpdateClientRequest, hasEncPublicKey bo
 		if profile == ProfileOAuth && len(req.AdditionalConfig) > 0 {
 			return validationErr("invalid_input")
 		}
+	}
+	return nil
+}
+
+// ValidateUpdate validates a full update request for the given API profile.
+// hasEncPublicKey reports whether the client already has (and, since PUT
+// cannot change it, will keep) an encPublicKey — required when
+// additionalConfig requests a JWE response type.
+func ValidateUpdate(profile Profile, req UpdateClientRequest, hasEncPublicKey bool) error {
+	if err := validateUpdateProfileConstraints(profile, req); err != nil {
+		return err
 	}
 
 	if err := validateClientName(req.ClientName); err != nil {
@@ -514,6 +521,34 @@ var allowedAdditionalConfigKeys = map[string]struct{}{
 	"allowed_authorization_scopes":          {},
 }
 
+func validateResponseTypeField(cfg map[string]json.RawMessage, key string, hasEncPublicKey bool) error {
+	v, ok := cfg[key]
+	if !ok {
+		return nil
+	}
+	var rt string
+	if err := json.Unmarshal(v, &rt); err != nil || (rt != "JWS" && rt != "JWE") {
+		return validationErr("invalid_additional_config")
+	}
+	if rt == "JWE" && !hasEncPublicKey {
+		return validationErr("invalid_additional_config")
+	}
+	return nil
+}
+
+func validateBoolConfigFields(cfg map[string]json.RawMessage) error {
+	boolKeys := []string{"signup_banner_required", "forgot_pwd_link_required", "require_pushed_authorization_requests", "dpop_bound_access_tokens", "require_pkce"}
+	for _, key := range boolKeys {
+		if v, ok := cfg[key]; ok {
+			var b bool
+			if err := json.Unmarshal(v, &b); err != nil {
+				return validationErr("invalid_additional_config")
+			}
+		}
+	}
+	return nil
+}
+
 // validateAdditionalConfig validates the additionalConfig JSON object.
 // hasEncPublicKey must be true if the client has (or will have, once this
 // request is applied) an encPublicKey; a JWE response type otherwise leaves
@@ -529,23 +564,11 @@ func validateAdditionalConfig(raw json.RawMessage, hasEncPublicKey bool) error {
 			return validationErr("invalid_additional_config")
 		}
 	}
-	if v, ok := cfg["userinfo_response_type"]; ok {
-		var rt string
-		if err := json.Unmarshal(v, &rt); err != nil || (rt != "JWS" && rt != "JWE") {
-			return validationErr("invalid_additional_config")
-		}
-		if rt == "JWE" && !hasEncPublicKey {
-			return validationErr("invalid_additional_config")
-		}
+	if err := validateResponseTypeField(cfg, "userinfo_response_type", hasEncPublicKey); err != nil {
+		return err
 	}
-	if v, ok := cfg["id_token_response_type"]; ok {
-		var rt string
-		if err := json.Unmarshal(v, &rt); err != nil || (rt != "JWS" && rt != "JWE") {
-			return validationErr("invalid_additional_config")
-		}
-		if rt == "JWE" && !hasEncPublicKey {
-			return validationErr("invalid_additional_config")
-		}
+	if err := validateResponseTypeField(cfg, "id_token_response_type", hasEncPublicKey); err != nil {
+		return err
 	}
 	if v, ok := cfg["consent_expire_in_mins"]; ok {
 		var mins float64
@@ -553,13 +576,8 @@ func validateAdditionalConfig(raw json.RawMessage, hasEncPublicKey bool) error {
 			return validationErr("invalid_additional_config")
 		}
 	}
-	for _, key := range []string{"signup_banner_required", "forgot_pwd_link_required", "require_pushed_authorization_requests", "dpop_bound_access_tokens", "require_pkce"} {
-		if v, ok := cfg[key]; ok {
-			var b bool
-			if err := json.Unmarshal(v, &b); err != nil {
-				return validationErr("invalid_additional_config")
-			}
-		}
+	if err := validateBoolConfigFields(cfg); err != nil {
+		return err
 	}
 	if v, ok := cfg["purpose"]; ok {
 		if err := validatePurpose(v); err != nil {
