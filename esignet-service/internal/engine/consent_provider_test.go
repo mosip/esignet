@@ -28,31 +28,11 @@ import (
 	"github.com/mosip/esignet/internal/consentmgmt/db"
 )
 
+// consentStubQuerier scripts what the consent_detail read returns; newConsentTestProvider
+// turns it into sqlmock expectations so the provider runs against the real consent service.
 type consentStubQuerier struct {
-	db.Querier
-
 	getRow db.ConsentDetail
 	getErr error
-
-	upsertErr        error
-	insertHistoryErr error
-
-	lastUpsert  db.UpsertConsentParams
-	lastHistory db.InsertConsentHistoryParams
-}
-
-func (q *consentStubQuerier) GetConsent(_ context.Context, _ db.GetConsentParams) (db.ConsentDetail, error) {
-	return q.getRow, q.getErr
-}
-
-func (q *consentStubQuerier) InsertConsentHistory(_ context.Context, arg db.InsertConsentHistoryParams) error {
-	q.lastHistory = arg
-	return q.insertHistoryErr
-}
-
-func (q *consentStubQuerier) UpsertConsent(_ context.Context, arg db.UpsertConsentParams) error {
-	q.lastUpsert = arg
-	return q.upsertErr
 }
 
 type clientStubQuerier struct {
@@ -85,18 +65,54 @@ func registeredClientRow(claims []string) clientdb.ClientDetail {
 	}
 }
 
-func newConsentTestProvider(q db.Querier, cfg *config.AppConfig, registeredClaims ...string) *consentProvider {
+// consentReadsScripted is how many consent_detail reads newConsentTestProvider scripts; sqlmock
+// expectations are consumed one per query, and no test reads more often than this.
+const consentReadsScripted = 3
+
+func newConsentTestProvider(q *consentStubQuerier, cfg *config.AppConfig, registeredClaims ...string) *consentProvider {
 	if cfg == nil {
 		cfg = &config.AppConfig{}
 	}
-	svc := consentmgmt.NewServiceWithQuerier(q)
+	mockDB, mock, err := sqlmock.New()
+	if err != nil {
+		panic(err)
+	}
+	for range consentReadsScripted {
+		expectation := mock.ExpectQuery("FROM consent_detail WHERE")
+		if q.getErr != nil {
+			expectation.WillReturnError(q.getErr)
+			continue
+		}
+		expectation.WillReturnRows(sqlmock.NewRows(consentDetailColumns).AddRow(consentRowValues(q.getRow)...))
+	}
+	svc := consentmgmt.NewService(sqlx.NewDb(mockDB, "sqlmock"))
 	clientSvc := newTestClientService(&clientStubQuerier{getRow: registeredClientRow(registeredClaims)}, nil, 0, nil)
 	return NewConsentProvider(svc, clientSvc, cfg).(*consentProvider)
 }
 
+// consentDetailColumns is the consent_detail column order returned by the consent service's read.
+var consentDetailColumns = []string{
+	"id", "client_id", "psu_token", "claims", "authorization_scopes",
+	"cr_dtimes", "expire_dtimes", "signature", "hash", "accepted_claims", "permitted_scopes",
+}
+
+// consentRowValues flattens a ConsentDetail into driver values in consentDetailColumns order,
+// unwrapping the sql.Null* fields the way a real driver would return them.
+func consentRowValues(row db.ConsentDetail) []driver.Value {
+	expire, _ := row.ExpireDtimes.Value()
+	signature, _ := row.Signature.Value()
+	hash, _ := row.Hash.Value()
+	accepted, _ := row.AcceptedClaims.Value()
+	permitted, _ := row.PermittedScopes.Value()
+	return []driver.Value{
+		row.ID, row.ClientID, row.PsuToken, row.Claims, row.AuthorizationScopes,
+		row.CrDtimes, expire, signature, hash, accepted, permitted,
+	}
+}
+
 // newRecordingProvider builds a consentProvider whose consent service is backed by go-sqlmock, so
-// RecordConsent's SaveRecord (a mandatory delete+insert transaction) can run and be asserted via
-// sqlmock expectations. RecordConsent never calls GetConsent, so no read is scripted.
+// RecordConsent's SaveRecord (a mandatory history-insert + upsert transaction) can run and be
+// asserted via sqlmock expectations. RecordConsent never calls GetConsent, so no read is scripted.
 func (ts *ConsentProviderTestSuite) newRecordingProvider(cfg *config.AppConfig, registeredClaims ...string) (*consentProvider, sqlmock.Sqlmock) {
 	if cfg == nil {
 		cfg = &config.AppConfig{}
@@ -110,12 +126,10 @@ func (ts *ConsentProviderTestSuite) newRecordingProvider(cfg *config.AppConfig, 
 }
 
 // expectSaveRecordTx scripts a successful SaveRecord transaction: Begin, the consent_history
-// insert, the consent_detail replace (delete then insert — the insert carries detailArgs for
-// assertions), then Commit.
+// insert, the consent_detail upsert (carrying detailArgs for assertions), then Commit.
 func expectSaveRecordTx(mock sqlmock.Sqlmock, detailArgs ...driver.Value) {
 	mock.ExpectBegin()
 	mock.ExpectExec("INSERT INTO consent_history").WillReturnResult(sqlmock.NewResult(0, 1))
-	mock.ExpectExec("DELETE FROM consent_detail").WillReturnResult(sqlmock.NewResult(0, 0))
 	mock.ExpectExec("INSERT INTO consent_detail").WithArgs(detailArgs...).WillReturnResult(sqlmock.NewResult(0, 1))
 	mock.ExpectCommit()
 }
@@ -455,7 +469,6 @@ func (ts *ConsentProviderTestSuite) TestRecordConsent_SaveError() {
 	// The consent_detail insert fails mid-transaction ⇒ rollback, and RecordConsent surfaces it.
 	mock.ExpectBegin()
 	mock.ExpectExec("INSERT INTO consent_history").WillReturnResult(sqlmock.NewResult(0, 1))
-	mock.ExpectExec("DELETE FROM consent_detail").WillReturnResult(sqlmock.NewResult(0, 0))
 	mock.ExpectExec("INSERT INTO consent_detail").WillReturnError(errors.New("upsert failed"))
 	mock.ExpectRollback()
 
@@ -468,8 +481,7 @@ func (ts *ConsentProviderTestSuite) TestRecordConsent_SaveError() {
 }
 
 func (ts *ConsentProviderTestSuite) TestRecordConsent_EssentialAttributeDenied() {
-	q := &consentStubQuerier{}
-	p := newConsentTestProvider(q, nil)
+	p, mock := ts.newRecordingProvider(nil)
 
 	meta := clientIDMeta("client-1")
 	meta[runtimeKeyClaims] = []string{`{"userinfo":{"email":{"essential":true}}}`}
@@ -491,7 +503,8 @@ func (ts *ConsentProviderTestSuite) TestRecordConsent_EssentialAttributeDenied()
 	ts.Require().Nil(consent)
 	ts.Require().NotNil(svcErr)
 	ts.Require().Equal("essential_consent_denied", svcErr.Code)
-	ts.Require().Empty(q.lastUpsert.ClientID, "consent record must not be persisted when essential consent is denied")
+	// No transaction was scripted: any database write would have failed the mock.
+	ts.Require().NoError(mock.ExpectationsWereMet(), "consent record must not be persisted when essential consent is denied")
 }
 
 func (ts *ConsentProviderTestSuite) TestBuildPrompt_EmptyReturnsNil() {

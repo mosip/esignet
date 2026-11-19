@@ -4,15 +4,14 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-// Querier is the persistence contract the consentmgmt service programs against.
-// (Originally sqlc-generated; now hand-maintained — db.Queries implements it.)
-
 package db
 
 import (
 	"context"
 )
 
+// Querier is the persistence contract the consentmgmt service programs against;
+// *Queries implements it.
 type Querier interface {
 	DeleteConsent(ctx context.Context, arg DeleteConsentParams) error
 	GetConsent(ctx context.Context, arg GetConsentParams) (ConsentDetail, error)

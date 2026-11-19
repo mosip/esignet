@@ -65,8 +65,7 @@ func (ts *DBTestSuite) TestNewAppendsReturningForPostgresOnly() {
 // TestClientColumnsMatchClientDetail guards the hand-maintained clientColumns
 // list against drifting from the ClientDetail db tags: a missing column would be
 // silently never read, an extra column would make sqlx fail with "missing
-// destination name". sqlc used to regenerate both from schema.sql; this replaces
-// that check now that the layer is hand-written.
+// destination name". This guard keeps the list and the struct in sync.
 func (ts *DBTestSuite) TestClientColumnsMatchClientDetail() {
 	want := map[string]bool{}
 	t := reflect.TypeOf(ClientDetail{})

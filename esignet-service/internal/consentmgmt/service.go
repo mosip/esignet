@@ -26,7 +26,7 @@ import (
 // (unique constraint), while consent_history keeps an append-only snapshot of every consent taken.
 type Service struct {
 	db     *sqlx.DB
-	q      db.Querier
+	q      *db.Queries
 	logger *applog.Logger
 }
 
@@ -39,12 +39,6 @@ func NewService(conn *sqlx.DB) *Service {
 		q:      db.New(conn, conn.DriverName()),
 		logger: applog.GetLogger().Named("consentmgmt"),
 	}
-}
-
-// NewServiceWithQuerier creates a Service with an explicit Querier; use in tests
-// to inject a mock without a real database connection.
-func NewServiceWithQuerier(q db.Querier) *Service {
-	return &Service{q: q, logger: applog.GetLogger().Named("consentmgmt")}
 }
 
 // FetchRecord returns the stored consent for the (clientID, userID) pair. It returns a nil
@@ -98,7 +92,7 @@ func (s *Service) FetchRecord(ctx context.Context, clientID, userID string) (*Co
 
 // SaveRecord persists a new consent for its (client_id, psu_token) pair. Mirroring the Java
 // ConsentServiceImpl.saveUserConsent, it appends a snapshot of the new consent to consent_history
-// (append-only audit trail) and replaces the current row in consent_detail (delete-then-insert)
+// (append-only audit trail) and upserts the current row in consent_detail,
 // both within a single transaction so the history snapshot and the current
 // row commit atomically — a partial failure rolls back and leaves no partial data.
 func (s *Service) SaveRecord(ctx context.Context, c *ConsentRecord) error {
@@ -138,27 +132,17 @@ func (s *Service) SaveRecord(ctx context.Context, c *ConsentRecord) error {
 		CrDtimes:            c.CreatedAt,
 		ExpireDtimes:        c.ExpiresAt,
 	}
-	detailParams := db.UpsertConsentParams{
-		ID:                  c.ID,
-		ClientID:            c.ClientID,
-		PsuToken:            c.UserID,
-		Claims:              string(claimsRequestJSON),
-		AuthorizationScopes: string(scopesJSON),
-		Hash:                nullString(hash),
-		AcceptedClaims:      nullString(string(acceptedClaimsJSON)),
-		PermittedScopes:     nullString(string(permittedScopesJSON)),
-		CrDtimes:            c.CreatedAt,
-		ExpireDtimes:        c.ExpiresAt,
-	}
+	detailParams := db.UpsertConsentParams(historyParams)
+	detailParams.ID = c.ID
 
-	// The history snapshot and the consent replace (delete-then-insert) must be all-or-nothing,
-	// so they run in one transaction. A tx-bound Queries is built with the same driver name.
+	// The history snapshot and the consent upsert must be all-or-nothing, so they run in one
+	// transaction; the tx-bound Queries reuses the query strings already built in NewService.
 	tx, err := s.db.BeginTxx(ctx, nil)
 	if err != nil {
 		return fmt.Errorf("begin consent tx: %w", err)
 	}
 	defer func() { _ = tx.Rollback() }()
-	q := db.New(tx, s.db.DriverName())
+	q := s.q.WithTx(tx)
 
 	if err := q.InsertConsentHistory(ctx, historyParams); err != nil {
 		return fmt.Errorf("insert consent history: %w", err)

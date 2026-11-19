@@ -22,10 +22,8 @@ import (
 
 // TX is the subset of *sqlx.DB / *sqlx.Tx that Queries uses, so one Queries can
 // run against either a pooled connection or an open transaction. Only the two
-// methods the query layer actually calls are declared. (consentmgmt/db calls its
-// sqlc-generated equivalent DBTX; that name stutters as db.DBTX under revive and
-// is tolerated there only because generated files are lint-exempt, so this
-// hand-written layer uses TX.)
+// methods the query layer actually calls are declared. (consentmgmt/db uses the
+// same TX name.)
 type TX interface {
 	ExecContext(ctx context.Context, query string, args ...interface{}) (sql.Result, error)
 	GetContext(ctx context.Context, dest interface{}, query string, args ...interface{}) error

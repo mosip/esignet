@@ -11,8 +11,6 @@ import (
 	"database/sql/driver"
 	"encoding/json"
 	"errors"
-	"slices"
-	"strings"
 	"testing"
 	"time"
 
@@ -22,46 +20,37 @@ import (
 	"github.com/mosip/esignet/internal/consentmgmt/db"
 )
 
-// fakeQuerier is an in-memory db.Querier stand-in that lets tests script GetConsent's response
-// and capture the params passed to the write methods.
-type fakeQuerier struct {
-	getRow db.ConsentDetail
-	getErr error
-
-	insertHistoryParams db.InsertConsentHistoryParams
-	insertHistoryErr    error
-
-	upsertParams db.UpsertConsentParams
-	upsertErr    error
-
-	deleteParams db.DeleteConsentParams
-	deleteErr    error
+var consentDetailColumns = []string{
+	"id", "client_id", "psu_token", "claims", "authorization_scopes",
+	"cr_dtimes", "expire_dtimes", "signature", "hash", "accepted_claims", "permitted_scopes",
 }
 
-var _ db.Querier = (*fakeQuerier)(nil)
-
-func (f *fakeQuerier) GetConsent(_ context.Context, _ db.GetConsentParams) (db.ConsentDetail, error) {
-	return f.getRow, f.getErr
+// consentRowValues flattens a ConsentDetail into driver values in consentDetailColumns order,
+// unwrapping the sql.Null* fields the way a real driver would return them.
+func consentRowValues(row db.ConsentDetail) []driver.Value {
+	expire, _ := row.ExpireDtimes.Value()
+	signature, _ := row.Signature.Value()
+	hash, _ := row.Hash.Value()
+	accepted, _ := row.AcceptedClaims.Value()
+	permitted, _ := row.PermittedScopes.Value()
+	return []driver.Value{
+		row.ID, row.ClientID, row.PsuToken, row.Claims, row.AuthorizationScopes,
+		row.CrDtimes, expire, signature, hash, accepted, permitted,
+	}
 }
 
-func (f *fakeQuerier) InsertConsentHistory(_ context.Context, arg db.InsertConsentHistoryParams) error {
-	f.insertHistoryParams = arg
-	return f.insertHistoryErr
-}
-
-func (f *fakeQuerier) UpsertConsent(_ context.Context, arg db.UpsertConsentParams) error {
-	f.upsertParams = arg
-	return f.upsertErr
-}
-
-func (f *fakeQuerier) DeleteConsent(_ context.Context, arg db.DeleteConsentParams) error {
-	f.deleteParams = arg
-	return f.deleteErr
+// expectGetConsent scripts the consent_detail read issued by FetchRecord.
+func expectGetConsent(mock sqlmock.Sqlmock, clientID, userID string, row db.ConsentDetail) {
+	mock.ExpectQuery("FROM consent_detail WHERE").
+		WithArgs(clientID, userID).
+		WillReturnRows(sqlmock.NewRows(consentDetailColumns).AddRow(consentRowValues(row)...))
 }
 
 func TestFetchRecord_NotFound(t *testing.T) {
-	q := &fakeQuerier{getErr: sql.ErrNoRows}
-	s := NewServiceWithQuerier(q)
+	s, mock := newMockService(t)
+	mock.ExpectQuery("FROM consent_detail WHERE").
+		WithArgs("client-1", "user-1").
+		WillReturnError(sql.ErrNoRows)
 
 	rec, err := s.FetchRecord(context.Background(), "client-1", "user-1")
 	if err != nil {
@@ -73,8 +62,8 @@ func TestFetchRecord_NotFound(t *testing.T) {
 }
 
 func TestFetchRecord_QueryError(t *testing.T) {
-	q := &fakeQuerier{getErr: errors.New("boom")}
-	s := NewServiceWithQuerier(q)
+	s, mock := newMockService(t)
+	mock.ExpectQuery("FROM consent_detail WHERE").WillReturnError(errors.New("boom"))
 
 	_, err := s.FetchRecord(context.Background(), "client-1", "user-1")
 	if err == nil {
@@ -85,7 +74,8 @@ func TestFetchRecord_QueryError(t *testing.T) {
 func TestFetchRecord_DecodesStoredRow(t *testing.T) {
 	createdAt := time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)
 	expiresAt := createdAt.Add(time.Hour)
-	q := &fakeQuerier{getRow: db.ConsentDetail{
+	s, mock := newMockService(t)
+	expectGetConsent(mock, "client-1", "user-1", db.ConsentDetail{
 		ID:                  "consent-1",
 		ClientID:            "client-1",
 		PsuToken:            "user-1",
@@ -96,8 +86,7 @@ func TestFetchRecord_DecodesStoredRow(t *testing.T) {
 		PermittedScopes:     sql.NullString{String: `["resource.read"]`, Valid: true},
 		CrDtimes:            createdAt,
 		ExpireDtimes:        sql.NullTime{Time: expiresAt, Valid: true},
-	}}
-	s := NewServiceWithQuerier(q)
+	})
 
 	rec, err := s.FetchRecord(context.Background(), "client-1", "user-1")
 	if err != nil {
@@ -130,14 +119,14 @@ func TestFetchRecord_DecodesStoredRow(t *testing.T) {
 }
 
 func TestFetchRecord_NullAcceptedAndPermitted(t *testing.T) {
-	q := &fakeQuerier{getRow: db.ConsentDetail{
+	s, mock := newMockService(t)
+	expectGetConsent(mock, "client-1", "user-1", db.ConsentDetail{
 		ID:                  "consent-1",
 		ClientID:            "client-1",
 		PsuToken:            "user-1",
 		Claims:              `{}`,
 		AuthorizationScopes: `{}`,
-	}}
-	s := NewServiceWithQuerier(q)
+	})
 
 	rec, err := s.FetchRecord(context.Background(), "client-1", "user-1")
 	if err != nil {
@@ -152,11 +141,11 @@ func TestFetchRecord_NullAcceptedAndPermitted(t *testing.T) {
 }
 
 func TestFetchRecord_MalformedClaimsJSON(t *testing.T) {
-	q := &fakeQuerier{getRow: db.ConsentDetail{
+	s, mock := newMockService(t)
+	expectGetConsent(mock, "client-1", "user-1", db.ConsentDetail{
 		Claims:              `not-json`,
 		AuthorizationScopes: `{}`,
-	}}
-	s := NewServiceWithQuerier(q)
+	})
 
 	if _, err := s.FetchRecord(context.Background(), "client-1", "user-1"); err == nil {
 		t.Fatal("expected an error for malformed claims JSON")
@@ -168,13 +157,29 @@ func TestFetchRecord_MalformedClaimsJSON(t *testing.T) {
 // asserted without a real database. The "sqlmock" driver name leaves "?"
 // placeholders in the query text, which the regexp statement matchers below ignore.
 func newMockService(t *testing.T) (*Service, sqlmock.Sqlmock) {
+	return newMockServiceFor(t, "sqlmock")
+}
+
+// newMockServiceFor is newMockService with an explicit sqlx driver name, so tests can
+// exercise the dialect-specific placeholder and upsert SQL. The pool is capped at one
+// connection: a query that bypassed the transaction would block on the pool instead of
+// being silently accepted, and the call's context deadline then fails the test.
+func newMockServiceFor(t *testing.T, driverName string) (*Service, sqlmock.Sqlmock) {
 	t.Helper()
 	mockDB, mock, err := sqlmock.New()
 	if err != nil {
 		t.Fatalf("sqlmock.New: %v", err)
 	}
+	mockDB.SetMaxOpenConns(1)
 	t.Cleanup(func() { _ = mockDB.Close() })
-	return NewService(sqlx.NewDb(mockDB, "sqlmock")), mock
+	return NewService(sqlx.NewDb(mockDB, driverName)), mock
+}
+
+func testContext(t *testing.T) context.Context {
+	t.Helper()
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	t.Cleanup(cancel)
+	return ctx
 }
 
 // jsonArgHasKey is a sqlmock argument matcher that passes when the bound value is
@@ -224,17 +229,14 @@ func TestSaveRecord_PersistsComputedHashAndNormalizedPayload(t *testing.T) {
 		WithArgs(sqlmock.AnyArg(), "client-1", "user-1", jsonArgHasKey{"userinfo"}, sqlmock.AnyArg(),
 			hashArg, sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg()).
 		WillReturnResult(sqlmock.NewResult(0, 1))
-	// consent_detail replace = delete then insert (portability rule D).
-	mock.ExpectExec("DELETE FROM consent_detail").
-		WithArgs("client-1", "user-1").
-		WillReturnResult(sqlmock.NewResult(0, 0))
+	// consent_detail is a single atomic upsert (no separate delete).
 	mock.ExpectExec("INSERT INTO consent_detail").
 		WithArgs("consent-1", "client-1", "user-1", jsonArgHasKey{"userinfo"}, sqlmock.AnyArg(),
 			hashArg, sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg()).
 		WillReturnResult(sqlmock.NewResult(0, 1))
 	mock.ExpectCommit()
 
-	if err := s.SaveRecord(context.Background(), rec); err != nil {
+	if err := s.SaveRecord(testContext(t), rec); err != nil {
 		t.Fatalf("save: %v", err)
 	}
 	if err := mock.ExpectationsWereMet(); err != nil {
@@ -267,115 +269,92 @@ func TestSaveRecord_UpsertError(t *testing.T) {
 
 	mock.ExpectBegin()
 	mock.ExpectExec("INSERT INTO consent_history").WillReturnResult(sqlmock.NewResult(0, 1))
-	mock.ExpectExec("DELETE FROM consent_detail").WillReturnResult(sqlmock.NewResult(0, 0))
 	mock.ExpectExec("INSERT INTO consent_detail").WillReturnError(errors.New("insert failed"))
 	mock.ExpectRollback()
 
-	err := s.SaveRecord(context.Background(), &ConsentRecord{ID: "c1", ClientID: "client-1", UserID: "user-1"})
+	err := s.SaveRecord(testContext(t), &ConsentRecord{ID: "c1", ClientID: "client-1", UserID: "user-1"})
 	if err == nil {
-		t.Fatal("expected an error when the consent insert fails")
+		t.Fatal("expected an error when the consent upsert fails")
 	}
 	if err := mock.ExpectationsWereMet(); err != nil {
 		t.Errorf("unmet sqlmock expectations (rollback not performed?): %v", err)
 	}
 }
 
-func TestDeleteRecord(t *testing.T) {
-	q := &fakeQuerier{}
-	s := NewServiceWithQuerier(q)
+func TestSaveRecord_BeginError(t *testing.T) {
+	s, mock := newMockService(t)
+	mock.ExpectBegin().WillReturnError(errors.New("begin failed"))
 
-	if err := s.DeleteRecord(context.Background(), "client-1", "user-1"); err != nil {
+	if err := s.SaveRecord(testContext(t), &ConsentRecord{ID: "c1", ClientID: "client-1", UserID: "user-1"}); err == nil {
+		t.Fatal("expected an error when the transaction cannot begin")
+	}
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("unmet sqlmock expectations: %v", err)
+	}
+}
+
+func TestSaveRecord_CommitError(t *testing.T) {
+	s, mock := newMockService(t)
+	mock.ExpectBegin()
+	mock.ExpectExec("INSERT INTO consent_history").WillReturnResult(sqlmock.NewResult(0, 1))
+	mock.ExpectExec("INSERT INTO consent_detail").WillReturnResult(sqlmock.NewResult(0, 1))
+	mock.ExpectCommit().WillReturnError(errors.New("commit failed"))
+
+	if err := s.SaveRecord(testContext(t), &ConsentRecord{ID: "c1", ClientID: "client-1", UserID: "user-1"}); err == nil {
+		t.Fatal("expected an error when the commit fails")
+	}
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("unmet sqlmock expectations: %v", err)
+	}
+}
+
+// TestSaveRecord_UpsertDialect verifies the consent_detail write is one atomic upsert in each
+// dialect's syntax, with the placeholder style the driver expects.
+func TestSaveRecord_UpsertDialect(t *testing.T) {
+	tests := []struct {
+		driver string
+		upsert string
+	}{
+		{"postgres", `VALUES \(\$1, \$2.*ON CONFLICT \(client_id, psu_token\) DO UPDATE SET`},
+		{"mysql", `VALUES \(\?, \?.*ON DUPLICATE KEY UPDATE.*VALUES\(claims\)`},
+	}
+	for _, tc := range tests {
+		t.Run(tc.driver, func(t *testing.T) {
+			s, mock := newMockServiceFor(t, tc.driver)
+			mock.ExpectBegin()
+			mock.ExpectExec("INSERT INTO consent_history").WillReturnResult(sqlmock.NewResult(0, 1))
+			mock.ExpectExec("(?s)INSERT INTO consent_detail.*" + tc.upsert).WillReturnResult(sqlmock.NewResult(0, 1))
+			mock.ExpectCommit()
+
+			if err := s.SaveRecord(testContext(t), &ConsentRecord{ID: "c1", ClientID: "client-1", UserID: "user-1"}); err != nil {
+				t.Fatalf("save: %v", err)
+			}
+			if err := mock.ExpectationsWereMet(); err != nil {
+				t.Errorf("unmet sqlmock expectations: %v", err)
+			}
+		})
+	}
+}
+
+func TestDeleteRecord(t *testing.T) {
+	s, mock := newMockService(t)
+	mock.ExpectExec("DELETE FROM consent_detail").
+		WithArgs("client-1", "user-1").
+		WillReturnResult(sqlmock.NewResult(0, 1))
+
+	if err := s.DeleteRecord(testContext(t), "client-1", "user-1"); err != nil {
 		t.Fatalf("delete: %v", err)
 	}
-	if q.deleteParams.ClientID != "client-1" || q.deleteParams.PsuToken != "user-1" {
-		t.Errorf("unexpected delete params: %#v", q.deleteParams)
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("unmet sqlmock expectations: %v", err)
 	}
 }
 
 func TestDeleteRecord_Error(t *testing.T) {
-	q := &fakeQuerier{deleteErr: errors.New("delete failed")}
-	s := NewServiceWithQuerier(q)
+	s, mock := newMockService(t)
+	mock.ExpectExec("DELETE FROM consent_detail").WillReturnError(errors.New("delete failed"))
 
-	if err := s.DeleteRecord(context.Background(), "client-1", "user-1"); err == nil {
+	if err := s.DeleteRecord(testContext(t), "client-1", "user-1"); err == nil {
 		t.Fatal("expected an error when delete fails")
-	}
-}
-
-// recordingConn is a minimal database/sql driver connection that records the statement and
-// transaction lifecycle events SaveRecord issues, so tests can assert on transactional behaviour
-// without a live Postgres. Exec fails for any query containing failOn (when set).
-type recordingConn struct {
-	events []string
-	failOn string
-}
-
-var (
-	_ driver.Connector     = (*recordingConn)(nil)
-	_ driver.ExecerContext = (*recordingConn)(nil)
-)
-
-func (c *recordingConn) Connect(context.Context) (driver.Conn, error) { return c, nil }
-func (c *recordingConn) Driver() driver.Driver                        { return nil }
-func (c *recordingConn) Prepare(string) (driver.Stmt, error) {
-	return nil, errors.New("prepare not supported")
-}
-func (c *recordingConn) Close() error { return nil }
-func (c *recordingConn) Begin() (driver.Tx, error) {
-	c.events = append(c.events, "begin")
-	return c, nil
-}
-func (c *recordingConn) Commit() error {
-	c.events = append(c.events, "commit")
-	return nil
-}
-func (c *recordingConn) Rollback() error {
-	c.events = append(c.events, "rollback")
-	return nil
-}
-
-func (c *recordingConn) ExecContext(_ context.Context, query string, _ []driver.NamedValue) (driver.Result, error) {
-	table := "consent_detail"
-	if strings.Contains(query, "INSERT INTO consent_history") {
-		table = "consent_history"
-	}
-	c.events = append(c.events, "exec "+table)
-	if c.failOn != "" && strings.Contains(query, c.failOn) {
-		return nil, errors.New("exec failed")
-	}
-	return driver.RowsAffected(1), nil
-}
-
-func TestNewService_SaveRecordCommitsInSingleTransaction(t *testing.T) {
-	conn := &recordingConn{}
-	sqlDB := sql.OpenDB(conn)
-	defer func() { _ = sqlDB.Close() }()
-	s := NewService(sqlx.NewDb(sqlDB, "sqlmock"))
-
-	if err := s.SaveRecord(context.Background(), &ConsentRecord{ID: "c1", ClientID: "client-1", UserID: "user-1"}); err != nil {
-		t.Fatalf("save: %v", err)
-	}
-
-	// consent_detail is replaced via DELETE + INSERT (portable substitute for Postgres
-	// ON CONFLICT), so there are two consent_detail execs inside the single transaction.
-	want := []string{"begin", "exec consent_history", "exec consent_detail", "exec consent_detail", "commit"}
-	if !slices.Equal(conn.events, want) {
-		t.Errorf("events = %v, want %v", conn.events, want)
-	}
-}
-
-func TestNewService_SaveRecordRollsBackWhenUpsertFails(t *testing.T) {
-	conn := &recordingConn{failOn: "INSERT INTO consent_detail"}
-	sqlDB := sql.OpenDB(conn)
-	defer func() { _ = sqlDB.Close() }()
-	s := NewService(sqlx.NewDb(sqlDB, "sqlmock"))
-
-	if err := s.SaveRecord(context.Background(), &ConsentRecord{ID: "c1", ClientID: "client-1", UserID: "user-1"}); err == nil {
-		t.Fatal("expected an error when upserting consent fails")
-	}
-
-	// DELETE succeeds, the INSERT fails (failOn), so two consent_detail execs then rollback.
-	want := []string{"begin", "exec consent_history", "exec consent_detail", "exec consent_detail", "rollback"}
-	if !slices.Equal(conn.events, want) {
-		t.Errorf("events = %v, want %v", conn.events, want)
 	}
 }

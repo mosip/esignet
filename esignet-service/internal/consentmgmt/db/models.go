@@ -4,10 +4,6 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-// ConsentDetail and ConsentHistory are the consent_detail / consent_history row
-// models for the consentmgmt persistence layer. (Originally sqlc-generated; now
-// hand-maintained alongside db.go.)
-
 package db
 
 import (
@@ -15,6 +11,8 @@ import (
 	"time"
 )
 
+// ConsentDetail is a row of consent_detail: the current consent for a
+// (client_id, psu_token) pair.
 type ConsentDetail struct {
 	ID                  string         `db:"id" json:"id"`
 	ClientID            string         `db:"client_id" json:"client_id"`
@@ -29,6 +27,8 @@ type ConsentDetail struct {
 	PermittedScopes     sql.NullString `db:"permitted_scopes" json:"permitted_scopes"`
 }
 
+// ConsentHistory is a row of consent_history: an append-only snapshot of a
+// consent that was taken.
 type ConsentHistory struct {
 	ID                  string         `db:"id" json:"id"`
 	ClientID            string         `db:"client_id" json:"client_id"`
