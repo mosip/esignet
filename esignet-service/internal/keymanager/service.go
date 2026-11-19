@@ -117,6 +117,11 @@ var (
 	// (ApplicationID, ReferenceID). The same certificate has already been
 	// uploaded, so this is a caller mistake, not a benign re-upload.
 	ErrCertificateAlreadyExists = errors.New("a certificate with this thumbprint already exists for this application/reference id")
+
+	// ErrInvalidCertificate is returned when UploadCertificate or
+	// UploadOtherDomainCertificate receives a certificateData value that
+	// cannot be parsed as a PEM or DER certificate.
+	ErrInvalidCertificate = errors.New("certificateData is not a valid certificate")
 )
 
 const (
@@ -820,7 +825,7 @@ func (s *Service) UploadCertificate(ctx context.Context, req UploadCertificateRe
 	}
 	newCert, err := parseCertPEM(req.CertificateData)
 	if err != nil {
-		return UploadCertificateResponse{}, fmt.Errorf("parse uploaded certificate: %w", err)
+		return UploadCertificateResponse{}, fmt.Errorf("%w: %w", ErrInvalidCertificate, err)
 	}
 	newThumbprint := thumbprintForCert(newCert)
 	if current.CertThumbprint != nil && *current.CertThumbprint == newThumbprint {
@@ -899,7 +904,7 @@ func (s *Service) UploadOtherDomainCertificate(ctx context.Context, req UploadCe
 
 	cert, err := parseCertPEM(req.CertificateData)
 	if err != nil {
-		return UploadCertificateResponse{}, fmt.Errorf("parse uploaded certificate: %w", err)
+		return UploadCertificateResponse{}, fmt.Errorf("%w: %w", ErrInvalidCertificate, err)
 	}
 	thumbprint := thumbprintForCert(cert)
 
