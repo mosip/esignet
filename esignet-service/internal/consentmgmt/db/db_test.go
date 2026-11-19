@@ -9,6 +9,10 @@ package db
 import (
 	"strings"
 	"testing"
+
+	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/jmoiron/sqlx"
+	"github.com/stretchr/testify/suite"
 )
 
 // DBTestSuite groups the query-building tests of this package.
