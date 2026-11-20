@@ -1,0 +1,55 @@
+{
+  "alias": "esignet-test",
+  "client": {
+    "client_id": "conformance-fapi2-client-1",
+    "dpop_signing_alg": "PS256",
+    "jwks": {
+      "keys": [
+        {
+          "alg": "PS256",
+          "d": "J_u8BZTL8gJeheQmaer89nEXwvTylLQJPTm7Gr0IGPx8n8bYii1TVVd86-uRl-MG-awneTy1skrVVZp2c6xQ1a717EnyaL1iiYTCU8lW0dWE5cO_KPjV84jo4xLeRZVZBGTYAIryZ3uUkAMR_eMeRdhwlQpYJ3ckPq-2ZE7sTYKJGc6-1rRjEDYIvM0VAsE9S_oewi8wvEwTgiFMlVnPUEtXZsx1dmUvA1uehCviUu2Hak0VeUWWu1upMGuwIf5JjckCTzDqEGXMsmSNFYJeG7tq_YxSVs-oETvTiJ7_RA-jbTZB6t1F9B1sU75ZSGU3D1RuOyQ3vpNqGPFn6-MtIQ",
+          "dp": "wDTGob8qARHiFZ07tkNUXdTQxcJ1xJSd-lSeKtj0UsR8pVeQN-TUC_YorHiZQX1PlJyh6kX8sAf5CRCYNzr3IgP3DsX1w-7Ocg0j3v0GfU7qugQaGCN8VIr5i_G0hbMuIeKwHT9-IcWOfO_wEi13VpIrPTUwx2zBvhEVmGvtxYc",
+          "dq": "5Nq-Urv1vyfrDxHvxU0FmFur5EUbzRdHZxfAoeubfL_JlhG4o5Dm9HJu-RkC-C1UEI02Ks4EZiu6gLkwqxofrt-o3OBuwei8hjNntIvRfY29_u8m7rwkIkrOJCBy0tkbMoZtgcDbRzImT0J1b30_yTRhX-VISOHjfTWGe0XEiXc",
+          "e": "AQAB",
+          "kid": "conformance-fapi2-client-1",
+          "kty": "RSA",
+          "n": "wBxNgBcmtyWyYQt97897TBZ8_3zgMyyOD_imJWOZtoOiPQZP5a8spMOIjBiTzyOQOp2s64IoOHcPLEoZMIyfMWT3WjxVok3804sboyDH55uHMY97glPC-Ov2nZME0CvRCWtJhdYDpiyrYn1CiG3V0669vPB7dFm1CTu0GezK7mr20iKGbAfO-9TYkYeXBACKF-r7WE9OoUmg435gpgyrhV6nR8_WfgwGQoRRB9c5Ub7Be8cqcJuNd3sxLLEmjGMNahTOQl71os5QzVbGwXnf5E2VJbyeSKdOSfGTrDRAiYNREyZdSnoBR0RLjdn77sE0cKv5bwhd5wZIIE6XtplfgQ",
+          "p": "zbrEBn8YARYrHvlv6VFvvAE3C6ylJYBQVpMmKpWRi2UD6rpSRZ5SmGQQHcYzSw5TEXtUdNFDq4M51yh_ozpdTKwLmeubciYIPX4nXFd5JYfUQO9OPZON9V5yD-00PUrnAZAdooTcrgeaKSBYLaWA_Sz9wI8VPxGemi7VnWjQn18",
+          "q": "7w2czGXk9eZko8UG-mzuMf0J6zxLXQOa2gmveHRbzrUZlB-CvbbVtJPuiNgKzzSPFACp97fCfJZeZQz15PWP0jupG9x73sB-D0ByioG8flaW7ouTxDIiOh-GodeTm-LkPY2ps_6JCkBaGRjGLace5L-i21drok9DyCMa-ECpzR8",
+          "qi": "ftqKYEBMJ0FrionWIBZnfKwbsbq6Olu9SDOhczRsJlowzKbumBIcWSWCzTaeEIkxiK-XQqEivungxBZ61zh--a7TSUyNhh0aHVAtApbqToHq-SMOSU3wd7g4f7BVJhhqSvvojzxdXC1KTM7i5kckkpxNhZsYZbRf2EwZzH0n_-0",
+          "use": "sig"
+        }
+      ]
+    },
+    "scope": "openid profile"
+  },
+  "client2": {
+    "client_id": "conformance-fapi2-client-2",
+    "dpop_signing_alg": "PS256",
+    "jwks": {
+      "keys": [
+        {
+          "alg": "PS256",
+          "d": "Fiq4BaJOZ_LuGLKeIFBe54yEtie3eAH_UQxwzrMNBQjbNx4096bhIps5NE4y2cK6MXWPu3wxMb11rvfkK4Ro_hBzcW9RfoQxMFDmOscy9HYxW9iEdf5JoZfuT0EMrqU1sAtJB6szN-YkV0jrUaUcz6RqhgvIo05qKDgDwoGWUWoMKhYaG4UDcxtmC5QL-mYDYj9Y5kJ92RmIZ3jc9bwg_6N9N9QWuMCXj2GxUcE7Dtl26__XHstSNLQ-GGj_7ZC2POi-zL96Xgsw7VJkcUgWdCsAe2a2Bc8MqXMQXbTW_w1ITuCeEqbVoaZvbO8qmeLTO4oKeY-cpyHcXjemgU61HQ",
+          "dp": "YtAgbTWX_jiGORvj7CEEo1mcQqEAHQ6uYAR01nUD48ZBtMmk8yjlY7foKyg_0CEEfxQkzr2a78f9F2UrGTVngVW9ZR8oiSV5CwfzfyPPZQRuLNxavq_lesCeCzMQ-Cje0wg7VT4imt9mPzDaYS_tyXj6xNYlEu5fk8Xk-5mL3js",
+          "dq": "0grXGhcyewnZaT_PZWSATV5y_Ru5FALuhWTHnF19UF4bbLqLzb_FnSsBVPPvWMWgB0geybIlcNPuX3quae7b8MPmzsKyQARk76e5pi-gOLl7danRl24blLsBDLULjjuvZsJ3Uw_lJBEHqagoSCNXUwi5kfZpKyJ4JqwLHBd4Vvc",
+          "e": "AQAB",
+          "kid": "conformance-fapi2-client-2",
+          "kty": "RSA",
+          "n": "vl_zqplycEtZUvySf8PbXRMY4ZY-_iMRYQteI30FicZfvkt8BRgUcldrCKsyjfVUlEVqex3HgQL3ZIb3OWtEnstqLHE4Ugvdqh8md8_iVS6GMNdADx8V-DPLPHbjxsO5_sIBxsahVSfC_dyYH2oxVweNwM6bj-uEok7V6l-jPdjIz1t_ZKApY9GwTrtlMxE8rMk9uIqFY8YXDU8Nm-n7HaVTqmpOYNmqvkiwLlNTAzcX0cBqCt4fwipclSyyMyHqcGRf6nXnCLLKPW2jF5tB3fmwS8iiNNtRTn3tpNcoL5ziP89ejzKZQ1GuyTIVSoHWYBBjvVYROpAwdJ8SRTENEQ",
+          "p": "5plNnYNAa3-nMLBPRX-jRu69e-L2tiRB80go3ZFyQYalMD6DldXod_CTMahjLwlCHjc5Ama226nhrNRZSK9lKkgO5zNrV3wYeLPljkhidWRipSW1Z87P_ijT9bDk8j4kew4fro3lTL8KqWswbsvyxs4ceefARZp9nhdTQBR8z98",
+          "q": "01hdP7mdxZpmgnicg5cMeoOdjJMBm0NtrfwxAku23rwN1JuplD_0ChyJbEq99b7UNPeHvH6qiW-6FViodc66TuoSDRQXo-20JqV_1idmbpnQUhaArdFTiVfK_EEy5mfzRmm2f9JwewfZFWyL0GSt9Dd_-SUwrSw_8c3Y1HkPAQ8",
+          "qi": "XWP5v1Gd2XEIlDxD9XmpqI5N9POvfoFC-Zm0SOfZ2_1Kkn5GRaLogDS4q3UooRzchHXVslThA_4V9tBMXUWUG-x13I1MKTiVSvMRwidaf-h-NENlm-aJCgoRleBAHFV_NNVwwvfyuhGiGDkMDZ4mUOYcTUIXhX85fUhbZlmW2-c",
+          "use": "sig"
+        }
+      ]
+    },
+    "scope": "openid profile"
+  },
+  "resource": {
+    "resourceUrl": "http://localhost:3000/v1/esignet/oauth2/userinfo"
+  },
+  "server": {
+    "discoveryUrl": "http://localhost:3000/.well-known/openid-configuration"
+  }
+}
