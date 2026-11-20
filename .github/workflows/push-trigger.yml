@@ -284,6 +284,9 @@ jobs:
   run-apitest-pr:
     if: github.event_name == 'pull_request' || github.event_name == 'push'
     runs-on: ubuntu-latest
+    # The conformance surface runs the OpenID suite's full plans, which is far longer than
+    # the api/e2e surfaces; cap it so a hung suite cannot hold a runner for the 6h default.
+    timeout-minutes: 150
     permissions:
       contents: read
 
@@ -306,6 +309,11 @@ jobs:
           cd ui-test
           mvn -B -U package -DskipTests -Dgpg.skip=true -Dmaven.gitcommitid.skip=true -s "$GITHUB_WORKSPACE/settings.xml"
 
+      # The suite's BASE_URL is localhost.emobix.co.uk, which resolves to 127.0.0.1 in public
+      # DNS. Pin it locally so the run does not depend on the runner's resolver.
+      - name: Map conformance suite hostname
+        run: echo "127.0.0.1 localhost.emobix.co.uk" | sudo tee -a /etc/hosts
+
       - name: Remove residual containers and volumes
         run: |
           # Stale Postgres data (e.g. key aliases from an earlier esignet container) breaks
@@ -321,7 +329,22 @@ jobs:
           docker compose -f docker-compose/docker-compose-ci.yaml up -d \
             --wait --wait-timeout 600 --renew-anon-volumes \
             database mock-identity-system esignet esignet-ui \
-            mock-relying-party-service mock-relying-party-ui
+            mock-relying-party-service mock-relying-party-ui \
+            conformance-mongodb conformance-server conformance-esignet-proxy conformance-httpd
+
+      # The suite images define no healthcheck, so --wait above only proves the containers
+      # started. nginx answers 502 until the suite's Java server has finished booting.
+      - name: Wait for conformance suite
+        run: |
+          for i in $(seq 1 90); do
+            if curl -sfk -o /dev/null --max-time 3 https://localhost.emobix.co.uk:8443/api/runner/available; then
+              echo "conformance suite ready after ~$((i * 5))s"; exit 0
+            fi
+            sleep 5
+          done
+          echo "::error::conformance suite not ready after 450s"
+          docker compose -f docker-compose/docker-compose-ci.yaml logs conformance-server conformance-httpd | tail -100
+          exit 1
 
       - name: Run API Tests
         id: apitest
