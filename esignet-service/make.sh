@@ -56,7 +56,6 @@ SIGNING_CERT=$KEY_DIR/signing.crt
 : "${SIGNING_KEY_PATH:=./$SIGNING_KEY}"
 : "${DOCKER_IMAGE:=esignet:latest}"
 : "${GOLANGCI_LINT_VERSION:=latest}"
-: "${SQLC_VERSION:=v1.29.0}"
 : "${THUNDER_BRANCH:=1.1.x}"
 : "${RACE:=1}"   # set RACE=0 if no C toolchain (go test -race needs gcc on Windows)
 # Local builds default to a static, cgo-free binary, which drops the PKCS11
@@ -150,24 +149,6 @@ target_docker_run() { ## Run container mapped to PORT (default 8088)
     "$DOCKER_IMAGE"
 }
 
-target_sqlc() { ## Regenerate DB layer from SQL (requires sqlc; run sqlc-install first)
-  local gobin
-  gobin="$(go env GOPATH)/bin"
-  if command -v cygpath >/dev/null 2>&1; then gobin="$(cygpath -u "$gobin")"; fi
-  export PATH="$gobin:$PATH"
-  if command -v sqlc >/dev/null 2>&1; then
-    sqlc generate
-  else
-    echo "sqlc not on PATH; running via go run (use ./make.sh sqlc-install to install)"
-    go run "github.com/sqlc-dev/sqlc/cmd/sqlc@$SQLC_VERSION" generate
-  fi
-}
-
-target_sqlc_install() { ## Install sqlc
-  go install "github.com/sqlc-dev/sqlc/cmd/sqlc@$SQLC_VERSION"
-  echo "installed: $(go env GOPATH)/bin/sqlc"
-}
-
 target_update_thunder() { ## Update thunder replace directive to latest commit on THUNDER_BRANCH (branch or tag name)
   need go
   need git
@@ -245,8 +226,6 @@ Docker
   docker-run         Run container mapped to PORT (default 8088)
 
 Maintenance
-  sqlc               Regenerate DB layer from SQL (requires sqlc; run sqlc-install first)
-  sqlc-install       Install sqlc (SQLC_VERSION=$SQLC_VERSION)
   update-thunder     Update thunder replace directive and refresh go.sum (THUNDER_BRANCH=$THUNDER_BRANCH)
   tidy               Run go mod tidy
   clean              Remove build artefacts and coverage output
@@ -276,8 +255,6 @@ for t in "${targets[@]}"; do
     lint-install)    target_lint_install ;;
     docker-build)    target_docker_build ;;
     docker-run)      target_docker_run ;;
-    sqlc)            target_sqlc ;;
-    sqlc-install)    target_sqlc_install ;;
     update-thunder)  target_update_thunder ;;
     tidy)            target_tidy ;;
     clean)           target_clean ;;

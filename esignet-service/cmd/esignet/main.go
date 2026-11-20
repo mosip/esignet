@@ -54,9 +54,9 @@ func main() {
 	}
 
 	// TEMPORARY : MySQL support is incomplete —
-	// clientmgmt/consentmgmt are still Postgres-only (sqlc), so starting on
-	// MySQL would yield a half-working service (keymanager OK, client/consent
-	// failing at runtime). Fail fast until those packages are converted.
+	// clientmgmt/consentmgmt have been converted to the portable sqlx layer, but
+	// MySQL support is still being verified end to end, so starting on
+	// MySQL would yield a half-working service. Fail fast until that completes.
 	if appCfg.DB.Driver == "mysql" {
 		logger.Fatal("DB_DRIVER=mysql is not yet fully supported in this build (client/consent management pending); set DB_DRIVER=postgres")
 	}
@@ -169,7 +169,7 @@ func main() {
 		thunderidengine.WithActorProvider(engine.NewActorProvider(clientSvc, appCfg)),
 		thunderidengine.WithDefaultAuthnProvider(authnProvider),
 		thunderidengine.WithAuthorizationProvider(engine.NewAuthorizationProvider(appCfg)),
-		thunderidengine.WithConsentProvider(engine.NewConsentProvider(consentmgmt.NewService(dbConn), clientSvc, appCfg)),
+		thunderidengine.WithConsentProvider(engine.NewConsentProvider(consentmgmt.NewService(sqlxConn), clientSvc, appCfg)),
 		thunderidengine.WithDesignResolveProvider(engine.NewDesignProvider(appCfg, runtimeStore, appCfg.DesignCacheTTLSecs)),
 		thunderidengine.WithFlowProvider(engine.NewFlowProvider(appCfg, runtimeStore, appCfg.FlowCacheTTLSecs)),
 		thunderidengine.WithI18nProvider(engine.NewI18nProvider(appCfg, clientSvc)),

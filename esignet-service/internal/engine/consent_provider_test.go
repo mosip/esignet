@@ -9,11 +9,14 @@ package engine
 import (
 	"context"
 	"database/sql"
+	"database/sql/driver"
 	"encoding/json"
 	"errors"
 	"testing"
 	"time"
 
+	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/jmoiron/sqlx"
 	"github.com/stretchr/testify/suite"
 
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/common"
@@ -25,31 +28,11 @@ import (
 	"github.com/mosip/esignet/internal/consentmgmt/db"
 )
 
+// consentStubQuerier scripts what the consent_detail read returns; newConsentTestProvider
+// turns it into sqlmock expectations so the provider runs against the real consent service.
 type consentStubQuerier struct {
-	db.Querier
-
 	getRow db.ConsentDetail
 	getErr error
-
-	upsertErr        error
-	insertHistoryErr error
-
-	lastUpsert  db.UpsertConsentParams
-	lastHistory db.InsertConsentHistoryParams
-}
-
-func (q *consentStubQuerier) GetConsent(_ context.Context, _ db.GetConsentParams) (db.ConsentDetail, error) {
-	return q.getRow, q.getErr
-}
-
-func (q *consentStubQuerier) InsertConsentHistory(_ context.Context, arg db.InsertConsentHistoryParams) error {
-	q.lastHistory = arg
-	return q.insertHistoryErr
-}
-
-func (q *consentStubQuerier) UpsertConsent(_ context.Context, arg db.UpsertConsentParams) error {
-	q.lastUpsert = arg
-	return q.upsertErr
 }
 
 type clientStubQuerier struct {
@@ -82,14 +65,107 @@ func registeredClientRow(claims []string) clientdb.ClientDetail {
 	}
 }
 
-func newConsentTestProvider(q db.Querier, cfg *config.AppConfig, registeredClaims ...string) *consentProvider {
+// consentReadsScripted is how many consent_detail reads newConsentTestProvider scripts; sqlmock
+// expectations are consumed one per query, and no test reads more often than this.
+const consentReadsScripted = 3
+
+func (ts *ConsentProviderTestSuite) newConsentTestProvider(q *consentStubQuerier, cfg *config.AppConfig, registeredClaims ...string) *consentProvider {
 	if cfg == nil {
 		cfg = &config.AppConfig{}
 	}
-	svc := consentmgmt.NewServiceWithQuerier(q)
+	mockDB, mock, err := sqlmock.New()
+	ts.Require().NoError(err)
+	ts.T().Cleanup(func() { _ = mockDB.Close() })
+	for range consentReadsScripted {
+		expectation := mock.ExpectQuery("FROM consent_detail WHERE")
+		if q.getErr != nil {
+			expectation.WillReturnError(q.getErr)
+			continue
+		}
+		expectation.WillReturnRows(sqlmock.NewRows(consentDetailColumns).AddRow(consentRowValues(q.getRow)...))
+	}
+	svc := consentmgmt.NewService(sqlx.NewDb(mockDB, "sqlmock"))
 	clientSvc := newTestClientService(&clientStubQuerier{getRow: registeredClientRow(registeredClaims)}, nil, 0, nil)
 	return NewConsentProvider(svc, clientSvc, cfg).(*consentProvider)
 }
+
+// consentDetailColumns is the consent_detail column order returned by the consent service's read.
+var consentDetailColumns = []string{
+	"id", "client_id", "psu_token", "claims", "authorization_scopes",
+	"cr_dtimes", "expire_dtimes", "signature", "hash", "accepted_claims", "permitted_scopes",
+}
+
+// consentRowValues flattens a ConsentDetail into driver values in consentDetailColumns order,
+// unwrapping the sql.Null* fields the way a real driver would return them.
+func consentRowValues(row db.ConsentDetail) []driver.Value {
+	expire, _ := row.ExpireDtimes.Value()
+	signature, _ := row.Signature.Value()
+	hash, _ := row.Hash.Value()
+	accepted, _ := row.AcceptedClaims.Value()
+	permitted, _ := row.PermittedScopes.Value()
+	return []driver.Value{
+		row.ID, row.ClientID, row.PsuToken, row.Claims, row.AuthorizationScopes,
+		row.CrDtimes, expire, signature, hash, accepted, permitted,
+	}
+}
+
+// newRecordingProvider builds a consentProvider whose consent service is backed by go-sqlmock, so
+// RecordConsent's SaveRecord (a mandatory history-insert + upsert transaction) can run and be
+// asserted via sqlmock expectations. RecordConsent never calls GetConsent, so no read is scripted.
+func (ts *ConsentProviderTestSuite) newRecordingProvider(cfg *config.AppConfig, registeredClaims ...string) (*consentProvider, sqlmock.Sqlmock) {
+	if cfg == nil {
+		cfg = &config.AppConfig{}
+	}
+	mockDB, mock, err := sqlmock.New()
+	ts.Require().NoError(err)
+	ts.T().Cleanup(func() { _ = mockDB.Close() })
+	consentSvc := consentmgmt.NewService(sqlx.NewDb(mockDB, "sqlmock"))
+	clientSvc := newTestClientService(&clientStubQuerier{getRow: registeredClientRow(registeredClaims)}, nil, 0, nil)
+	return NewConsentProvider(consentSvc, clientSvc, cfg).(*consentProvider), mock
+}
+
+// expectSaveRecordTx scripts a successful SaveRecord transaction: Begin, the consent_history
+// insert, the consent_detail upsert (carrying detailArgs for assertions), then Commit.
+func expectSaveRecordTx(mock sqlmock.Sqlmock, detailArgs ...driver.Value) {
+	mock.ExpectBegin()
+	mock.ExpectExec("INSERT INTO consent_history").WillReturnResult(sqlmock.NewResult(0, 1))
+	mock.ExpectExec("INSERT INTO consent_detail").WithArgs(detailArgs...).WillReturnResult(sqlmock.NewResult(0, 1))
+	mock.ExpectCommit()
+}
+
+// sqlmock argument matchers for asserting what RecordConsent persists via SaveRecord. The
+// consent_detail INSERT binds args in this order: id, client_id, psu_token, claims,
+// authorization_scopes, hash, accepted_claims, permitted_scopes, cr_dtimes, expire_dtimes.
+type jsonSliceArg struct{ want []string }
+
+func (m jsonSliceArg) Match(v driver.Value) bool {
+	s, ok := v.(string)
+	if !ok {
+		return false
+	}
+	var got []string
+	if json.Unmarshal([]byte(s), &got) != nil {
+		return false
+	}
+	if len(got) != len(m.want) {
+		return false
+	}
+	for i := range got {
+		if got[i] != m.want[i] {
+			return false
+		}
+	}
+	return true
+}
+
+// validTimeArg matches a non-NULL timestamp (an expiry was set); nullArg matches SQL NULL.
+type validTimeArg struct{}
+
+func (validTimeArg) Match(v driver.Value) bool { _, ok := v.(time.Time); return ok }
+
+type nullArg struct{}
+
+func (nullArg) Match(v driver.Value) bool { return v == nil }
 
 func clientIDMeta(clientID string) map[string][]string {
 	return map[string][]string{runtimeKeyClientID: {clientID}}
@@ -105,12 +181,12 @@ func matchingConsentHash(ts *ConsentProviderTestSuite) string {
 }
 
 func (ts *ConsentProviderTestSuite) TestNewConsentProvider() {
-	p := newConsentTestProvider(&consentStubQuerier{getErr: sql.ErrNoRows}, nil)
+	p := ts.newConsentTestProvider(&consentStubQuerier{getErr: sql.ErrNoRows}, nil)
 	ts.Require().NotNil(p)
 }
 
 func (ts *ConsentProviderTestSuite) TestResolveConsent_FetchRecordError() {
-	p := newConsentTestProvider(&consentStubQuerier{getErr: errors.New("db down")}, nil)
+	p := ts.newConsentTestProvider(&consentStubQuerier{getErr: errors.New("db down")}, nil)
 
 	prompt, svcErr := p.ResolveConsent(context.Background(), "ou-1", "app-1", "App One", "user-1",
 		nil, nil, nil, nil, false, clientIDMeta("client-1"))
@@ -120,7 +196,7 @@ func (ts *ConsentProviderTestSuite) TestResolveConsent_FetchRecordError() {
 }
 
 func (ts *ConsentProviderTestSuite) TestResolveConsent_NoStoredConsent_BuildsPrompt() {
-	p := newConsentTestProvider(&consentStubQuerier{getErr: sql.ErrNoRows}, nil)
+	p := ts.newConsentTestProvider(&consentStubQuerier{getErr: sql.ErrNoRows}, nil)
 
 	prompt, svcErr := p.ResolveConsent(context.Background(), "ou-1", "app-1", "App One", "user-1",
 		[]string{"name"}, []string{"email"}, []string{"perm.write", "perm.read"}, nil, false,
@@ -143,7 +219,7 @@ func (ts *ConsentProviderTestSuite) TestResolveConsent_NoStoredConsent_BuildsPro
 }
 
 func (ts *ConsentProviderTestSuite) TestResolveConsent_NothingToPrompt_ReturnsNil() {
-	p := newConsentTestProvider(&consentStubQuerier{getErr: sql.ErrNoRows}, nil)
+	p := ts.newConsentTestProvider(&consentStubQuerier{getErr: sql.ErrNoRows}, nil)
 
 	prompt, svcErr := p.ResolveConsent(context.Background(), "ou-1", "app-1", "App One", "user-1",
 		nil, nil, nil, nil, false, clientIDMeta("client-1"))
@@ -158,7 +234,7 @@ func (ts *ConsentProviderTestSuite) TestResolveConsent_ForceReprompt() {
 		Claims: "{}", AuthorizationScopes: "{}",
 		Hash: sql.NullString{String: hash, Valid: true}, CrDtimes: time.Now().UTC(),
 	}}
-	p := newConsentTestProvider(q, nil)
+	p := ts.newConsentTestProvider(q, nil)
 
 	prompt, svcErr := p.ResolveConsent(context.Background(), "ou-1", "app-1", "App One", "user-1",
 		[]string{"name"}, nil, nil, nil, true, clientIDMeta("client-1"))
@@ -175,7 +251,7 @@ func (ts *ConsentProviderTestSuite) TestResolveConsent_ExpiredConsent_Reprompts(
 		CrDtimes:     time.Now().UTC().Add(-2 * time.Hour),
 		ExpireDtimes: sql.NullTime{Time: time.Now().UTC().Add(-time.Hour), Valid: true},
 	}}
-	p := newConsentTestProvider(q, nil)
+	p := ts.newConsentTestProvider(q, nil)
 
 	prompt, svcErr := p.ResolveConsent(context.Background(), "ou-1", "app-1", "App One", "user-1",
 		[]string{"name"}, nil, nil, nil, false, clientIDMeta("client-1"))
@@ -191,7 +267,7 @@ func (ts *ConsentProviderTestSuite) TestResolveConsent_HashMatches_SkipsPrompt()
 		Hash:     sql.NullString{String: hash, Valid: true},
 		CrDtimes: time.Now().UTC(),
 	}}
-	p := newConsentTestProvider(q, nil)
+	p := ts.newConsentTestProvider(q, nil)
 
 	prompt, svcErr := p.ResolveConsent(context.Background(), "ou-1", "app-1", "App One", "user-1",
 		nil, nil, nil, nil, false, clientIDMeta("client-1"))
@@ -206,7 +282,7 @@ func (ts *ConsentProviderTestSuite) TestResolveConsent_HashMismatch_ReturnsPromp
 		Hash:     sql.NullString{String: "stale-hash", Valid: true},
 		CrDtimes: time.Now().UTC(),
 	}}
-	p := newConsentTestProvider(q, nil)
+	p := ts.newConsentTestProvider(q, nil)
 
 	prompt, svcErr := p.ResolveConsent(context.Background(), "ou-1", "app-1", "App One", "user-1",
 		[]string{"name"}, nil, nil, nil, false, clientIDMeta("client-1"))
@@ -215,11 +291,15 @@ func (ts *ConsentProviderTestSuite) TestResolveConsent_HashMismatch_ReturnsPromp
 }
 
 func (ts *ConsentProviderTestSuite) TestRecordConsent_Success() {
-	q := &consentStubQuerier{}
 	cfg := &config.AppConfig{ResourceServers: []config.ResourceServerConfig{
 		{ID: "rs-1", Identifier: "https://rs.example.com", Scopes: map[string]string{"perm.read": "read"}},
 	}}
-	p := newConsentTestProvider(q, cfg)
+	p, mock := ts.newRecordingProvider(cfg)
+
+	// Persisted consent_detail row: client-1 / user-1 with a non-NULL expiry (validity 3600).
+	expectSaveRecordTx(mock,
+		sqlmock.AnyArg(), "client-1", "user-1", sqlmock.AnyArg(), sqlmock.AnyArg(),
+		sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg(), validTimeArg{})
 
 	meta := clientIDMeta("client-1")
 	meta[runtimeKeyClaims] = []string{`{"userinfo":{"email":null,"phone":null}}`}
@@ -264,20 +344,24 @@ func (ts *ConsentProviderTestSuite) TestRecordConsent_Success() {
 		{Name: "perm.read", Namespace: providers.NamespacePermission, IsUserApproved: true},
 	})
 
-	ts.Require().Equal("client-1", q.lastUpsert.ClientID)
-	ts.Require().Equal("user-1", q.lastUpsert.PsuToken)
-	ts.Require().True(q.lastUpsert.ExpireDtimes.Valid)
+	ts.Require().NoError(mock.ExpectationsWereMet())
 }
 
 // TestRecordConsent_FiltersUnrequestedDecisions reproduces the reported bug: a consent decision
 // approving claims/scopes that were never part of the original authorize request must not be
 // persisted or returned, even though the caller marked them Approved.
 func (ts *ConsentProviderTestSuite) TestRecordConsent_FiltersUnrequestedDecisions() {
-	q := &consentStubQuerier{}
 	cfg := &config.AppConfig{ResourceServers: []config.ResourceServerConfig{
 		{ID: "rs-1", Identifier: "https://rs.example.com", Scopes: map[string]string{"mosip_identity_vc_ldp": "vc"}},
 	}}
-	p := newConsentTestProvider(q, cfg)
+	p, mock := ts.newRecordingProvider(cfg)
+
+	// Persisted accepted_claims (arg 7) must be empty and permitted_scopes (arg 8) must contain only
+	// the requested scope — the unrequested claims and scope are filtered out before persisting.
+	expectSaveRecordTx(mock,
+		sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg(),
+		sqlmock.AnyArg(), jsonSliceArg{want: []string{}}, jsonSliceArg{want: []string{"mosip_identity_vc_ldp"}},
+		sqlmock.AnyArg(), sqlmock.AnyArg())
 
 	meta := clientIDMeta("client-1")
 	meta[runtimeKeyScopes] = []string{"openid mosip_identity_vc_ldp"}
@@ -317,11 +401,7 @@ func (ts *ConsentProviderTestSuite) TestRecordConsent_FiltersUnrequestedDecision
 		{Name: "mosip_identity_vc_ldp", Namespace: providers.NamespacePermission, IsUserApproved: true},
 	}, consent.Purposes[1].Elements)
 
-	var accepted, permitted []string
-	ts.Require().NoError(json.Unmarshal([]byte(q.lastUpsert.AcceptedClaims.String), &accepted))
-	ts.Require().NoError(json.Unmarshal([]byte(q.lastUpsert.PermittedScopes.String), &permitted))
-	ts.Require().Empty(accepted, "unrequested claims must not be persisted as accepted")
-	ts.Require().Equal([]string{"mosip_identity_vc_ldp"}, permitted)
+	ts.Require().NoError(mock.ExpectationsWereMet())
 }
 
 // TestRecordConsent_AllowsClaimFromStandardScope covers allowedClaims' contribution from
@@ -330,9 +410,13 @@ func (ts *ConsentProviderTestSuite) TestRecordConsent_FiltersUnrequestedDecision
 // "name" via the configured scope_claims table), must still be accepted rather than filtered out
 // as unrequested.
 func (ts *ConsentProviderTestSuite) TestRecordConsent_AllowsClaimFromStandardScope() {
-	q := &consentStubQuerier{}
 	cfg := &config.AppConfig{ScopeClaims: map[string][]string{"profile": {"name"}}}
-	p := newConsentTestProvider(q, cfg, "name")
+	p, mock := ts.newRecordingProvider(cfg, "name")
+
+	// The claim implied by the requested "profile" scope must be persisted as accepted (arg 7).
+	expectSaveRecordTx(mock,
+		sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg(),
+		sqlmock.AnyArg(), jsonSliceArg{want: []string{"name"}}, sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg())
 
 	meta := clientIDMeta("client-1")
 	meta[runtimeKeyScopes] = []string{"openid profile"}
@@ -359,37 +443,44 @@ func (ts *ConsentProviderTestSuite) TestRecordConsent_AllowsClaimFromStandardSco
 		{Name: "name", Namespace: providers.NamespaceAttribute, IsUserApproved: true},
 	}, consent.Purposes[0].Elements, "a claim implied by a requested standard scope must not be filtered out as unrequested")
 
-	var accepted []string
-	ts.Require().NoError(json.Unmarshal([]byte(q.lastUpsert.AcceptedClaims.String), &accepted))
-	ts.Require().Equal([]string{"name"}, accepted)
+	ts.Require().NoError(mock.ExpectationsWereMet())
 }
 
 func (ts *ConsentProviderTestSuite) TestRecordConsent_NilDecisions() {
-	q := &consentStubQuerier{}
-	p := newConsentTestProvider(q, nil)
+	p, mock := ts.newRecordingProvider(nil)
+
+	// Zero validity period ⇒ expire_dtimes persisted as SQL NULL (the final arg).
+	expectSaveRecordTx(mock,
+		sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg(),
+		sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg(), nullArg{})
 
 	consent, svcErr := p.RecordConsent(context.Background(), "ou-1", "app-1", "user-1",
 		nil, "", 0, clientIDMeta("client-1"))
 	ts.Require().Nil(svcErr)
 	ts.Require().NotNil(consent)
 	ts.Require().Empty(consent.Purposes)
-	ts.Require().False(q.lastUpsert.ExpireDtimes.Valid, "zero validity period should not set an expiry")
+	ts.Require().NoError(mock.ExpectationsWereMet())
 }
 
 func (ts *ConsentProviderTestSuite) TestRecordConsent_SaveError() {
-	q := &consentStubQuerier{upsertErr: errors.New("upsert failed")}
-	p := newConsentTestProvider(q, nil)
+	p, mock := ts.newRecordingProvider(nil)
+
+	// The consent_detail insert fails mid-transaction ⇒ rollback, and RecordConsent surfaces it.
+	mock.ExpectBegin()
+	mock.ExpectExec("INSERT INTO consent_history").WillReturnResult(sqlmock.NewResult(0, 1))
+	mock.ExpectExec("INSERT INTO consent_detail").WillReturnError(errors.New("upsert failed"))
+	mock.ExpectRollback()
 
 	consent, svcErr := p.RecordConsent(context.Background(), "ou-1", "app-1", "user-1",
 		nil, "", 0, clientIDMeta("client-1"))
 	ts.Require().Nil(consent)
 	ts.Require().NotNil(svcErr)
 	ts.Require().Equal("consent_persist_failed", svcErr.Code)
+	ts.Require().NoError(mock.ExpectationsWereMet())
 }
 
 func (ts *ConsentProviderTestSuite) TestRecordConsent_EssentialAttributeDenied() {
-	q := &consentStubQuerier{}
-	p := newConsentTestProvider(q, nil)
+	p, mock := ts.newRecordingProvider(nil)
 
 	meta := clientIDMeta("client-1")
 	meta[runtimeKeyClaims] = []string{`{"userinfo":{"email":{"essential":true}}}`}
@@ -411,11 +502,12 @@ func (ts *ConsentProviderTestSuite) TestRecordConsent_EssentialAttributeDenied()
 	ts.Require().Nil(consent)
 	ts.Require().NotNil(svcErr)
 	ts.Require().Equal("essential_consent_denied", svcErr.Code)
-	ts.Require().Empty(q.lastUpsert.ClientID, "consent record must not be persisted when essential consent is denied")
+	// No transaction was scripted: any database write would have failed the mock.
+	ts.Require().NoError(mock.ExpectationsWereMet(), "consent record must not be persisted when essential consent is denied")
 }
 
 func (ts *ConsentProviderTestSuite) TestBuildPrompt_EmptyReturnsNil() {
-	p := newConsentTestProvider(&consentStubQuerier{}, nil)
+	p := ts.newConsentTestProvider(&consentStubQuerier{}, nil)
 	req := &requestedConsent{claimsRequest: map[string]any{}}
 	prompt := p.buildPrompt("app-1", req, nil, nil, nil, nil)
 	ts.Require().Nil(prompt)
@@ -524,7 +616,7 @@ func (ts *ConsentProviderTestSuite) TestClientError() {
 }
 
 func (ts *ConsentProviderTestSuite) TestGetConsentRequestHash() {
-	p := newConsentTestProvider(&consentStubQuerier{}, &config.AppConfig{})
+	p := ts.newConsentTestProvider(&consentStubQuerier{}, &config.AppConfig{})
 	req := &requestedConsent{claimsRequest: map[string]any{}, standardScopes: []string{"openid"}}
 	hash := p.getConsentRequestHash(context.Background(), req, nil)
 	ts.Require().NotEmpty(hash)
@@ -536,7 +628,7 @@ func (ts *ConsentProviderTestSuite) TestClaimsFromScopes() {
 		"email":   {"email", "name"},
 		"openid":  nil,
 	}}
-	p := newConsentTestProvider(&consentStubQuerier{}, cfg)
+	p := ts.newConsentTestProvider(&consentStubQuerier{}, cfg)
 
 	claims := p.claimsFromScopes([]string{"profile", "email", "openid"},
 		[]string{"name", "family_name", "email"})
@@ -575,7 +667,7 @@ func (ts *ConsentProviderTestSuite) TestReadAuthRequest() {
 	cfg := &config.AppConfig{ResourceServers: []config.ResourceServerConfig{
 		{ID: "rs-1", Identifier: "https://rs.example.com", Scopes: map[string]string{"perm.read": "read"}},
 	}}
-	p := newConsentTestProvider(&consentStubQuerier{}, cfg)
+	p := ts.newConsentTestProvider(&consentStubQuerier{}, cfg)
 	req, err := p.readAuthRequest(context.Background(), map[string][]string{
 		"initiator_query_claims": {`{"userinfo":{"name":{"essential":true}}}`},
 		"initiator_query_scope":  {"openid profile perm.read"},
@@ -590,7 +682,7 @@ func (ts *ConsentProviderTestSuite) TestReadAuthRequest() {
 }
 
 func (ts *ConsentProviderTestSuite) TestReadAuthRequest_Empty() {
-	p := newConsentTestProvider(&consentStubQuerier{}, nil)
+	p := ts.newConsentTestProvider(&consentStubQuerier{}, nil)
 	req, err := p.readAuthRequest(context.Background(), map[string][]string{})
 	ts.Require().NoError(err)
 	ts.Require().NotNil(req)
@@ -600,7 +692,7 @@ func (ts *ConsentProviderTestSuite) TestReadAuthRequest_Empty() {
 }
 
 func (ts *ConsentProviderTestSuite) TestReadAuthRequest_InvalidClaimsJSON() {
-	p := newConsentTestProvider(&consentStubQuerier{}, nil)
+	p := ts.newConsentTestProvider(&consentStubQuerier{}, nil)
 	req, err := p.readAuthRequest(context.Background(), map[string][]string{
 		"initiator_query_claims": {"not-json"},
 	})
