@@ -34,7 +34,9 @@ const (
 // keystore backend selection/parameters, algorithm sizing, and cache TTLs.
 // Env-var driven, mirroring internal/clientmgmt's LoadConfig() convention.
 type Config struct {
-	// DBSchema is the Postgres schema holding key_alias/key_policy_def/key_store.
+	// DBSchema qualifies key_alias/key_policy_def/key_store: a schema on
+	// Postgres, a database on MySQL (set it to the MySQL database name, e.g.
+	// "mosip_esignet", when the key tables live alongside client_detail).
 	// The Java service uses "keymgr"; point this at a separate schema (e.g.
 	// "keymgr_go") to test this library without touching the Java service's data.
 	// Env: KEYMANAGER_DB_SCHEMA — default "keymgr"

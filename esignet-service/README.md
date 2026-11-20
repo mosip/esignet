@@ -116,9 +116,9 @@ Minimum to start the service:
 
 | Variable | Default | Purpose |
 |----------|---------|---------|
-| `DATABASE_HOST` / `DATABASE_USERNAME` / `DATABASE_NAME` | `localhost` / `postgres` / `mosip_esignet` | PostgreSQL connection (client management + keymanager storage) |
+| `DATABASE_HOST` / `DATABASE_USERNAME` / `DATABASE_NAME` | `localhost` / `postgres` (`root` on MySQL) / `mosip_esignet` | Database connection (client/consent management + keymanager storage). `DATABASE_PORT` defaults to `5455` on Postgres, `3306` on MySQL |
 | `DATABASE_PASSWORD` / `DB_DBUSER_PASSWORD` | _(empty)_ | Either name works; required unless your DB has no password |
-| `DB_DRIVER` | `postgres` | Database engine selection — controls DSN construction and the SQL placeholder style. **Only `postgres` is accepted today**: the service fails fast at startup on `mysql`, because client and consent management still require PostgreSQL. |
+| `DB_DRIVER` | `postgres` | Database engine: `postgres` or `mysql`. Controls DSN construction and the SQL placeholder style. On MySQL, `parseTime=true&loc=UTC` and `clientFoundRows=true` are added to the DSN when missing, and `KEYMANAGER_DB_SCHEMA` must be set to the MySQL database name (e.g. `mosip_esignet`). |
 | `DATABASE_URL` | _(empty)_ | Full DSN, as an alternative to the individual `DATABASE_*` vars (Postgres `postgres://…`; MySQL `user:pass@tcp(host:port)/db`). Takes precedence when set. |
 | `REDIS_HOST` | `localhost` | Redis connection (session/flow/PAR store) |
 | `MOSIP_ESIGNET_AUTHN_PROVIDER` | `mock` | `mock`, `mosip`, or `sunbird` — see [`docs/configuration.md`](../docs/configuration.md) §7 for what each requires |
