@@ -21,7 +21,6 @@ services:
       - MYSQL_ROOT_PASSWORD=${ESIGNET_MYSQL_ROOT_PASSWORD:-rootlocaltest}
       - ESIGNET_DB_PASSWORD=${ESIGNET_MYSQL_PASSWORD:-localtest}
     volumes:
-      - mysql-data:/var/lib/mysql
       - ../db_scripts/mysql/mosip_esignet:/opt/esignet-db:ro
       - ./init-mysql.sh:/docker-entrypoint-initdb.d/init-mysql.sh:ro
     healthcheck:
@@ -44,6 +43,3 @@ services:
       - MOSIP_ESIGNET_HOST=localhost:8088
     depends_on:
       - database
-
-volumes:
-  mysql-data:

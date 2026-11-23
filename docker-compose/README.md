@@ -50,17 +50,24 @@ There are two compose files in this directory. Choose the one that matches your 
 
 ### `docker-compose.yaml` — Containerized Deployment
 
-Brings up **all four services** with eSignet on PostgreSQL. To choose MySQL, combine it with `docker-compose.mysql.yaml` and the `mysql` profile as described below.
+Brings up the full stack: the database, the Mock Identity System, eSignet and the UI. eSignet runs on **PostgreSQL or MySQL, selected with a Compose profile**: `postgres` or `mysql`. Enable only one profile at a time; eSignet and the UI do not start without one.
 
-| Service | Image | Host Port | Role |
-|---|---|---|---|
-| `database` | `postgres:bookworm` | **5455** | PostgreSQL — two databases: `mosip_esignet` and `mosip_mockidentitysystem`, schemas and seed data created automatically via `init.sql` |
-| `mock-identity-system` | `mosipid/mock-identity-system:**` | **8082** | Mock identity backend — simulates a national ID system; supports OTP, PIN, and password auth |
-| `esignet` | `mosipid/esignet:**` | **8088** | eSignet OIDC/OAuth2 service — the core authorization server |
-| `esignet-ui` | `mosipid/oidc-ui:**` | **3000** | OIDC login UI — nginx-served React app; proxies API calls to the `esignet` service |
+| Service | Profile | Image | Host Port | Role |
+|---|---|---|---|---|
+| `database` | always | `postgres:bookworm` | **5455** | PostgreSQL — two databases: `mosip_esignet` and `mosip_mockidentitysystem`, schemas and seed data created automatically via `init.sql`. The Mock Identity System always uses it, even when eSignet runs on MySQL |
+| `database-mysql` | `mysql` | `mysql:8.4` | **3307** | MySQL — `mosip_esignet` database and `esignetuser` created through [`init-mysql.sh`](init-mysql.sh) |
+| `mock-identity-system` | always | `mosipid/mock-identity-system:**` | **8082** | Mock identity backend — simulates a national ID system; supports OTP, PIN, and password auth |
+| `esignet-postgres` | `postgres` | `mosipid/esignet:**` | **8088** | eSignet OIDC/OAuth2 service on PostgreSQL |
+| `esignet-mysql` | `mysql` | `mosipid/esignet:**` | **8088** | eSignet OIDC/OAuth2 service on MySQL |
+| `esignet-ui` | `postgres`, `mysql` | `mosipid/oidc-ui:**` | **3000** | OIDC login UI — nginx-served React app; proxies API calls to whichever eSignet service is running |
+
+The two eSignet services differ only in their database settings. Both answer to the network name `esignet`, so the UI's nginx proxy (`esignet:8088`) works with either.
 
 Startup order enforced by `depends_on`:
-`database` (healthy) → `mock-identity-system` → `esignet` → `esignet-ui`
+- PostgreSQL: `database` (healthy) → `mock-identity-system` → `esignet-postgres` → `esignet-ui`
+- MySQL: `database` (healthy) → `mock-identity-system`, and `database-mysql` (healthy) → `esignet-mysql` → `esignet-ui`
+
+`esignet-ui` depends on both eSignet services with `required: false`, so it waits only for the one in the selected profile. This needs Docker Compose v2.20.2 or later.
 
 ### `dependent-docker-compose.yaml` — Dev Dependencies Only
 
@@ -80,15 +87,15 @@ All commands are run from this directory (`docker-compose/`).
 ### 1. Start services
 
 ```bash
-docker compose up -d
+docker compose --profile postgres up -d
 ```
 
-Docker pulls the images (first run takes a few minutes) and starts all four services in dependency order. The PostgreSQL container runs `init.sql` on its first start, creating both databases, schemas, tables, and seed data automatically.
+Docker pulls the images (first run takes a few minutes) and starts all four services in dependency order. The PostgreSQL container runs `init.sql` on its first start, creating both databases, schemas, tables, and seed data automatically. To run on MySQL instead, see [Running eSignet on MySQL](#running-esignet-on-mysql).
 
 Watch startup progress:
 
 ```bash
-docker compose logs -f
+docker compose --profile postgres logs -f
 ```
 
 Press `Ctrl+C` to stop following logs; the services keep running.
@@ -96,17 +103,17 @@ Press `Ctrl+C` to stop following logs; the services keep running.
 ### 2. Verify services are healthy
 
 ```bash
-docker compose ps
+docker compose --profile postgres ps
 ```
 
 Expected output — all four services should be `running` (the `database` service will show `healthy` once its healthcheck passes):
 
 ```
-NAME                                  SERVICE               STATUS
-docker-compose-database-1             database              running (healthy)
-docker-compose-mock-identity-system-1 mock-identity-system  running
-docker-compose-esignet-1              esignet               running
-docker-compose-esignet-ui-1           esignet-ui            running
+NAME                                          SERVICE                STATUS
+docker-compose-database-1                     database               running (healthy)
+docker-compose-mock-identity-system-1         mock-identity-system   running
+docker-compose-esignet-postgres-1             esignet-postgres       running
+docker-compose-esignet-ui-1                   esignet-ui             running
 ```
 
 Verify each service responds:
@@ -213,27 +220,29 @@ npm run dev   # starts on port 3000 (Vite dev server)
 
 ## Running eSignet on MySQL
 
-eSignet supports both PostgreSQL and MySQL 8.4; choose the database that fits your deployment. The sections above run on PostgreSQL. To run on MySQL instead, use the `database-mysql` service, which sits behind the `mysql` Compose profile. On first start it runs the canonical scripts in [`db_scripts/mysql/mosip_esignet`](../db_scripts/mysql/mosip_esignet) through [`init-mysql.sh`](init-mysql.sh), creating the `mosip_esignet` database, the `esignetuser` application user, all tables and the seed data. The Mock Identity System keeps using PostgreSQL.
+eSignet supports both PostgreSQL and MySQL 8.4; choose the database that fits your deployment. The sections above run on PostgreSQL. To run on MySQL instead, use the `database-mysql` service, which sits behind the `mysql` Compose profile. Like the PostgreSQL `database` service, it has no named data volume: each new container starts empty and runs the canonical scripts in [`db_scripts/mysql/mosip_esignet`](../db_scripts/mysql/mosip_esignet) through [`init-mysql.sh`](init-mysql.sh), creating the `mosip_esignet` database, the `esignetuser` application user, all tables and the seed data. The Mock Identity System keeps using PostgreSQL.
 
-Default credentials are for local use only; override them with `ESIGNET_MYSQL_ROOT_PASSWORD` and `ESIGNET_MYSQL_PASSWORD` **before the first start** (they are applied only when the data volume is created).
+Default credentials are for local use only; override them with `ESIGNET_MYSQL_ROOT_PASSWORD` and `ESIGNET_MYSQL_PASSWORD` before `up` (they are applied when the container initializes its database).
 
-> Enabling the profile alone does not switch eSignet to MySQL. The containerized deployment needs the override file as well.
+> Selecting the `mysql` profile starts `database-mysql`, `esignet-mysql` and `esignet-ui`. No extra Compose file is needed. The Mock Identity System and its PostgreSQL `database` start in both modes.
 
 ### Containerized deployment on MySQL
 
 ```bash
-docker compose -p esignet-mysql -f docker-compose.yaml -f docker-compose.mysql.yaml --profile mysql up -d
+docker compose --profile mysql up -d
 ```
 
-To test a locally built image, build it with `./make.sh docker-build` in `esignet-service/` and set `ESIGNET_IMAGE` to its name.
-
-Two named volumes keep state across `down`/`up`: the MySQL data and eSignet's PKCS12 keystore. Key aliases are stored in MySQL while the private keys are in the keystore, so keep or reset them together:
-
-If you have already started the stack under another Compose project name, keep using that name to reuse its volumes. Changing `-p` creates a separate set of named volumes; it does not migrate existing data.
+Enable only one of `postgres` and `mysql`; both use host ports 3000 and 8088. To switch databases, stop the running stack first:
 
 ```bash
-docker compose -p esignet-mysql -f docker-compose.yaml -f docker-compose.mysql.yaml --profile mysql down      # keeps data
-docker compose -p esignet-mysql -f docker-compose.yaml -f docker-compose.mysql.yaml --profile mysql down -v   # full reset
+docker compose --profile postgres down
+docker compose --profile mysql up -d
+```
+
+As with PostgreSQL, `down` removes the containers, so the next `up` starts with a fresh MySQL database and a fresh keystore:
+
+```bash
+docker compose --profile mysql down
 ```
 
 ### Developer mode on MySQL
@@ -252,10 +261,10 @@ DATABASE_NAME=mosip_esignet
 DATABASE_USERNAME=esignetuser
 DATABASE_PASSWORD=localtest
 KEYMANAGER_DB_SCHEMA=mosip_esignet
-KEYMANAGER_PKCS12_FILE_PATH=./keystore-mysql.pfx
+KEYMANAGER_PKCS12_FILE_PATH=./keystore.pfx
 ```
 
-`KEYMANAGER_DB_SCHEMA` must equal the MySQL database name. If `DATABASE_URL` is set it takes precedence over these values, so unset it. Delete `keystore-mysql.pfx` whenever you reset the MySQL volume.
+`KEYMANAGER_DB_SCHEMA` must equal the MySQL database name. If `DATABASE_URL` is set it takes precedence over these values, so unset it. The same `keystore.pfx` can serve both databases, because each database only references the key aliases it created. Do not delete it while either database still holds key aliases, or eSignet fails to start with `alias not found`; if you delete it, also reset the databases that use it.
 
 ---
 
@@ -349,7 +358,7 @@ Stop the conflicting process or change the host port in `docker-compose.yaml` (l
 The healthcheck runs `pg_isready -U postgres` every 5 seconds, up to 20 retries (100 seconds total). If it still fails:
 
 ```bash
-docker compose logs database
+docker compose --profile postgres logs database
 ```
 
 Look for permission errors or disk-full messages.
@@ -357,21 +366,21 @@ Look for permission errors or disk-full messages.
 **`mock-identity-system` fails to start**
 
 It depends on the database being healthy. Common causes:
-- The `init.sql` script failed (check `docker compose logs database` for SQL errors).
+- The `init.sql` script failed (check `docker compose --profile postgres logs database` for SQL errors).
 - Insufficient memory — the Spring Boot container needs at least 512 MB.
 
 ```bash
-docker compose logs mock-identity-system
+docker compose --profile postgres logs mock-identity-system
 ```
 
-**`esignet` exits immediately**
+**`esignet-postgres` / `esignet-mysql` exits immediately**
 
 ```bash
-docker compose logs esignet
+docker compose --profile postgres logs esignet-postgres   # or: --profile mysql logs esignet-mysql
 ```
 
 Common causes:
-- Database not ready yet — re-run `docker compose up -d` after the database is healthy.
+- Database not ready yet — re-run `docker compose --profile postgres up -d` (or `--profile mysql`) after the database is healthy.
 - PKCS12 keystore not found — the container uses a bundled test keystore; if you've mounted a custom one, verify the path and password.
 
 **Images not found / pull errors**
@@ -387,7 +396,7 @@ Check your internet connection or Docker Hub rate limits.
 
 **OIDC discovery returns a connection error from the UI**
 
-The `esignet-ui` nginx proxies `/v1/esignet/` to `esignet:8088` using the internal Docker network. If the proxy fails, `esignet` may not have started yet. Wait 30 seconds and refresh.
+The `esignet-ui` nginx proxies `/v1/esignet/` to `esignet:8088` using the internal Docker network (both eSignet services answer to the name `esignet`). If the proxy fails, eSignet may not have started yet. Wait 30 seconds and refresh.
 
 **CAPTCHA blocks login**
 
@@ -401,22 +410,22 @@ Run all commands from the `docker-compose/` directory.
 
 ### Containerized deployment (docker-compose.yaml)
 
-Stop all services and keep the database volume (data is preserved across restarts):
+Stop all services and keep the database volume (data is preserved across restarts). Pass the same profile you started with, otherwise Compose does not stop that profile's services:
 
 ```bash
-docker compose down
+docker compose --profile postgres down      # or: --profile mysql
 ```
 
 Stop all services and **delete all data** (full clean reset — `init.sql` will re-run on the next `up`):
 
 ```bash
-docker compose down -v
+docker compose --profile postgres down -v   # or: --profile mysql
 ```
 
 Remove pulled images as well (frees disk space):
 
 ```bash
-docker compose down -v --rmi all
+docker compose --profile postgres down -v --rmi all   # or: --profile mysql
 ```
 
 ### Developer mode (dependent-docker-compose.yaml)

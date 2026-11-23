@@ -1,5 +1,5 @@
 #!/bin/bash
-# Runs once, on first start with an empty data directory, from the official
+# Runs whenever the container starts with an empty data directory, from the official
 # MySQL image entrypoint (docker-entrypoint-initdb.d). It only adapts the image
 # environment to the canonical provisioning script in
 # db_scripts/mysql/mosip_esignet; the schema itself is not defined here.
