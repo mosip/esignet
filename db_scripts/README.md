@@ -2,9 +2,27 @@
 Open ID based Identity provider for large scale authentication.
 
 ## Overview
-This folder containers various SQL scripts to create database and tables in postgres.
+This folder contains SQL scripts to create the eSignet database and tables on PostgreSQL and MySQL.
 The tables are described under `<db name>/ddl/`.
 Default data that's populated in the tables is present under `<db name>/dml` folder.
+
+## Layout
+```
+db_scripts/
+├── init_db.sh, init_values.yaml, copy_cm_func.sh   PostgreSQL / Helm install (see below)
+├── mosip_esignet/                                  PostgreSQL scripts (path is fixed, used by the Helm chart and CI)
+│   ├── deploy.sh, *.sql
+│   ├── ddl/
+│   └── dml/
+└── mysql/mosip_esignet/                            MySQL scripts, same internal shape (see its README.md)
+    ├── deploy.sh, *.sql
+    ├── ddl/
+    └── dml/
+```
+Each engine folder is self-contained. The table definitions differ by design (MySQL uses `DATETIME(6)`,
+a `TEXT` column with a CHECK, and an explicit collation), and the seed files are kept as one copy per
+engine. Any schema or seed change must be made in both trees; seed files carry a "Keep in sync" header
+naming their counterpart.
 
 ## Prerequisites
 * Make sure DB changes for IDA and PMS are up to date.
