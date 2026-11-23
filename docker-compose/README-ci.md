@@ -27,12 +27,16 @@ runs on every push and pull request, on `ubuntu-latest`:
 1. **Build the ui-test jar** with `mvn package` in `ui-test/` (the ui-test image copies it from `target/`).
 2. **Remove residual containers and volumes** so the run starts from an empty database (see
    [Clean volumes on every run](#clean-volumes-on-every-run)).
-3. **Start the stack** with [`docker-compose-ci.yaml`](docker-compose-ci.yaml): Postgres, mock identity
+3. **Start the stack** (including the conformance suite) with [`docker-compose-ci.yaml`](docker-compose-ci.yaml): Postgres, mock identity
    system, esignet, esignet-ui, mock relying party service and UI.
-4. **Wait** until `http://localhost:8080/health` returns `ok`.
-5. **Run the API tests** (`apitest` service), copy and upload the report.
-6. **Run the UI tests** (`ui-test` service), copy and upload the report.
-7. **Print logs** and shut the stack down, removing its volumes.
+4. **Wait** for the conformance suite's `/api/runner/available` to return 200. The suite's four
+   clients (`conformance-oidcc-client-1/2`, `conformance-fapi2-client-1/2`) are already seeded into
+   the database by [`init-ci.sql`](init-ci.sql); their private keys are in
+   [`conformance-suite-private/`](conformance-suite-private) (CI-only throwaway keys), mounted into `apitest`.
+5. **Wait** until `http://localhost:8080/health` returns `ok`.
+6. **Run the API tests** (`apitest` service), copy and upload the report.
+7. **Run the UI tests** (`ui-test` service), copy and upload the report.
+8. **Print logs** and shut the stack down, removing its volumes.
 
 Test failures do **not** fail the job. Each suite's exit code is printed in the log, and the result
 is read from the reports (see [Test reports](#test-reports)). The job still fails if the jar
@@ -48,7 +52,9 @@ build fails, the stack does not start, or esignet never becomes healthy.
 | `esignet-ui` | built from `oidc-ui/` | 3000 | nginx config: `nginx-ci.conf` |
 | `mock-relying-party-service` | `mosipqa/mock-relying-party-service:0.14.x` | 8888 | |
 | `mock-relying-party-ui` | `mosipqa/mock-relying-party-ui:0.14.x` | 5000 | nginx config: `nginx-ci-mock.conf` |
-| `apitest` | built from `api-test/` | — | One-shot test run |
+| `conformance-mongodb`, `conformance-server`, `conformance-httpd` | OpenID Conformance Suite (`SUITE_IMAGE_TAG`, default `release-v5.1.42`) | 8443 (httpd) | Bridge network; mirrors `api-test/docker-compose.yml` |
+| `conformance-esignet-proxy` | `alpine/socat` | — | Shares `conformance-server`'s network namespace and forwards its `localhost:3000` to the runner host, so the suite can reach eSignet at its real issuer URL |
+| `apitest` | built from `api-test/` | — | One-shot test run: `conformance`, `api` and `e2e` surfaces (override with `APITEST_SURFACES`) |
 | `ui-test` | built from `ui-test/` | — | One-shot test run, host network |
 
 Startup order is enforced with `depends_on: condition: service_healthy`, so each service waits for
@@ -62,6 +68,7 @@ its dependencies' health checks.
 |---|---|
 | [`.github/workflows/push-trigger.yml`](../.github/workflows/push-trigger.yml) | New `run-apitest-pr` job |
 | [`docker-compose/docker-compose-ci.yaml`](docker-compose-ci.yaml) | The CI stack and both test runners |
+| [`docker-compose/conformance-suite-private/`](conformance-suite-private) | Suite plan configs (`esignet-config.json`, `esignet-fapi2-config.json`): client ids and PRIVATE JWKS for the four seeded conformance clients. Synthetic CI-only keys; the public halves are in `init-ci.sql` |
 | [`docker-compose/init-ci.sql`](init-ci.sql) | Creates `mosip_esignet` and `mosip_mockidentitysystem`, key policies, the `esignet-mock-client` OIDC client and a mock identity (synthetic CI data) |
 | [`docker-compose/nginx-ci.conf`](nginx-ci.conf) | esignet-ui on port 3000; proxies `/v1/esignet/` and `/.well-known/*` to `localhost:8080` |
 | [`docker-compose/nginx-ci-mock.conf`](nginx-ci-mock.conf) | Mock RP UI on port 5000; proxies `/mock-relying-party-service/` to `localhost:8888` |
