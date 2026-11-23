@@ -38,9 +38,22 @@ const (
 	credentialPassword = "password"
 	credentialPin      = "pin"
 	credentialBio      = "biometric"
+	credentialVPToken  = "vp_token"
 
 	// identifierKeyIndividualID is the identifiers-map key that carries the individual ID.
 	identifierKeyIndividualID = "username"
+
+	// identifierKeyWalletClientID is the identifiers-map key carrying the wallet client identifier
+	// for OpenID4VP authentication flows.
+	identifierKeyWalletClientID = "wallet_client_identifier"
+
+	// identifierKeyIndividualIDClaim is the optional identifiers-map key that names the JWT claim
+	// to extract as the individual ID from a vp_token. Defaults to defaultVPIndividualIDClaim.
+	identifierKeyIndividualIDClaim = "individual_id_claim"
+
+	// defaultVPIndividualIDClaim is the JWT claim used to extract the individual ID from a
+	// vp_token when identifierKeyIndividualIDClaim is not set.
+	defaultVPIndividualIDClaim = "sub"
 
 	// signingCertsCacheTTL is how long a fetched signing-certificate list is
 	// served from cache before GetSigningCertificates fetches a fresh one.
@@ -77,6 +90,11 @@ func NewMockAuthnProvider(cfg *config.AppConfig, clientSvc *clientmgmt.Service, 
 
 func (p *mockAuthnProvider) Authenticate(ctx context.Context, identifiers, credentials map[string]interface{},
 	metadata *providers.AuthnMetadata) (*providers.AuthnResult, *common.ServiceError) {
+
+	// VP token (OpenID4VP / WLA) path: detected before classic credential handling.
+	if vpToken, ok := credentials[credentialVPToken].(string); ok && vpToken != "" {
+		return p.authenticateWithVP(ctx, vpToken, identifiers, metadata)
+	}
 
 	clientDtl, err := p.getApplicationAndClientID(ctx, metadata.RuntimeMetadata)
 	if err != nil {
@@ -115,6 +133,115 @@ func (p *mockAuthnProvider) Authenticate(ctx context.Context, identifiers, crede
 		EntityReferenceToken: psut,
 		AttributeToken:       strings.Join([]string{kycToken, individualID, transactionID}, "||"),
 	}, nil
+}
+
+// authenticateWithVP handles OpenID4VP wallet-based authentication. It extracts the
+// individual ID from the vp_token JWT claims, verifies the user's existence in the
+// mock identity system, and applies the policy check.
+func (p *mockAuthnProvider) authenticateWithVP(ctx context.Context, vpToken string,
+	identifiers map[string]interface{}, metadata *providers.AuthnMetadata) (*providers.AuthnResult, *common.ServiceError) {
+
+	clientDtl, err := p.getApplicationAndClientID(ctx, metadata.RuntimeMetadata)
+	if err != nil {
+		return nil, shared.ClientNotFoundError
+	}
+
+	claimName := defaultVPIndividualIDClaim
+	if name, ok := identifiers[identifierKeyIndividualIDClaim].(string); ok && name != "" {
+		claimName = name
+	}
+
+	individualID, err := extractIndividualIDFromVPToken(vpToken, claimName)
+	if err != nil {
+		applog.GetLogger().Error(ctx, "failed to extract individual ID from vp_token", applog.Error(err))
+		return nil, shared.VPTokenMissingOrInvalidError
+	}
+	if individualID == "" {
+		return nil, shared.InvalidIndividualIDError
+	}
+
+	transactionID, err := shared.GenerateTransactionID(metadata.RuntimeMetadata, p.appConfig.AuthTransactionIDLength)
+	if err != nil {
+		return nil, shared.InvalidRequestError
+	}
+
+	walletClientID, _ := identifiers[identifierKeyWalletClientID].(string)
+
+	kycAuthRequest := &KycAuthRequestDto{
+		TransactionID: transactionID,
+		IndividualID:  individualID,
+		Tokens:        buildVPTokens(vpToken, walletClientID),
+	}
+
+	requestBytes, marshalErr := json.Marshal(kycAuthRequest)
+	if marshalErr != nil {
+		return nil, shared.AuthenticationFailedError
+	}
+
+	kycToken, psut, callErr := p.callKycAuthEndpoint(ctx, requestBytes, clientDtl.RpID, clientDtl.ClientID)
+	if callErr != nil {
+		return nil, mapVPAuthError(callErr)
+	}
+
+	return &providers.AuthnResult{
+		EntityReferenceToken: psut,
+		AttributeToken:       strings.Join([]string{kycToken, individualID, transactionID}, "||"),
+	}, nil
+}
+
+// extractIndividualIDFromVPToken parses the JWT portion of a vp_token and returns the
+// value of claimName. SD-JWT disclosures (separated by "~") are stripped before parsing.
+func extractIndividualIDFromVPToken(vpToken, claimName string) (string, error) {
+	if vpToken == "" {
+		return "", errors.New("vp_token is empty")
+	}
+	// Strip optional SD-JWT disclosures and KB-JWT (keep only the compact JWT portion).
+	jwtPortion := strings.SplitN(vpToken, "~", 2)[0]
+	parts := strings.Split(jwtPortion, ".")
+	if len(parts) != 3 {
+		return "", errors.New("invalid JWT format in vp_token")
+	}
+	payload, decodeErr := base64.RawURLEncoding.DecodeString(parts[1])
+	if decodeErr != nil {
+		// Retry with padded URL-safe encoding in case the token uses padding.
+		payload, decodeErr = base64.URLEncoding.DecodeString(parts[1])
+		if decodeErr != nil {
+			return "", fmt.Errorf("failed to decode vp_token payload: %w", decodeErr)
+		}
+	}
+	var claims map[string]interface{}
+	if jsonErr := json.Unmarshal(payload, &claims); jsonErr != nil {
+		return "", fmt.Errorf("failed to parse vp_token claims: %w", jsonErr)
+	}
+	id, ok := claims[claimName].(string)
+	if !ok || id == "" {
+		return "", fmt.Errorf("claim %q not found or empty in vp_token", claimName)
+	}
+	return id, nil
+}
+
+// buildVPTokens packages the vp_token (and optional wallet client ID) as the token list
+// sent to the mock identity system's kyc-auth endpoint.
+func buildVPTokens(vpToken, walletClientID string) []string {
+	if walletClientID == "" {
+		return []string{vpToken}
+	}
+	return []string{vpToken, walletClientID}
+}
+
+// mapVPAuthError translates mock identity system errors from VP auth calls into the
+// appropriate eSignet service error. Known error codes are mapped to specific errors;
+// anything else falls back to AuthenticationFailedError.
+func mapVPAuthError(err error) *common.ServiceError {
+	msg := err.Error()
+	switch {
+	case strings.Contains(msg, "user_not_found") || strings.Contains(msg, "invalid_individual_id"):
+		return shared.UserNotFoundError
+	case strings.Contains(msg, "policy_denied") || strings.Contains(msg, "policy_check_failed"):
+		return shared.PolicyDeniedError
+	default:
+		return shared.AuthenticationFailedError
+	}
 }
 
 func (p *mockAuthnProvider) GetEntityReference(_ context.Context, entityReferenceToken any) (*providers.EntityReference,
