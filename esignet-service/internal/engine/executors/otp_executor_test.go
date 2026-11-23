@@ -198,6 +198,7 @@ func (ts *OtpExecutorTestSuite) TestExecuteSuccessSetsTimingAndAttemptsAdditiona
 		additionalKeyTimeLeft:        "300",
 		additionalKeyOTPValidityMins: "5",
 		additionalKeyAttemptsLeft:    "1", // default max 3, 2 used
+		additionalKeyTotalAttempts:   "3",
 	}
 	for k, v := range want {
 		if resp.AdditionalData[k] != v {
@@ -220,6 +221,35 @@ func (ts *OtpExecutorTestSuite) TestExecuteClientErrorSetsAttemptsLeft() {
 	}
 	if got := resp.AdditionalData[additionalKeyAttemptsLeft]; got != "2" {
 		t.Errorf("AdditionalData[attemptsLeft] = %q, want 2", got)
+	}
+	if got := resp.AdditionalData[additionalKeyTotalAttempts]; got != "3" {
+		t.Errorf("AdditionalData[totalAttempts] = %q, want 3", got)
+	}
+}
+
+func (ts *OtpExecutorTestSuite) TestExecuteReportsConfiguredTotalAttempts() {
+	t := ts.T()
+	for _, used := range []string{"0", "1", "5"} {
+		t.Run("used_"+used, func(t *testing.T) {
+			provider := &fakeAuthnProvider{sendOTPResult: &shared.SendOTPResult{}}
+			e := NewOtpExecutor(provider, 1)
+			ctx := newOtpNodeContext(map[string]string{usernameAttr: "user1"},
+				map[string]string{otpAttemptCountKey: used})
+			ctx.NodeProperties = map[string]interface{}{propertyKeyMaxAttempts: "5"}
+
+			resp, err := e.Execute(ctx)
+			if err != nil {
+				t.Fatalf("Execute() error = %v", err)
+			}
+			if got := resp.AdditionalData[additionalKeyTotalAttempts]; got != "5" {
+				t.Errorf("AdditionalData[totalAttempts] = %q, want 5", got)
+			}
+			count, _ := strconv.Atoi(used)
+			remaining := attemptsLeft(5, count+1)
+			if got := resp.AdditionalData[additionalKeyAttemptsLeft]; got != strconv.Itoa(remaining) {
+				t.Errorf("AdditionalData[attemptsLeft] = %q, want %d", got, remaining)
+			}
+		})
 	}
 }
 
@@ -257,6 +287,9 @@ func (ts *OtpExecutorTestSuite) TestExecuteResendTooEarlyIsRejected() {
 	}
 	if resp.AdditionalData[additionalKeyAttemptsLeft] != "2" {
 		t.Errorf("AdditionalData[attemptsLeft] = %q, want 2", resp.AdditionalData[additionalKeyAttemptsLeft])
+	}
+	if got := resp.AdditionalData[additionalKeyTotalAttempts]; got != "3" {
+		t.Errorf("AdditionalData[totalAttempts] = %q, want 3", got)
 	}
 }
 

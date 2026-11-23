@@ -1010,7 +1010,7 @@ system:
   "flows.executor.errors.insufficient_permissions_desc": මෙම ක්‍රියාව සිදු කිරීමට පරිශීලකයාට ප්‍රමාණවත් අවසර නොමැත
   "flows.executor.errors.invalid_action": වලංගු නොවන ක්‍රියාව සපයා ඇත
   "flows.executor.errors.invalid_action_desc": වත්මන් ප්‍රවාහ පියවර සඳහා සපයන ලද ක්‍රියාව වලංගු නොවේ
-  "flows.executor.errors.invalid_credentials": වලංගු නොවන අක්තපත්‍ර සපයා ඇත
+  "flows.executor.errors.invalid_credentials": කරුණාකර වලංගු අක්තපත්‍රයක් ඇතුළත් කරන්න
   "flows.executor.errors.invalid_credentials_desc": සපයන ලද අක්තපත්‍ර වලංගු නොවේ
   "flows.executor.errors.invalid_federated_user": වලංගු නොවන සම්මිත පරිශීලකයා
   "flows.executor.errors.invalid_federated_user_desc": සම්මිත පරිශීලක තොරතුරු වලංගු නොවේ හෝ නොගැලපේ
@@ -1190,6 +1190,7 @@ system:
   "theme.error.not_found_description": ඉල්ලූ තේමා වින්‍යාසය සොයාගත නොහැකි විය
   "theme.error.result_limit_exceeded": ප්‍රතිඵල සීමාව ඉක්මවා ඇත
   "theme.error.result_limit_exceeded_description": සංයුක්ත ප්‍රකාරයේ තේමා මුළු ගණන උපරිම අවසර සීමාව ඉක්මවයි
+  "invalid_individual_id": කරුණාකර වලංගු අක්තපත්‍රයක් ඇතුළත් කරන්න
 
 header:
   login_heading: පිවිසුම
@@ -1227,6 +1228,7 @@ button:
   continue: ඉදිරියට
   login: පිවිසුම
   verify: සත්‍යාපනය
+  cancel: අවලංගු කරන්න
   get_otp: OTP ලබාගන්න
   login_otp: OTP සමඟ පිවිසෙන්න
   login_password: මුරපදය සමඟ පිවිසෙන්න
@@ -1240,6 +1242,11 @@ otp:
   enter_otp_title: OTP ඇතුළත් කරන්න
   otp_sent_msg: කරුණාකර ඔබේ ලියාපදිංචි සම්බන්ධතාවයට යවන ලද ඉලක්කම් 6ක OTP ඇතුළත් කරන්න
   resend_otp: OTP නැවත යවන්න
+  didnt_receive_otp: OTP ලබාගෙන නොහැකි විය?
+  resend_captcha_prompt: ඔබ රොබෝවක් නොවන බව තහවුරු කරන්න; අපි ඔබට නව OTP එකක් එවන්නෙමු.
+  resend_limit_reached: ඔබ OTP නැවත යැවීමේ සීමාවට ළඟා වී ඇත. කරුණාකර නැවත පුරනය වන්න.
+  resend_try_again: කරුණාකර නැවත උත්සාහ කරන්න
+  attempts_remaining: "{{param(totalAttempts)}} කින් {{param(attemptsLeft)}} ඉතිරි උත්සාහයන්"
 
 biometric:
   title: ඔබගේ ජෛවමිතික ලබා දෙන්න

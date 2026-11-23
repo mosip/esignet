@@ -1010,7 +1010,7 @@ system:
   "flows.executor.errors.insufficient_permissions_desc": المستخدم لا يمتلك صلاحيات كافية لتنفيذ هذا الإجراء
   "flows.executor.errors.invalid_action": إجراء غير صالح مقدم
   "flows.executor.errors.invalid_action_desc": الإجراء المقدم غير صالح لخطوة التدفق الحالية
-  "flows.executor.errors.invalid_credentials": بيانات اعتماد غير صالحة مقدمة
+  "flows.executor.errors.invalid_credentials": يرجى إدخال بيانات اعتماد صالحة
   "flows.executor.errors.invalid_credentials_desc": بيانات الاعتماد المقدمة غير صالحة
   "flows.executor.errors.invalid_federated_user": مستخدم موحد غير صالح
   "flows.executor.errors.invalid_federated_user_desc": معلومات المستخدم الموحد غير صالحة أو غير متسقة
@@ -1190,6 +1190,7 @@ system:
   "theme.error.not_found_description": لم يتم العثور على تكوين السمة المطلوب
   "theme.error.result_limit_exceeded": تجاوز حد النتائج
   "theme.error.result_limit_exceeded_description": إجمالي عدد السمات يتجاوز الحد الأقصى المسموح به في الوضع المركب
+  "invalid_individual_id": يرجى إدخال بيانات اعتماد صالحة
 
 header:
   login_heading: تسجيل الدخول
@@ -1227,6 +1228,7 @@ button:
   continue: متابعة
   login: تسجيل الدخول
   verify: تحقق
+  cancel: إلغاء
   get_otp: احصل على OTP
   login_otp: تسجيل الدخول بـ OTP
   login_password: تسجيل الدخول بكلمة المرور
@@ -1240,6 +1242,11 @@ otp:
   enter_otp_title: أدخل OTP
   otp_sent_msg: يرجى إدخال رمز OTP المكون من 6 أرقام المرسل إلى جهة الاتصال المسجلة الخاصة بك
   resend_otp: إعادة إرسال OTP
+  didnt_receive_otp: ألم تستلم رمز التحقق؟
+  resend_captcha_prompt: أكد أنك لست روبوتًا وسنرسل رمز تحقق جديدًا.
+  resend_limit_reached: لقد وصلت إلى الحد الأقصى لإعادة إرسال OTP. يرجى تسجيل الدخول مرة أخرى.
+  resend_try_again: يرجى المحاولة مرة أخرى
+  attempts_remaining: "{{param(attemptsLeft)}} من أصل {{param(totalAttempts)}} محاولات متبقية"
 
 biometric:
   title: قدم بياناتك الحيوية
