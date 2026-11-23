@@ -7,3 +7,4 @@ export const PAGE_NOT_FOUND = "/page-not-found";
 export const LOGIN = "/signin";
 export const ESIGNET_DETAIL = "/";
 export const NETWORK_ERROR = "/network-error";
+export const OAUTH_ERROR = "/error";
