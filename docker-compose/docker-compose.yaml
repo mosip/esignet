@@ -68,7 +68,7 @@ services:
       - DATABASE_PASSWORD=postgres
       - KEYMANAGER_KEYSTORE_TYPE=PKCS12
       - KEYMANAGER_DB_SCHEMA=esignet
-      - KEYMANAGER_PKCS12_FILE_PATH=/opt/mosip/test.pfx
+      - KEYMANAGER_PKCS12_FILE_PATH=/opt/mosip/postgresql/test.pfx
       - KEYMANAGER_PKCS12_PASSWORD=localtest
       - KEYMANAGER_PKCS12_ALLOW_INSECURE_SOFTWARE_KEYSTORE=true
       - MOSIP_ESIGNET_CACHE_TYPE=inmemory

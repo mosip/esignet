@@ -15,11 +15,11 @@ services:
       - DATABASE_USERNAME=esignetuser
       - DATABASE_PASSWORD=${ESIGNET_MYSQL_PASSWORD:-localtest}
       - KEYMANAGER_DB_SCHEMA=mosip_esignet
-      - KEYMANAGER_PKCS12_FILE_PATH=/opt/mosip/keystore/test.pfx
+      - KEYMANAGER_PKCS12_FILE_PATH=/opt/mosip/mysql/test.pfx
     volumes:
       # Key aliases are stored in MySQL but the private keys live in this
       # keystore, so both must be kept (or reset) together.
-      - esignet-keystore:/opt/mosip/keystore
+      - esignet-keystore:/opt/mosip/mysql
     depends_on:
       database-mysql:
         condition: service_healthy
