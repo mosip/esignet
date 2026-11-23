@@ -265,8 +265,9 @@ services:
       ADMIN_TOKEN: local-no-scope
       INDIVIDUAL_ID: 1774231323
       ID_TYPE: uin
-      # Without the provisioned plan config the conformance surface reports ENV_NOT_READY;
-      # run `APITEST_SURFACES=api,e2e docker compose ... up apitest` to leave it out.
+      # The plan configs are committed in conformance-suite-private/, so the default run
+      # includes conformance. To skip it (e.g. no suite containers up), run
+      # `APITEST_SURFACES=api,e2e docker compose ... up apitest`.
       SURFACES: ${APITEST_SURFACES:-conformance,api,e2e}
       TEST_PROFILE: full
       FLOW_CLIENT_ID: 'esignet-mock-client'
