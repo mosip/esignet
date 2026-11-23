@@ -52,6 +52,9 @@ export default function ResendOtpComponent({
     () => Date.now() + expiresIn * 1000,
   );
   const [now, setNow] = useState<number>(() => Date.now());
+  // Set once a real countdown has run, so a step that never carried timeLeft
+  // is not expired on mount.
+  const [hasCountdown, setHasCountdown] = useState<boolean>(expiresIn > 0);
   const [showCaptcha, setShowCaptcha] = useState<boolean>(false);
   const [captchaError, setCaptchaError] = useState<boolean>(false);
   // Disables the resend action while the request is in flight.
@@ -99,6 +102,9 @@ export default function ResendOtpComponent({
     const from = Date.now();
     setNow(from);
     setDeadline(from + expiresIn * 1000);
+    if (expiresIn > 0) {
+      setHasCountdown(true);
+    }
   }
 
   // Ref writes must happen outside render, so the in-flight guard is cleared
@@ -121,6 +127,18 @@ export default function ResendOtpComponent({
 
     return () => clearInterval(interval);
   }, [timeLeft, deadline]);
+
+  // OTP timed out (Resend OTP is now enabled): expire the step so the SDK
+  // disables the form's submit button until the next step response. The SDK
+  // clears the expiry on every new step (e.g. a failed verify), so re-raise it
+  // whenever it is cleared while the OTP is still expired. A resend restarts
+  // the countdown during render, so timeLeft is already true by then.
+  const { expireStep, isTimeoutDisabled } = context;
+  useEffect(() => {
+    if (hasCountdown && !timeLeft && !isTimeoutDisabled) {
+      expireStep?.();
+    }
+  }, [hasCountdown, timeLeft, isTimeoutDisabled, expireStep]);
 
   const formatTime = (seconds: number): string => {
     if (seconds <= 0) {
