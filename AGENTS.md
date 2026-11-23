@@ -12,7 +12,7 @@ own `README.md`/`AGENTS.md` over guessing conventions from a sibling.
 | `esignet-service/` | Go 1.27, `make.sh` | The OIDC/OAuth2 provider itself. Has its own [`AGENTS.md`](esignet-service/AGENTS.md) — read that before working here. |
 | `oidc-ui/` | React + TypeScript + Vite (`package.json`) | Login/consent UI. |
 | `postman-collection/` | Postman collection + environment (JSON) | Manual/scripted API checks against `esignet-service`. |
-| `docker-compose/` | Docker Compose | Local Postgres + Redis for `esignet-service`. |
+| `docker-compose/` | Docker Compose | Containerized deployment and source-run dependencies: PostgreSQL (default) or MySQL (`mysql` profile) for eSignet; the mock identity system stays on PostgreSQL. |
 | `deploy/`, `helm/` | Kubernetes manifests, Helm charts | Deployment. |
 | `db_scripts/`, `db_upgrade_script/` | SQL | Schema creation and version-named migrations. |
 | `partner-onboarder/` | Shell + config | MISP partner certificate exchange. |

@@ -1,0 +1,28 @@
+# Configures the containerized eSignet deployment to use MySQL. Use together with
+# docker-compose.yaml and the `mysql` profile:
+#
+#   docker compose -p esignet-mysql -f docker-compose.yaml -f docker-compose.mysql.yaml --profile mysql up -d
+#
+# The mock identity system keeps using PostgreSQL.
+services:
+  esignet:
+    image: "${ESIGNET_IMAGE:-mosipdev/esignet:develop-go}"
+    environment:
+      - DB_DRIVER=mysql
+      - DATABASE_HOST=database-mysql
+      - DATABASE_PORT=3306
+      - DATABASE_NAME=mosip_esignet
+      - DATABASE_USERNAME=esignetuser
+      - DATABASE_PASSWORD=${ESIGNET_MYSQL_PASSWORD:-localtest}
+      - KEYMANAGER_DB_SCHEMA=mosip_esignet
+      - KEYMANAGER_PKCS12_FILE_PATH=/opt/mosip/keystore/test.pfx
+    volumes:
+      # Key aliases are stored in MySQL but the private keys live in this
+      # keystore, so both must be kept (or reset) together.
+      - esignet-keystore:/opt/mosip/keystore
+    depends_on:
+      database-mysql:
+        condition: service_healthy
+
+volumes:
+  esignet-keystore:

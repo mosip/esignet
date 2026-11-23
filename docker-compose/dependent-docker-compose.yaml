@@ -9,6 +9,27 @@ services:
     volumes:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
 
+  # MySQL database for eSignet, an alternative to `database` (PostgreSQL).
+  # Started only when you choose MySQL with `--profile mysql`.
+  database-mysql:
+    image: 'mysql:8.4'
+    profiles: ["mysql"]
+    command: ["--default-time-zone=+00:00"]
+    ports:
+      - 3307:3306
+    environment:
+      - MYSQL_ROOT_PASSWORD=${ESIGNET_MYSQL_ROOT_PASSWORD:-rootlocaltest}
+      - ESIGNET_DB_PASSWORD=${ESIGNET_MYSQL_PASSWORD:-localtest}
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ../db_scripts/mysql/mosip_esignet:/opt/esignet-db:ro
+      - ./init-mysql.sh:/docker-entrypoint-initdb.d/init-mysql.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
   mock-identity-system:
     image: 'mosipdev/mock-identity-system:release-0.14.x'
     user: root
@@ -23,3 +44,6 @@ services:
       - MOSIP_ESIGNET_HOST=localhost:8088
     depends_on:
       - database
+
+volumes:
+  mysql-data:
