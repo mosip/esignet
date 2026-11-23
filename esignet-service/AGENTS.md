@@ -2,7 +2,7 @@
 
 Guidance for coding agents working in `esignet-service`, a Go service (module
 `github.com/mosip/esignet`) that embeds the Thunder authorization engine with
-PostgreSQL-backed OIDC client management, Redis-backed session/flow storage,
+PostgreSQL- or MySQL-backed OIDC client management, Redis-backed session/flow storage,
 and pluggable authentication (mock identity system, MOSIP IDA, or SunbirdRC
 KBI). See `README.md` in this directory for the full environment-variable
 reference and API docs.
@@ -47,10 +47,10 @@ Everything goes through `./make.sh` (run from this directory):
 
 End-to-end / client-mgmt API checks are done via the [Postman collection](../postman-collection/README.md) (a sibling directory, outside `esignet-service`), not a shell script.
 
-- Tests use `miniredis` (no live Redis needed) and mock queriers for the
-  Postgres layer, so `./make.sh test` runs standalone. `internal/keymanager`
+- Tests use `miniredis` (no live Redis needed) and `go-sqlmock` for the
+  SQL layer, so `./make.sh test` runs standalone. `internal/keymanager`
   tests provision their own keys against a mock querier/keystore — no live
-  Postgres or `keys/signing.key` needed there either.
+  database or `keys/signing.key` needed there either.
 - `CGO_ENABLED=0` by default (see `make.sh`); this stubs out the PKCS#11
   keystore backend at startup, so local runs need
   `KEYMANAGER_KEYSTORE_TYPE=PKCS12`. Build/test with `CGO_ENABLED=1` (and a
@@ -78,7 +78,7 @@ End-to-end / client-mgmt API checks are done via the [Postman collection](../pos
   field) rather than inventing a new precedence scheme. See README's
   [Configuration precedence](README.md#configuration-precedence) section for
   the user-facing version, including the two documented exceptions (Redis
-  pool/timeout fields are env-only; the Postgres DSN resolves as a whole
+  pool/timeout fields are env-only; the database DSN resolves as a whole
   rather than per-field).
 - Service-specific env vars are prefixed `MOSIP_ESIGNET_` (e.g.
   `MOSIP_ESIGNET_LAYOUT_ID`, `MOSIP_ESIGNET_OIDC_UI_SCHEME`,

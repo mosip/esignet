@@ -1,0 +1,3 @@
+# deploy.sh is executed by bash on Linux (and bind-mounted into containers):
+# CRLF line endings from a Windows checkout break the shebang and the script.
+*.sh text eol=lf

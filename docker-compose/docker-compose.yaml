@@ -14,6 +14,28 @@ services:
       timeout: 5s
       retries: 20
 
+  # MySQL database for eSignet, an alternative to `database` (PostgreSQL).
+  # Started only with `--profile mysql`.
+  database-mysql:
+    image: 'mysql:8.4'
+    profiles: ["mysql"]
+    command: ["--default-time-zone=+00:00"]
+    ports:
+      - 3307:3306
+    environment:
+      - MYSQL_ROOT_PASSWORD=${ESIGNET_MYSQL_ROOT_PASSWORD:-rootlocaltest}
+      - ESIGNET_DB_PASSWORD=${ESIGNET_MYSQL_PASSWORD:-localtest}
+    volumes:
+      - ../db_scripts/mysql/mosip_esignet:/opt/esignet-db:ro
+      - ./init-mysql.sh:/docker-entrypoint-initdb.d/init-mysql.sh:ro
+    healthcheck:
+      # TCP check: the temporary init-time server has networking disabled, so
+      # this only passes after initialization has finished.
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
   mock-identity-system:
     image: 'mosipdev/mock-identity-system:release-0.14.x'
     user: root
@@ -30,8 +52,10 @@ services:
       database:
         condition: service_healthy
 
-  esignet:
+  # eSignet on PostgreSQL. Start with: docker compose --profile postgres up -d
+  esignet-postgres:
     image: "mosipdev/esignet:develop-go"
+    profiles: ["postgres"]
     user: root
     ports:
       - 8088:8088
@@ -54,14 +78,58 @@ services:
       - MOSIP_ESIGNET_CAPTCHA_SITE_KEY=10000000-ffff-ffff-ffff-000000000001
       - MOSIP_ESIGNET_AUTHN_PROVIDER=mock
       - MOSIP_ESIGNET_MOCK_DOMAIN_URL=http://mock-identity-system:8082
+    networks:
+      default:
+        aliases:
+          - esignet   # name used by nginx.conf
     depends_on:
       database:
         condition: service_healthy
       mock-identity-system:
         condition: service_started
 
+  # eSignet on MySQL. Start with: docker compose --profile mysql up -d
+  esignet-mysql:
+    image: "mosipdev/esignet:develop-go"
+    profiles: ["mysql"]
+    user: root
+    ports:
+      - 8088:8088
+    environment:
+      - container_user=mosip
+      - PORT=8088
+      - DB_DRIVER=mysql
+      - DATABASE_HOST=database-mysql
+      - DATABASE_PORT=3306
+      - DATABASE_NAME=mosip_esignet
+      - DATABASE_USERNAME=esignetuser
+      - DATABASE_PASSWORD=${ESIGNET_MYSQL_PASSWORD:-localtest}
+      - KEYMANAGER_KEYSTORE_TYPE=PKCS12
+      # On MySQL the "schema" is the database name.
+      - KEYMANAGER_DB_SCHEMA=mosip_esignet
+      - KEYMANAGER_PKCS12_FILE_PATH=/opt/mosip/test.pfx
+      - KEYMANAGER_PKCS12_PASSWORD=localtest
+      - KEYMANAGER_PKCS12_ALLOW_INSECURE_SOFTWARE_KEYSTORE=true
+      - MOSIP_ESIGNET_CACHE_TYPE=inmemory
+      - MOSIP_ESIGNET_HOST=http://localhost:8088
+      - MOSIP_ESIGNET_OIDC_UI_HOSTNAME=localhost
+      - MOSIP_ESIGNET_CAPTCHA_SITE_PROVIDER=hcaptcha
+      - MOSIP_ESIGNET_CAPTCHA_SITE_KEY=10000000-ffff-ffff-ffff-000000000001
+      - MOSIP_ESIGNET_AUTHN_PROVIDER=mock
+      - MOSIP_ESIGNET_MOCK_DOMAIN_URL=http://mock-identity-system:8082
+    networks:
+      default:
+        aliases:
+          - esignet   # name used by nginx.conf
+    depends_on:
+      database-mysql:
+        condition: service_healthy
+      mock-identity-system:
+        condition: service_started
+
   esignet-ui:
     image: "mosipdev/oidc-ui:develop-go"
+    profiles: ["postgres", "mysql"]
     user: root
     ports:
       - 3000:3000
@@ -71,5 +139,11 @@ services:
       - DEFAULT_WELLKNOWN=%5B%7B%22name%22%3A%22OpenID%20Configuration%22%2C%22value%22%3A%22%2F.well-known%2Fopenid-configuration%22%7D%2C%7B%22name%22%3A%22Jwks%20Json%22%2C%22value%22%3A%22%2F.well-known%2Fjwks.json%22%7D%2C%7B%22name%22%3A%22Authorization%20Server%22%2C%22value%22%3A%22%2F.well-known%2Foauth-authorization-server%22%7D%5D
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf
+    # Only the eSignet service that was started is waited for; the other is skipped.
     depends_on:
-      - esignet
+      esignet-postgres:
+        condition: service_started
+        required: false
+      esignet-mysql:
+        condition: service_started
+        required: false

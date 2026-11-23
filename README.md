@@ -27,8 +27,8 @@ Open ID Connect based identity provider for large-scale authentication, from [MO
 Quick reference:
 
 ```bash
-# Full demo (PostgreSQL + Mock ID + eSignet service + OIDC UI)
-cd docker-compose && docker compose up -d
+# Full stack on PostgreSQL (Mock ID + eSignet service + OIDC UI); use `--profile mysql` for MySQL
+cd docker-compose && docker compose --profile postgres up -d
 
 # Dev dependencies only (PostgreSQL + Mock ID, for running the service from source)
 cd docker-compose && docker compose -f dependent-docker-compose.yaml up -d

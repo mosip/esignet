@@ -152,7 +152,7 @@ The service owns six tables directly (via generated, type-safe SQL access):
 | `key_policy_def`    | Per-`ApplicationID` key policy (validity periods, allowed key types) that must exist before a key can be generated for that app        | `internal/keymanager`  |
 | `key_store`         | Encrypted private keys and certificates                                                                                                | `internal/keymanager`  |
 
-The `key_alias`/`key_policy_def`/`key_store` schema is configurable (`KEYMANAGER_DB_SCHEMA`, default `keymgr` to match the Java service) — the reference `docker-compose` deployment points it at the same `esignet` Postgres schema as `client_detail`/`consent_detail`. A shared schema also defines `public_key_registry`, `ca_cert_store`, and `server_profile` tables used by the ThunderID engine itself rather than by esignet-service's own Go code.
+The `key_alias`/`key_policy_def`/`key_store` schema is configurable (`KEYMANAGER_DB_SCHEMA`, default `keymgr` to match the Java service) — the reference `docker-compose` deployment points it at the same `esignet` Postgres schema as `client_detail`/`consent_detail`. On MySQL (`DB_DRIVER=mysql`) the value names a database rather than a schema, so set it to the MySQL database name (e.g. `mosip_esignet`). A shared schema also defines `public_key_registry`, `ca_cert_store`, and `server_profile` tables used by the ThunderID engine itself rather than by esignet-service's own Go code.
 
 ---
 
@@ -287,5 +287,5 @@ Standard OIDC/OAuth endpoints (`/authorize`, `/token`, `/.well-known/openid-conf
 | `MOSIP_ESIGNET_OAUTH_SUPPORTED_ENCRYPTION_ALGORITHMS` | Restricts which `alg` a client's registered `EncPublicKey` may declare (default `RSA-OAEP`, `RSA-OAEP-256`) |
 | `METRICS_PORT`                                      | Private Prometheus `/metrics` listener port (default 9090)   |
 | `MOSIP_ESIGNET_PPROF_ENABLED`, `MOSIP_ESIGNET_PPROF_PORT` | Enable/port the loopback-only pprof debug server        |
-| `KEYMANAGER_DB_SCHEMA`, `KEYMANAGER_KEYSTORE_TYPE`  | Key-manager Postgres schema (default `keymgr`) and keystore backend (`PKCS11` default, or `PKCS12`) |
+| `KEYMANAGER_DB_SCHEMA`, `KEYMANAGER_KEYSTORE_TYPE`  | Key-manager schema on Postgres / database name on MySQL (default `keymgr`) and keystore backend (`PKCS11` default, or `PKCS12`) |
 | `VITE_API_URL` (oidc-ui build)                      | Backend base path, e.g. `/v1/esignet`                        |

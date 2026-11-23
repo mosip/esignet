@@ -2,14 +2,14 @@
 
 Module: `github.com/mosip/esignet`
 
-A Go service that embeds the ThunderID authorization engine with PostgreSQL-backed OIDC client management, Redis-backed session/flow storage, and pluggable authentication (mock identity system, MOSIP IDA, or SunbirdRC KBI).
+A Go service that embeds the ThunderID authorization engine with PostgreSQL- or MySQL-backed OIDC client management, Redis-backed session/flow storage, and pluggable authentication (mock identity system, MOSIP IDA, or SunbirdRC KBI).
 
 ## Prerequisites
 
 - Go 1.27+
 - Bash (Git Bash on Windows) to run `make.sh`
 - OpenSSL (for local TLS signing-key generation; bundled with Git Bash)
-- PostgreSQL 14+ (client management persistence, and keymanager's key/certificate store)
+- PostgreSQL 14+ or MySQL 8.4 (client/consent management persistence, and keymanager's key/certificate store); selected with `DB_DRIVER`
 - Redis 6.2+ when using the Redis runtime / session store (`MOSIP_ESIGNET_CACHE_TYPE=redis`; requires `GETDEL` and `KEEPTTL` support)
 - A C toolchain (gcc) for `CGO_ENABLED=1` builds — required for the PKCS#11 (HSM/SoftHSM2) keymanager keystore backend; the default `CGO_ENABLED=0` local build only supports the PKCS#12 backend (see [Key management](internal/keymanager/README.md))
 - Network access to fetch the Thunder backend module (see `go.mod` `replace` directive)
@@ -116,9 +116,9 @@ Minimum to start the service:
 
 | Variable | Default | Purpose |
 |----------|---------|---------|
-| `DATABASE_HOST` / `DATABASE_USERNAME` / `DATABASE_NAME` | `localhost` / `postgres` / `mosip_esignet` | PostgreSQL connection (client management + keymanager storage) |
+| `DATABASE_HOST` / `DATABASE_USERNAME` / `DATABASE_NAME` | `localhost` / `postgres` (`root` on MySQL) / `mosip_esignet` | Database connection (client/consent management + keymanager storage). `DATABASE_PORT` defaults to `5455` on Postgres, `3306` on MySQL |
 | `DATABASE_PASSWORD` / `DB_DBUSER_PASSWORD` | _(empty)_ | Either name works; required unless your DB has no password |
-| `DB_DRIVER` | `postgres` | Database engine selection — controls DSN construction and the SQL placeholder style. **Only `postgres` is accepted today**: the service fails fast at startup on `mysql`, because client and consent management still require PostgreSQL. |
+| `DB_DRIVER` | `postgres` | Database engine: `postgres` or `mysql`. Controls DSN construction and the SQL placeholder style. On MySQL, `parseTime=true&loc=UTC` and `clientFoundRows=true` are added to the DSN when missing, and `KEYMANAGER_DB_SCHEMA` must be set to the MySQL database name (e.g. `mosip_esignet`). |
 | `DATABASE_URL` | _(empty)_ | Full DSN, as an alternative to the individual `DATABASE_*` vars (Postgres `postgres://…`; MySQL `user:pass@tcp(host:port)/db`). Takes precedence when set. |
 | `REDIS_HOST` | `localhost` | Redis connection (session/flow/PAR store) |
 | `MOSIP_ESIGNET_AUTHN_PROVIDER` | `mock` | `mock`, `mosip`, or `sunbird` — see [`docs/configuration.md`](../docs/configuration.md) §7 for what each requires |
@@ -212,7 +212,17 @@ The `request` object must contain at least one accepted field. An empty object f
 
 ### Database schema
 
-Run the base DDL from `db_scripts/mosip_esignet/ddl/` (e.g. `esignet-client_detail.sql`) before starting the service. The Go DB layers are hand-written sqlx code — `internal/clientmgmt/db/db.go` and `internal/consentmgmt/db/db.go` — so edit them directly; there is no code generation step.
+Create the schema before starting the service, using the scripts for your database engine:
+
+| Engine | Scripts | Provisioning |
+|---|---|---|
+| PostgreSQL | `db_scripts/postgresql/mosip_esignet/` | `deploy.sh` (psql) |
+| MySQL 8.4 | `db_scripts/mysql/mosip_esignet/` | `deploy.sh` (mysql client), see its README |
+
+To try MySQL locally with Docker Compose, see [Running eSignet on MySQL](../docker-compose/README.md#running-esignet-on-mysql). When running on MySQL set `DB_DRIVER=mysql`, the `DATABASE_*` values for that server, and `KEYMANAGER_DB_SCHEMA` to the MySQL database name (`mosip_esignet`).
+
+The Go DB layers are hand-written sqlx code — `internal/clientmgmt/db/db.go` and `internal/consentmgmt/db/db.go` — so edit them directly; there is no code generation step. A schema change must be made in both script trees.
+
 ## Redis key layout
 
 All runtime state is namespaced under `REDIS_KEY_PREFIX` (default `esignet:`):
@@ -262,7 +272,7 @@ docker run --rm -p 8088:8088 \
 
 On first start the entrypoint generates signing keys if absent. Data is baked in at `/home/mosip/data`.
 
-## Demo credentials
+## Test credentials
 
 | Field | Value |
 |-------|-------|
