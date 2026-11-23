@@ -6,7 +6,7 @@
 -- Table Name : consent_history
 -- Purpose    : To store user consent details
 --
--- MySQL port of db_scripts/mosip_esignet/ddl/esignet-consent_history.sql (column documentation is
+-- MySQL port of db_scripts/postgresql/mosip_esignet/ddl/esignet-consent_history.sql (column documentation is
 -- kept in that file). Date/time columns are datetime(6): microsecond precision, no 2038 upper bound.
 -- The unnamed primary key is reported by MySQL as PRIMARY.
 -- -------------------------------------------------------------------------------------------------

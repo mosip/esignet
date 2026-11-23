@@ -28,7 +28,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - DB_LOCATION: 'db_scripts/mosip_esignet'
+          - DB_LOCATION: 'db_scripts/postgresql/mosip_esignet'
             DB_NAME: 'mosip_esignet'
       fail-fast: false
     name: ${{ matrix.DB_NAME }}

@@ -1,7 +1,7 @@
 # eSignet MySQL database scripts
 
 Provisions a **new** MySQL database for `esignet-service` (`DB_DRIVER=mysql`). This is the MySQL
-counterpart of [`../../mosip_esignet`](../../mosip_esignet) (PostgreSQL); keep both schemas in sync.
+counterpart of [`../../postgresql/mosip_esignet`](../../postgresql/mosip_esignet) (PostgreSQL); keep both schemas in sync.
 
 ## Prerequisites
 
@@ -29,11 +29,23 @@ The application user receives only `SELECT, INSERT, UPDATE, DELETE` on the datab
 ## Starting over
 
 If provisioning fails part-way (MySQL DDL is not transactional) or you want to reinitialise, remove
-the objects manually, then rerun `deploy.sh`:
+the objects manually, then rerun `deploy.sh`. Run the commands from this folder against the same server
+and with the same values that `deploy.sh` used, taken from `deploy.properties`:
 
 ```sh
-mysql -u root -p --execute "SET @mosipdbname='mosip_esignet'; SOURCE drop_db.sql;"
-mysql -u root -p --execute "SET @dbuname='esignetuser'; SET @dbuhost='%'; SOURCE drop_role.sql;"
+cd db_scripts/mysql/mosip_esignet
+mysql --host=<DB_SERVERIP> --port=<DB_PORT> --user=<SU_USER> -p \
+  --execute "SET @mosipdbname='<MOSIP_DB_NAME>'; SOURCE drop_db.sql;"
+mysql --host=<DB_SERVERIP> --port=<DB_PORT> --user=<SU_USER> -p \
+  --execute "SET @dbuname='<DB_UNAME>'; SET @dbuhost='<DB_UHOST>'; SOURCE drop_role.sql;"
+```
+
+If `DB_SERVERIP` is empty, `deploy.sh` used the local socket: omit `--host` and `--port`. With the
+default `deploy.properties` that is:
+
+```sh
+mysql --user=root -p --execute "SET @mosipdbname='mosip_esignet'; SOURCE drop_db.sql;"
+mysql --user=root -p --execute "SET @dbuname='esignetuser'; SET @dbuhost='%'; SOURCE drop_role.sql;"
 ```
 
 ## Application settings

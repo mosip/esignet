@@ -6,7 +6,7 @@
 -- Table Name : key_store
 -- Purpose    : Key Store table
 --
--- MySQL port of db_scripts/mosip_esignet/ddl/esignet-key_store.sql (column documentation is kept in
+-- MySQL port of db_scripts/postgresql/mosip_esignet/ddl/esignet-key_store.sql (column documentation is kept in
 -- that file). Date/time columns are datetime(6): microsecond precision, no 2038 upper bound.
 -- -------------------------------------------------------------------------------------------------
 

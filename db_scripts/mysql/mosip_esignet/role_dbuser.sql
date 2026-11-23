@@ -4,6 +4,8 @@
 -- -------------------------------------------------------------------------------------------------
 -- Creates the application (runtime) user. Expects the session variables @dbuname, @dbuhost and
 -- @dbuserpwd (set by deploy.sh). Names and the password are quoted with QUOTE(), never concatenated raw.
+-- QUOTE() escapes with backslashes, so deploy.sh clears NO_BACKSLASH_ESCAPES from the session sql_mode
+-- before running this script.
 --
 -- An existing user is left untouched (IF NOT EXISTS), including its password.
 -- -------------------------------------------------------------------------------------------------

@@ -6,7 +6,7 @@
 -- Table Name : client_detail
 -- Purpose    : Client Detail: Table to store all registered OIDC client details.
 --
--- MySQL port of db_scripts/mosip_esignet/ddl/esignet-client_detail.sql (column documentation is
+-- MySQL port of db_scripts/postgresql/mosip_esignet/ddl/esignet-client_detail.sql (column documentation is
 -- kept in that file). MySQL-specific choices:
 --   * datetime(6): microsecond precision and no 2038 upper bound (TIMESTAMP has both limits).
 --   * enc_public_key_cert is TEXT, not varchar(4000): with utf8mb4 the declared varchar widths of

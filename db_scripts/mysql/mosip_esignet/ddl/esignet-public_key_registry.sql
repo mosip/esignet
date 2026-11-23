@@ -6,7 +6,7 @@
 -- Table Name : public_key_registry
 -- Purpose    : Public Key Registry: Table to store Id Hash and its respective PSU Token,Public Key and Wallet Binding Id.
 --
--- MySQL port of db_scripts/mosip_esignet/ddl/esignet-public_key_registry.sql (column documentation
+-- MySQL port of db_scripts/postgresql/mosip_esignet/ddl/esignet-public_key_registry.sql (column documentation
 -- is kept in that file). Date/time columns are datetime(6): microsecond precision, no 2038 upper bound.
 -- -------------------------------------------------------------------------------------------------
 

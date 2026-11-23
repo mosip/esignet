@@ -6,7 +6,7 @@
 -- Table Name : ca_cert_store
 -- Purpose    : CA Certificate Store Table
 --
--- MySQL port of db_scripts/mosip_esignet/ddl/esignet-ca_cert_store.sql (column documentation is
+-- MySQL port of db_scripts/postgresql/mosip_esignet/ddl/esignet-ca_cert_store.sql (column documentation is
 -- kept in that file). Date/time columns are datetime(6): microsecond precision, no 2038 upper bound.
 -- -------------------------------------------------------------------------------------------------
 

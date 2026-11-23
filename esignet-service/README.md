@@ -216,7 +216,7 @@ Create the schema before starting the service, using the scripts for your databa
 
 | Engine | Scripts | Provisioning |
 |---|---|---|
-| PostgreSQL | `db_scripts/mosip_esignet/` | `deploy.sh` (psql) |
+| PostgreSQL | `db_scripts/postgresql/mosip_esignet/` | `deploy.sh` (psql) |
 | MySQL 8.4 | `db_scripts/mysql/mosip_esignet/` | `deploy.sh` (mysql client), see its README |
 
 To try MySQL locally with Docker Compose, see [Running eSignet on MySQL](../docker-compose/README.md#running-esignet-on-mysql). When running on MySQL set `DB_DRIVER=mysql`, the `DATABASE_*` values for that server, and `KEYMANAGER_DB_SCHEMA` to the MySQL database name (`mosip_esignet`).

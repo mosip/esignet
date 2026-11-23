@@ -1,5 +1,5 @@
 -- Manual cleanup only: deploy.sh never runs this script.
--- Usage: mysql -u root -p -e "SET @dbuname='esignetuser'; SET @dbuhost='%'; SOURCE drop_role.sql"
+-- Usage: see "Starting over" in README.md (connect to the server and use the values from deploy.properties).
 
 SET @stmt = CONCAT('DROP USER IF EXISTS ', QUOTE(@dbuname), '@', QUOTE(@dbuhost));
 PREPARE drop_user FROM @stmt;

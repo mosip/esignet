@@ -40,7 +40,7 @@ own `README.md`/`AGENTS.md` over guessing conventions from a sibling.
   (versioned migrations). `esignet-service/internal/clientmgmt/db` and
   `esignet-service/internal/consentmgmt/db` are hand-written sqlx layers
   (`db.go`), so there is no generated schema to keep in sync; keep their
-  queries aligned with the DDL in `db_scripts/mosip_esignet/ddl/` (PostgreSQL)
+  queries aligned with the DDL in `db_scripts/postgresql/mosip_esignet/ddl/` (PostgreSQL)
   and `db_scripts/mysql/mosip_esignet/ddl/` (MySQL); a schema change must be
   made in both trees.
 

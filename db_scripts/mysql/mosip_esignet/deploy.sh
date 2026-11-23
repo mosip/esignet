@@ -85,7 +85,10 @@ sql_hex_var() {
     printf "SET @%s = CONVERT(UNHEX('%s') USING utf8mb4);\n" "$1" "$hex"
 }
 
+# Clears only NO_BACKSLASH_ESCAPES (other modes, including strict mode, are kept): QUOTE() and the
+# '\\_' pattern in grants.sql rely on backslash escapes.
 session_vars() {
+    printf '%s\n' "SET SESSION sql_mode = TRIM(BOTH ',' FROM REPLACE(CONCAT(',', @@SESSION.sql_mode, ','), ',NO_BACKSLASH_ESCAPES,', ','));"
     printf "SET @mosipdbname = '%s';\n" "$MOSIP_DB_NAME"
     printf "SET @dbuname = '%s';\n" "$DB_UNAME"
     printf "SET @dbuhost = '%s';\n" "$DB_UHOST"

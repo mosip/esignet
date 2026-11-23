@@ -79,7 +79,7 @@ const (
 )
 
 // OIDCServiceAppID is esignet's own ApplicationID in the keymanager's
-// key_policy_def table (see db_scripts/mosip_esignet/dml/esignet-key_policy_def.sql),
+// key_policy_def table (see db_scripts/postgresql/mosip_esignet/dml/esignet-key_policy_def.sql),
 // under which its Component Master Key, EC sign key, and Component
 // Encryption Keys are provisioned/resolved.
 const OIDCServiceAppID = "OIDC_SERVICE"

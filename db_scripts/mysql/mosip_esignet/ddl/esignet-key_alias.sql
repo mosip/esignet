@@ -6,7 +6,7 @@
 -- Table Name : key_alias
 -- Purpose    : Key Alias table
 --
--- MySQL port of db_scripts/mosip_esignet/ddl/esignet-key_alias.sql (column documentation is kept in
+-- MySQL port of db_scripts/postgresql/mosip_esignet/ddl/esignet-key_alias.sql (column documentation is kept in
 -- that file). Date/time columns are datetime(6): microsecond precision, no 2038 upper bound.
 -- -------------------------------------------------------------------------------------------------
 

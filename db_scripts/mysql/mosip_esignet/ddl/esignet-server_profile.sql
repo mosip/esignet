@@ -6,7 +6,7 @@
 -- Table Name : server_profile
 -- Purpose    : Server profile: static table to store the profile and feature(as part of profile) mapping
 --
--- MySQL port of db_scripts/mosip_esignet/ddl/esignet-server_profile.sql.
+-- MySQL port of db_scripts/postgresql/mosip_esignet/ddl/esignet-server_profile.sql.
 -- -------------------------------------------------------------------------------------------------
 
 CREATE TABLE IF NOT EXISTS server_profile (
