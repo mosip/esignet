@@ -1,0 +1,43 @@
+{
+  "@contex": [
+    "https://www.w3.org/2018/credentials/v1",
+    "https://api.collab.mosip.net/.well-known/mosip-ida-context.json",
+    {
+      "sec": "https://w3id.org/security#"
+    }
+  ],
+  "credentialSubject": {
+    "face": "data:image/jpeg;base64,",
+    "gender": {
+      "language": "eng",
+      "value": "Female"
+    },
+    "phone": "9876543210",
+    "city": {
+      "language": "eng",
+      "value": "Kenitra"
+    },
+    "fullName": {
+      "language": "eng",
+      "value": "Alka Prasasd"
+    },
+    "dateOfBirth": "1998/03/17",
+    "id": "did:jwk:eyJrdHkiOiJSU0EiLCJlIjoiQVFBQiIsInVzZSI6InNpZyIsImFsZyI6IlJTMjU2IiwibiI6InBEVENBXzctandXVXdkbHRVVFpabXpuRnl2LWhTTW9hLUlyTU94YmYxbW5ydVR1alZTWkRlZmxLRUtnSk05VmJUSTBiMUFHQl9NcHFreURPVldVVHVMb25VUFlSVm5fRWQyXzMzZWloLVZhQnVicVN1QmpyNDAzMDJ4U0lCdWkyN1hXcXNaNnNkbEVOX2JQSWlwQmg5bWc0M0Z1Qm16S3FLTzZ1N1MySnNyS1FCeTlGdm5zSV9XLTVaTUJqc19iMjFPNjZncFRZLXdsN1JIcnVyVUptQnZ6MkNOTHd3anNiOTdteHhDd1lhS3JuUEZjaFVTN3lxMlVpeFAzVjlsa3ZXTWhZdnFSU2JKdTFHMDc2Mk5yRGFSQW1sZW1YV2RBQ3d3SUE2UHFQX04xZU5TeUYwcVFhbHVyUHNsT3F3MmJfWHpsQmdWYnBkSklBazIxcEozSm1IUSJ9",
+    "UIN": "4839751456",
+    "email": "alka@gmail.com"
+  },
+  "id": "https://api.collab.mosip.net/credentials/bf777abe-1a73-42f4-8102-4c125aaf0888",
+  "issuanceDate": "2025-01-02T08:43:18.359Z",
+  "issuer": "https://api.collab.mosip.net/.well-known/ida-controller.json",
+  "proof": {
+    "created": "2025-01-02T08:43:18Z",
+    "jws": "eyJiNjQiOmZhbHNlLCJjcml0IjpbImI2NCJdLCJraWQiOiI2TFo4UnhOLUVNdkF2aWtNRjJVdE5uNXZEX0lEdHFGODBkYXdXUTN3ZFRnIiwiYWxnIjoiUFMyNTYifQ..QoxbKfLn18FcU-geEf5NyTqsy2jVuOoVAKT5MWQnbpyEmB7n31hOi4MA1uoSXk3i4TmtjdfLhmOMQ5LSt2qc5GIhkOyue1Ha2JPp2AKwV_vKk0jjBCfQlaM6FwxxcXr1k0chSw4AdlDSly4GixTRjfFOaiGU7WfGAytio7bS5Bwjc0GJHCDqfWSkbKvH2xRNCBKal8dXJrX6RQf1HxTDEFpuU-gEFN8sSiTr_iic9WTuXtYU6J1pOZIuKbfLovYfR-AxjRmiJfydaY52GUBmos-H-YJa5PjebKpOifBNTjPXBFPqlzhkuRvuFXmnrlcfYIjlzxaL3T8sqBXubxQo9w",
+    "proofPurpose": "assertionMethod",
+    "type": "RsaSignature2018",
+    "verificationMethod": "https://api.collab.mosip.net/.well-known/ida-public-key.json"
+  },
+  "type": [
+    "VerifiableCredential",
+    "MOSIPVerifiableCredential"
+  ]
+}

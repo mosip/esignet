@@ -1,0 +1,14 @@
+{
+  "verifiableCredential": [
+    {
+      "credentialSubject": {
+        "email": "test@example.com"
+      }
+    }
+  ],
+  "holder": "did:key:z6MkpiJgQdNWUzyojaFuCzQ1MWvSSaxUfL1tvbcRfqWFoJRK",
+  "proof": {
+    "type": "Ed25519Signature2018",
+    "verificationMethod": "did:key:z6MkpiJgQdNWUzyojaFuCzQ1MWvSSaxUfL1tvbcRfqWFoJRK#z6MkpiJgQdNWUzyojaFuCzQ1MWvSSaxUfL1tvbcRfqWFoJRK"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "@context": ["https://www.w3.org/2018/credentials/v1"],
+  "type": ["VerifiablePresentation"],
+  "verifiableCredential": [
+    {
+      "@context": ["https://www.w3.org/2018/credentials/v1"],
+      "type": ["VerifiableCredential"],
+      "credentialSubject": { "id": "did:key:z6MkpiJgQdNWUzyojaFuCzQ1MWvSSaxUfL1tvbcRfqWFoJRK" }
+    }
+  ],
+  "proof": { "type": "Ed25519Signature2018" }
+}

@@ -1,0 +1,14 @@
+{
+  "verifiableCredential": [
+    {
+      "credentialSubject": {
+        "id": "did:web:example.com"
+      }
+    }
+  ],
+  "holder": "did:web:example.com",
+  "proof": {
+    "type": "JsonWebSignature2020",
+    "verificationMethod": "did:jwk:eyJrdHkiOiJPS1AiLCJjcnYiOiJFZDI1NTE5IiwieCI6Ii0xYXlxNy0weXNBcXdsdlVRbjhZUWRpRVZ1V2RldzZmMzVNNjVPRzlBQWciLCJ1c2UiOiJzaWcifQ#0"
+  }
+}

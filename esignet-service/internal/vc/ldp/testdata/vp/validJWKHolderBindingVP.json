@@ -1,0 +1,14 @@
+{
+  "verifiableCredential": [
+    {
+      "credentialSubject": {
+        "id": "did:jwk:eyJrdHkiOiJPS1AiLCJ1c2UiOiJzaWciLCJjcnYiOiJFZDI1NTE5IiwieCI6Ii0xYXlxNy0weXNBcXdsdlVRbjhZUWRpRVZ1V2RldzZmMzVNNjVPRzlBQWcifQ=="
+      }
+    }
+  ],
+  "holder": "did:jwk:eyJrdHkiOiJPS1AiLCJ1c2UiOiJzaWciLCJjcnYiOiJFZDI1NTE5IiwieCI6Ii0xYXlxNy0weXNBcXdsdlVRbjhZUWRpRVZ1V2RldzZmMzVNNjVPRzlBQWcifQ==",
+  "proof": {
+    "type": "JsonWebSignature2020",
+    "verificationMethod": "did:jwk:eyJrdHkiOiJPS1AiLCJjcnYiOiJFZDI1NTE5IiwieCI6Ii0xYXlxNy0weXNBcXdsdlVRbjhZUWRpRVZ1V2RldzZmMzVNNjVPRzlBQWciLCJ1c2UiOiJzaWcifQ#0"
+  }
+}

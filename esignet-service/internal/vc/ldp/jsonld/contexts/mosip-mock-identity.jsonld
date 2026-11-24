@@ -1,0 +1,103 @@
+{
+  "@context": [{
+    "@version": 1.1
+  },"https://www.w3.org/ns/odrl.jsonld", {
+    "mosip": "https://mosip.github.io/mosip#",
+    "schema": "http://schema.org/",
+    "MockVerifiableCredential": {
+      "@id": "https://mosip.github.io/inji-config/contexts/mock-identity-context.json#MockVerifiableCredential"
+    },
+    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "vcVer": "mosip:vcVer",
+    "UIN": "mosip:UIN",
+    "VID": "mosip:VID",
+    "addressLine1": {
+      "@id": "https://mosip.github.io/mosip#addressLine1",
+      "@context": {"value": "rdf:value", "lang": "@language"}
+    },
+    "addressLine2": {
+      "@id": "https://mosip.github.io/mosip#addressLine2",
+      "@context": {"value": "rdf:value", "lang": "@language"}
+    },
+    "addressLine3": {
+      "@id": "https://mosip.github.io/mosip#addressLine3",
+      "@context": {"value": "rdf:value", "lang": "@language"}
+    },
+    "city": {
+      "@id": "https://mosip.github.io/mosip#city",
+      "@context": {"value": "rdf:value", "lang": "@language"}
+    },
+    "gender": {
+      "@id": "https://mosip.github.io/mosip#gender",
+      "@context": {"value": "rdf:value", "lang": "@language"}
+    },
+    "residenceStatus": {
+      "@id": "https://mosip.github.io/mosip#residenceStatus",
+      "@context": {"value": "rdf:value", "lang": "@language"}
+    },
+
+    "dateOfBirth": "mosip:dateOfBirth",
+    "email": "mosip:email",
+    "fullName": {
+      "@id": "https://mosip.github.io/mosip#fullName",
+      "@context": {"value": "rdf:value", "lang": "@language"}
+    },
+    "phone": "mosip:phone",
+    "postalCode": "mosip:postalCode",
+    "province": {
+      "@id": "https://mosip.github.io/mosip#province",
+      "@context": {"value": "rdf:value", "lang": "@language"}
+    },
+    "region": {
+      "@id": "https://mosip.github.io/mosip#region",
+      "@context": {"value": "rdf:value", "lang": "@language"}
+    },
+    "bestTwoFingers": {
+      "@id": "https://mosip.github.io/mosip#bestTwoFingers",
+      "@context": {
+        "id": "@id",
+        "type": "@type",
+        "subType": "https://mosip.github.io/mosip#subType",
+        "rank": "https://mosip.github.io/mosip#rank"
+      }
+    },
+    "face": "mosip:face",
+    "dob": "mosip:dob",
+    "fln": {
+      "@id": "https://mosip.github.io/mosip#fln",
+      "@context": {"value": "rdf:value", "lang": "@language"}
+    },
+    "ad1": {
+      "@id": "https://mosip.github.io/mosip#ad1",
+      "@context": {"value": "rdf:value", "lang": "@language"}
+    },
+    "ad2": {
+      "@id": "https://mosip.github.io/mosip#ad2",
+      "@context": {"value": "rdf:value", "lang": "@language"}
+    },
+    "ad3": {
+      "@id": "https://mosip.github.io/mosip#ad3",
+      "@context": {"value": "rdf:value", "lang": "@language"}
+    },
+    "cit": {
+      "@id": "https://mosip.github.io/mosip#cit",
+      "@context": {"value": "rdf:value", "lang": "@language"}
+    },
+    "gen": {
+      "@id": "https://mosip.github.io/mosip#gen",
+      "@context": {"value": "rdf:value", "lang": "@language"}
+    },
+    "em": "mosip:em",
+    "ph": "mosip:ph",
+    "poc": "mosip:poc",
+    "pro": {
+      "@id": "https://mosip.github.io/mosip#pro",
+      "@context": {"value": "rdf:value", "lang": "@language"}
+    },
+    "reg": {
+      "@id": "https://mosip.github.io/mosip#reg",
+      "@context": {"value": "rdf:value", "lang": "@language"}
+    },
+    "cph": "mosip:cph"
+  }]
+}

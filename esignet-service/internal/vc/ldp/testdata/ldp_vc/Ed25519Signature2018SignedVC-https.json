@@ -1,0 +1,37 @@
+{
+  "@context": [
+    "https://www.w3.org/ns/credentials/v2",
+    "https://vharsh.github.io/DID/SchoolCredential.json"
+  ],
+  "type": [
+    "VerifiableCredential",
+    "SchoolCertificate"
+  ],
+  "validFrom": "2024-10-10T07:32:01.416Z",
+  "issuer": "https://vharsh.github.io/DID/mock-controller2.json",
+  "credentialSubject": {
+    "foundingDate": "01/01/2000",
+    "city": "Bangalore",
+    "name": "MS Dhoni Intl",
+    "principalName": "XYZ",
+    "schoolType": "normal",
+    "country": "India",
+    "schoolRegistrationNumber": "12345"
+  },
+  "renderMethod": [
+    {
+      "id": "https://vharsh.github.io/DID/insurance_svg_template.svg",
+      "type": "SvgRenderingTemplate",
+      "name": "Portrait Mode",
+      "css3MediaQuery": "@media (orientation: portrait)",
+      "digestMultibase": "zQmAPdhyxzznFCwYxAp2dRerWC85Wg6wFl9G270iEu5h6JqW"
+    }
+  ],
+  "proof": {
+    "type": "Ed25519Signature2018",
+    "created": "2024-10-10T02:02:01Z",
+    "proofPurpose": "assertionMethod",
+    "verificationMethod": "https://vharsh.github.io/DID/mock-public-key2.json",
+    "jws": "eyJ4NXQjUzI1NiI6IjllWVFUX2c5bzJMU2xQaGt4cXdaWXhfVHJwTlVfMkZzaHNCZ3h4alNRcjgiLCJiNjQiOmZhbHNlLCJjcml0IjpbImI2NCJdLCJraWQiOiJMOTBFNDZRYW1EYnloRGNHcDJ5NXp0c3E1amtlbjVheDVOVmtmdWdpam5jIiwiYWxnIjoiRWREU0EifQ..XmybS9bI3P7QfyhO7XBvE55T5dpSK-aB45kW9DkDhtoeZGkxad9Ex9YNawN_XBPavPk8Y6AVxci9agYy4wDDDw"
+  }
+}

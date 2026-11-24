@@ -1,0 +1,51 @@
+{
+  "@context": [
+    "https://www.w3.org/2018/credentials/v1"
+  ],
+  "id": "urn:uuid:ee49a938-0956-49f1-a214-1533d31b79ae",
+  "type": [
+    "VerifiablePresentation"
+  ],
+  "verifiableCredential": [
+    {
+      "@context": [
+        "https://www.w3.org/2018/credentials/v1",
+        {
+          "EmailPass": "https://doc.wallet-provider.io/wallet/vc_type/#EmailPass",
+          "@vocab": "https://schema.org/"
+        }
+      ],
+      "id": "urn:uuid:0ccbad97-31a5-11f0-82f7-0a1628958560",
+      "type": [
+        "VerifiableCredential",
+        "EmailPass"
+      ],
+      "credentialSubject": {
+        "id": "did:key:z6MkpiJgQdNWUzyojaFuCzQ1MWvSSaxUfL1tvbcRfqWFoJRK",
+        "email": "john.doe@example.com",
+        "type": "EmailPass"
+      },
+      "issuer": "did:web:app.altme.io:issuer",
+      "issuanceDate": "2025-05-15T15:55:40Z",
+      "proof": {
+        "type": "EcdsaSecp256k1Signature2019",
+        "proofPurpose": "assertionMethod",
+        "verificationMethod": "did:web:app.altme.io:issuer#key-3",
+        "created": "2025-05-15T15:55:40.384Z",
+        "jws": "eyJhbGciOiJFUzI1NksiLCJjcml0IjpbImI2NCJdLCJiNjQiOmZhbHNlfQ..dwYamoB1t4cDP6f7AHg4fycdRiFfjiRvmJMCXLdi1oIogLEI9O6eZWfozDlUrmjJeHwKHnyuQYxXkWx3lCqvqQ"
+      },
+      "expirationDate": "2025-05-15T15:56:40Z"
+    }
+  ],
+  "proof": {
+    "type": "Ed25519Signature2018",
+    "proofPurpose": "authentication",
+    "challenge": "17d579c1-31a5-11f0-b4ec-0a1628958560",
+    "verificationMethod": "did:key:z6MkpiJgQdNWUzyojaFuCzQ1MWvSSaxUfL1tvbcRfqWFoJRK#z6MkpiJgQdNWUzyojaFuCzQ1MWvSSaxUfL1tvbcRfqWFoJRK",
+    "created": "2025-05-15T15:55:49.216962Z",
+    "domain": "did:web:app.altme.io:issuer",
+    "jws": "eyJhbGciOiJFZERTQSIsImNyaXQiOlsiYjY0Il0sImI2NCI6ZmFsc2V9.hello.qd56QV3w8ggae1D3T2iLB6TXroZJKpE5LaDt6lecmxzV47InVEIU2EHRoK7bodtc3CFVe_awQdl_ZpoCw9GvBg"
+  },
+  "holder": "did:key:z6MkpiJgQdNWUzyojaFuCzQ1MWvSSaxUfL1tvbcRfqWFoJRK"
+}
+

@@ -1,0 +1,94 @@
+{
+  "credentialSubject": {
+    "dateOfBirth": "1999/10/21",
+    "UIN": 123456,
+    "email": "siwer.km@gmail.com",
+    "postalCode": 45009,
+    "gender": [
+      {
+        "value": "female",
+        "language": "eng"
+      },
+      {
+        "value": "feMâle",
+        "language": "fra"
+      },
+      {
+        "language": "ara",
+        "value": "ذكر"
+      }
+    ],
+    "VID": 123456,
+    "region": [
+      {
+        "language": "fra",
+        "value": "yuān 3"
+      },
+      {
+        "language": "ara",
+        "value": "$لُنگᆑ"
+      },
+      {
+        "language": "eng",
+        "value": "yuan wee 3"
+      }
+    ],
+    "province": [
+      {
+        "value": "yuān 2",
+        "language": "fra"
+      },
+      {
+        "language": "ara",
+        "value": "يَُانꉛ⥍"
+      },
+      {
+        "language": "eng",
+        "value": "yuan wee"
+      }
+    ],
+    "id": "did:jwk:eyJrdHkiOiJPS1AiLCJ1c2UiOiJzaWciLCJjcnYiOiJFZDI1NTE5IiwieCI6IlVFSWlCZXk3Y0xUakNxZVZpejZBWFFEV2lvR2pNNXo0M21qV3NCTjRwTTgifQ==",
+    "phone": "+919427357934",
+    "fullName": [
+      {
+        "language": "fra",
+        "value": "Alheri Bobby"
+      },
+      {
+        "language": "ara",
+        "value": "تتگلدكنسَزقهِقِفل دسييسيكدكنوڤو"
+      },
+      {
+        "language": "eng",
+        "value": "Alheri Bobby"
+      }
+    ]
+  },
+  "type": [
+    "VerifiableCredential",
+    "MockVerifiableCredential"
+  ],
+  "validFrom": "2025-11-11T05:46:46.174Z",
+  "issuer": "did:web:mosip.github.io:inji-config:qa-inji1:mock",
+  "@context": [
+    "https://www.w3.org/ns/credentials/v2",
+    "https://mosip.github.io/inji-config/contexts/mock-identity-context.json",
+    "https://w3id.org/security/suites/jws-2020/v1"
+  ],
+  "proof": {
+    "verificationMethod": "did:web:mosip.github.io:inji-config:qa-inji1:mock#kMVyZTvx8G0h1YZnUW4OJtr2LRVZUuGl8pQuJl3ymXI",
+    "created": "2025-11-11T05:46:46Z",
+    "type": "Ed25519Signature2020",
+    "proofPurpose": "assertionMethod",
+    "proofValue": "z2fZQJJYWCcpb4nfVU9jzxaKgJAQnmEmijimqSLNcm6MXJx95HqHH2wUHDuvMYBAXXzeukQxLW42Uds8tXQoV3GLM"
+  },
+  "id": "https://mosip.io/credential/5aa07988-3607-43f3-b888-0d2d9452b12f",
+  "validUntil": "2027-11-11T05:46:46.174Z",
+  "credentialStatus": {
+    "type": "BitstringStatusListEntry",
+    "statusListCredential": "https://injicertify-mock.qa-inji1.mosip.net/v1/certify/credentials/status-list/56622ad1-c304-4d7a-baf0-08836d63c2bf",
+    "statusPurpose": "revocation",
+    "id": "https://injicertify-mock.qa-inji1.mosip.net/v1/certify/credentials/status-list/56622ad1-c304-4d7a-baf0-08836d63c2bf#104282",
+    "statusListIndex": "104282"
+  }
+}

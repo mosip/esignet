@@ -1,0 +1,14 @@
+{
+  "verifiableCredential": [
+    {
+      "credentialSubject": {
+        "id": "did:key:zDnaerxS9pZpUuTfMDfbSgK8Sst98qTPrQ7nZ29K8xPj7HNo6"
+      }
+    }
+  ],
+  "holder": "did:key:zDnaerxS9pZpUuTfMDfbSgK8Sst98qTPrQ7nZ29K8xPj7HNo6",
+  "proof": {
+    "type": "Ed25519Signature2018",
+    "verificationMethod": "did:key:zDnaerxS9pZpUuTfMDfbSgK8Sst98qTPrQ7nZ29K8xPj7HNo6#zDnaerxS9pZpUuTfMDfbSgK8Sst98qTPrQ7nZ29K8xPj7HNo6"
+  }
+}

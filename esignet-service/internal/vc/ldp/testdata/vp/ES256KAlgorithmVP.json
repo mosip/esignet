@@ -1,0 +1,58 @@
+{
+  "id": "urn:uuid:7c32c7fe-37b3-4f6e-8bcb-a208951f7b15",
+  "@context": [
+    "https://www.w3.org/2018/credentials/v1",
+    "https://w3id.org/security/suites/jws-2020/v1"
+  ],
+  "type": [
+    "VerifiablePresentation"
+  ],
+  "verifiableCredential": [
+    {
+      "credentialSubject": {
+        "id": "did:jwk:eyJrdHkiOiJFQyIsInVzZSI6InNpZyIsImNydiI6InNlY3AyNTZrMSIsIngiOiJDRTRWQkRiUTBaODJ3Rnp4elNLN0lGcTF0Sl9ORVc5OTRrUkpicFVJU193IiwieSI6IlBNRUdJb3J2VlpLMnRZZlNRaVNYSlJscTlxWkhkdWZMWmtiZkNKdFBZWTQifQ==",
+        "fullName": "wallet",
+        "email": "abcd@gmail.com",
+        "policyExpiresOn": "2033-04-20",
+        "dob": "2025-01-01",
+        "benefits": [
+          "Critical Surgery",
+          "Full body checkup"
+        ],
+        "policyName": "wallet",
+        "gender": "Male",
+        "policyIssuedOn": "2023-04-20",
+        "policyNumber": "5555",
+        "mobile": "0123456789"
+      },
+      "issuer": "did:web:api.released.mosip.net:identity-service:02b073b8-aacd-472e-b63f-265bb7ccdd9f",
+      "@context": [
+        "https://www.w3.org/2018/credentials/v1",
+        "https://inji.github.io/inji-config/contexts/insurance-context.json",
+        "https://w3id.org/security/suites/ed25519-2020/v1"
+      ],
+      "proof": {
+        "proofPurpose": "assertionMethod",
+        "verificationMethod": "did:web:api.released.mosip.net:identity-service:02b073b8-aacd-472e-b63f-265bb7ccdd9f#key-0",
+        "proofValue": "z2MRv2jnWvyjWJMRzN4XvdSbNiAR9XrGC9dC23822oYSMfZpxe8THBkw2Tb3DGuGhAVZLxYKtpPib4zrZamb9LFSt",
+        "created": "2026-03-23T12:15:00Z",
+        "type": "Ed25519Signature2020"
+      },
+      "type": [
+        "VerifiableCredential",
+        "InsuranceCredential"
+      ],
+      "expirationDate": "2026-04-22T12:15:00.283Z",
+      "issuanceDate": "2026-03-23T12:15:00.289Z",
+      "id": "did:rcw:30c14fdf-6d9c-4b36-9a85-a5a3dc0bddd4"
+    }
+  ],
+  "holder": "did:jwk:eyJrdHkiOiJFQyIsImNydiI6InNlY3AyNTZrMSIsIngiOiJDRTRWQkRiUTBaODJ3Rnp4elNLN0lGcTF0Sl9ORVc5OTRrUkpicFVJU193IiwieSI6IlBNRUdJb3J2VlpLMnRZZlNRaVNYSlJscTlxWkhkdWZMWmtiZkNKdFBZWTQiLCJ1c2UiOiJzaWcifQ#0",
+  "proof": {
+    "verificationMethod": "did:jwk:eyJrdHkiOiJFQyIsImNydiI6InNlY3AyNTZrMSIsIngiOiJDRTRWQkRiUTBaODJ3Rnp4elNLN0lGcTF0Sl9ORVc5OTRrUkpicFVJU193IiwieSI6IlBNRUdJb3J2VlpLMnRZZlNRaVNYSlJscTlxWkhkdWZMWmtiZkNKdFBZWTQiLCJ1c2UiOiJzaWcifQ#0",
+    "challenge": "bGvxyRYPVQewlMOAaRvk0w==",
+    "domain": "did:jwk:eyJrdHkiOiJFQyIsImNydiI6InNlY3AyNTZrMSIsIngiOiJDRTRWQkRiUTBaODJ3Rnp4elNLN0lGcTF0Sl9ORVc5OTRrUkpicFVJU193IiwieSI6IlBNRUdJb3J2VlpLMnRZZlNRaVNYSlJscTlxWkhkdWZMWmtiZkNKdFBZWTQiLCJ1c2UiOiJzaWcifQ#0",
+    "type": "JsonWebSignature2020",
+    "jws": "eyJhbGciOiJFUzI1NksiLCJjcml0IjpbImI2NCJdLCJiNjQiOmZhbHNlfQ..dwhDS-BEiVYiLiF-g5JXJ7dMSsVAtOR9mMPwlSbEnFwvLnhyo7iGdkjev885pYpw9pr7PSNISpmrbiFrelk1zQ"
+  }
+}
