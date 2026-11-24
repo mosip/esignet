@@ -58,7 +58,7 @@ func (s *inMemoryStore) Put(ctx context.Context, namespace providers.RuntimeStor
 	s.data[s.getFormattedKey(namespace, key)] = e
 	s.mu.Unlock()
 
-	s.logger.Debug(ctx, "Stored in memory", applog.String("key", key))
+	s.logger.Debug(ctx, "Stored in memory", applog.String("namespace", string(namespace)))
 	return nil
 }
 
@@ -81,7 +81,7 @@ func (s *inMemoryStore) PutIfNotExists(ctx context.Context, namespace providers.
 	s.data[fk] = e
 	s.mu.Unlock()
 
-	s.logger.Debug(ctx, "Stored in memory", applog.String("key", key))
+	s.logger.Debug(ctx, "Stored in memory", applog.String("namespace", string(namespace)))
 	return true, nil
 }
 
@@ -141,7 +141,7 @@ func (s *inMemoryStore) Take(ctx context.Context, namespace providers.RuntimeSto
 		return nil, nil
 	}
 
-	s.logger.Debug(ctx, "Taken from memory", applog.String("key", key))
+	s.logger.Debug(ctx, "Taken from memory", applog.String("namespace", string(namespace)))
 	return e.value, nil
 }
 
