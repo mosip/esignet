@@ -46,7 +46,7 @@ type module interface {
 	Destroy()
 	GetSlotList(tokenPresent bool) ([]uint, error)
 	GetTokenInfo(slotID uint) (pkcs11.TokenInfo, error)
-	OpenSession(slotID uint, flags uint) (pkcs11.SessionHandle, error)
+	OpenSession(slotID, flags uint) (pkcs11.SessionHandle, error)
 	CloseSession(sh pkcs11.SessionHandle) error
 	GetSessionInfo(sh pkcs11.SessionHandle) (pkcs11.SessionInfo, error)
 	Login(sh pkcs11.SessionHandle, userType uint, pin string) error
