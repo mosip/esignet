@@ -85,12 +85,19 @@ type deviceSecretCnf struct {
 type deviceSecretProvider struct {
 	cfg                *config.AppConfig
 	clientSvc          *clientmgmt.Service
-	consentSvc         *consentmgmt.Service
+	consentSvc         consentStore
 	sigSvc             *signature.Service
 	cryptoSvc          *cryptomanager.Service
 	signReferenceID    string
 	encryptReferenceID string
 	logger             *applog.Logger
+}
+
+// consentStore is the part of consentmgmt.Service the provider uses: the current consent of a
+// (client, user) pair and the audited save of a derived consent. Tests substitute an in-memory store.
+type consentStore interface {
+	FetchRecord(ctx context.Context, clientID, userID string) (*consentmgmt.ConsentRecord, error)
+	SaveRecord(ctx context.Context, c *consentmgmt.ConsentRecord) error
 }
 
 // NewDeviceSecretProvider creates the providers.DeviceSecretProvider (and
@@ -99,7 +106,7 @@ type deviceSecretProvider struct {
 func NewDeviceSecretProvider(
 	cfg *config.AppConfig,
 	clientSvc *clientmgmt.Service,
-	consentSvc *consentmgmt.Service,
+	consentSvc consentStore,
 	sigSvc *signature.Service,
 	cryptoSvc *cryptomanager.Service,
 ) providers.DeviceSecretProvider {

@@ -24,7 +24,6 @@ import (
 	"github.com/mosip/esignet/internal/clientmgmt/db"
 	"github.com/mosip/esignet/internal/config"
 	"github.com/mosip/esignet/internal/consentmgmt"
-	consentdb "github.com/mosip/esignet/internal/consentmgmt/db"
 	"github.com/mosip/esignet/internal/keymanager"
 	"github.com/mosip/esignet/internal/keymanager/cryptomanager"
 	"github.com/mosip/esignet/internal/keymanager/kmtest"
@@ -44,13 +43,12 @@ const (
 
 type DeviceSecretProviderTestSuite struct {
 	suite.Suite
-	km         *keymanager.Service
-	sigSvc     *signature.Service
-	cryptoSvc  *cryptomanager.Service
-	appCfg     *config.AppConfig
-	clientSvc  *clientmgmt.Service
-	consentQ   *memConsentQuerier
-	consentSvc *consentmgmt.Service
+	km        *keymanager.Service
+	sigSvc    *signature.Service
+	cryptoSvc *cryptomanager.Service
+	appCfg    *config.AppConfig
+	clientSvc *clientmgmt.Service
+	consent   *memConsentStore
 }
 
 func TestDeviceSecretProviderTestSuite(t *testing.T) {
@@ -70,44 +68,55 @@ func (q *multiClientStubQuerier) GetActiveClient(_ context.Context, id string) (
 	return c, nil
 }
 
-// memConsentQuerier is an in-memory consent store exposing the consent_detail row per
-// (client, user) and the append-only consent_history rows.
-type memConsentQuerier struct {
-	consentdb.Querier
-	details map[string]consentdb.ConsentDetail
-	history []consentdb.InsertConsentHistoryParams
+// memConsentStore is an in-memory stand-in for consentmgmt.Service: the current record per
+// (client, user) plus every saved record, which stands for the append-only consent_history rows.
+type memConsentStore struct {
+	records map[string]*consentmgmt.ConsentRecord
+	history []consentmgmt.ConsentRecord
 }
 
-func newMemConsentQuerier() *memConsentQuerier {
-	return &memConsentQuerier{details: map[string]consentdb.ConsentDetail{}}
+func newMemConsentStore() *memConsentStore {
+	return &memConsentStore{records: map[string]*consentmgmt.ConsentRecord{}}
 }
 
 func consentKey(clientID, user string) string { return clientID + "|" + user }
 
-func (q *memConsentQuerier) GetConsent(_ context.Context, arg consentdb.GetConsentParams) (consentdb.ConsentDetail, error) {
-	row, ok := q.details[consentKey(arg.ClientID, arg.PsuToken)]
+func (s *memConsentStore) FetchRecord(_ context.Context, clientID, userID string) (*consentmgmt.ConsentRecord, error) {
+	rec, ok := s.records[consentKey(clientID, userID)]
 	if !ok {
-		return consentdb.ConsentDetail{}, sql.ErrNoRows
+		return nil, nil
 	}
-	return row, nil
+	cp := *rec
+	return &cp, nil
 }
 
-func (q *memConsentQuerier) UpsertConsent(_ context.Context, arg consentdb.UpsertConsentParams) error {
-	q.details[consentKey(arg.ClientID, arg.PsuToken)] = consentdb.ConsentDetail{
-		ID: arg.ID, ClientID: arg.ClientID, PsuToken: arg.PsuToken, Claims: arg.Claims,
-		AuthorizationScopes: arg.AuthorizationScopes, CrDtimes: arg.CrDtimes, ExpireDtimes: arg.ExpireDtimes,
-		Hash: arg.Hash, AcceptedClaims: arg.AcceptedClaims, PermittedScopes: arg.PermittedScopes,
+// SaveRecord mirrors the real service: claims and scopes are stored normalized, slices are never
+// nil, and every save adds one history entry.
+func (s *memConsentStore) SaveRecord(_ context.Context, c *consentmgmt.ConsentRecord) error {
+	claims := consentmgmt.NormalizeClaims(c.Claims)
+	scopeMap := consentmgmt.NormalizeAuthorizationScopes(c.AuthorizationScopes)
+	hash, err := consentmgmt.HashRequestedConsent(claims, scopeMap)
+	if err != nil {
+		return err
 	}
-	return nil
-}
-
-func (q *memConsentQuerier) InsertConsentHistory(_ context.Context, arg consentdb.InsertConsentHistoryParams) error {
-	q.history = append(q.history, arg)
-	return nil
-}
-
-func (q *memConsentQuerier) DeleteConsent(_ context.Context, arg consentdb.DeleteConsentParams) error {
-	delete(q.details, consentKey(arg.ClientID, arg.PsuToken))
+	scopes := make([]string, 0, len(scopeMap))
+	for scope := range scopeMap {
+		scopes = append(scopes, scope)
+	}
+	rec := consentmgmt.ConsentRecord{
+		ID:                  c.ID,
+		ClientID:            c.ClientID,
+		UserID:              c.UserID,
+		Claims:              claims,
+		AuthorizationScopes: scopes,
+		Hash:                hash,
+		AcceptedClaims:      append([]string{}, c.AcceptedClaims...),
+		PermittedScopes:     append([]string{}, c.PermittedScopes...),
+		CreatedAt:           c.CreatedAt,
+		ExpiresAt:           c.ExpiresAt,
+	}
+	s.history = append(s.history, rec)
+	s.records[consentKey(c.ClientID, c.UserID)] = &rec
 	return nil
 }
 
@@ -187,12 +196,11 @@ func (ts *DeviceSecretProviderTestSuite) SetupSuite() {
 }
 
 func (ts *DeviceSecretProviderTestSuite) SetupTest() {
-	ts.consentQ = newMemConsentQuerier()
-	ts.consentSvc = consentmgmt.NewServiceWithQuerier(ts.consentQ)
+	ts.consent = newMemConsentStore()
 }
 
 func (ts *DeviceSecretProviderTestSuite) newProvider() providers.DeviceSecretProvider {
-	return NewDeviceSecretProvider(ts.appCfg, ts.clientSvc, ts.consentSvc, ts.sigSvc, ts.cryptoSvc)
+	return NewDeviceSecretProvider(ts.appCfg, ts.clientSvc, ts.consent, ts.sigSvc, ts.cryptoSvc)
 }
 
 func (ts *DeviceSecretProviderTestSuite) superParams(validity time.Duration) *providers.DeviceSecretParams {
@@ -227,7 +235,7 @@ func (ts *DeviceSecretProviderTestSuite) seedConsent(clientID, id string, accept
 	for _, c := range acceptedClaims {
 		claims["userinfo"].(map[string]any)[c] = nil
 	}
-	ts.Require().NoError(ts.consentSvc.SaveRecord(context.Background(), &consentmgmt.ConsentRecord{
+	ts.Require().NoError(ts.consent.SaveRecord(context.Background(), &consentmgmt.ConsentRecord{
 		ID:                  id,
 		ClientID:            clientID,
 		UserID:              dsTestUser,
@@ -238,7 +246,7 @@ func (ts *DeviceSecretProviderTestSuite) seedConsent(clientID, id string, accept
 		CreatedAt:           time.Now().UTC(),
 		ExpiresAt:           expiresAt,
 	}))
-	ts.consentQ.history = nil
+	ts.consent.history = nil
 }
 
 // ---- generation ----
@@ -353,7 +361,7 @@ func (ts *DeviceSecretProviderTestSuite) TestGenerateDeviceSecret_UnknownClient_
 func (ts *DeviceSecretProviderTestSuite) TestGenerateDeviceSecret_ValidityBoundedByConfig() {
 	cfg := *ts.appCfg
 	cfg.NativeSSO.DeviceSecretValiditySeconds = 600
-	p := NewDeviceSecretProvider(&cfg, ts.clientSvc, ts.consentSvc, ts.sigSvc, ts.cryptoSvc)
+	p := NewDeviceSecretProvider(&cfg, ts.clientSvc, ts.consent, ts.sigSvc, ts.cryptoSvc)
 
 	before := time.Now().UTC()
 	res, svcErr := p.GenerateDeviceSecret(context.Background(), ts.superParams(30*24*time.Hour))
@@ -367,7 +375,7 @@ func (ts *DeviceSecretProviderTestSuite) TestGenerateDeviceSecret_ValidityBounde
 }
 
 func (ts *DeviceSecretProviderTestSuite) TestGenerateDeviceSecret_NoEncryption_Fails() {
-	p := NewDeviceSecretProvider(ts.appCfg, ts.clientSvc, ts.consentSvc, ts.sigSvc, nil)
+	p := NewDeviceSecretProvider(ts.appCfg, ts.clientSvc, ts.consent, ts.sigSvc, nil)
 	res, svcErr := p.GenerateDeviceSecret(context.Background(), ts.superParams(time.Hour))
 	ts.Require().Nil(res)
 	ts.Require().NotNil(svcErr)
@@ -481,7 +489,7 @@ func (ts *DeviceSecretProviderTestSuite) TestValidateDeviceSecret_ForeignIssuer_
 	secret := ts.mintSuperSecret()
 	cfg := *ts.appCfg
 	cfg.Issuer = "https://another-esignet.example.com"
-	p := NewDeviceSecretProvider(&cfg, ts.clientSvc, ts.consentSvc, ts.sigSvc, ts.cryptoSvc)
+	p := NewDeviceSecretProvider(&cfg, ts.clientSvc, ts.consent, ts.sigSvc, ts.cryptoSvc)
 
 	claims, valErr := p.ValidateDeviceSecret(context.Background(), dsSuperClient, secret)
 	ts.Require().Nil(claims)
@@ -522,13 +530,13 @@ func (ts *DeviceSecretProviderTestSuite) TestResolveDerivedConsent_CoveredByOrig
 	ts.Require().Empty(res.MissingScopes)
 
 	// The child app now holds a consent record of its own, with an audit-trail row.
-	record, err := ts.consentSvc.FetchRecord(context.Background(), dsChildClient, dsTestUser)
+	record, err := ts.consent.FetchRecord(context.Background(), dsChildClient, dsTestUser)
 	ts.Require().NoError(err)
 	ts.Require().NotNil(record)
 	ts.Require().Equal([]string{"name"}, record.AcceptedClaims)
 	ts.Require().Empty(record.PermittedScopes)
-	ts.Require().Len(ts.consentQ.history, 1)
-	ts.Require().Equal(dsChildClient, ts.consentQ.history[0].ClientID)
+	ts.Require().Len(ts.consent.history, 1)
+	ts.Require().Equal(dsChildClient, ts.consent.history[0].ClientID)
 }
 
 func (ts *DeviceSecretProviderTestSuite) TestResolveDerivedConsent_DerivedRecordMatchesInteractiveHash() {
@@ -539,7 +547,7 @@ func (ts *DeviceSecretProviderTestSuite) TestResolveDerivedConsent_DerivedRecord
 
 	// An interactive authorization of the child app with the same scopes hashes to the same value,
 	// so the consent screen is skipped on a later browser login.
-	record, err := ts.consentSvc.FetchRecord(context.Background(), dsChildClient, dsTestUser)
+	record, err := ts.consent.FetchRecord(context.Background(), dsChildClient, dsTestUser)
 	ts.Require().NoError(err)
 	expected, err := requestHash(mergeScopeClaims(map[string]any{}, []string{"name"}), nil)
 	ts.Require().NoError(err)
@@ -556,10 +564,10 @@ func (ts *DeviceSecretProviderTestSuite) TestResolveDerivedConsent_MissingClaimR
 	ts.Require().False(res.Allowed)
 	ts.Require().Equal([]string{"email"}, res.MissingClaims)
 
-	record, err := ts.consentSvc.FetchRecord(context.Background(), dsChildClient, dsTestUser)
+	record, err := ts.consent.FetchRecord(context.Background(), dsChildClient, dsTestUser)
 	ts.Require().NoError(err)
 	ts.Require().Nil(record, "no consent is recorded for the child app when interaction is required")
-	ts.Require().Empty(ts.consentQ.history)
+	ts.Require().Empty(ts.consent.history)
 }
 
 func (ts *DeviceSecretProviderTestSuite) TestResolveDerivedConsent_AuthorizationScopeNotPermitted() {
@@ -581,7 +589,7 @@ func (ts *DeviceSecretProviderTestSuite) TestResolveDerivedConsent_PermittedAuth
 	ts.Require().Nil(svcErr)
 	ts.Require().True(res.Allowed)
 
-	record, err := ts.consentSvc.FetchRecord(context.Background(), dsChildClient, dsTestUser)
+	record, err := ts.consent.FetchRecord(context.Background(), dsChildClient, dsTestUser)
 	ts.Require().NoError(err)
 	ts.Require().Equal([]string{"read"}, record.PermittedScopes)
 }
@@ -612,7 +620,7 @@ func (ts *DeviceSecretProviderTestSuite) TestResolveDerivedConsent_InheritsOrigi
 	res, svcErr := p.ResolveDerivedConsent(context.Background(), ts.derivedRequest("openid", "profile"))
 	ts.Require().Nil(svcErr)
 	ts.Require().True(res.Allowed)
-	record, err := ts.consentSvc.FetchRecord(context.Background(), dsChildClient, dsTestUser)
+	record, err := ts.consent.FetchRecord(context.Background(), dsChildClient, dsTestUser)
 	ts.Require().NoError(err)
 	ts.Require().True(record.ExpiresAt.Valid)
 	ts.Require().WithinDuration(expiresAt.Time, record.ExpiresAt.Time, time.Second)
@@ -627,14 +635,14 @@ func (ts *DeviceSecretProviderTestSuite) TestResolveDerivedConsent_RepeatedExcha
 		ts.Require().Nil(svcErr)
 		ts.Require().True(res.Allowed)
 	}
-	ts.Require().Len(ts.consentQ.history, 1, "one audit row per consent change, not per exchange")
+	ts.Require().Len(ts.consent.history, 1, "one audit row per consent change, not per exchange")
 }
 
 func (ts *DeviceSecretProviderTestSuite) TestResolveDerivedConsent_ExistingSupersetKept() {
 	// The user consented interactively to more for the child app than the exchange derives.
 	ts.seedSuperConsent([]string{"name", "email"}, []string{"read"}, sql.NullTime{})
 	ts.seedConsent(dsChildClient, "consent-child", []string{"name", "email"}, []string{"read"}, sql.NullTime{})
-	before, err := ts.consentSvc.FetchRecord(context.Background(), dsChildClient, dsTestUser)
+	before, err := ts.consent.FetchRecord(context.Background(), dsChildClient, dsTestUser)
 	ts.Require().NoError(err)
 	p := ts.newProvider().(providers.DeviceSSOConsentProvider)
 
@@ -642,10 +650,10 @@ func (ts *DeviceSecretProviderTestSuite) TestResolveDerivedConsent_ExistingSuper
 	ts.Require().Nil(svcErr)
 	ts.Require().True(res.Allowed)
 
-	after, err := ts.consentSvc.FetchRecord(context.Background(), dsChildClient, dsTestUser)
+	after, err := ts.consent.FetchRecord(context.Background(), dsChildClient, dsTestUser)
 	ts.Require().NoError(err)
 	ts.Require().Equal(before, after, "a covering consent is not narrowed to the derived one")
-	ts.Require().Empty(ts.consentQ.history)
+	ts.Require().Empty(ts.consent.history)
 }
 
 func (ts *DeviceSecretProviderTestSuite) TestResolveDerivedConsent_ExistingNarrowerWidened() {
@@ -657,11 +665,11 @@ func (ts *DeviceSecretProviderTestSuite) TestResolveDerivedConsent_ExistingNarro
 	ts.Require().Nil(svcErr)
 	ts.Require().True(res.Allowed)
 
-	record, err := ts.consentSvc.FetchRecord(context.Background(), dsChildClient, dsTestUser)
+	record, err := ts.consent.FetchRecord(context.Background(), dsChildClient, dsTestUser)
 	ts.Require().NoError(err)
 	ts.Require().Equal("consent-child", record.ID)
 	ts.Require().ElementsMatch([]string{"email", "name"}, record.AcceptedClaims)
-	ts.Require().Len(ts.consentQ.history, 1)
+	ts.Require().Len(ts.consent.history, 1)
 }
 
 func (ts *DeviceSecretProviderTestSuite) TestResolveDerivedConsent_ExpiredChildConsentReplaced() {
@@ -674,11 +682,11 @@ func (ts *DeviceSecretProviderTestSuite) TestResolveDerivedConsent_ExpiredChildC
 	ts.Require().Nil(svcErr)
 	ts.Require().True(res.Allowed)
 
-	record, err := ts.consentSvc.FetchRecord(context.Background(), dsChildClient, dsTestUser)
+	record, err := ts.consent.FetchRecord(context.Background(), dsChildClient, dsTestUser)
 	ts.Require().NoError(err)
 	ts.Require().False(record.IsExpired(time.Now().UTC()))
 	ts.Require().Equal([]string{"name"}, record.AcceptedClaims)
-	ts.Require().Len(ts.consentQ.history, 1)
+	ts.Require().Len(ts.consent.history, 1)
 }
 
 func (ts *DeviceSecretProviderTestSuite) TestResolveDerivedConsent_UnknownChild() {
