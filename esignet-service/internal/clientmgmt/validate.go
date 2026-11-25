@@ -198,74 +198,80 @@ func ValidateUpdate(profile Profile, req UpdateClientRequest, hasEncPublicKey bo
 	return nil
 }
 
-// ValidatePatch validates a merged client state after applying PATCH fields.
-// supportedEncAlgs restricts encPublicKey's alg to the runtime crypto
-// provider's supported encryption algorithms; pass nil/empty to skip that
-// restriction. hasEncPublicKey reports whether the client currently has a
-// stored encPublicKey; this function derives the post-patch value from
-// encPublicKey when this patch changes it, which is required when
-// additionalConfig requests a JWE response type.
-func ValidatePatch(profile Profile, merged UpdateClientRequest, fields PatchFields, encPublicKey NullableJWK, supportedEncAlgs []string, hasEncPublicKey bool) error {
-	if fields.EncPublicKey {
-		hasEncPublicKey = !encPublicKey.IsNull
-	}
+// ValidatePatch validates supplied fields and configuration dependencies.
+// It returns a copy with any supplied status normalized for persistence.
+// retainedAdditionalConfig is checked only when the patch clears the key
+// without replacing the configuration.
+func ValidatePatch(req PatchClientRequest, fields PatchFields, supportedEncAlgs []string, hasEncPublicKey bool, retainedAdditionalConfig json.RawMessage) (PatchClientRequest, error) {
 	if fields.ClientName {
-		if err := validateClientName(merged.ClientName); err != nil {
-			return err
+		if err := validateClientName(req.ClientName); err != nil {
+			return PatchClientRequest{}, err
 		}
 	}
 	if fields.ClientNameLangMap {
-		if err := validateClientNameLangMap(merged.ClientNameLangMap, true); err != nil {
-			return err
+		if err := validateClientNameLangMap(req.ClientNameLangMap, true); err != nil {
+			return PatchClientRequest{}, err
 		}
 	}
 	if fields.Status {
-		if _, err := normalizeStatus(merged.Status); err != nil {
-			return err
+		status, err := normalizeStatus(req.Status)
+		if err != nil {
+			return PatchClientRequest{}, err
 		}
+		req.Status = status
 	}
 	if fields.LogoURI {
-		if err := validateLogoURI(merged.LogoURI); err != nil {
-			return err
+		if err := validateLogoURI(req.LogoURI); err != nil {
+			return PatchClientRequest{}, err
 		}
 	}
 	if fields.RedirectURIs {
-		if err := validateRedirectURIs(merged.RedirectURIs, 0, 5); err != nil {
-			return err
+		if err := validateRedirectURIs(req.RedirectURIs, 1, 5); err != nil {
+			return PatchClientRequest{}, err
 		}
 	}
 	if fields.Claims {
-		if err := validateClaims(merged.Claims, 0, 30); err != nil {
-			return err
+		if err := validateClaims(req.Claims, 1, 30); err != nil {
+			return PatchClientRequest{}, err
 		}
 	}
 	if fields.AcrValues {
-		if err := validateACRs(merged.AcrValues, allowedACRAll, 0, 30); err != nil {
-			return err
+		if err := validateACRs(req.AcrValues, allowedACRAll, 1, 30); err != nil {
+			return PatchClientRequest{}, err
 		}
 	}
 	if fields.GrantTypes {
-		if err := validateGrantTypes(merged.GrantTypes, 0, 3); err != nil {
-			return err
+		if err := validateGrantTypes(req.GrantTypes, 1, 3); err != nil {
+			return PatchClientRequest{}, err
 		}
 	}
 	if fields.AuthMethods {
-		if err := validateAuthMethods(merged.AuthMethods, 0, 3); err != nil {
-			return err
+		if err := validateAuthMethods(req.AuthMethods, 1, 3); err != nil {
+			return PatchClientRequest{}, err
 		}
 	}
-	if fields.AdditionalConfig && len(merged.AdditionalConfig) > 0 {
-		if err := validateAdditionalConfig(merged.AdditionalConfig, hasEncPublicKey); err != nil {
-			return err
+	if fields.EncPublicKey {
+		if req.EncPublicKey.IsNull {
+			hasEncPublicKey = false
+		} else {
+			if err := validateEncJWK(req.EncPublicKey.Value, supportedEncAlgs); err != nil {
+				return PatchClientRequest{}, err
+			}
+			hasEncPublicKey = true
 		}
 	}
-	if fields.EncPublicKey && !encPublicKey.IsNull {
-		if err := validateEncJWK(encPublicKey.Value, supportedEncAlgs); err != nil {
-			return err
+	if fields.AdditionalConfig {
+		if len(req.AdditionalConfig) > 0 {
+			if err := validateAdditionalConfig(req.AdditionalConfig, hasEncPublicKey); err != nil {
+				return PatchClientRequest{}, err
+			}
+		}
+	} else if fields.EncPublicKey && req.EncPublicKey.IsNull && len(retainedAdditionalConfig) > 0 {
+		if err := validateAdditionalConfig(retainedAdditionalConfig, false); err != nil {
+			return PatchClientRequest{}, err
 		}
 	}
-
-	return ValidateUpdate(profile, merged, hasEncPublicKey)
+	return req, nil
 }
 
 func validateClientID(id string) error {
@@ -290,24 +296,29 @@ func validateRpID(rpID string) error {
 }
 
 func validateLogoURI(uri string) error {
-	if !isValidURI(uri) || len(uri) > 1024 {
+	if !isValidLogoURI(uri) {
 		return validationErr("invalid_uri")
 	}
 	return nil
 }
 
-func isValidURI(uri string) bool {
+// isValidLogoURI reports whether uri is usable as a logo image URL. The value
+// is served to the login UI as application.logoUrl, so only http/https with a
+// host are allowed; javascript:, data: and all other schemes are rejected.
+func isValidLogoURI(uri string) bool {
 	if uri == "" || len(uri) > 1024 {
 		return false
 	}
 	u, err := url.Parse(uri)
-	if err != nil || u.Scheme == "" {
+	if err != nil {
 		return false
 	}
-	if u.Scheme == "http" || u.Scheme == "https" {
+	switch u.Scheme {
+	case "http", "https":
 		return u.Host != ""
+	default:
+		return false
 	}
-	return u.Host != "" || u.Opaque != ""
 }
 
 // isValidRedirectURI validates a redirect URI.

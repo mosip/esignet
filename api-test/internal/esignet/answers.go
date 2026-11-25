@@ -12,7 +12,7 @@ import (
 // was never a credential at all.
 var answerKeys = []string{
 	"username", "individualId", "otp", "password", "biometric",
-	"fullName", "name", "dob", "captchaToken",
+	"fullName", "name", "dob", "captchaToken", "login_id_select",
 }
 
 // KnownAnswerKey reports whether k names an answer BuildAnswers can supply.
@@ -56,7 +56,21 @@ func BuildAnswers(c config.Esignet) map[string]string {
 	put("dob", c.Knowledge.DOB)
 	// The login flow requires a captcha_token input on nearly every step (flow-esignet.yaml's captcha_box).
 	put("captchaToken", "harness-captcha-bypass")
+	put("login_id_select", LoginIDSelectValue(c.Identity.IDType))
 	return m
+}
+
+// LoginIDSelectValue maps an id type to the option flow-esignet.yaml's login_id_select offers
+// (login_id_uin covers both UIN and VID). An unset type keeps the flow's default, UIN.
+func LoginIDSelectValue(idType string) string {
+	switch strings.ToLower(strings.TrimSpace(idType)) {
+	case "phone", "mobile":
+		return "login_id_mobile"
+	case "email":
+		return "login_id_email"
+	default:
+		return "login_id_uin"
+	}
 }
 
 // AuthFactorTokens returns preferred action tokens for the ACR (auth-factor)

@@ -4,14 +4,10 @@ Feature: PATCH /client-mgmt/client/{clientId} — partially update a client
   it was. That is the whole difference from PUT, which is why this file leads
   with a patch that sends one field and nothing else.
 
-  How "left as it was" is asserted without reading the fields back: the server
-  merges the patch onto the stored row and then validates the WHOLE merged
-  record, not just the patched part. Every required field — clientName,
-  redirectUris, userClaims, authContextRefs, grantTypes, clientAuthMethods —
-  must still be present and valid for the request to be accepted. So a
-  single-field patch coming back 200 is proof the merge preserved the rest; had
-  it behaved like PUT and replaced the record, the same request would have been
-  rejected for the fields it never mentioned.
+  A single-field PATCH validates that supplied value and the resulting
+  dependencies it can affect. It leaves omitted columns untouched, even if
+  an unrelated stored value no longer satisfies a current business rule.
+  Required replacement lists must still contain at least one item.
 
   encPublicKey is the one field with three states rather than two — omitted,
   explicit null, or a JWK object — because null is how a key is removed and
@@ -321,14 +317,24 @@ Feature: PATCH /client-mgmt/client/{clientId} — partially update a client
     Then the response status should be 200
     And the JSON value at "errors.0.errorCode" should be "invalid_request"
 
-  # An envelope with no "request" at all is distinct from an empty one: there is
-  # nothing to merge, which is reported rather than treating as a no-op
-  # patch that would rewrite the record with itself.
+  # Both an omitted request and an empty request are rejected before a client
+  # row is updated.
   Scenario: Patch with no request object is rejected
     When I send a "PATCH" request to "/client-mgmt/client/{{cid}}" with body:
       """
       {
         "requestTime": "{{now}}"
+      }
+      """
+    Then the response status should be 200
+    And the JSON value at "errors.0.errorCode" should be "invalid_request"
+
+  Scenario: Patch with an empty request object is rejected
+    When I send a "PATCH" request to "/client-mgmt/client/{{cid}}" with body:
+      """
+      {
+        "requestTime": "{{now}}",
+        "request": {}
       }
       """
     Then the response status should be 200
@@ -342,10 +348,9 @@ Feature: PATCH /client-mgmt/client/{clientId} — partially update a client
     Then the response status should be 200
     And the JSON value at "errors.0.errorCode" should be "invalid_input"
 
-  # Patched values are validated exactly as they are on a create or update — the
-  # merge does not get a weaker rule set. Each case below patches one bad value
-  # onto an otherwise valid client, so the rejection can only come from the
-  # patched field.
+  # Supplied values use their existing field-specific validators. An unrelated
+  # retained value is not revalidated by PATCH. Each case below patches one
+  # bad value onto an otherwise valid client.
   Scenario: Patched values are validated and bad ones are rejected
     When I send a "POST" request to "/client-mgmt/client" with body:
       """

@@ -1010,7 +1010,7 @@ system:
   "flows.executor.errors.insufficient_permissions_desc": The user does not have sufficient permissions to perform this action
   "flows.executor.errors.invalid_action": Invalid action provided
   "flows.executor.errors.invalid_action_desc": The action provided is not valid for the current flow step
-  "flows.executor.errors.invalid_credentials": Invalid credentials provided
+  "flows.executor.errors.invalid_credentials": Please enter a valid credential
   "flows.executor.errors.invalid_credentials_desc": The credentials provided are invalid
   "flows.executor.errors.invalid_federated_user": Invalid federated user
   "flows.executor.errors.invalid_federated_user_desc": The federated user information is invalid or inconsistent
@@ -1036,6 +1036,8 @@ system:
   "flows.executor.errors.magic_link_generation_failed_desc": Failed to generate the magic link
   "flows.executor.errors.max_otp_attempts_reached": Maximum OTP attempts reached
   "flows.executor.errors.max_otp_attempts_reached_desc": The maximum number of OTP verification attempts has been reached
+  "flows.executor.errors.otp_resend_too_early": Please wait before requesting a new OTP
+  "flows.executor.errors.otp_resend_too_early_desc": A new OTP can be requested only after the current OTP has expired
   "flows.executor.errors.no_registered_passkeys": No registered passkeys found
   "flows.executor.errors.no_registered_passkeys_desc": No registered passkeys were found for the user
   "flows.executor.errors.no_user_types_available": No user types available
@@ -1188,6 +1190,7 @@ system:
   "theme.error.not_found_description": The requested theme configuration was not found
   "theme.error.result_limit_exceeded": Result limit exceeded
   "theme.error.result_limit_exceeded_description": Total count of themes exceeds maximum allowed limit in composite mode
+  "invalid_individual_id": Please enter a valid credential
 
 header:
   login_heading: Login
@@ -1225,6 +1228,7 @@ button:
   continue: Continue
   login: Login
   verify: Verify
+  cancel: Cancel
   get_otp: Get OTP
   login_otp: Login with OTP
   login_password: Login with Password
@@ -1238,6 +1242,11 @@ otp:
   enter_otp_title: Enter OTP
   otp_sent_msg: Please enter the 6-digit OTP sent to your registered contact
   resend_otp: Resend OTP
+  didnt_receive_otp: Didn't receive the OTP?
+  resend_captcha_prompt: Confirm you're not a robot and we'll send a new OTP.
+  resend_limit_reached: Max attempt reached for the resend OTP,
+  resend_try_again: please try again
+  attempts_remaining: "{{param(attemptsLeft)}} of {{param(totalAttempts)}} attempts left"
 
 biometric:
   title: Provide your biometrics

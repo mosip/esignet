@@ -68,6 +68,13 @@ describe("AppRouter — routing", () => {
     });
   });
 
+  it("renders login failed page on the /error route", async () => {
+    renderWithDataRouter("/error?errorCode=invalid_request");
+    await waitFor(() => {
+      expect(screen.getByText("We couldn’t complete your login.")).toBeDefined();
+    });
+  });
+
   it("renders page not found for unknown routes", async () => {
     renderWithDataRouter("/unknown-route");
     await waitFor(() => {

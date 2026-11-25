@@ -12,7 +12,7 @@ own `README.md`/`AGENTS.md` over guessing conventions from a sibling.
 | `esignet-service/` | Go 1.27, `make.sh` | The OIDC/OAuth2 provider itself. Has its own [`AGENTS.md`](esignet-service/AGENTS.md) — read that before working here. |
 | `oidc-ui/` | React + TypeScript + Vite (`package.json`) | Login/consent UI. |
 | `postman-collection/` | Postman collection + environment (JSON) | Manual/scripted API checks against `esignet-service`. |
-| `docker-compose/` | Docker Compose | Local Postgres + Redis for `esignet-service`. |
+| `docker-compose/` | Docker Compose | Containerized deployment and source-run dependencies: PostgreSQL (default) or MySQL (`mysql` profile) for eSignet; the mock identity system stays on PostgreSQL. |
 | `deploy/`, `helm/` | Kubernetes manifests, Helm charts | Deployment. |
 | `db_scripts/`, `db_upgrade_script/` | SQL | Schema creation and version-named migrations. |
 | `partner-onboarder/` | Shell + config | MISP partner certificate exchange. |
@@ -37,9 +37,12 @@ own `README.md`/`AGENTS.md` over guessing conventions from a sibling.
   `internal/` package boundaries have no equivalent in `oidc-ui/`). Each
   subproject is built, tested, and versioned independently.
 - SQL changes belong in `db_scripts/` (base schema) or `db_upgrade_script/`
-  (versioned migrations) — `esignet-service/internal/clientmgmt/db/schema.sql`
-  is the sqlc-facing source of truth for the `client_detail` table
-  specifically; keep it in sync if you change that table elsewhere.
+  (versioned migrations). `esignet-service/internal/clientmgmt/db` and
+  `esignet-service/internal/consentmgmt/db` are hand-written sqlx layers
+  (`db.go`), so there is no generated schema to keep in sync; keep their
+  queries aligned with the DDL in `db_scripts/postgresql/mosip_esignet/ddl/` (PostgreSQL)
+  and `db_scripts/mysql/mosip_esignet/ddl/` (MySQL); a schema change must be
+  made in both trees.
 
 ## Conventions
 

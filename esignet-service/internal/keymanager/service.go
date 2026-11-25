@@ -2,7 +2,8 @@
 // KeymanagerService business logic to Go: key generation across the ROOT ->
 // Component Master Key -> Component Encryption Key hierarchy, certificate
 // issuance/upload/revocation, and lazy expiry-driven rotation, against the
-// existing keymgr Postgres schema and a PKCS#11/PKCS#12 keystore backend.
+// existing keymgr schema (PostgreSQL schema or MySQL database) and a
+// PKCS#11/PKCS#12 keystore backend.
 package keymanager
 
 import (

@@ -15,29 +15,30 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
+	"github.com/jmoiron/sqlx"
 
 	"github.com/mosip/esignet/internal/consentmgmt/db"
 	applog "github.com/mosip/esignet/internal/log"
 )
 
-// Service persists consent records in the consent_detail Postgres table via the sqlc-generated
+// Service persists consent records in the consent_detail table via a hand-written sqlx
 // query layer. Each (client_id, psu_token) pair holds at most one record in consent_detail
 // (unique constraint), while consent_history keeps an append-only snapshot of every consent taken.
 type Service struct {
-	db     *sql.DB
-	q      db.Querier
+	db     *sqlx.DB
+	q      *db.Queries
 	logger *applog.Logger
 }
 
-// NewService creates a Service backed by the given database connection.
-func NewService(conn *sql.DB) *Service {
-	return &Service{db: conn, q: db.New(conn), logger: applog.GetLogger().Named("consentmgmt")}
-}
-
-// NewServiceWithQuerier creates a Service with an explicit Querier; use in tests
-// to inject a mock without a real database connection.
-func NewServiceWithQuerier(q db.Querier) *Service {
-	return &Service{q: q, logger: applog.GetLogger().Named("consentmgmt")}
+// NewService creates a Service backed by the given database connection. The driver name is
+// derived from the connection (conn.DriverName()) and threaded into db.New so queries are
+// rebound to the active dialect's placeholder style.
+func NewService(conn *sqlx.DB) *Service {
+	return &Service{
+		db:     conn,
+		q:      db.New(conn, conn.DriverName()),
+		logger: applog.GetLogger().Named("consentmgmt"),
+	}
 }
 
 // FetchRecord returns the stored consent for the (clientID, userID) pair. It returns a nil
@@ -91,8 +92,9 @@ func (s *Service) FetchRecord(ctx context.Context, clientID, userID string) (*Co
 
 // SaveRecord persists a new consent for its (client_id, psu_token) pair. Mirroring the Java
 // ConsentServiceImpl.saveUserConsent, it appends a snapshot of the new consent to consent_history
-// (append-only audit trail) and inserts-or-replaces the current row in consent_detail, both within
-// a single transaction so the history snapshot and the current row commit atomically.
+// (append-only audit trail) and upserts the current row in consent_detail,
+// both within a single transaction so the history snapshot and the current
+// row commit atomically — a partial failure rolls back and leaves no partial data.
 func (s *Service) SaveRecord(ctx context.Context, c *ConsentRecord) error {
 	normalizedClaims := NormalizeClaims(c.Claims)
 	claimsRequestJSON, err := json.Marshal(normalizedClaims)
@@ -130,28 +132,17 @@ func (s *Service) SaveRecord(ctx context.Context, c *ConsentRecord) error {
 		CrDtimes:            c.CreatedAt,
 		ExpireDtimes:        c.ExpiresAt,
 	}
-	detailParams := db.UpsertConsentParams{
-		ID:                  c.ID,
-		ClientID:            c.ClientID,
-		PsuToken:            c.UserID,
-		Claims:              string(claimsRequestJSON),
-		AuthorizationScopes: string(scopesJSON),
-		Hash:                nullString(hash),
-		AcceptedClaims:      nullString(string(acceptedClaimsJSON)),
-		PermittedScopes:     nullString(string(permittedScopesJSON)),
-		CrDtimes:            c.CreatedAt,
-		ExpireDtimes:        c.ExpiresAt,
-	}
+	detailParams := historyParams
+	detailParams.ID = c.ID
 
-	q := s.q
-	var tx *sql.Tx
-	if s.db != nil {
-		if tx, err = s.db.BeginTx(ctx, nil); err != nil {
-			return fmt.Errorf("begin consent tx: %w", err)
-		}
-		defer func() { _ = tx.Rollback() }()
-		q = db.New(tx)
+	// The history snapshot and the consent upsert must be all-or-nothing, so they run in one
+	// transaction; the tx-bound Queries reuses the query strings already built in NewService.
+	tx, err := s.db.BeginTxx(ctx, nil)
+	if err != nil {
+		return fmt.Errorf("begin consent tx: %w", err)
 	}
+	defer func() { _ = tx.Rollback() }()
+	q := s.q.WithTx(tx)
 
 	if err := q.InsertConsentHistory(ctx, historyParams); err != nil {
 		return fmt.Errorf("insert consent history: %w", err)
@@ -160,10 +151,8 @@ func (s *Service) SaveRecord(ctx context.Context, c *ConsentRecord) error {
 		return fmt.Errorf("upsert consent: %w", err)
 	}
 
-	if tx != nil {
-		if err := tx.Commit(); err != nil {
-			return fmt.Errorf("commit consent tx: %w", err)
-		}
+	if err := tx.Commit(); err != nil {
+		return fmt.Errorf("commit consent tx: %w", err)
 	}
 	s.logger.Debug(ctx, "consent record saved",
 		applog.String("clientId", c.ClientID),

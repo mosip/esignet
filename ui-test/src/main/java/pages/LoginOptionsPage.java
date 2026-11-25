@@ -81,18 +81,6 @@ public class LoginOptionsPage extends BasePage {
 	@FindBy(id = "show-more-options")
 	List<WebElement> moreWaysToSignIn;
 
-	@FindBy(id = "login_id_mobile")
-	WebElement mobileNumberOption;
-
-	@FindBy(id = "login_id_uin")
-	WebElement vidOption;
-
-	@FindBy(id = "login_id_vid")
-	WebElement vidIdTypeOption;
-
-	@FindBy(id = "login_id_email")
-	WebElement emailOption;
-
 	@FindBy(id = "back-button")
 	WebElement backButton;
 
@@ -107,9 +95,6 @@ public class LoginOptionsPage extends BasePage {
 
 	@FindBy(id = "submit_uin")
 	WebElement getOtpButton;
-
-	@FindBy(xpath = "//button[@id='login_id_mobile' and contains(@class,'login-id-button--active')]")
-	WebElement mobileSelected;
 
 	@FindBy(css = "select.thunderid-affixed-field__prefix-select")
 	WebElement prefixNumberField;
@@ -763,21 +748,21 @@ public class LoginOptionsPage extends BasePage {
 	}
 
 	public boolean isMobileNumberOptionDisplayed() {
-		return isElementVisible(mobileNumberOption, "Verified mobile number option is displayed for authentication");
+		return isLoginIdOptionDisplayed(LOGIN_ID_MOBILE, "Verified mobile number option is displayed for authentication");
 	}
 
 	public void clickOnMobileNumberOption() {
-		selectLoginIdTypeChip("login_id_mobile");
+		selectLoginIdTypeOption(LOGIN_ID_MOBILE);
 		selectPostfixIfPresent("mobile");
 		waitForLoginIdInputReady();
 	}
 
 	public boolean isVidOptionDisplayed() {
-		return isElementVisible(vidOption, "Verified vid option is displayed for authentication");
+		return isLoginIdOptionDisplayed(LOGIN_ID_UIN, "Verified vid option is displayed for authentication");
 	}
 
 	public boolean isEmailOptionDisplayed() {
-		return isElementVisible(emailOption, "Verified email option is displayed for authentication");
+		return isLoginIdOptionDisplayed(LOGIN_ID_EMAIL, "Verified email option is displayed for authentication");
 	}
 
 	public boolean isBackButtonDisplayed() {
@@ -828,7 +813,7 @@ public class LoginOptionsPage extends BasePage {
 			return true;
 		}
 		for (WebElement element : driver.findElements(By.cssSelector(
-				"#secure-biometric-interface-integration, #sbi_vid, #sbi_uin, #login_id_uin, #login_id_vid"))) {
+				"#secure-biometric-interface-integration, #sbi_vid, #sbi_uin, button.login-id-dropdown__trigger"))) {
 			if (element.isDisplayed()) {
 				return true;
 			}
@@ -843,8 +828,7 @@ public class LoginOptionsPage extends BasePage {
 	}
 
 	private boolean isThunderBiometricIdEntryScreen() {
-		return findVisibleLoginIdInput() != null
-				&& (isElementDisplayed(vidOption) || isElementDisplayed(vidIdTypeOption));
+		return findVisibleLoginIdInput() != null && isLoginIdDropdownVisible();
 	}
 
 	public void selectBiometricUinVidLoginIdType() {
@@ -857,18 +841,14 @@ public class LoginOptionsPage extends BasePage {
 			waitForLoginIdInputReady();
 			return;
 		}
-		for (String elementId : List.of("vid", "login_id_vid", "login_id_uin")) {
-			for (WebElement option : driver.findElements(By.id(elementId))) {
-				if (option.isDisplayed()) {
-					clickOnElement(option, "Selected UIN/VID login ID type on biometric screen");
-					if (isBiometricVidTextFieldVisibleNow()) {
-						waitForElementVisible(biometricVidField);
-					} else {
-						waitForLoginIdInputReady();
-					}
-					return;
-				}
+		if (isLoginIdDropdownVisible()
+				&& selectLoginIdType(LOGIN_ID_UIN, "Selected UIN/VID login ID type on biometric screen")) {
+			if (isBiometricVidTextFieldVisibleNow()) {
+				waitForElementVisible(biometricVidField);
+			} else {
+				waitForLoginIdInputReady();
 			}
+			return;
 		}
 		ensureBiometricVidFieldVisible();
 	}
@@ -913,9 +893,7 @@ public class LoginOptionsPage extends BasePage {
 	}
 
 	public void selectUinLoginIdTypeIfAvailable() {
-		if (isElementDisplayed(vidOption) && !isLoginIdTypeActive("login_id_uin")) {
-			clickOnElement(vidOption, "Selected UIN login ID type");
-		} else if (!isUinOrVidLoginIdTypeActive()) {
+		if (!isUinOrVidLoginIdTypeActive()) {
 			selectUinOrVidLoginIdTypeForOtp(null);
 		}
 		waitForLoginIdInputReady();
@@ -1137,7 +1115,7 @@ public class LoginOptionsPage extends BasePage {
 	}
 
 	public boolean isMobileNumberSelected() {
-		boolean selected = isLoginIdTypeActive("login_id_mobile") || isElementDisplayed(mobileSelected);
+		boolean selected = isLoginIdTypeSelected(LOGIN_ID_MOBILE);
 		if (selected) {
 			ExtentReportManager.getTest().log(Status.INFO,
 					"Verified mobile number seleted in authentication screen");
@@ -1216,14 +1194,9 @@ public class LoginOptionsPage extends BasePage {
 	}
 
 	public void selectUinOrVidLoginIdTypeForOtp(String individualId) {
-		boolean preferVidChip = individualId == null || individualId.trim().length() >= 16;
-		if (preferVidChip) {
-			selectLoginIdTypeChip("login_id_vid", "login_id_uin", "vid");
-			selectPostfixIfPresent("vid");
-		} else {
-			selectLoginIdTypeChip("login_id_uin", "login_id_vid", "vid");
-			selectPostfixIfPresent("uin");
-		}
+		boolean preferVid = individualId == null || individualId.trim().length() >= 16;
+		selectLoginIdTypeOption(LOGIN_ID_UIN);
+		selectPostfixIfPresent(preferVid ? "vid" : "uin");
 	}
 
 	private void waitForLoginIdTypeChips() {
@@ -1237,55 +1210,43 @@ public class LoginOptionsPage extends BasePage {
 					.until(webDriver -> isAnyLoginIdChipVisible());
 		} catch (TimeoutException e) {
 			throw new TimeoutException(
-					"Login ID type chips did not appear after Login with OTP. URL: " + driver.getCurrentUrl()
+					"Login ID type dropdown did not appear after Login with OTP. URL: " + driver.getCurrentUrl()
 							+ " page: " + getVisiblePageText(),
 					e);
 		}
 	}
 
-	private WebElement findVisibleLoginIdChip(String elementId) {
-		for (WebElement chip : driver.findElements(By.id(elementId))) {
-			try {
-				if (chip.isDisplayed()) {
-					return chip;
-				}
-			} catch (StaleElementReferenceException ignored) {
-
-			}
-		}
-		return null;
-	}
-
-	private void selectLoginIdTypeChip(String... preferredIds) {
+	/** Selects the first of the given login ID types the dropdown offers. */
+	private void selectLoginIdTypeOption(String... preferredValues) {
 		waitForLoginIdTypeChips();
-		for (String elementId : preferredIds) {
-			WebElement chip = findVisibleLoginIdChip(elementId);
-			if (chip == null) {
-				continue;
+		for (String value : preferredValues) {
+			if (selectLoginIdType(value, "Selected " + describeLoginIdChip(value) + " login ID type")) {
+				return;
 			}
-			if (!isLoginIdTypeActive(elementId)) {
-				clickOnElement(chip, "Selected " + describeLoginIdChip(elementId) + " login ID type");
-				new WebDriverWait(driver, Duration.ofSeconds(10))
-						.pollingEvery(Duration.ofMillis(200))
-						.ignoring(StaleElementReferenceException.class)
-						.until(webDriver -> isLoginIdTypeActive(elementId));
-			} else {
-				ExtentReportManager.getTest().log(Status.INFO,
-						describeLoginIdChip(elementId) + " login ID type already selected");
-			}
-			return;
 		}
 		throw new IllegalStateException(
-				"None of the login ID type chips were visible: " + String.join(", ", preferredIds)
+				"None of the login ID types were offered in the dropdown: " + String.join(", ", preferredValues)
 						+ ". Page: " + getVisiblePageText());
+	}
+
+	private boolean isLoginIdOptionDisplayed(String value, String stepDesc) {
+		try {
+			waitForLoginIdTypeChips();
+		} catch (TimeoutException e) {
+			ExtentReportManager.getTest().log(Status.INFO, "Login ID dropdown not visible: " + e.getMessage());
+			return false;
+		}
+		boolean offered = isLoginIdTypeOffered(value);
+		ExtentReportManager.getTest().log(Status.INFO,
+				offered ? stepDesc : "Login ID type not offered: " + describeLoginIdChip(value));
+		return offered;
 	}
 
 	private String describeLoginIdChip(String elementId) {
 		return switch (elementId) {
-			case "login_id_vid" -> "VID";
-			case "login_id_uin" -> "UIN/VID";
-			case "login_id_mobile" -> "mobile number";
-			case "login_id_email" -> "email";
+			case LOGIN_ID_UIN -> "UIN/VID";
+			case LOGIN_ID_MOBILE -> "mobile number";
+			case LOGIN_ID_EMAIL -> "email";
 			default -> elementId;
 		};
 	}
@@ -1322,30 +1283,12 @@ public class LoginOptionsPage extends BasePage {
 		}
 	}
 
-	private boolean isLoginIdTypeActive(String elementId) {
-		for (WebElement chip : driver.findElements(By.id(elementId))) {
-			if (chip.isDisplayed()) {
-				String cssClass = chip.getAttribute("class");
-				return cssClass != null && cssClass.contains("login-id-button--active");
-			}
-		}
-		return false;
-	}
-
 	private boolean isUinOrVidLoginIdTypeActive() {
-		return isLoginIdTypeActive("login_id_vid") || isLoginIdTypeActive("login_id_uin")
-				|| isLoginIdTypeActive("vid");
+		return isLoginIdTypeSelected(LOGIN_ID_UIN);
 	}
 
 	private boolean isAnyLoginIdChipVisible() {
-		for (String id : List.of("login_id_mobile", "login_id_vid", "login_id_uin", "login_id_email")) {
-			for (WebElement chip : driver.findElements(By.id(id))) {
-				if (chip.isDisplayed()) {
-					return true;
-				}
-			}
-		}
-		return false;
+		return isLoginIdDropdownVisible();
 	}
 
 	private void waitForUinOrVidLoginIdTypeActive() {
@@ -1475,7 +1418,7 @@ public class LoginOptionsPage extends BasePage {
 	}
 
 	public void clickOnEmailOptionButton() {
-		selectLoginIdTypeChip("login_id_email");
+		selectLoginIdTypeOption(LOGIN_ID_EMAIL);
 		selectPostfixIfPresent("email");
 		waitForLoginIdInputReady();
 	}
@@ -1510,7 +1453,10 @@ public class LoginOptionsPage extends BasePage {
 	}
 
 	private boolean isBiometricVidOptionVisibleNow() {
-		for (String elementId : List.of("vid", "login_id_uin", "login_id_vid")) {
+		if (isLoginIdDropdownVisible()) {
+			return true;
+		}
+		for (String elementId : List.of("vid")) {
 			for (WebElement option : driver.findElements(By.id(elementId))) {
 				if (option.isDisplayed()) {
 					return true;
@@ -1667,7 +1613,7 @@ public class LoginOptionsPage extends BasePage {
 		if (isBiometricVidOptionVisibleNow() || isThunderBiometricIdEntryScreen()) {
 			return true;
 		}
-		return isElementVisible(vidOption, "Verified UIN/VID option is displayed on biometric screen");
+		return isLoginIdOptionDisplayed(LOGIN_ID_UIN, "Verified UIN/VID option is displayed on biometric screen");
 	}
 
 	public void clickOnBiometricVidOptionButton() {
@@ -1680,7 +1626,7 @@ public class LoginOptionsPage extends BasePage {
 			selectBiometricUinVidLoginIdType();
 			return;
 		}
-		for (String elementId : List.of("vid", "login_id_vid", "login_id_uin")) {
+		for (String elementId : List.of("vid")) {
 			for (WebElement option : driver.findElements(By.id(elementId))) {
 				if (option.isDisplayed()) {
 					clickOnElement(option, "Clicked on UIN/VID option on biometric screen");

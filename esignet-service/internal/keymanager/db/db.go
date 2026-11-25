@@ -1,7 +1,8 @@
 // Package db implements the keymgr-schema persistence layer for the
-// keymanager service, using jmoiron/sqlx against the existing Postgres
-// schema (key_alias, key_policy_def, key_store — unchanged from the Java
-// kernel-keymanager-service, though the schema *name* is configurable so a
+// keymanager service, using jmoiron/sqlx against PostgreSQL or MySQL
+// (key_alias, key_policy_def, key_store — unchanged from the Java
+// kernel-keymanager-service, though the schema *name* (the database name on
+// MySQL) is configurable so a
 // separate copy, e.g. "keymgr_go", can be used alongside the Java
 // service's "keymgr" without touching its data — see New).
 package db

@@ -1507,6 +1507,10 @@ paths:
       summary: Partially Update OAuth/OIDC Client Endpoint
       description: |-
         API to partially update existing OAuth/Open ID Connect (OIDC) client. Only provided fields will be updated.
+
+        The request object must contain at least one accepted field. An empty request object is rejected with "invalid_request".
+        Supplied values and affected dependencies are validated. Omitted attributes are not revalidated or rewritten.
+        Supplied replacement lists must contain at least one item. The additionalConfig object is replaced as a whole.
         
         **Special handling for encPublicKey:**
         - When set/updated: validates format (including a mandatory non-empty "kid") and computes enc_public_key_hash
@@ -1540,7 +1544,9 @@ paths:
                   description: Current date and time when the request is sent
                 request:
                   type: object
-                  description: All fields are optional. Only provided fields will be updated.
+                  description: Each field is optional, but at least one accepted field must be provided. Only provided fields will be updated.
+                  minProperties: 1
+                  additionalProperties: false
                   properties:
                     clientName:
                       type: string
@@ -1843,6 +1849,7 @@ paths:
                         errorCode:
                           type: string
                           enum:
+                            - invalid_request
                             - invalid_client_id
                             - invalid_client_name
                             - invalid_claim

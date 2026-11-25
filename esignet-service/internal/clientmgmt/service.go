@@ -16,11 +16,12 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5/pgconn"
+	"github.com/jmoiron/sqlx"
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/providers"
 
 	"github.com/mosip/esignet/internal/clientmgmt/db"
 	applog "github.com/mosip/esignet/internal/log"
+	"github.com/mosip/esignet/internal/persistence"
 	"github.com/mosip/esignet/internal/reqcontext"
 )
 
@@ -32,9 +33,6 @@ var ErrDuplicateClientID = errors.New("duplicate client id")
 
 // ErrDuplicatePublicKey is returned when the public key hash already exists.
 var ErrDuplicatePublicKey = errors.New("public key already registered")
-
-// ErrClientConflict is returned when a PATCH races with another update.
-var ErrClientConflict = errors.New("client was modified concurrently")
 
 // clientCacheNamespace isolates cached client rows in the shared runtime store.
 const clientCacheNamespace providers.RuntimeStoreNamespace = "client:detail"
@@ -52,6 +50,9 @@ const eventWeakRSAKey = "CLIENT_WEAK_RSA_KEY"
 // Service handles client management business logic.
 type Service struct {
 	q                db.Querier
+	txBase           *db.Queries
+	db               *sqlx.DB
+	driverName       string
 	cache            providers.RuntimeStoreProvider
 	cacheTTLSecs     int64
 	logger           *applog.Logger
@@ -64,15 +65,17 @@ type Service struct {
 // supportedEncAlgs restricts which "alg" values an EncPublicKey JWK may
 // declare (config.AppConfig.SupportedEncAlgorithms); pass nil to leave "alg"
 // unrestricted.
-func NewService(conn *sql.DB, cache providers.RuntimeStoreProvider, cacheTTLSecs int64, supportedEncAlgs []string) *Service {
+func NewService(conn *sqlx.DB, cache providers.RuntimeStoreProvider, cacheTTLSecs int64, supportedEncAlgs []string) *Service {
+	queries := db.New(conn, conn.DriverName())
 	return &Service{
-		q: db.New(conn), cache: cache, cacheTTLSecs: cacheTTLSecs,
+		q: queries, txBase: queries, db: conn, driverName: conn.DriverName(),
+		cache: cache, cacheTTLSecs: cacheTTLSecs,
 		logger: applog.GetLogger().Named("clientmgmt"), supportedEncAlgs: supportedEncAlgs,
 	}
 }
 
-// NewServiceWithQuerier creates a Service with an explicit Querier; use in tests
-// to inject a mock without a real database connection.
+// NewServiceWithQuerier supports tests that do not call lockClient. PUT/PATCH
+// tests must use NewService with a database connection.
 func NewServiceWithQuerier(q db.Querier, cache providers.RuntimeStoreProvider, cacheTTLSecs int64, supportedEncAlgs []string) *Service {
 	return &Service{
 		q: q, cache: cache, cacheTTLSecs: cacheTTLSecs,
@@ -85,6 +88,45 @@ func NewServiceWithQuerier(q db.Querier, cache providers.RuntimeStoreProvider, c
 // providers depend on it), so it can't be a constructor argument.
 func (s *Service) SetAuditor(auditor providers.ObservabilityProvider) {
 	s.auditor = auditor
+}
+
+// runWrite executes CreateClient with a consistent read-back. PostgreSQL uses
+// RETURNING; MySQL runs the write and follow-up SELECT in one transaction.
+// Mock-backed services (db == nil) run directly against their injected Querier.
+func (s *Service) runWrite(ctx context.Context, fn func(q db.Querier) (db.ClientDetail, error)) (db.ClientDetail, error) {
+	if s.db == nil || persistence.SupportsReturning(s.driverName) {
+		return fn(s.q)
+	}
+	tx, err := s.db.BeginTxx(ctx, nil)
+	if err != nil {
+		return db.ClientDetail{}, fmt.Errorf("begin client tx: %w", err)
+	}
+	defer func() { _ = tx.Rollback() }()
+
+	row, err := fn(s.txBase.WithTx(tx))
+	if err != nil {
+		return db.ClientDetail{}, err
+	}
+	if err := tx.Commit(); err != nil {
+		return db.ClientDetail{}, fmt.Errorf("commit client tx: %w", err)
+	}
+	return row, nil
+}
+
+// lockClient starts a transaction before reading the row and holds its lock
+// through validation and the subsequent PUT or PATCH.
+func (s *Service) lockClient(ctx context.Context, id string) (db.Querier, *sqlx.Tx, db.ClientDetail, error) {
+	tx, err := s.db.BeginTxx(ctx, nil)
+	if err != nil {
+		return nil, nil, db.ClientDetail{}, fmt.Errorf("begin client tx: %w", err)
+	}
+	q := s.txBase.WithTx(tx)
+	row, err := q.GetClientForUpdate(ctx, id)
+	if err != nil {
+		_ = tx.Rollback()
+		return nil, nil, db.ClientDetail{}, err
+	}
+	return q, tx, row, nil
 }
 
 // CreateClient registers a new OIDC client.
@@ -103,7 +145,7 @@ func (s *Service) CreateClient(ctx context.Context, profile Profile, req CreateC
 	if err != nil {
 		return ClientResponse{}, fmt.Errorf("redirect_uris: %w", err)
 	}
-	claims, err := marshalStringSlice(req.Claims)
+	claims, err := marshalStringSlice(uniqueStrings(req.Claims))
 	if err != nil {
 		return ClientResponse{}, fmt.Errorf("claims: %w", err)
 	}
@@ -133,7 +175,7 @@ func (s *Service) CreateClient(ctx context.Context, profile Profile, req CreateC
 		ID:               req.ClientID,
 		Name:             marshalClientName(req.ClientName, req.ClientNameLangMap, profile),
 		RpID:             req.RpID,
-		LogoUri:          req.LogoURI,
+		LogoURI:          req.LogoURI,
 		RedirectUris:     redirectURIs,
 		Claims:           claims,
 		AcrValues:        acrValues,
@@ -149,7 +191,9 @@ func (s *Service) CreateClient(ctx context.Context, profile Profile, req CreateC
 		CrDtimes:         time.Now().UTC(),
 	}
 
-	row, err := s.q.CreateClient(ctx, params)
+	row, err := s.runWrite(ctx, func(q db.Querier) (db.ClientDetail, error) {
+		return q.CreateClient(ctx, params)
+	})
 	if err != nil {
 		if isDuplicateClientID(err) {
 			return ClientResponse{}, ErrDuplicateClientID
@@ -164,13 +208,14 @@ func (s *Service) CreateClient(ctx context.Context, profile Profile, req CreateC
 
 // UpdateClient updates an existing OIDC client.
 func (s *Service) UpdateClient(ctx context.Context, profile Profile, clientID string, req UpdateClientRequest) (ClientResponse, error) {
-	existing, err := s.q.GetClient(ctx, clientID)
+	q, tx, existing, err := s.lockClient(ctx, clientID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return ClientResponse{}, ErrClientNotFound
 		}
 		return ClientResponse{}, fmt.Errorf("get client: %w", err)
 	}
+	defer func() { _ = tx.Rollback() }()
 	// PUT cannot change encPublicKey, so its presence is carried over as-is.
 	if err := ValidateUpdate(profile, req, existing.EncPublicKey.Valid); err != nil {
 		return ClientResponse{}, err
@@ -185,7 +230,7 @@ func (s *Service) UpdateClient(ctx context.Context, profile Profile, clientID st
 	if err != nil {
 		return ClientResponse{}, fmt.Errorf("redirect_uris: %w", err)
 	}
-	claims, err := marshalStringSlice(req.Claims)
+	claims, err := marshalStringSlice(uniqueStrings(req.Claims))
 	if err != nil {
 		return ClientResponse{}, fmt.Errorf("claims: %w", err)
 	}
@@ -210,7 +255,7 @@ func (s *Service) UpdateClient(ctx context.Context, profile Profile, clientID st
 	params := db.UpdateClientParams{
 		ID:               clientID,
 		Name:             marshalClientName(req.ClientName, req.ClientNameLangMap, profile),
-		LogoUri:          req.LogoURI,
+		LogoURI:          req.LogoURI,
 		RedirectUris:     redirectURIs,
 		Claims:           claims,
 		AcrValues:        acrValues,
@@ -221,127 +266,82 @@ func (s *Service) UpdateClient(ctx context.Context, profile Profile, clientID st
 		UpdDtimes:        sql.NullTime{Time: now, Valid: true},
 	}
 
-	row, err := s.q.UpdateClient(ctx, params)
+	row, err := q.UpdateClient(ctx, params)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return ClientResponse{}, ErrClientNotFound
 		}
 		return ClientResponse{}, fmt.Errorf("update client: %w", err)
 	}
+	resp, err := toResponse(row)
+	if err != nil {
+		return ClientResponse{}, err
+	}
+	if err := tx.Commit(); err != nil {
+		return ClientResponse{}, fmt.Errorf("commit client tx: %w", err)
+	}
 	if err := s.invalidateCache(ctx, clientID); err != nil {
 		return ClientResponse{}, err
 	}
-	return toResponse(row)
+	return resp, nil
 }
 
 // PatchClient partially updates an existing OIDC client.
 func (s *Service) PatchClient(ctx context.Context, clientID string, req PatchClientRequest, fields PatchFields) (ClientResponse, error) {
-	existing, err := s.q.GetClient(ctx, clientID)
+	if fields == (PatchFields{}) {
+		return ClientResponse{}, &ValidationError{Code: "invalid_request", Message: "request must contain at least one field"}
+	}
+
+	q, tx, existing, err := s.lockClient(ctx, clientID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return ClientResponse{}, ErrClientNotFound
 		}
 		return ClientResponse{}, fmt.Errorf("get client: %w", err)
 	}
+	defer func() { _ = tx.Rollback() }()
 
-	merged, err := mergePatch(existing, req, fields)
+	// Validation stays inside the transaction, using the row locked above.
+	// If the request clears the key, does not replace configuration,
+	// and stored configuration exists, pass that retained configuration to validation.
+	var retainedConfig json.RawMessage
+	if fields.EncPublicKey && req.EncPublicKey.IsNull && !fields.AdditionalConfig && existing.AdditionalConfig.Valid {
+		retainedConfig = json.RawMessage(existing.AdditionalConfig.String)
+	}
+	req, err = ValidatePatch(req, fields, s.supportedEncAlgs, existing.EncPublicKey.Valid, retainedConfig)
 	if err != nil {
 		return ClientResponse{}, err
 	}
-	// Pass the stored encPublicKey state; ValidatePatch derives the post-patch
-	// value from req.EncPublicKey when this patch changes it.
-	if err := ValidatePatch(ProfileClient, merged, fields, req.EncPublicKey, s.supportedEncAlgs, existing.EncPublicKey.Valid); err != nil {
+	if fields.Claims {
+		req.Claims = uniqueStrings(req.Claims)
+	}
+	params, err := preparePatchParams(clientID, req, fields, existing.Name)
+	if err != nil {
 		return ClientResponse{}, err
 	}
+	params.UpdDtimes = sql.NullTime{Time: time.Now().UTC(), Valid: true}
 
-	status := existing.Status
-	if fields.Status {
-		status, err = normalizeStatus(merged.Status)
-		if err != nil {
-			return ClientResponse{}, err
-		}
-	}
-
-	redirectURIs, err := marshalStringSlice(merged.RedirectURIs)
-	if err != nil {
-		return ClientResponse{}, err
-	}
-	claims, err := marshalStringSlice(merged.Claims)
-	if err != nil {
-		return ClientResponse{}, err
-	}
-	acrValues, err := marshalStringSlice(merged.AcrValues)
-	if err != nil {
-		return ClientResponse{}, err
-	}
-	grantTypes, err := marshalStringSlice(merged.GrantTypes)
-	if err != nil {
-		return ClientResponse{}, err
-	}
-	authMethods, err := marshalStringSlice(merged.AuthMethods)
-	if err != nil {
-		return ClientResponse{}, err
-	}
-	additionalConfig, err := marshalAdditionalConfigRaw(merged.AdditionalConfig)
-	if err != nil {
-		return ClientResponse{}, err
-	}
-
-	encPK := existing.EncPublicKey
-	encPKHash := existing.EncPublicKeyHash
-	encPKCert := existing.EncPublicKeyCert
-	if fields.EncPublicKey {
-		if req.EncPublicKey.IsNull {
-			encPK = sql.NullString{}
-			encPKHash = sql.NullString{}
-			encPKCert = sql.NullString{}
-		} else {
-			if err := validateEncJWK(req.EncPublicKey.Value, s.supportedEncAlgs); err != nil {
-				return ClientResponse{}, err
-			}
-			pkJSON, err := marshalJWK(req.EncPublicKey.Value)
-			if err != nil {
-				return ClientResponse{}, err
-			}
-			encPK = sql.NullString{String: pkJSON, Valid: true}
-			encPKHash = sql.NullString{String: hashJWK(req.EncPublicKey.Value), Valid: true}
-			encPKCert = sql.NullString{}
-		}
-	}
-
-	now := time.Now().UTC()
-	params := db.PatchClientParams{
-		ID:                clientID,
-		Name:              marshalClientName(merged.ClientName, merged.ClientNameLangMap, ProfileClient),
-		LogoUri:           merged.LogoURI,
-		RedirectUris:      redirectURIs,
-		Claims:            claims,
-		AcrValues:         acrValues,
-		GrantTypes:        grantTypes,
-		AuthMethods:       authMethods,
-		Status:            status,
-		AdditionalConfig:  additionalConfig,
-		EncPublicKey:      encPK,
-		EncPublicKeyHash:  encPKHash,
-		EncPublicKeyCert:  encPKCert,
-		ExpectedUpdDtimes: existing.UpdDtimes,
-		UpdDtimes:         sql.NullTime{Time: now, Valid: true},
-	}
-
-	row, err := s.q.PatchClient(ctx, params)
+	row, err := q.PatchClient(ctx, params)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return ClientResponse{}, ErrClientConflict
+			return ClientResponse{}, ErrClientNotFound
 		}
 		if isDuplicatePublicKeyHash(err) {
 			return ClientResponse{}, &ValidationError{Code: "invalid_public_key"}
 		}
 		return ClientResponse{}, fmt.Errorf("patch client: %w", err)
 	}
+	resp, err := toResponse(row)
+	if err != nil {
+		return ClientResponse{}, err
+	}
+	if err := tx.Commit(); err != nil {
+		return ClientResponse{}, fmt.Errorf("commit client tx: %w", err)
+	}
 	if err := s.invalidateCache(ctx, clientID); err != nil {
 		return ClientResponse{}, err
 	}
-	return toResponse(row)
+	return resp, nil
 }
 
 // GetClient retrieves a client by ID, serving from cache when possible.
@@ -489,80 +489,88 @@ func (s *Service) invalidateCache(ctx context.Context, clientID string) error {
 	return nil
 }
 
-func mergePatch(existing db.ClientDetail, req PatchClientRequest, fields PatchFields) (UpdateClientRequest, error) {
-	clientName, langMap, err := parseClientName(existing.Name)
-	if err != nil {
-		return UpdateClientRequest{}, err
-	}
-	redirectURIs, err := unmarshalStringSlice(existing.RedirectUris)
-	if err != nil {
-		return UpdateClientRequest{}, err
-	}
-	claims, err := unmarshalStringSlice(existing.Claims)
-	if err != nil {
-		return UpdateClientRequest{}, err
-	}
-	acrValues, err := unmarshalStringSlice(existing.AcrValues)
-	if err != nil {
-		return UpdateClientRequest{}, err
-	}
-	grantTypes, err := unmarshalStringSlice(existing.GrantTypes)
-	if err != nil {
-		return UpdateClientRequest{}, err
-	}
-	authMethods, err := unmarshalStringSlice(existing.AuthMethods)
-	if err != nil {
-		return UpdateClientRequest{}, err
-	}
-	var additionalConfig json.RawMessage
-	if existing.AdditionalConfig.Valid && existing.AdditionalConfig.String != "" {
-		additionalConfig = json.RawMessage(existing.AdditionalConfig.String)
-	}
-
-	merged := UpdateClientRequest{
-		ClientName:        clientName,
-		ClientNameLangMap: langMap,
-		Status:            existing.Status,
-		LogoURI:           existing.LogoUri,
-		RedirectURIs:      redirectURIs,
-		Claims:            claims,
-		AcrValues:         acrValues,
-		GrantTypes:        grantTypes,
-		AuthMethods:       authMethods,
-		AdditionalConfig:  additionalConfig,
-	}
-
-	if fields.ClientName {
-		merged.ClientName = req.ClientName
-	}
-	if fields.ClientNameLangMap {
-		merged.ClientNameLangMap = req.ClientNameLangMap
-	}
-	if fields.Status {
-		merged.Status = req.Status
+// preparePatchParams serializes only supplied attributes for the UPDATE.
+// It reads the stored name only when one of its two components must be retained.
+func preparePatchParams(clientID string, req PatchClientRequest, fields PatchFields, storedName string) (db.PatchClientParams, error) {
+	params := db.PatchClientParams{ID: clientID}
+	if fields.ClientName || fields.ClientNameLangMap {
+		clientName, langMap := req.ClientName, req.ClientNameLangMap
+		if !fields.ClientName || !fields.ClientNameLangMap {
+			storedClientName, storedLangMap, err := parseClientName(storedName)
+			if err != nil {
+				return db.PatchClientParams{}, err
+			}
+			if !fields.ClientName {
+				clientName = storedClientName
+			}
+			if !fields.ClientNameLangMap {
+				langMap = storedLangMap
+			}
+		}
+		name := make(map[string]string, len(langMap)+1)
+		for code, value := range langMap {
+			name[code] = value
+		}
+		name["@none"] = clientName
+		encoded, err := json.Marshal(name)
+		if err != nil {
+			return db.PatchClientParams{}, fmt.Errorf("marshal client name: %w", err)
+		}
+		params.Fields.Name = true
+		params.Name = string(encoded)
 	}
 	if fields.LogoURI {
-		merged.LogoURI = req.LogoURI
+		params.Fields.LogoURI = true
+		params.LogoURI = req.LogoURI
 	}
-	if fields.RedirectURIs {
-		merged.RedirectURIs = req.RedirectURIs
+	// These list fields share the same replacement and JSON storage behavior.
+	for _, field := range []struct {
+		selected bool
+		label    string
+		request  []string
+		value    *string
+		mask     *bool
+	}{
+		{fields.RedirectURIs, "redirect_uris", req.RedirectURIs, &params.RedirectUris, &params.Fields.RedirectURIs},
+		{fields.Claims, "claims", req.Claims, &params.Claims, &params.Fields.Claims},
+		{fields.AcrValues, "acr_values", req.AcrValues, &params.AcrValues, &params.Fields.AcrValues},
+		{fields.GrantTypes, "grant_types", req.GrantTypes, &params.GrantTypes, &params.Fields.GrantTypes},
+		{fields.AuthMethods, "auth_methods", req.AuthMethods, &params.AuthMethods, &params.Fields.AuthMethods},
+	} {
+		if !field.selected {
+			continue
+		}
+		encoded, err := marshalStringSlice(field.request)
+		if err != nil {
+			return db.PatchClientParams{}, fmt.Errorf("marshal %s: %w", field.label, err)
+		}
+		*field.value = encoded
+		*field.mask = true
 	}
-	if fields.Claims {
-		merged.Claims = req.Claims
-	}
-	if fields.AcrValues {
-		merged.AcrValues = req.AcrValues
-	}
-	if fields.GrantTypes {
-		merged.GrantTypes = req.GrantTypes
-	}
-	if fields.AuthMethods {
-		merged.AuthMethods = req.AuthMethods
+	if fields.Status {
+		params.Fields.Status = true
+		params.Status = req.Status
 	}
 	if fields.AdditionalConfig {
-		merged.AdditionalConfig = req.AdditionalConfig
+		value, err := marshalAdditionalConfigRaw(req.AdditionalConfig)
+		if err != nil {
+			return db.PatchClientParams{}, fmt.Errorf("marshal additional_config: %w", err)
+		}
+		params.Fields.AdditionalConfig = true
+		params.AdditionalConfig = value
 	}
-	return merged, nil
+	if fields.EncPublicKey {
+		params.Fields.EncPublicKey = true
+		if !req.EncPublicKey.IsNull {
+			pkJSON, err := marshalJWK(req.EncPublicKey.Value)
+			if err != nil {
+				return db.PatchClientParams{}, fmt.Errorf("marshal enc_public_key: %w", err)
+			}
+			params.EncPublicKey = sql.NullString{String: pkJSON, Valid: true}
+			params.EncPublicKeyHash = sql.NullString{String: hashJWK(req.EncPublicKey.Value), Valid: true}
+		}
+	}
+	return params, nil
 }
 
 func marshalClientName(clientName string, langMap map[string]string, profile Profile) string {
@@ -616,6 +624,19 @@ func encKeyColumns(encKey map[string]string, cert string, supportedEncAlgs []str
 	return encPK, encHash, encCert, nil
 }
 
+// uniqueStrings returns a new slice with duplicate entries removed, preserving order.
+func uniqueStrings(s []string) []string {
+	seen := make(map[string]bool, len(s))
+	out := make([]string, 0, len(s))
+	for _, v := range s {
+		if !seen[v] {
+			seen[v] = true
+			out = append(out, v)
+		}
+	}
+	return out
+}
+
 func marshalStringSlice(s []string) (string, error) {
 	if len(s) == 0 {
 		return "[]", nil
@@ -653,16 +674,18 @@ func unmarshalAdditionalConfig(s sql.NullString) (map[string]any, error) {
 	return out, nil
 }
 
+// isDuplicateClientID reports a primary-key violation on client_detail.id.
+// "PRIMARY" covers MySQL, where the named PK constraint is discarded and the
+// index is always reported as PRIMARY.
 func isDuplicateClientID(err error) bool {
-	var pgErr *pgconn.PgError
-	return errors.As(err, &pgErr) && pgErr.Code == "23505" &&
-		(pgErr.ConstraintName == "pk_clntdtl_id" || pgErr.ConstraintName == "client_detail_pkey")
+	e := persistence.GetErrorCode(err)
+	return e.Code == persistence.ErrDuplicateKey &&
+		(e.Constraint == "pk_clntdtl_id" || e.Constraint == "client_detail_pkey" || e.Constraint == "PRIMARY")
 }
 
 func isDuplicatePublicKeyHash(err error) bool {
-	var pgErr *pgconn.PgError
-	return errors.As(err, &pgErr) && pgErr.Code == "23505" &&
-		pgErr.ConstraintName == "uk_clntdtl_public_key_hash"
+	e := persistence.GetErrorCode(err)
+	return e.Code == persistence.ErrDuplicateKey && e.Constraint == "uk_clntdtl_public_key_hash"
 }
 
 func toResponse(row db.ClientDetail) (ClientResponse, error) {
@@ -704,7 +727,7 @@ func toResponse(row db.ClientDetail) (ClientResponse, error) {
 		ClientName:        clientName,
 		ClientNameLangMap: langMap,
 		RpID:              row.RpID,
-		LogoURI:           row.LogoUri,
+		LogoURI:           row.LogoURI,
 		RedirectURIs:      redirectURIs,
 		Claims:            claims,
 		AcrValues:         acrValues,

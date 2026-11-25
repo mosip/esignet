@@ -46,9 +46,6 @@ public class ConsentPage extends BasePage {
 	@FindBy(id = "username_input")
 	WebElement mobileNumberField;
 
-	@FindBy(id = "login_id_mobile")
-	WebElement mobileIdTypeButton;
-
 	@FindBy(id = "submit_uin")
 	WebElement getOtpButton;
 
@@ -103,7 +100,7 @@ public class ConsentPage extends BasePage {
 	@FindBy(xpath = "(//div[contains(concat(' ',normalize-space(@class),' '),' thunderid-consent-checkbox-list ')])[2]//div[contains(@class,'thunderid-consent-checkbox-list__item')]")
 	private List<WebElement> voluntaryClaims;
 
-	@FindBy(xpath = "//h5[@id='text_consent_title']/preceding-sibling::p[1]")
+	@FindBy(xpath = "//form[@id='block_consent_timer']/p")
 	WebElement consentTimer;
 
 	@FindBy(xpath = "//div[@role='menuitem']")
@@ -124,7 +121,7 @@ public class ConsentPage extends BasePage {
 	@FindBy(xpath = "(//div[contains(concat(' ',normalize-space(@class),' '),' thunderid-consent-checkbox-list ')])[1]")
 	WebElement essentialClaimsList;
 
-	@FindBy(xpath = "//h5[@id='text_consent_title']/preceding-sibling::p[1]")
+	@FindBy(xpath = "//form[@id='block_consent_timer']/p")
 	WebElement actionMessage;
 
 	@FindBy(id = "text_heading")
@@ -142,7 +139,7 @@ public class ConsentPage extends BasePage {
 	@FindBy(id = "text_consent_title")
 	WebElement headerInConsentUpdateProfileScreen;
 
-	@FindBy(xpath = "//h5[@id='text_consent_title']/preceding-sibling::p[1]")
+	@FindBy(xpath = "//form[@id='block_consent_timer']/p")
 	WebElement subHeaderInConsentUpdateProfileScreen;
 
 	@FindBy(xpath = "(//h6[contains(@class,'thunderid-typography__subtitle2')])[1]")
@@ -209,7 +206,7 @@ public class ConsentPage extends BasePage {
 					.pollingEvery(Duration.ofMillis(200))
 					.ignoring(StaleElementReferenceException.class)
 					.until(driverInstance -> !driverInstance.findElements(By.id("username_input")).isEmpty()
-							|| !driverInstance.findElements(By.cssSelector("[id^='login_id_']")).isEmpty());
+							|| !driverInstance.findElements(LOGIN_ID_DROPDOWN).isEmpty());
 		} catch (TimeoutException e) {
 			throw new TimeoutException(
 					"OTP ID-entry screen did not appear after clicking Login with OTP. URL: "
@@ -226,13 +223,15 @@ public class ConsentPage extends BasePage {
 		new WebDriverWait(driver, Duration.ofSeconds(20))
 				.pollingEvery(Duration.ofMillis(200))
 				.ignoring(StaleElementReferenceException.class)
-				.until(d -> !d.findElements(By.id("login_id_mobile")).isEmpty()
+				.until(d -> isLoginIdDropdownVisible()
 						|| !d.findElements(By.id("username_input")).isEmpty());
-		for (WebElement chip : driver.findElements(By.id("login_id_mobile"))) {
-			if (chip.isDisplayed()) {
-				clickOnElement(chip, "Selected mobile number ID type");
-				break;
-			}
+		if (isLoginIdDropdownVisible()) {
+			selectLoginIdType(LOGIN_ID_MOBILE, "Selected mobile number ID type");
+		}
+		if (isLoginIdDropdownVisible()
+			&& !selectLoginIdType(LOGIN_ID_MOBILE, "Selected mobile number ID type")) {
+			throw new IllegalStateException(
+					"Mobile number ID type is not offered in the login ID dropdown. URL: " + driver.getCurrentUrl());
 		}
 		waitForElementVisible(mobileNumberField);
 		mobileNumberField.clear();
@@ -257,15 +256,9 @@ public class ConsentPage extends BasePage {
 				break;
 			}
 		}
-		for (String id : List.of("login_id_vid", "login_id_uin", "login_id_mobile", "login_id_email")) {
-			for (WebElement chip : driver.findElements(By.id(id))) {
-				if (chip.isDisplayed()) {
-					String cssClass = chip.getAttribute("class");
-					if (cssClass != null && cssClass.contains("login-id-button--active")) {
-						state.append(" activeType=").append(id);
-					}
-				}
-			}
+		String activeType = getSelectedLoginIdType();
+		if (activeType != null) {
+			state.append(" activeType=").append(activeType);
 		}
 		LOGGER.info(state.toString());
 		try {

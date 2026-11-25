@@ -12,6 +12,7 @@ import {
   ESIGNET_DETAIL,
   SOMETHING_WENT_WRONG,
   NETWORK_ERROR,
+  OAUTH_ERROR,
 } from "../constants/routes";
 import { fetchThemeConfig } from "../services/config.service";
 import { getPollingConfig } from "../utils/parsing";
@@ -23,6 +24,7 @@ const EsignetDetailsPage = lazy(() => import("../pages/EsignetDetailsPage"));
 const LoginPage = lazy(() => import("../pages/LoginPage"));
 const SomethingWrongPage = lazy(() => import("../pages/SomethingWrongPage"));
 const PageNotFoundPage = lazy(() => import("../pages/PageNotFoundPage"));
+const OAuthErrorPage = lazy(() => import("../pages/OAuthErrorPage"));
 
 export default function AppRouter() {
   const [config, setConfig] = useState<ThemeConfig | null>(null);
@@ -173,6 +175,7 @@ export default function AppRouter() {
                 element={<SomethingWrongPage />}
               />
               <Route path={NETWORK_ERROR} element={<NetworkErrorPage />} />
+              <Route path={OAUTH_ERROR} element={<OAuthErrorPage />} />
               <Route path="*" element={<PageNotFoundPage />} />
             </Routes>
           </div>

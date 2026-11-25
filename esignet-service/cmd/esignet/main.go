@@ -53,17 +53,9 @@ func main() {
 		logger.Fatal("failed to load app config", applog.Error(err))
 	}
 
-	// TEMPORARY : MySQL support is incomplete —
-	// clientmgmt/consentmgmt are still Postgres-only (sqlc), so starting on
-	// MySQL would yield a half-working service (keymanager OK, client/consent
-	// failing at runtime). Fail fast until those packages are converted.
-	if appCfg.DB.Driver == "mysql" {
-		logger.Fatal("DB_DRIVER=mysql is not yet fully supported in this build (client/consent management pending); set DB_DRIVER=postgres")
-	}
-
-	// Setup DB connection. The resolved driver name is threaded to the sqlx
-	// layer (keymanager) below so its queries rebind to the right placeholder
-	// style ($N for Postgres, ? for MySQL).
+	// Setup DB connection (DB_DRIVER=postgres or mysql). The resolved driver
+	// name is threaded to the sqlx layer below so queries rebind to the right
+	// placeholder style ($N for Postgres, ? for MySQL).
 	dbConn, driverName, closeDB, err := persistence.Open(appCfg.DB)
 	if err != nil {
 		logger.Fatal("database connection failed", applog.Error(err))
@@ -73,10 +65,10 @@ func main() {
 			logger.Warn(context.Background(), "close database", applog.Error(err))
 		}
 	}()
-	// keymanager's persistence layer is built on sqlx (for GetContext/SelectContext);
-	// wrap the same *sql.DB rather than opening a second connection pool. The
-	// driver name (from Open) sets the bind type so keymanager/db.Rebind emits
-	// the correct placeholders; "postgres" and "pgx" both map to $N.
+	// clientmgmt, consentmgmt and keymanager share this sqlx wrap of the same
+	// *sql.DB rather than opening a second connection pool. The driver name
+	// (from Open) makes persistence.Rebind emit $N for postgres/pgx and ? for
+	// mysql.
 	sqlxConn := sqlx.NewDb(dbConn, driverName)
 
 	// Setup Redis client. It is shared by the runtime store provider and the consent enforcer
@@ -116,8 +108,8 @@ func main() {
 	// It is applied to the client management and key management endpoints below, so those endpoints are also protected.
 	securityMiddleware := getSecurityMiddleware(appCfg, commonHTTPClient, logger)
 
-	clientSvc := clientmgmt.NewService(dbConn, runtimeStore, appCfg.ClientCacheTTLSecs, appCfg.SupportedEncAlgorithms)
-	consentSvc := consentmgmt.NewService(dbConn)
+	clientSvc := clientmgmt.NewService(sqlxConn, runtimeStore, appCfg.ClientCacheTTLSecs, appCfg.SupportedEncAlgorithms)
+	consentSvc := consentmgmt.NewService(sqlxConn)
 	clientHandler := clientmgmt.NewHandler(clientSvc, logger)
 	clientHandler.RegisterRoutes(mux, securityMiddleware)
 	keyMgrSvc, sigSvc, cryptoSvc, ks, err := initializeKeyManager(sqlxConn)

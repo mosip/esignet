@@ -222,9 +222,6 @@ func (h *Handler) handleServiceError(ctx context.Context, w http.ResponseWriter,
 	case errors.Is(err, ErrDuplicatePublicKey):
 		h.logger.Debug(ctx, op+": duplicate public key")
 		writeSpecError(ctx, w, "invalid_public_key", "public key is already registered")
-	case errors.Is(err, ErrClientConflict):
-		h.logger.Debug(ctx, op+": concurrent modification conflict")
-		writeSpecError(ctx, w, "patch_conflict", "client was modified concurrently; retry the request")
 	default:
 		h.logger.Error(ctx, op, applog.Error(err))
 		common.WriteJSON(ctx, w, http.StatusInternalServerError, ResponseWrapper{

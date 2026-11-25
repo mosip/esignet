@@ -2,7 +2,7 @@
 
 Guidance for coding agents working in `esignet-service`, a Go service (module
 `github.com/mosip/esignet`) that embeds the Thunder authorization engine with
-PostgreSQL-backed OIDC client management, Redis-backed session/flow storage,
+PostgreSQL- or MySQL-backed OIDC client management, Redis-backed session/flow storage,
 and pluggable authentication (mock identity system, MOSIP IDA, or SunbirdRC
 KBI). See `README.md` in this directory for the full environment-variable
 reference and API docs.
@@ -11,7 +11,7 @@ reference and API docs.
 
 ```text
 cmd/esignet/main.go          HTTP entrypoint
-internal/clientmgmt/         OIDC client management API + sqlc-generated db/ layer
+internal/clientmgmt/         OIDC client management API + hand-written sqlx db/ layer
 internal/config/             env-based config (app, DB, Redis)
 internal/engine/             Thunder engine providers/executors
   mock/                      Mock authenticator (local/dev)
@@ -30,7 +30,6 @@ internal/common/             Shared models/utils
 data/                        Declarative YAML (deployment.yaml, flows/, i18n/, layouts/, themes/)
 keys/                        signing.key + signing.crt (generated locally, gitignored) — legacy;
                               JWT signing now goes through internal/keymanager, not this file pair
-sqlc.yaml                    SQLC codegen config for internal/clientmgmt/db
 make.sh                      build/run/test entry point (Linux + Git Bash)
 ```
 
@@ -48,17 +47,17 @@ Everything goes through `./make.sh` (run from this directory):
 
 End-to-end / client-mgmt API checks are done via the [Postman collection](../postman-collection/README.md) (a sibling directory, outside `esignet-service`), not a shell script.
 
-- Tests use `miniredis` (no live Redis needed) and mock queriers for the
-  Postgres layer, so `./make.sh test` runs standalone. `internal/keymanager`
+- Tests use `miniredis` (no live Redis needed) and `go-sqlmock` for the
+  SQL layer, so `./make.sh test` runs standalone. `internal/keymanager`
   tests provision their own keys against a mock querier/keystore — no live
-  Postgres or `keys/signing.key` needed there either.
+  database or `keys/signing.key` needed there either.
 - `CGO_ENABLED=0` by default (see `make.sh`); this stubs out the PKCS#11
   keystore backend at startup, so local runs need
   `KEYMANAGER_KEYSTORE_TYPE=PKCS12`. Build/test with `CGO_ENABLED=1` (and a
   C toolchain) to exercise the real PKCS#11 backend.
-- After changing `internal/clientmgmt/db/query.sql` or `schema.sql`, regenerate
-  the generated Go DB layer with `./make.sh sqlc-install` (one-time) then
-  `./make.sh sqlc` — never hand-edit `internal/clientmgmt/db/*.go` generated files.
+- Client-management and consent-management SQL is hand-written in
+  `internal/clientmgmt/db/db.go` and `internal/consentmgmt/db/db.go` — edit it
+  there; there is no code generation step.
 - `go.mod` has a `replace` directive pinning a Thunder engine fork/branch;
   refresh it with `./make.sh update-thunder`, don't hand-edit the pinned SHA.
 
@@ -79,7 +78,7 @@ End-to-end / client-mgmt API checks are done via the [Postman collection](../pos
   field) rather than inventing a new precedence scheme. See README's
   [Configuration precedence](README.md#configuration-precedence) section for
   the user-facing version, including the two documented exceptions (Redis
-  pool/timeout fields are env-only; the Postgres DSN resolves as a whole
+  pool/timeout fields are env-only; the database DSN resolves as a whole
   rather than per-field).
 - Service-specific env vars are prefixed `MOSIP_ESIGNET_` (e.g.
   `MOSIP_ESIGNET_LAYOUT_ID`, `MOSIP_ESIGNET_OIDC_UI_SCHEME`,

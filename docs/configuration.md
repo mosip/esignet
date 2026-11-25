@@ -20,7 +20,7 @@ Sub-pages:
 | Environment variables | process environment |
 | Service YAML | `esignet-service/data/deployment.yaml` |
 | Declarative UI assets | `<DATA_DIR>/{flows,layouts,themes,i18n}/*.yaml` |
-| Per-client rows | `client_detail` table (Postgres), via `/client-mgmt/*` |
+| Per-client rows | `client_detail` table (PostgreSQL or MySQL, per `DB_DRIVER`), via `/client-mgmt/*` |
 | UI runtime config | `oidc-ui`'s `window._env_` and `public/theme/config.json` |
 
 `DATA_DIR` (default `./data`) controls where flow/layout/theme/i18n assets are read from, but
@@ -35,7 +35,7 @@ Exceptions:
 
 - **Redis pool/timeout tuning** (`REDIS_POOL_SIZE`, `REDIS_MIN_IDLE_CONNS`, etc.) is env-var-only —
   never read from `deployment.yaml`.
-- **The Postgres DSN resolves as a whole.** Setting any of `DATABASE_URL`, `DATABASE_HOST`,
+- **The database DSN resolves as a whole** (PostgreSQL and MySQL alike). Setting any of `DATABASE_URL`, `DATABASE_HOST`,
   `DATABASE_PORT`, `DATABASE_NAME`, `DATABASE_USERNAME`, `DATABASE_PASSWORD`, `DB_DBUSER_PASSWORD`
   discards `db.dsn` from `deployment.yaml` entirely rather than merging with it.
 

@@ -1010,7 +1010,7 @@ system:
   "flows.executor.errors.insufficient_permissions_desc": El usuario no tiene permisos suficientes para realizar esta acción
   "flows.executor.errors.invalid_action": Acción proporcionada no válida
   "flows.executor.errors.invalid_action_desc": La acción proporcionada no es válida para el paso actual del flujo
-  "flows.executor.errors.invalid_credentials": Credenciales proporcionadas no válidas
+  "flows.executor.errors.invalid_credentials": Introduzca credenciales válidas
   "flows.executor.errors.invalid_credentials_desc": Las credenciales proporcionadas no son válidas
   "flows.executor.errors.invalid_federated_user": Usuario federado no válido
   "flows.executor.errors.invalid_federated_user_desc": La información del usuario federado no es válida o es inconsistente
@@ -1036,6 +1036,8 @@ system:
   "flows.executor.errors.magic_link_generation_failed_desc": Error al generar el enlace mágico
   "flows.executor.errors.max_otp_attempts_reached": Número máximo de intentos de OTP alcanzado
   "flows.executor.errors.max_otp_attempts_reached_desc": Se ha alcanzado el número máximo de intentos de verificación de OTP
+  "flows.executor.errors.otp_resend_too_early": Espere antes de solicitar un nuevo OTP
+  "flows.executor.errors.otp_resend_too_early_desc": Solo se puede solicitar un nuevo OTP después de que el OTP actual haya caducado
   "flows.executor.errors.no_registered_passkeys": No se encontraron passkeys registradas
   "flows.executor.errors.no_registered_passkeys_desc": No se encontraron passkeys registradas para el usuario
   "flows.executor.errors.no_user_types_available": No hay tipos de usuario disponibles
@@ -1188,6 +1190,7 @@ system:
   "theme.error.not_found_description": La configuración de tema solicitada no fue encontrada
   "theme.error.result_limit_exceeded": Límite de resultados excedido
   "theme.error.result_limit_exceeded_description": El número total de temas excede el límite máximo permitido en modo compuesto
+  "invalid_individual_id": Introduzca credenciales válidas
 
 header:
   login_heading: Iniciar sesión
@@ -1225,6 +1228,7 @@ button:
   continue: Continuar
   login: Iniciar sesión
   verify: Verificar
+  cancel: Cancelar
   get_otp: Obtener OTP
   login_otp: Iniciar sesión con OTP
   login_password: Iniciar sesión con contraseña
@@ -1238,6 +1242,11 @@ otp:
   enter_otp_title: Ingrese OTP
   otp_sent_msg: Por favor ingrese el OTP de 6 dígitos enviado a su contacto registrado
   resend_otp: Reenviar OTP
+  didnt_receive_otp: ¿No recibiste el código OTP?
+  resend_captcha_prompt: Confirma que no eres un robot y te enviaremos un nuevo código OTP.
+  resend_limit_reached: Has alcanzado el límite para reenviar OTP. Por favor, inicia sesión de nuevo.
+  resend_try_again: Por favor, inténtalo de nuevo
+  attempts_remaining: "{{param(attemptsLeft)}} de {{param(totalAttempts)}} intentos restantes"
 
 biometric:
   title: Proporcione sus datos biométricos

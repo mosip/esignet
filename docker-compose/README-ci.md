@@ -27,12 +27,16 @@ runs on every push and pull request, on `ubuntu-latest`:
 1. **Build the ui-test jar** with `mvn package` in `ui-test/` (the ui-test image copies it from `target/`).
 2. **Remove residual containers and volumes** so the run starts from an empty database (see
    [Clean volumes on every run](#clean-volumes-on-every-run)).
-3. **Start the stack** with [`docker-compose-ci.yaml`](docker-compose-ci.yaml): Postgres, mock identity
+3. **Start the stack** (including the conformance suite) with [`docker-compose-ci.yaml`](docker-compose-ci.yaml): Postgres, mock identity
    system, esignet, esignet-ui, mock relying party service and UI.
-4. **Wait** until `http://localhost:8080/health` returns `ok`.
-5. **Run the API tests** (`apitest` service), copy and upload the report.
-6. **Run the UI tests** (`ui-test` service), copy and upload the report.
-7. **Print logs** and shut the stack down, removing its volumes.
+4. **Wait** for the conformance suite's `/api/runner/available` to return 200. The suite's four
+   clients (`conformance-oidcc-client-1/2`, `conformance-fapi2-client-1/2`) are already seeded into
+   the database by [`init-ci.sql`](init-ci.sql); their private keys are in
+   [`conformance-suite-private/`](conformance-suite-private) (CI-only throwaway keys), mounted into `apitest`.
+5. **Wait** until `http://localhost:8080/health` returns `ok`.
+6. **Run the API tests** (`apitest` service), copy and upload the report.
+7. **Run the UI tests** (`ui-test` service), copy and upload the report.
+8. **Print logs** and shut the stack down, removing its volumes.
 
 Test failures do **not** fail the job. Each suite's exit code is printed in the log, and the result
 is read from the reports (see [Test reports](#test-reports)). The job still fails if the jar
@@ -42,13 +46,15 @@ build fails, the stack does not start, or esignet never becomes healthy.
 
 | Service | Image | Host port | Notes |
 |---|---|---|---|
-| `database` | `postgres:16-bookworm` | 5455 | Seeded by `init-ci.sql` |
+| `database` | `postgres:16-bookworm` | 5455 (host) | Seeded by `init-ci.sql` |
 | `mock-identity-system` | `mosipqa/mock-identity-system:0.14.x` | 8082 | |
 | `esignet` | built from `esignet-service/` | 8080 | `MOSIP_ESIGNET_AUTHN_PROVIDER=mock` |
 | `esignet-ui` | built from `oidc-ui/` | 3000 | nginx config: `nginx-ci.conf` |
 | `mock-relying-party-service` | `mosipqa/mock-relying-party-service:0.14.x` | 8888 | |
 | `mock-relying-party-ui` | `mosipqa/mock-relying-party-ui:0.14.x` | 5000 | nginx config: `nginx-ci-mock.conf` |
-| `apitest` | built from `api-test/` | — | One-shot test run |
+| `conformance-mongodb`, `conformance-server`, `conformance-httpd` | OpenID Conformance Suite (`SUITE_IMAGE_TAG`, default `release-v5.1.42`) | 8443 (httpd) | Bridge network; mirrors `api-test/docker-compose.yml` |
+| `conformance-esignet-proxy` | `alpine/socat` | — | Shares `conformance-server`'s network namespace and forwards its `localhost:3000` to the runner host, so the suite can reach eSignet at its real issuer URL |
+| `apitest` | built from `api-test/` | — | One-shot test run: `conformance`, `api` and `e2e` surfaces (override with `APITEST_SURFACES`) |
 | `ui-test` | built from `ui-test/` | — | One-shot test run, host network |
 
 Startup order is enforced with `depends_on: condition: service_healthy`, so each service waits for
@@ -62,9 +68,10 @@ its dependencies' health checks.
 |---|---|
 | [`.github/workflows/push-trigger.yml`](../.github/workflows/push-trigger.yml) | New `run-apitest-pr` job |
 | [`docker-compose/docker-compose-ci.yaml`](docker-compose-ci.yaml) | The CI stack and both test runners |
+| [`docker-compose/conformance-suite-private/`](conformance-suite-private) | Suite plan configs (`esignet-config.json`, `esignet-fapi2-config.json`): client ids and PRIVATE JWKS for the four seeded conformance clients. Synthetic CI-only keys; the public halves are in `init-ci.sql` |
 | [`docker-compose/init-ci.sql`](init-ci.sql) | Creates `mosip_esignet` and `mosip_mockidentitysystem`, key policies, the `esignet-mock-client` OIDC client and a mock identity (synthetic CI data) |
-| [`docker-compose/nginx-ci.conf`](nginx-ci.conf) | esignet-ui on port 3000; proxies `/v1/esignet/` and `/.well-known/*` to `esignet:8080` |
-| [`docker-compose/nginx-ci-mock.conf`](nginx-ci-mock.conf) | Mock RP UI on port 5000; proxies `/mock-relying-party-service/` to `mock-relying-party-service:8888` |
+| [`docker-compose/nginx-ci.conf`](nginx-ci.conf) | esignet-ui on port 3000; proxies `/v1/esignet/` and `/.well-known/*` to `localhost:8080` |
+| [`docker-compose/nginx-ci-mock.conf`](nginx-ci-mock.conf) | Mock RP UI on port 5000; proxies `/mock-relying-party-service/` to `localhost:8888` |
 | [`ui-test/Dockerfile`](../ui-test/Dockerfile) | Switched from Google Chrome to Debian Chromium (see below) |
 | [`ui-test/entrypoint.sh`](../ui-test/entrypoint.sh) | Unsets `DISPLAY` before starting the tests |
 
@@ -126,21 +133,25 @@ The same image now runs natively on both amd64 (GitHub's `ubuntu-latest`) and ar
 
 ## Other changes needed for the UI tests
 
-### Test URLs use `localhost`
+### Every service uses the host network
 
-The `ui-test` service runs with `network_mode: host`. The browser must open the same
-`localhost:5000` / `localhost:3000` URLs that the mock RP UI redirects to, so it has to share the
-host's network.
+All services run with `network_mode: host`, so `localhost:<port>` is the same address for the
+browser, the test runners and the containers. There are no Compose service names to resolve.
 
-Host networking bypasses Docker's DNS, so Compose service names do not resolve inside this
-container. The test URLs therefore point at the published host ports:
+This matters for DPoP. eSignet validates the proof's `htu` against the PAR endpoint it advertises
+in discovery (`http://localhost:3000/v1/esignet/oauth2/par`), and the mock relying party signs
+`htu` with the URL it posts to. Both must be the same string, and the relying party must be able to
+reach it, so everything uses `http://localhost:3000`.
+
+Ports: `5455` database (`postgres -p 5455`), `8082` mock identity, `8080` eSignet, `3000`
+esignet-ui, `8888` mock RP service, `5000` mock RP UI. They must be free on the host.
+
+The UI test URLs are:
 
 ```yaml
 baseurl: http://localhost:5000/
 eSignetbaseurl: http://localhost:3000/
 ```
-
-For the same reason the database is reached at `localhost:5455`.
 
 ### Images are built by Compose
 
@@ -242,8 +253,7 @@ EsignetUi-<env>-<lang>-<timestamp>-T-<total>-P-<passed>-F-<failed>-S-<skipped>-K
 
 Prerequisites: Docker with Compose v2, JDK 21 and Maven. On **Docker Desktop**, host networking
 must be turned on (Docker Desktop 4.34+, *Settings → Resources → Network → Enable host
-networking*). Without it, `localhost` inside the `ui-test` container does not reach the other
-services.
+networking*). Without it, `localhost` inside a container does not reach the other services.
 
 From the repository root:
 

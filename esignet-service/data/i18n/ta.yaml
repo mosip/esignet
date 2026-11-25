@@ -1010,7 +1010,7 @@ system:
   "flows.executor.errors.insufficient_permissions_desc": இந்த செயலை செய்ய பயனருக்கு போதுமான அனுமதிகள் இல்லை
   "flows.executor.errors.invalid_action": தவறான செயல் வழங்கப்பட்டது
   "flows.executor.errors.invalid_action_desc": வழங்கப்பட்ட செயல் தற்போதைய ஓட்ட படிக்கு செல்லுபடியாகவில்லை
-  "flows.executor.errors.invalid_credentials": தவறான நற்சான்றிதழ்கள் வழங்கப்பட்டன
+  "flows.executor.errors.invalid_credentials": சரியான சான்றுகளை உள்ளிடவும்
   "flows.executor.errors.invalid_credentials_desc": வழங்கப்பட்ட நற்சான்றிதழ்கள் தவறானவை
   "flows.executor.errors.invalid_federated_user": தவறான கூட்டமைப்பு பயனர்
   "flows.executor.errors.invalid_federated_user_desc": கூட்டமைப்பு பயனர் தகவல் தவறானது அல்லது சீரற்றது
@@ -1036,6 +1036,8 @@ system:
   "flows.executor.errors.magic_link_generation_failed_desc": மேஜிக் இணைப்பை உருவாக்குவதில் தோல்வி
   "flows.executor.errors.max_otp_attempts_reached": அதிகபட்ச OTP முயற்சிகள் எட்டப்பட்டன
   "flows.executor.errors.max_otp_attempts_reached_desc": OTP சரிபார்ப்பு முயற்சிகளின் அதிகபட்ச எண்ணிக்கை எட்டப்பட்டது
+  "flows.executor.errors.otp_resend_too_early": புதிய OTP-ஐக் கோருவதற்கு முன் தயவுசெய்து காத்திருக்கவும்
+  "flows.executor.errors.otp_resend_too_early_desc": தற்போதைய OTP காலாவதியான பிறகு மட்டுமே புதிய OTP-ஐக் கோர முடியும்
   "flows.executor.errors.no_registered_passkeys": பதிவு செய்யப்பட்ட passkeys கண்டுபிடிக்கப்படவில்லை
   "flows.executor.errors.no_registered_passkeys_desc": பயனருக்கு பதிவு செய்யப்பட்ட passkeys கண்டுபிடிக்கப்படவில்லை
   "flows.executor.errors.no_user_types_available": பயனர் வகைகள் கிடைக்கவில்லை
@@ -1188,6 +1190,7 @@ system:
   "theme.error.not_found_description": கோரப்பட்ட தீம் கட்டமைப்பு கண்டுபிடிக்கப்படவில்லை
   "theme.error.result_limit_exceeded": முடிவு வரம்பு மீறப்பட்டது
   "theme.error.result_limit_exceeded_description": கலப்பு பயன்முறையில் தீம்களின் மொத்த எண்ணிக்கை அதிகபட்ச அனுமதிக்கப்பட்ட வரம்பை மீறுகிறது
+  "invalid_individual_id": சரியான சான்றுகளை உள்ளிடவும்
 
 header:
   login_heading: உள்நுழைவு
@@ -1225,6 +1228,7 @@ button:
   continue: தொடரவும்
   login: உள்நுழைவு
   verify: சரிபார்க்கவும்
+  cancel: ரத்து செய்யவும்
   get_otp: OTP பெறவும்
   login_otp: OTP மூலம் உள்நுழையவும்
   login_password: கடவுச்சொல் மூலம் உள்நுழையவும்
@@ -1238,6 +1242,11 @@ otp:
   enter_otp_title: OTP ஐ உள்ளிடவும்
   otp_sent_msg: உங்கள் பதிவு செய்யப்பட்ட தொடர்புக்கு அனுப்பப்பட்ட 6 இலக்க OTP ஐ உள்ளிடவும்
   resend_otp: OTP ஐ மீண்டும் அனுப்பவும்
+  didnt_receive_otp: OTP ஐ பெறவில்லையா?
+  resend_captcha_prompt: நீங்கள் ரோபோட் அல்ல என்பதை உறுதிப்படுத்துங்கள்; நாங்கள் உங்களுக்கு புதிய OTP ஐ அனுப்புவோம்.
+  resend_limit_reached: OTP-ஐ மீண்டும் அனுப்புவதற்கான வரம்பை எட்டிவிட்டீர்கள். தயவுசெய்து மீண்டும் உள்நுழையவும்.
+  resend_try_again: மீண்டும் முயற்சிக்கவும்
+  attempts_remaining: "{{param(totalAttempts)}} முயற்சிகளில் {{param(attemptsLeft)}} முயற்சிகள் மீதம்"
 
 biometric:
   title: உங்கள் பயோமெட்ரிக்ஸை வழங்கவும்

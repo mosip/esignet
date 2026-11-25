@@ -23,6 +23,22 @@ func TestKnownAnswerKeyAcceptsEveryKeyBuildAnswersProduces(t *testing.T) {
 	}
 }
 
+// login_id_select must name an option the flow offers, chosen by the configured id type.
+func TestLoginIDSelectValue(t *testing.T) {
+	for idType, want := range map[string]string{
+		"":       "login_id_uin",
+		"uin":    "login_id_uin",
+		"VID":    "login_id_uin",
+		"phone":  "login_id_mobile",
+		"mobile": "login_id_mobile",
+		"email":  "login_id_email",
+	} {
+		if got := LoginIDSelectValue(idType); got != want {
+			t.Errorf("LoginIDSelectValue(%q) = %q, want %q", idType, got, want)
+		}
+	}
+}
+
 // Normalization means case and punctuation must not decide the answer.
 func TestKnownAnswerKeyIgnoresCaseAndPunctuation(t *testing.T) {
 	for _, k := range []string{"password", "Password", "full_name", "fullName", "captcha-token"} {

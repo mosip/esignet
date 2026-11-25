@@ -21,6 +21,8 @@ const FALLBACK_EN: Record<string, string> = {
   "errors.unexpected_error": "An unexpected error occurred. Please try again later.",
   "errors.page_not_found": "Page Not Found",
   "errors.network.unavailable": "Network unavailable. Please check your connection.",
+  "errors.login_failed.title": "We couldn’t complete your login.",
+  "errors.login_failed.description": "There was a problem with the login request. Please try again and if the problem continues, contact the site admin.",
   "messages.loading.placeholder": "Loading...",
 };
 

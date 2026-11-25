@@ -1010,7 +1010,7 @@ system:
   "flows.executor.errors.insufficient_permissions_desc": អ្នកប្រើប្រាស់មិនមានសិទ្ធិគ្រប់គ្រាន់ដើម្បីអនុវត្តសកម្មភាពនេះ
   "flows.executor.errors.invalid_action": សកម្មភាពដែលបានផ្តល់មិនត្រឹមត្រូវ
   "flows.executor.errors.invalid_action_desc": សកម្មភាពដែលបានផ្តល់មិនត្រឹមត្រូវសម្រាប់ជំហាន flow បច្ចុប្បន្ន
-  "flows.executor.errors.invalid_credentials": credentials ដែលបានផ្តល់មិនត្រឹមត្រូវ
+  "flows.executor.errors.invalid_credentials": សូមបញ្ចូលព័ត៌មានផ្ទៀងផ្ទាត់ត្រឹមត្រូវ
   "flows.executor.errors.invalid_credentials_desc": credentials ដែលបានផ្តល់មិនត្រឹមត្រូវ
   "flows.executor.errors.invalid_federated_user": អ្នកប្រើប្រាស់ federated មិនត្រឹមត្រូវ
   "flows.executor.errors.invalid_federated_user_desc": ព័ត៌មានអ្នកប្រើប្រាស់ federated មិនត្រឹមត្រូវ ឬមិនស្របគ្នា
@@ -1036,6 +1036,8 @@ system:
   "flows.executor.errors.magic_link_generation_failed_desc": បរាជ័យក្នុងការបង្កើត magic link
   "flows.executor.errors.max_otp_attempts_reached": ឈានដល់ចំនួនអតិបរិមានៃការព្យាយាម OTP
   "flows.executor.errors.max_otp_attempts_reached_desc": ឈានដល់ចំនួនអតិបរិមានៃការព្យាយាមផ្ទៀងផ្ទាត់ OTP
+  "flows.executor.errors.otp_resend_too_early": សូមរង់ចាំមុនពេលស្នើសុំ OTP ថ្មី
+  "flows.executor.errors.otp_resend_too_early_desc": អាចស្នើសុំ OTP ថ្មីបានតែបន្ទាប់ពី OTP បច្ចុប្បន្នផុតកំណត់ប៉ុណ្ណោះ
   "flows.executor.errors.no_registered_passkeys": រកមិនឃើញ passkeys ដែលបានចុះឈ្មោះ
   "flows.executor.errors.no_registered_passkeys_desc": រកមិនឃើញ passkeys ដែលបានចុះឈ្មោះសម្រាប់អ្នកប្រើប្រាស់
   "flows.executor.errors.no_user_types_available": គ្មានប្រភេទអ្នកប្រើប្រាស់
@@ -1188,6 +1190,7 @@ system:
   "theme.error.not_found_description": រកមិនឃើញការកំណត់រចនាសម្ព័ន្ធ theme ដែលបានស្នើសុំ
   "theme.error.result_limit_exceeded": ដែនកំណត់លទ្ធផលលើស
   "theme.error.result_limit_exceeded_description": ចំនួនសរុបនៃ themes លើសដែនកំណត់អតិបរិមាដែលអនុញ្ញាតក្នុងរបៀបផ្សំ
+  "invalid_individual_id": សូមបញ្ចូលព័ត៌មានផ្ទៀងផ្ទាត់ត្រឹមត្រូវ
 
 header:
   login_heading: ចូល
@@ -1225,6 +1228,7 @@ button:
   continue: បន្ត
   login: ចូល
   verify: ផ្ទៀងផ្ទាត់
+  cancel: បោះបង់
   get_otp: ទទួល OTP
   login_otp: ចូលដោយ OTP
   login_password: ចូលដោយពាក្យសម្ងាត់
@@ -1238,6 +1242,11 @@ otp:
   enter_otp_title: បញ្ចូល OTP
   otp_sent_msg: សូមបញ្ចូលលេខកូដ OTP 6 ខ្ទង់ដែលបានផ្ញើទៅទំនាក់ទំនងដែលបានចុះឈ្មោះរបស់អ្នក
   resend_otp: ផ្ញើ OTP ម្តងទៀត
+  didnt_receive_otp: មិនទទួលបានកូដ OTP?
+  resend_captcha_prompt: បញ្ជាក់ថាអ្នកគឺមិនមែនជា robot ហើយយើងនឹងផ្ញើកូដ OTP ថ្មី
+  resend_limit_reached: អ្នកបានឈានដល់កម្រិតកំណត់សម្រាប់ការផ្ញើ OTP ម្តងទៀត។ សូមចូលឡើងវិញ។
+  resend_try_again: សូមព្យាយាមម្តងទៀត
+  attempts_remaining: "{{param(attemptsLeft)}} នៃ {{param(totalAttempts)}} ការព្យាយាមនៅសល់"
 
 biometric:
   title: ផ្តល់ជីវមាត្ររបស់អ្នក
