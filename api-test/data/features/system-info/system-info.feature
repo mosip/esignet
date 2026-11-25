@@ -112,47 +112,30 @@ Feature: /health and /system-info — liveness and the certificate endpoints
     Then the response status should be 200
     And the JSON value at "errors.0.errorCode" should be "invalid_request"
 
-  # KNOWN ISSUE — tracked as mosip/esignet#2527. Real defect in esignet-service,
-  # reported here as KNOWN_ISSUE (not FAILED) rather than muted or weakened to
-  # match the current response, so it stays visible in the report without
-  # blocking the rest of the suite. Revert to plain FAILED (drop @known_issue
-  # below and the apiKnownIssues entry in api/steps.go) only once #2527 is
-  # closed and this scenario goes green on its own — or, if the service team
-  # rules the 500 intentional, invert the assertion to 500 / "server_error" and
-  # record that decision here.
+  # Regression cover for mosip/esignet#2527. A certificateData value that cannot
+  # be parsed used to fall through handleServiceError's default arm and come back
+  # as HTTP 500 "server_error". The service now wraps the parse failure with
+  # ErrInvalidCertificate, which the handler maps to "invalid_certificate" like
+  # every other bad-input case: HTTP 200 plus an "errors" array.
   #
-  # Expected: HTTP 200 + errorCode "invalid_certificate".
-  # Actual:   HTTP 500 + errorCode "server_error" ("an unexpected error occurred").
-  #
-  # Both required fields are present, so this gets past the handler's own checks
-  # and fails inside the certificate parser. Unparseable client input is then
-  # reported as a server fault, while every other bad-input case in the service
-  # answers HTTP 200 with a specific errorCode.
-  #
-  # Cause: UploadCertificate wraps the parse failure with a bare
-  #   fmt.Errorf("parse uploaded certificate: %w", err)
-  # (keymanager/service.go:823) — an anonymous error with no sentinel.
-  # handleServiceError (keymanager/handler.go:194-204) picks the response by
-  # errors.Is against named sentinels and only maps ErrThumbprintMismatch and
-  # ErrCertificateAlreadyExists to invalid_certificate, so a parse failure
-  # matches no arm and falls into the default branch, which is the 500.
-  #
-  # The endpoint already declares errCodeInvalidCertificate for exactly this
-  # shape of error, and the package already defines ~10 sentinels alongside it,
-  # so the fix is to add one more (e.g. ErrInvalidCertificate), return it here,
-  # and add it to that case — roughly three lines. See #2527 for the full
-  # write-up. That is an esignet-service change, which this branch does not
-  # make for any plugin.
-  @known_issue
+  # The target must get past two earlier checks, or the parser is never reached:
+  # the handler refuses the reserved ids ROOT and OIDC_SERVICE ("applicationId is
+  # reserved"), and the service answers "key not found" for an id with no key yet.
+  # OIDC_PARTNER / RSA_2048 is neither reserved nor lazily absent once its
+  # certificate has been read, hence the GET first (it mints the key if needed).
   Scenario: Uploading certificateData that is not a certificate is rejected as an invalid certificate
     Given I authenticate as admin
-    And a fresh request timestamp
+    When I send a "GET" request to "/system-info/certificate?applicationId=OIDC_PARTNER&referenceId=RSA_2048"
+    Then the response status should be 200
+    And the JSON path "response.certificate" should exist
+    Given a fresh request timestamp
     When I send a "POST" request to "/system-info/uploadCertificate" with body:
       """
       {
         "requestTime": "{{now}}",
         "request": {
-          "applicationId": "ROOT",
+          "applicationId": "OIDC_PARTNER",
+          "referenceId": "RSA_2048",
           "certificateData": "not-a-certificate"
         }
       }

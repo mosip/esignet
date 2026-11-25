@@ -69,15 +69,19 @@ func TestKnownIssueReasonUntaggedScenarioIsNotKnown(t *testing.T) {
 
 // The tagged, tracked scenario must resolve to its recorded reason.
 func TestKnownIssueReasonReturnsTheRecordedReason(t *testing.T) {
+	const name = "a tracked scenario"
+	apiKnownIssueReasons[name] = "tracked as mosip/esignet#0000"
+	t.Cleanup(func() { delete(apiKnownIssueReasons, name) })
+
 	scn := &godog.Scenario{
-		Name: "Uploading certificateData that is not a certificate is rejected as an invalid certificate",
+		Name: name,
 		Tags: []*messages.PickleTag{{Name: "@known_issue"}},
 	}
 	reason, ok := knownIssueReason(scn)
 	if !ok {
 		t.Fatal("knownIssueReason: tagged scenario reported as not known, want true")
 	}
-	if !strings.Contains(reason, "mosip/esignet#2527") {
+	if !strings.Contains(reason, "mosip/esignet#0000") {
 		t.Errorf("reason = %q, want it to name the tracked issue", reason)
 	}
 }
