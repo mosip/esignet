@@ -11,6 +11,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"math"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -193,6 +194,10 @@ func (c *AppConfig) IsAuthorizationScope(name string) bool {
 	}
 	return false
 }
+
+// maxDeviceSecretValiditySeconds is the largest value DeviceSecretValidity can convert without
+// overflowing time.Duration (about 292 years).
+const maxDeviceSecretValiditySeconds = int64(math.MaxInt64 / int64(time.Second))
 
 // NativeSSOConfig tunes OpenID Connect Native SSO for Mobile Apps (device secrets).
 type NativeSSOConfig struct {
@@ -643,6 +648,12 @@ func ApplyEnvOverrides(cfg *AppConfig) error {
 		if secs > 0 {
 			cfg.NativeSSO.DeviceSecretValiditySeconds = secs
 		}
+	}
+	// Validate the effective cap (YAML or env) once the override is applied: a value past the
+	// time.Duration range would silently wrap in DeviceSecretValidity.
+	if cfg.NativeSSO.DeviceSecretValiditySeconds > maxDeviceSecretValiditySeconds {
+		return fmt.Errorf("native_sso.device_secret_validity_seconds (or MOSIP_ESIGNET_DEVICE_SECRET_VALIDITY_SECONDS) %d exceeds the maximum %d",
+			cfg.NativeSSO.DeviceSecretValiditySeconds, maxDeviceSecretValiditySeconds)
 	}
 	if v := os.Getenv("MOSIP_ESIGNET_OAUTH_PAR_EXPIRY_SECONDS"); v != "" {
 		// Default: 90 s (RFC 9126 §2.2 short-lived; matches deployment.yaml and applyDefaults).

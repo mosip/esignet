@@ -8,12 +8,19 @@ package engine
 
 import (
 	"context"
+	"crypto/rsa"
 	"crypto/sha256"
+	"crypto/x509"
 	"database/sql"
 	"encoding/base64"
 	"encoding/json"
+	"encoding/pem"
+	"errors"
+	"fmt"
+	"hash/fnv"
 	"slices"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/google/uuid"
@@ -86,6 +93,7 @@ type deviceSecretProvider struct {
 	cfg                *config.AppConfig
 	clientSvc          *clientmgmt.Service
 	consentSvc         consentStore
+	consentLocks       [consentLockStripes]sync.Mutex
 	sigSvc             *signature.Service
 	cryptoSvc          *cryptomanager.Service
 	signReferenceID    string
@@ -150,9 +158,8 @@ func (p *deviceSecretProvider) GenerateDeviceSecret(
 
 	client, err := p.clientSvc.GetActiveClient(ctx, params.ClientID)
 	if err != nil {
-		p.logger.Warn(ctx, "failed to lookup client requesting a device secret",
-			applog.String("clientId", params.ClientID), applog.Error(err))
-		return nil, deviceSecretClientError("invalid_client", "Client not found or inactive")
+		return nil, p.clientLookupError(ctx, err, params.ClientID,
+			"failed to lookup client requesting a device secret", "Client not found or inactive")
 	}
 	if !clientAllowsDeviceSSO(client) {
 		return nil, deviceSecretClientError("invalid_scope", "The device_sso scope is not enabled for this client")
@@ -248,9 +255,8 @@ func (p *deviceSecretProvider) ValidateDeviceSecret(
 	// The presenting client must itself be enabled for Native SSO.
 	childClient, err := p.clientSvc.GetActiveClient(ctx, clientID)
 	if err != nil {
-		p.logger.Warn(ctx, "failed to lookup client presenting a device secret",
-			applog.String("clientId", clientID), applog.Error(err))
-		return nil, deviceSecretClientError("invalid_client", "Client not found or inactive")
+		return nil, p.clientLookupError(ctx, err, clientID,
+			"failed to lookup client presenting a device secret", "Client not found or inactive")
 	}
 	if !clientAllowsDeviceSSO(childClient) {
 		return nil, deviceSecretClientError("unauthorized_client", "The device_sso scope is not enabled for this client")
@@ -260,9 +266,8 @@ func (p *deviceSecretProvider) ValidateDeviceSecret(
 	if clientID != payload.ClientID {
 		superClient, err := p.clientSvc.GetActiveClient(ctx, payload.ClientID)
 		if err != nil {
-			p.logger.Warn(ctx, "failed to lookup the client the device secret was minted for",
-				applog.String("superClientId", payload.ClientID), applog.Error(err))
-			return nil, deviceSecretClientError("invalid_client", "Original client from device secret not found or inactive")
+			return nil, p.clientLookupError(ctx, err, payload.ClientID,
+				"failed to lookup the client the device secret was minted for", "Original client from device secret not found or inactive")
 		}
 		if !sameVendorFamily(superClient, childClient) {
 			p.logger.Warn(ctx, "vendor relationship mismatch between child app and super app",
@@ -311,9 +316,8 @@ func (p *deviceSecretProvider) ResolveDerivedConsent(
 
 	childClient, err := p.clientSvc.GetActiveClient(ctx, req.ClientID)
 	if err != nil {
-		p.logger.Warn(ctx, "failed to lookup child client for consent resolution",
-			applog.String("clientId", req.ClientID), applog.Error(err))
-		return nil, deviceSecretClientError("invalid_client", "Client not found or inactive")
+		return nil, p.clientLookupError(ctx, err, req.ClientID,
+			"failed to lookup child client for consent resolution", "Client not found or inactive")
 	}
 
 	var standardScopes, authorizationScopes []string
@@ -329,19 +333,23 @@ func (p *deviceSecretProvider) ResolveDerivedConsent(
 	}
 	requiredClaims := claimsForScopes(p.cfg.ScopeClaims, standardScopes, childClient.Claims)
 
+	// One decision time for the expiry checks below; the originating consent is checked again
+	// against the clock right before each grant, so a consent that expires mid-exchange is not
+	// derived from.
+	now := time.Now().UTC()
+	interactionRequired := func(missingScopes, missingClaims []string) *providers.DerivedConsentResult {
+		return &providers.DerivedConsentResult{Allowed: false, MissingScopes: missingScopes, MissingClaims: missingClaims}
+	}
+
 	origin, err := p.consentSvc.FetchRecord(ctx, req.OriginClientID, req.Sub)
 	if err != nil {
 		p.logger.Error(ctx, "failed to read the originating consent record", applog.Error(err))
 		return nil, deviceSecretServerError("Failed to read consent record")
 	}
-	if origin == nil || origin.IsExpired(time.Now().UTC()) {
+	if origin == nil || origin.IsExpired(now) {
 		p.logger.Debug(ctx, "no active consent for the originating client; interaction required",
 			applog.String("originClientId", req.OriginClientID))
-		return &providers.DerivedConsentResult{
-			Allowed:       false,
-			MissingScopes: authorizationScopes,
-			MissingClaims: requiredClaims,
-		}, nil
+		return interactionRequired(authorizationScopes, requiredClaims), nil
 	}
 
 	missingClaims := difference(requiredClaims, origin.AcceptedClaims)
@@ -351,16 +359,16 @@ func (p *deviceSecretProvider) ResolveDerivedConsent(
 			applog.String("clientId", req.ClientID),
 			applog.String("missingClaims", strings.Join(missingClaims, " ")),
 			applog.String("missingScopes", strings.Join(missingScopes, " ")))
-		return &providers.DerivedConsentResult{
-			Allowed:       false,
-			MissingScopes: missingScopes,
-			MissingClaims: missingClaims,
-		}, nil
+		return interactionRequired(missingScopes, missingClaims), nil
 	}
+
+	// The read, coverage check, merge and audited save of the child app's consent run under a
+	// per-(client, user) lock, see lockConsent.
+	unlock := p.lockConsent(req.ClientID, req.Sub)
+	defer unlock()
 
 	// A consent the child app already holds that covers the derived one is left as it is: the
 	// exchange neither narrows it nor adds an audit row for a consent that did not change.
-	now := time.Now().UTC()
 	existing, err := p.consentSvc.FetchRecord(ctx, req.ClientID, req.Sub)
 	if err != nil {
 		p.logger.Error(ctx, "failed to read the child app's consent record", applog.Error(err))
@@ -371,6 +379,9 @@ func (p *deviceSecretProvider) ResolveDerivedConsent(
 	}
 	if existing != nil && len(difference(requiredClaims, existing.AcceptedClaims)) == 0 &&
 		len(difference(authorizationScopes, existing.PermittedScopes)) == 0 {
+		if origin.IsExpired(time.Now().UTC()) {
+			return interactionRequired(authorizationScopes, requiredClaims), nil
+		}
 		p.logger.Debug(ctx, "the child app's consent already covers the exchange",
 			applog.String("clientId", req.ClientID))
 		return &providers.DerivedConsentResult{Allowed: true}, nil
@@ -391,12 +402,19 @@ func (p *deviceSecretProvider) ResolveDerivedConsent(
 	}
 	// An existing consent that the derived one extends is widened, never narrowed: what the user
 	// already granted the child app is kept and the derived claims and scopes are added to it.
+	// The store keeps one expiry per (client, user) pair, so the merged consent expires at the
+	// earlier of the two: what the user granted the child app directly is never extended by an
+	// exchange, and the derived claims never outlive the originating consent.
 	if existing != nil {
 		record.ID = existing.ID
 		record.Claims = mergeScopeClaims(existing.Claims, requiredClaims)
 		record.AuthorizationScopes = union(existing.AuthorizationScopes, authorizationScopes)
 		record.AcceptedClaims = union(existing.AcceptedClaims, requiredClaims)
 		record.PermittedScopes = union(existing.PermittedScopes, authorizationScopes)
+		record.ExpiresAt = earliestExpiry(existing.ExpiresAt, origin.ExpiresAt)
+	}
+	if origin.IsExpired(time.Now().UTC()) {
+		return interactionRequired(authorizationScopes, requiredClaims), nil
 	}
 	if err := p.consentSvc.SaveRecord(ctx, record); err != nil {
 		p.logger.Error(ctx, "failed to record derived consent", applog.Error(err))
@@ -612,3 +630,70 @@ func deviceSecretServerError(desc string) *common.ServiceError {
 }
 
 var _ providers.DeviceSSOConsentProvider = (*deviceSecretProvider)(nil)
+
+// consentLockStripes bounds the mutexes that serialise derived-consent updates per (client, user).
+const consentLockStripes = 64
+
+// lockConsent serialises the read, merge and save of the derived consent for one (client, user)
+// pair within this process, so concurrent exchanges of the same app observe each other's result:
+// the second one finds a covering consent and skips the duplicate audit row, and two different
+// scope sets widen the record one after the other instead of overwriting each other. Replicas of
+// the service still race across processes; the merge is idempotent, so the record converges and
+// the only effect is an extra history row.
+func (p *deviceSecretProvider) lockConsent(clientID, userID string) func() {
+	h := fnv.New32a()
+	_, _ = h.Write([]byte(clientID))
+	_, _ = h.Write([]byte{0})
+	_, _ = h.Write([]byte(userID))
+	mu := &p.consentLocks[h.Sum32()%consentLockStripes]
+	mu.Lock()
+	return mu.Unlock
+}
+
+// clientLookupError maps a client lookup failure: a missing or inactive client is the caller's
+// error (invalid_client); a database or decoding failure is a server error.
+func (p *deviceSecretProvider) clientLookupError(ctx context.Context, err error, clientID, what, desc string) *common.ServiceError {
+	if errors.Is(err, clientmgmt.ErrClientNotFound) {
+		p.logger.Warn(ctx, what, applog.String("clientId", clientID), applog.Error(err))
+		return deviceSecretClientError("invalid_client", desc)
+	}
+	p.logger.Error(ctx, what, applog.String("clientId", clientID), applog.Error(err))
+	return deviceSecretServerError("Failed to look up the client")
+}
+
+// earliestExpiry returns the earlier of two consent expiries; a null expiry never expires.
+func earliestExpiry(a, b sql.NullTime) sql.NullTime {
+	switch {
+	case !a.Valid:
+		return b
+	case !b.Valid:
+		return a
+	case b.Time.Before(a.Time):
+		return b
+	default:
+		return a
+	}
+}
+
+// CheckDeviceSecretEncryptionCertificate verifies at startup that the OIDC_SERVICE/DEVICE_SECRET_ENC
+// certificate carries a 2048-bit RSA key, the only size the cryptomanager's JWT encryption accepts
+// while CRYPTOMANAGER_JWT_ENFORCE_2048 is on. Any other key must fail here, not on the first
+// device_sso login at the token endpoint.
+func CheckDeviceSecretEncryptionCertificate(certPEM string) error {
+	block, _ := pem.Decode([]byte(certPEM))
+	if block == nil {
+		return errors.New("device secret encryption certificate is not PEM encoded")
+	}
+	cert, err := x509.ParseCertificate(block.Bytes)
+	if err != nil {
+		return fmt.Errorf("parse device secret encryption certificate: %w", err)
+	}
+	rsaPub, ok := cert.PublicKey.(*rsa.PublicKey)
+	if !ok {
+		return fmt.Errorf("device secret encryption certificate has a %T key; JWT encryption requires a 2048-bit RSA key", cert.PublicKey)
+	}
+	if bits := rsaPub.N.BitLen(); bits != 2048 {
+		return fmt.Errorf("device secret encryption certificate has a %d-bit RSA key; JWT encryption requires 2048 bits", bits)
+	}
+	return nil
+}

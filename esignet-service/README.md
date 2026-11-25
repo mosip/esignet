@@ -124,8 +124,11 @@ Minimum to start the service:
 | `MOSIP_ESIGNET_AUTHN_PROVIDER` | `mock` | `mock`, `mosip`, or `sunbird` — see [`docs/configuration.md`](../docs/configuration.md) §7 for what each requires |
 | `PORT` | `8088` | HTTP listen port |
 | `MOSIP_ESIGNET_HOST` | `http://localhost:<PORT>` | OIDC issuer / discovery base |
-| `MOSIP_ESIGNET_DEVICE_SECRET_VALIDITY_SECONDS` | `2592000` | Validity of a Native SSO device secret, in seconds (30 days); see [`docs/native-sso.md`](../docs/native-sso.md) |
 | `LOG_LEVEL` | `info` | `debug` for verbose tracing |
+
+Optional, Native SSO only: `MOSIP_ESIGNET_DEVICE_SECRET_VALIDITY_SECONDS` (or `native_sso.device_secret_validity_seconds` in `deployment.yaml`) is an upper bound, in seconds, on a
+device secret's lifetime. Unset or `0` keeps the lifetime the engine asks for (30 days), and an
+environment value of `0` leaves a YAML cap unchanged; see [`docs/native-sso.md`](../docs/native-sso.md).
 
 Copy `.env.example` to `.env` for copy-paste local values (including MOSIP/SunbirdRC overrides).
 

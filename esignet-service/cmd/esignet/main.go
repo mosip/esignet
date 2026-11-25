@@ -358,8 +358,17 @@ func provisionKeyHierarchy(svc *keymanager.Service) error {
 	}
 	// Native SSO device secrets are encrypted to this Component Encryption Key (signed by the
 	// OIDC_SERVICE component master key above). GetCertificate creates it on first request.
-	if _, err := svc.GetCertificate(context.Background(), config.OIDCServiceAppID, engine.DeviceSecretEncryptionRefID); err != nil {
+	encCert, err := svc.GetCertificate(context.Background(), config.OIDCServiceAppID, engine.DeviceSecretEncryptionRefID)
+	if err != nil {
 		return fmt.Errorf("provision %s device secret encryption key: %w", config.OIDCServiceAppID, err)
+	}
+	// JWT encryption accepts only a 2048-bit RSA key while CRYPTOMANAGER_JWT_ENFORCE_2048 is on; a
+	// key of another size (for example one provisioned by an operator) fails here, not on the first
+	// device_sso login.
+	if cryptomanager.LoadConfig().EnforceJWTCertKeyLength {
+		if err := engine.CheckDeviceSecretEncryptionCertificate(encCert.Certificate); err != nil {
+			return fmt.Errorf("provision %s device secret encryption key: %w", config.OIDCServiceAppID, err)
+		}
 	}
 	if _, err := svc.GenerateSymmetricKey(context.Background(), keymanager.SymmetricKeyRequest{
 		ApplicationID: config.OIDCServiceAppID,

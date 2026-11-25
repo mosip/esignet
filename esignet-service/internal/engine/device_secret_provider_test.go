@@ -12,7 +12,9 @@ import (
 	"database/sql"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
@@ -71,6 +73,7 @@ func (q *multiClientStubQuerier) GetActiveClient(_ context.Context, id string) (
 // memConsentStore is an in-memory stand-in for consentmgmt.Service: the current record per
 // (client, user) plus every saved record, which stands for the append-only consent_history rows.
 type memConsentStore struct {
+	mu      sync.Mutex
 	records map[string]*consentmgmt.ConsentRecord
 	history []consentmgmt.ConsentRecord
 }
@@ -82,6 +85,8 @@ func newMemConsentStore() *memConsentStore {
 func consentKey(clientID, user string) string { return clientID + "|" + user }
 
 func (s *memConsentStore) FetchRecord(_ context.Context, clientID, userID string) (*consentmgmt.ConsentRecord, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
 	rec, ok := s.records[consentKey(clientID, userID)]
 	if !ok {
 		return nil, nil
@@ -115,9 +120,21 @@ func (s *memConsentStore) SaveRecord(_ context.Context, c *consentmgmt.ConsentRe
 		CreatedAt:           c.CreatedAt,
 		ExpiresAt:           c.ExpiresAt,
 	}
+	s.mu.Lock()
+	defer s.mu.Unlock()
 	s.history = append(s.history, rec)
 	s.records[consentKey(c.ClientID, c.UserID)] = &rec
 	return nil
+}
+
+// failingClientQuerier fails every client lookup with a database error.
+type failingClientQuerier struct {
+	db.Querier
+	err error
+}
+
+func (q *failingClientQuerier) GetActiveClient(_ context.Context, _ string) (db.ClientDetail, error) {
+	return db.ClientDetail{}, q.err
 }
 
 func clientRow(id, rpID, claims, additionalConfig string) db.ClientDetail {
@@ -449,8 +466,14 @@ func (ts *DeviceSecretProviderTestSuite) TestValidateDeviceSecret_UnknownClient_
 
 func (ts *DeviceSecretProviderTestSuite) TestValidateDeviceSecret_TamperedToken_Rejected() {
 	secret := ts.mintSuperSecret()
-	// Flip the last characters of the ciphertext/tag: authenticated encryption must reject it.
-	tampered := secret[:len(secret)-2] + "xx"
+	// Flip one bit of the decoded authentication tag: authenticated decryption must reject it.
+	parts := strings.Split(secret, ".")
+	ts.Require().Len(parts, 5, "a device secret is a compact JWE")
+	tag, err := base64.RawURLEncoding.DecodeString(parts[4])
+	ts.Require().NoError(err)
+	tag[0] ^= 0x01
+	parts[4] = base64.RawURLEncoding.EncodeToString(tag)
+	tampered := strings.Join(parts, ".")
 	claims, valErr := ts.newProvider().ValidateDeviceSecret(context.Background(), dsSuperClient, tampered)
 	ts.Require().Nil(claims)
 	ts.Require().NotNil(valErr)
@@ -745,4 +768,99 @@ func (ts *DeviceSecretProviderTestSuite) TestGenerateDeviceSecret_KeepsEncrypted
 	claims, valErr := p.ValidateDeviceSecret(context.Background(), dsSuperClient, res.DeviceSecret)
 	ts.Require().Nil(valErr)
 	ts.Require().Equal(kyc, claims.Claims[providers.RawJWTAttributeKey])
+}
+
+func (ts *DeviceSecretProviderTestSuite) failingClientProvider() providers.DeviceSecretProvider {
+	failing := clientmgmt.NewServiceWithQuerier(&failingClientQuerier{err: errors.New("connection reset by peer")}, nil, 0, nil)
+	return NewDeviceSecretProvider(ts.appCfg, failing, ts.consent, ts.sigSvc, ts.cryptoSvc)
+}
+
+func (ts *DeviceSecretProviderTestSuite) TestGenerateDeviceSecret_ClientLookupFailure_ServerError() {
+	res, svcErr := ts.failingClientProvider().GenerateDeviceSecret(context.Background(), ts.superParams(time.Hour))
+	ts.Require().Nil(res)
+	ts.Require().NotNil(svcErr)
+	ts.Require().Equal("server_error", svcErr.Code, "a database failure is not the client's fault")
+}
+
+func (ts *DeviceSecretProviderTestSuite) TestValidateDeviceSecret_ClientLookupFailure_ServerError() {
+	secret := ts.mintSuperSecret()
+	claims, svcErr := ts.failingClientProvider().ValidateDeviceSecret(context.Background(), dsSuperClient, secret)
+	ts.Require().Nil(claims)
+	ts.Require().NotNil(svcErr)
+	ts.Require().Equal("server_error", svcErr.Code)
+}
+
+func (ts *DeviceSecretProviderTestSuite) TestResolveDerivedConsent_ClientLookupFailure_ServerError() {
+	ts.seedSuperConsent([]string{"name"}, nil, sql.NullTime{})
+	p := ts.failingClientProvider().(providers.DeviceSSOConsentProvider)
+	res, svcErr := p.ResolveDerivedConsent(context.Background(), ts.derivedRequest("openid", "profile"))
+	ts.Require().Nil(res)
+	ts.Require().NotNil(svcErr)
+	ts.Require().Equal("server_error", svcErr.Code)
+}
+
+func (ts *DeviceSecretProviderTestSuite) TestResolveDerivedConsent_WidenedConsentKeepsChildExpiry() {
+	// The child app's own consent expires sooner than the originating one: widening keeps the
+	// earlier date, an exchange never extends what the user granted the child app directly.
+	childExpiry := sql.NullTime{Time: time.Now().UTC().Add(time.Hour).Truncate(time.Second), Valid: true}
+	originExpiry := sql.NullTime{Time: time.Now().UTC().Add(48 * time.Hour).Truncate(time.Second), Valid: true}
+	ts.seedSuperConsent([]string{"name", "email"}, nil, originExpiry)
+	ts.seedConsent(dsChildClient, "consent-child", []string{"email"}, nil, childExpiry)
+	p := ts.newProvider().(providers.DeviceSSOConsentProvider)
+
+	res, svcErr := p.ResolveDerivedConsent(context.Background(), ts.derivedRequest("openid", "profile"))
+	ts.Require().Nil(svcErr)
+	ts.Require().True(res.Allowed)
+
+	record, err := ts.consent.FetchRecord(context.Background(), dsChildClient, dsTestUser)
+	ts.Require().NoError(err)
+	ts.Require().ElementsMatch([]string{"email", "name"}, record.AcceptedClaims)
+	ts.Require().True(record.ExpiresAt.Valid)
+	ts.Require().WithinDuration(childExpiry.Time, record.ExpiresAt.Time, time.Second)
+}
+
+func (ts *DeviceSecretProviderTestSuite) TestResolveDerivedConsent_WidenedConsentBoundedByOriginExpiry() {
+	// The child app's own consent never expires, the originating one does: the derived claims
+	// must not outlive the originating consent, so the merged record takes its expiry.
+	originExpiry := sql.NullTime{Time: time.Now().UTC().Add(48 * time.Hour).Truncate(time.Second), Valid: true}
+	ts.seedSuperConsent([]string{"name", "email"}, nil, originExpiry)
+	ts.seedConsent(dsChildClient, "consent-child", []string{"email"}, nil, sql.NullTime{})
+	p := ts.newProvider().(providers.DeviceSSOConsentProvider)
+
+	res, svcErr := p.ResolveDerivedConsent(context.Background(), ts.derivedRequest("openid", "profile"))
+	ts.Require().Nil(svcErr)
+	ts.Require().True(res.Allowed)
+
+	record, err := ts.consent.FetchRecord(context.Background(), dsChildClient, dsTestUser)
+	ts.Require().NoError(err)
+	ts.Require().True(record.ExpiresAt.Valid)
+	ts.Require().WithinDuration(originExpiry.Time, record.ExpiresAt.Time, time.Second)
+}
+
+func (ts *DeviceSecretProviderTestSuite) TestResolveDerivedConsent_ConcurrentExchangesRecordOnce() {
+	ts.seedSuperConsent([]string{"name", "email"}, nil, sql.NullTime{})
+	p := ts.newProvider().(providers.DeviceSSOConsentProvider)
+
+	const n = 8
+	var wg sync.WaitGroup
+	allowed := make([]bool, n)
+	codes := make([]string, n)
+	for i := 0; i < n; i++ {
+		wg.Add(1)
+		go func(i int) {
+			defer wg.Done()
+			res, svcErr := p.ResolveDerivedConsent(context.Background(), ts.derivedRequest("openid", "profile"))
+			if svcErr != nil {
+				codes[i] = svcErr.Code
+				return
+			}
+			allowed[i] = res.Allowed
+		}(i)
+	}
+	wg.Wait()
+	for i := 0; i < n; i++ {
+		ts.Require().Empty(codes[i])
+		ts.Require().True(allowed[i])
+	}
+	ts.Require().Len(ts.consent.history, 1, "concurrent identical exchanges record the derived consent once")
 }
