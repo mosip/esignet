@@ -593,10 +593,9 @@ func surfaceFromTags(scn *godog.Scenario) string {
 // scenario runs and asserts the correct (currently failing) behavior same as
 // any other, but a failure is reported as KNOWN_ISSUE instead of FAILED so it
 // doesn't block the run, and goes green on its own once the tracked bug is
-// fixed.
-var apiKnownIssueReasons = map[string]string{
-	"Uploading certificateData that is not a certificate is rejected as an invalid certificate": "esignet-service returns HTTP 500 server_error instead of invalid_certificate for a malformed certificate — tracked as mosip/esignet#2527",
-}
+// fixed. Currently empty: add an entry here (and tag the scenario) only for a
+// defect that is tracked but not yet fixed.
+var apiKnownIssueReasons = map[string]string{}
 
 // knownIssueReason reports the reason a failed, @known_issue-tagged scenario is
 // known to fail. The bool is what reclassifies FAILED into KNOWN_ISSUE, so it is
