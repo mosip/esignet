@@ -1,0 +1,25 @@
+{
+  "credentialSubject": {
+    "statusPurpose": "revocation",
+    "id": "https://injicertify-mock.qa-inji1.mosip.net/v1/certify/credentials/status-list/56622ad1-c304-4d7a-baf0-08836d63c2bf",
+    "type": "BitstringStatusList",
+    "encodedList": "uH4sIAAAAAAAA_-3OMQ0AIRQFQS6hoDwJSEU6GgjJfwUzBnZbAwAAAACgwEgPAG_6K2OrMgYAwJ0vPQBAnZ4eAAA4NNMDAAAASRupW2djAEAAAA"
+  },
+  "id": "https://injicertify-mock.qa-inji1.mosip.net/v1/certify/credentials/status-list/56622ad1-c304-4d7a-baf0-08836d63c2bf",
+  "validFrom": "2025-11-11T07:29:00.054Z",
+  "proof": {
+    "proofValue": "z2P8k8zWJ9st2hHCir7gjWs1JxznsdsBvKXNuaeN7kmrTqHaA6srziB5kZahz2iC2TsKsJ6FUniwPtAKKA2mvNmr",
+    "created": "2025-11-11T07:29:00Z",
+    "proofPurpose": "assertionMethod",
+    "type": "Ed25519Signature2020",
+    "verificationMethod": "did:web:mosip.github.io:inji-config:qa-inji1:mock#kMVyZTvx8G0h1YZnUW4OJtr2LRVZUuGl8pQuJl3ymXI"
+  },
+  "type": [
+    "VerifiableCredential",
+    "BitstringStatusListCredential"
+  ],
+  "@context": [
+    "https://www.w3.org/ns/credentials/v2"
+  ],
+  "issuer": "did:web:mosip.github.io:inji-config:qa-inji1:mock"
+}

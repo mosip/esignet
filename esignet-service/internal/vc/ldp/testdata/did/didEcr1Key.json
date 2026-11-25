@@ -1,0 +1,23 @@
+{
+  "assertionMethod": [
+    "did:web:868c-2405-201-1029-3025-a153-97e5-f47f-3b16.ngrok-free.app"
+  ],
+  "service": [],
+  "id": "did:web:868c-2405-201-1029-3025-a153-97e5-f47f-3b16.ngrok-free.app",
+  "verificationMethod": [
+    {
+      "publicKeyMultibase": "zDnaefa4TJ4StCeofaDXDhFUDaxCKCAJk73WWeDhxwSyghh8T",
+      "controller": "did:web:868c-2405-201-1029-3025-a153-97e5-f47f-3b16.ngrok-free.app",
+      "id": "did:web:868c-2405-201-1029-3025-a153-97e5-f47f-3b16.ngrok-free.app#-Htu28ZSg5Ov-KEcOIo_XRwu777juTuGCZn-IMx6MIU",
+      "type": "EcdsaSecp256r1VerificationKey2019",
+      "@context": "https://w3id.org/security/suites/ecdsa-2019/v1"
+    }
+  ],
+  "@context": [
+    "https://www.w3.org/ns/did/v1"
+  ],
+  "alsoKnownAs": [],
+  "authentication": [
+    "did:web:868c-2405-201-1029-3025-a153-97e5-f47f-3b16.ngrok-free.app"
+  ]
+}

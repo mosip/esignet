@@ -1,0 +1,13 @@
+{
+  "verifiableCredential": [
+    {
+      "credentialSubject": {
+        "id": "did:key:z6MkpiJgQdNWUzyojaFuCzQ1MWvSSaxUfL1tvbcRfqWFoJRK"
+      }
+    }
+  ],
+  "holder": "did:key:z6LSpTHR8VNsBx7Bx5a97BvL9K6U373q9B5h1m2S1e4e",
+  "proof": {
+    "type": "Ed25519Signature2018"
+  }
+}

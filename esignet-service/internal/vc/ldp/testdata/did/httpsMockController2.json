@@ -1,0 +1,5 @@
+{
+  "@context": "https://w3id.org/security/v2",
+  "id": "https://vharsh.github.io/DID/mock-controller2.json",
+  "assertionMethod": ["https://vharsh.github.io/DID/mock-public-key2.json"]
+}

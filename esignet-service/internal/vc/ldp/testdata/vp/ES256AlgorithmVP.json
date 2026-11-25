@@ -1,0 +1,58 @@
+{
+  "verifiableCredential": [
+    {
+      "issuer": "did:web:api.released.mosip.net:identity-service:02b073b8-aacd-472e-b63f-265bb7ccdd9f",
+      "credentialSubject": {
+        "dob": "2025-01-01",
+        "policyExpiresOn": "2033-04-20",
+        "policyIssuedOn": "2023-04-20",
+        "id": "did:jwk:eyJrdHkiOiJFQyIsInVzZSI6InNpZyIsImNydiI6IlAtMjU2IiwieCI6IkI3X0dpOFRhc3JPQ3d3d2xUbnZqUEtXY0d0empKTndBZUlTcVBLYm1wYVEiLCJ5IjoiSkVwNjFlbmE5NlNzc2JGOVlSV0xoZG1HNEtqY0JhTExmTFNqR2E3eXAwSSJ9",
+        "policyNumber": "5555",
+        "email": "abcd@gmail.com",
+        "policyName": "wallet",
+        "fullName": "wallet",
+        "mobile": "0123456789",
+        "benefits": [
+          "Critical Surgery",
+          "Full body checkup"
+        ],
+        "gender": "Male"
+      },
+      "id": "did:rcw:fe3c653d-e6f5-4a8f-b2b0-d2c3c1324231",
+      "proof": {
+        "created": "2026-03-23T12:29:13Z",
+        "verificationMethod": "did:web:api.released.mosip.net:identity-service:02b073b8-aacd-472e-b63f-265bb7ccdd9f#key-0",
+        "proofValue": "z5frV9G57p37N5dxJYPtNDUzPHZhvo4NHmH3MuXcAMeVLpLu5zSJSNtrs7np7zQaq2zje9u14npJVC1vMQVvyuBwY",
+        "type": "Ed25519Signature2020",
+        "proofPurpose": "assertionMethod"
+      },
+      "expirationDate": "2026-04-22T12:29:13.469Z",
+      "issuanceDate": "2026-03-23T12:29:13.478Z",
+      "@context": [
+        "https://www.w3.org/2018/credentials/v1",
+        "https://inji.github.io/inji-config/contexts/insurance-context.json",
+        "https://w3id.org/security/suites/ed25519-2020/v1"
+      ],
+      "type": [
+        "VerifiableCredential",
+        "InsuranceCredential"
+      ]
+    }
+  ],
+  "@context": [
+    "https://www.w3.org/2018/credentials/v1",
+    "https://w3id.org/security/suites/jws-2020/v1"
+  ],
+  "proof": {
+    "type": "JsonWebSignature2020",
+    "verificationMethod": "did:jwk:eyJrdHkiOiJFQyIsImNydiI6IlAtMjU2IiwieCI6IkI3X0dpOFRhc3JPQ3d3d2xUbnZqUEtXY0d0empKTndBZUlTcVBLYm1wYVEiLCJ5IjoiSkVwNjFlbmE5NlNzc2JGOVlSV0xoZG1HNEtqY0JhTExmTFNqR2E3eXAwSSIsInVzZSI6InNpZyJ9#0",
+    "jws": "eyJhbGciOiJFUzI1NiIsImNyaXQiOlsiYjY0Il0sImI2NCI6ZmFsc2V9..wm81lyiEnjcTxAGE1LTbQDoxV2bnfv9K_ZOBv48WSostNvO2gjzUwsMljILVGvchN5RoZiFhId7Y62rK833FoQ",
+    "domain": "did:jwk:eyJrdHkiOiJFQyIsImNydiI6IlAtMjU2IiwieCI6IkI3X0dpOFRhc3JPQ3d3d2xUbnZqUEtXY0d0empKTndBZUlTcVBLYm1wYVEiLCJ5IjoiSkVwNjFlbmE5NlNzc2JGOVlSV0xoZG1HNEtqY0JhTExmTFNqR2E3eXAwSSIsInVzZSI6InNpZyJ9#0",
+    "challenge": "bGvxyRYPVQewlMOAaRvk0w=="
+  },
+  "holder": "did:jwk:eyJrdHkiOiJFQyIsImNydiI6IlAtMjU2IiwieCI6IkI3X0dpOFRhc3JPQ3d3d2xUbnZqUEtXY0d0empKTndBZUlTcVBLYm1wYVEiLCJ5IjoiSkVwNjFlbmE5NlNzc2JGOVlSV0xoZG1HNEtqY0JhTExmTFNqR2E3eXAwSSIsInVzZSI6InNpZyJ9#0",
+  "type": [
+    "VerifiablePresentation"
+  ],
+  "id": "urn:uuid:52640c74-50ba-4c3c-b14b-e919c2ff593c"
+}

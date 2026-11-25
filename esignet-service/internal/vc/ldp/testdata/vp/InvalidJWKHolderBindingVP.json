@@ -1,0 +1,65 @@
+{
+  "@context": [
+    "https://www.w3.org/2018/credentials/v1",
+    "https://w3id.org/security/suites/jws-2020/v1"
+  ],
+  "type": [
+    "VerifiablePresentation"
+  ],
+  "verifiableCredential": [
+    {
+      "issuanceDate": "2025-06-30T08:46:29.323Z",
+      "credentialSubject": {
+        "benefits": [
+          "Critical Surgery",
+          "Full body checkup"
+        ],
+        "gender": "Male",
+        "policyName": "wallet",
+        "dob": "2025-01-01",
+        "policyNumber": "5555",
+        "mobile": "0123456789",
+        "fullName": "wallet",
+        "policyIssuedOn": "2023-04-20",
+        "id": "did:jwk:eyJrdHkiOiJFQyIsInVzZSI6InNpZyIsImNydiI6IlAtMjU2Iiwia2lkIjoiOWpuWTRZZ1Z0NnFVcGVxRkhCZzNZNjRTdGlUX3VnOFdLdVBsckp6bUlRayIsIngiOiJUQjlGa294S0dSdzh4M0FablJjdVJtMEhpRXBQLVVNOHI1N2pOUkZLa3pBIiwieSI6IkZWTHhiaFduREZsVHJlZGFWaHp4UHg1eFluS29iUWp5aHZrU1ZjVlpsTjgiLCJhbGciOiJFUzI1NiJ9",
+        "policyExpiresOn": "2033-04-20",
+        "email": "abcd@gmail.com"
+      },
+      "id": "did:rcw:a20c5836-99cf-4c44-8429-1b64ee24b73c",
+      "proof": {
+        "proofPurpose": "assertionMethod",
+        "verificationMethod": "did:web:api.released.mosip.net:identity-service:02b073b8-aacd-472e-b63f-265bb7ccdd9f#key-0",
+        "proofValue": "z4DcfNGBBL2wnLJZojpsTyoDDBDnXTH6C3H1UkyiYyEu2V8JssXb7ajcRq4yARGrixCSotN7R495TD8jdyW8jtkD6",
+        "type": "Ed25519Signature2020",
+        "created": "2025-06-30T08:46:29Z"
+      },
+      "type": [
+        "VerifiableCredential",
+        "LifeInsuranceCredential"
+      ],
+      "@context": [
+        "https://www.w3.org/2018/credentials/v1",
+        "https://holashchand.github.io/test_project/insurance-context.json",
+        {
+          "LifeInsuranceCredential": {
+            "@id": "InsuranceCredential"
+          }
+        },
+        "https://w3id.org/security/suites/ed25519-2020/v1"
+      ],
+      "issuer": "did:web:api.released.mosip.net:identity-service:02b073b8-aacd-472e-b63f-265bb7ccdd9f",
+      "expirationDate": "2027-06-30T08:46:29.314Z"
+    }
+  ],
+  "id": "urn:uuid:c99eaffb-308e-449c-9eef-5edc36836284",
+  "holder": "did:jwk:eyJrdHkiOiJPS1AiLCJjcnYiOiJFZDI1NTE5IiwieCI6IjZxa1h5RUlJdXl2WHl2UVpCRDYxNWRGQjhvNWZsTVBHSFBkLXFWWHdQeUUiLCJhbGciOiJFZDI1NTE5IiwidXNlIjoic2lnIn0#0",
+  "proof": {
+    "type": "JsonWebSignature2020",
+    "created": "2025-06-30T14:16:52Z",
+    "challenge": "Mi0vDP17DlFcu/8m+OcP9A==",
+    "domain": "did:web:mosip.github.io:inji-mock-services:openid4vp-service:docs",
+    "jws": "eyJhbGciOiJFZERTQSIsImNyaXQiOlsiYjY0Il0sImI2NCI6ZmFsc2V9..YuE26DnMlkAWSUAkMVdXwntIDN2lgkT-4MesGQLdqR09HaN8QbfLb6TWIzgEPA5ybdD7C_2S2cevlCxJeBRGDw",
+    "proofPurpose": "authentication",
+    "verificationMethod": "did:jwk:eyJrdHkiOiJPS1AiLCJjcnYiOiJFZDI1NTE5IiwieCI6IjZxa1h5RUlJdXl2WHl2UVpCRDYxNWRGQjhvNWZsTVBHSFBkLXFWWHdQeUUiLCJhbGciOiJFZDI1NTE5IiwidXNlIjoic2lnIn0#0"
+  }
+}

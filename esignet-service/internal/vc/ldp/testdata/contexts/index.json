@@ -1,0 +1,10 @@
+{
+  "https://www.w3.org/ns/credentials/examples/v2": "credentials-examples-v2.jsonld",
+  "https://holashchand.github.io/test_project/insurance-context.json": "insurance-holashchand.jsonld",
+  "https://inji.github.io/inji-config/contexts/insurance-context.json": "insurance-inji.jsonld",
+  "https://vharsh.github.io/DID/SchoolCredential.json": "school-vharsh.jsonld",
+  "https://api.collab.mosip.net/.well-known/mosip-ida-context.json": "mosip-ida-collab.jsonld",
+  "https://piyush7034.github.io/my-files/farmer.json": "farmer-piyush.jsonld",
+  "https://inji.github.io/inji-config/contexts/farmer.json": "farmer-inji.jsonld",
+  "https://w3id.org/security/v2": "security-v2-standin.jsonld"
+}

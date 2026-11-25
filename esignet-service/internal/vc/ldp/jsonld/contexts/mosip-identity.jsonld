@@ -1,0 +1,106 @@
+{
+  "@context": {
+    "@version": 1.1,
+    "@protected": true,
+    "type": "@type",
+    "schema": "https://schema.org/",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+    "mosipid": "https://inji.github.io/inji-config/contexts/mosip-identity-context.json#",
+    "MOSIPVerifiableCredential": {
+      "@id": "mosipid:MOSIPVerifiableCredential"
+    },
+    "vcVer": "mosipid:vcVer",
+    "UIN": "schema:identifier",
+    "VID": "mosipid:VID",
+    "fullName": {
+      "@id": "schema:name",
+      "@container": "@set",
+      "@context": {
+        "language": "@language",
+        "value": "@value"
+      }
+    },
+    "gender": {
+      "@id": "schema:gender",
+      "@container": "@set",
+      "@context": {
+        "language": "@language",
+        "value": "@value"
+      }
+    },
+    "dateOfBirth": {
+      "@id": "schema:birthDate",
+      "@type": "xsd:date"
+    },
+    "email": "schema:email",
+    "phone": "schema:telephone",
+    "postalCode": "schema:postalCode",
+    "residenceStatus": {
+      "@id": "schema:additionalType",
+      "@container": "@set",
+      "@context": {
+        "language": "@language",
+        "value": "@value"
+      }
+    },
+    "addressLine1": {
+      "@id": "schema:streetAddress",
+      "@container": "@set",
+      "@context": {
+        "language": "@language",
+        "value": "@value"
+      }
+    },
+    "addressLine2": {
+      "@id": "schema:streetAddress",
+      "@container": "@set",
+      "@context": {
+        "language": "@language",
+        "value": "@value"
+      }
+    },
+    "addressLine3": {
+      "@id": "schema:streetAddress",
+      "@container": "@set",
+      "@context": {
+        "language": "@language",
+        "value": "@value"
+      }
+    },
+    "city": {
+      "@id": "schema:addressLocality",
+      "@container": "@set",
+      "@context": {
+        "language": "@language",
+        "value": "@value"
+      }
+    },
+    "province": {
+      "@id": "schema:addressRegion",
+      "@container": "@set",
+      "@context": {
+        "language": "@language",
+        "value": "@value"
+      }
+    },
+    "region": {
+      "@id": "schema:addressRegion",
+      "@container": "@set",
+      "@context": {
+        "language": "@language",
+        "value": "@value"
+      }
+    },
+    "face": "schema:image",
+    "compressedFace": "schema:image",
+    "identityQRCode": "schema:Text",
+    "faceQRCode": "schema:Text",
+    "addressQRCode": "schema:Text",
+    "birthQRCode": "schema:Text",
+    "claim169": {
+      "@id": "mosipid:claim169",
+      "@container": "@index",
+      "@type": "schema:Text"
+    }
+  }
+}

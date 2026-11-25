@@ -1,0 +1,37 @@
+{
+  "@context": [
+    "https://www.w3.org/2018/credentials/v1",
+    "https://piyush7034.github.io/my-files/farmer.json"
+  ],
+  "issuer": "did:web:vharsh.github.io:DID:echarsh",
+  "type": [
+    "VerifiableCredential",
+    "FarmerCredential"
+  ],
+  "issuanceDate": "2025-02-04T08:07:11.686Z",
+  "expirationDate": "2027-02-04T08:07:11.685Z",
+  "credentialSubject": {
+    "id": "did:jwk:eyJrdHkiOiJSU0EiLCJlIjoiQVFBQiIsInVzZSI6InNpZyIsImtpZCI6ImhXM0JtVnVWY3ZSR3U5S0FIWllzYnRGS0otallWUFUwZW96S2FrT3FGclEiLCJhbGciOiJSUzI1NiIsIm4iOiJoRHJYTnhpdENlbjdqM2dWNEI2N0NraTdnOHhIbWhUSm1CNjFuRDV2S183a2ExRWVXNTRuVkpYREctdWxrVndDQVJUb2pjTmxlYm03TkZzVTItSDFzdS1SdmQ2NHBhdVBoUGxUSHE2c0c3aW1mSk9QUnhHRGt5WWlDTjZlYWo5VHlWSms5c3pydHVvWXl1blZqWWZyV08zUTl6MkhMUTZON0NUT0cwT1N2TzlzUlZFNFhrY3R6MFkxNGhxeEMzaTZnYllzT3hjZzRMLWFyOW1rQkxmODctekd0elhicjlXeGp3Qjg4aU5VRjgtd0lsM3AwLWpWOG9UdzRDaTlreWxpZkVCb2N6OTJPU0tpM2FCV0JWSHgzZm10ZE12ZVBYbkRHTEhwUlF0UnZjelhxRnR0Mm9SRjNLQTZieEtsdmFXd0dlYnRnMDhhTXhGazAtWFdxNzV3VncifQ==",
+    "fullName": "${fullName}",
+    "mobileNumber": "${mobileNumber}",
+    "dateOfBirth": "25-05-1990",
+    "gender": "${gender}",
+    "state": "${state}",
+    "district": "${district}",
+    "villageOrTown": "${villageOrTown}",
+    "postalCode": "${postalCode}",
+    "landArea": "3 hectares",
+    "landOwnershipType": "Owner",
+    "primaryCropType": "Maize",
+    "secondaryCropType": "Rice",
+    "face": "${face}",
+    "farmerID": "${farmerID}"
+  },
+  "proof": {
+    "type": "EcdsaSecp256k1Signature2019",
+    "created": "2025-02-04T02:37:11Z",
+    "proofPurpose": "assertionMethod",
+    "verificationMethod": "did:web:vharsh.github.io:DID:echarsh#key-0",
+    "jws": "eyJ4NXQjUzI1NiI6InBZYXh6VWtrVnZKSzQ2X3NCUFRNNEhaSHdGTWItNUYxZzV0MEFjam5ONlkiLCJiNjQiOmZhbHNlLCJjcml0IjpbImI2NCJdLCJraWQiOiJmU3ZrX0RkdUJtTDJUdG5hTUZPYjBOUE9pT3BFOVlOQWhlX3RBM1J4Q3g0IiwiYWxnIjoiRVMyNTZLIn0..SPVFEQp_VJE9a6y_7iMDMXw1iwIPk0d3W_9nPv2UMyekhRyb59OW-DIIHWGZb7YawYwSZLX0ZxA6SdLGtOhqpQ"
+  }
+}

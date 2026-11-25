@@ -1,0 +1,25 @@
+{
+  "@context": {
+    "@version": 1.1,
+    "@protected": true,
+    "type": "@type",
+    "schema": "https://schema.org/",
+    "FarmerCredential": {
+      "@id": "https://piyush7034.github.io/my-files/farmer.json#FarmerCredential"
+    },
+    "fullName": "schema:name",
+    "mobileNumber": "schema:telephone",
+    "dateOfBirth": "schema:birthDate",
+    "gender": "schema:gender",
+    "state": "schema:addressRegion",
+    "district": "schema:addressLocality",
+    "villageOrTown": "schema:addressLocality",
+    "postalCode": "schema:postalCode",
+    "landArea": "schema:Number",
+    "landOwnershipType": "schema:Text",
+    "primaryCropType": "schema:Text",
+    "secondaryCropType": "schema:Text",
+    "face": "schema:Text",
+    "farmerID": "schema:Text"
+  }
+}

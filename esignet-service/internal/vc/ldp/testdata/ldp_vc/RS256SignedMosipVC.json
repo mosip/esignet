@@ -1,0 +1,34 @@
+{
+  "@context": [
+    "https://www.w3.org/2018/credentials/v1",
+    "https://vharsh.github.io/DID/SchoolCredential.json"
+  ],
+  "type": [
+    "VerifiableCredential",
+    "FarmerCredential"
+  ],
+  "validFrom": "2024-09-17T16:31:52.834Z",
+  "issuer": "https://vharsh.github.io/DID/mock-controller.json",
+  "expirationDate": "2024-09-17T16:31:52.835Z",
+  "credentialSubject": {
+    "fullName": "Hitesh Jain",
+    "idType": "Farmer ID",
+    "farmerId": "67230983",
+    "phoneNumber": "+919876543211",
+    "dateOfIssue": "18/09/2024",
+    "validTill": "17/09/2025",
+    "state": "Karnataka",
+    "district": "Bangalore",
+    "farmSize": "15 Hectare",
+    "typeOfCrop": "Wheat and Sugarcane",
+    "landOwnership": "Community Land",
+    "email": "hieshjain@gmail.com"
+  },
+  "proof": {
+    "type": "RsaSignature2018",
+    "created": "2024-09-17T11:01:52Z",
+    "proofPurpose": "assertionMethod",
+    "verificationMethod": "https://vharsh.github.io/DID/mock-public-key.json",
+    "jws": "eyJ4NXQjUzI1NiI6ImpPdk9ZYjZpZ2p4enF4N25XS2JEUmJOdWJRQWlaeVhZd0hVZC1tR3VDYk0iLCJiNjQiOmZhbHNlLCJjcml0IjpbImI2NCJdLCJraWQiOiJvb2d4WU1nWUpHX3RpeEJyMTMzeFdmd0pmTktoUlRTLUtFYjNKbEtnRkxzIiwiYWxnIjoiUlMyNTYifQ..W5poHow2aZbt_YL629NOLveZyokMmgWTt0_rOQS_sCWb2lWh6Ju-bwdqM3M04PV1c6dCcg7lAI5ofGjaj6CdVbuQD5QulEMdNLioln2JYvW33NRJXu7wspa_Z47IJkGCLr5yo0Tu4bMfTru_nUB989NNOJxoFVpMIflV8ZQASuk6BtYxIxzUaDeP9Buj4T13aqnBiLIn-_Aeo2BrYTbNv9WngxcsWuSaFFLIEhXyO6bs2VRkHEhCNAGraGho3BiWcOGjIK9YCR1aKOkJYY2aEYTBpNWWhRWKm5aGkpHdi70s7QZKb-1HsXOPHaB1CQcXgEoBf4V4lsdPGQOIJbDnMg"
+  }
+}

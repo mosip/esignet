@@ -1,0 +1,28 @@
+{
+  "assertionMethod": [
+    "did:web:vharsh.github.io:DID:echarsh#key-0"
+  ],
+  "service": [],
+  "id": "did:web:vharsh.github.io:DID:echarsh",
+  "verificationMethod": [
+    {
+      "controller": "did:web:vharsh.github.io:DID:echarsh",
+      "publicKeyJwk": {
+        "kty": "EC",
+        "crv": "secp256k1",
+        "x": "STRMr8BN3ToqGYWQExEm5-mjyiSqq9iGs600-4UMiZY",
+        "y": "wMC2jyYYA1UPz5TjeHRkSAZV6y6_C5oyCPsudWtFQPM"
+      },
+      "id": "did:web:vharsh.github.io:DID:echarsh#key-0",
+      "type": "EcdsaSecp256k1VerificationKey2019",
+      "@context": "https://w3id.org/security/v1"
+    }
+  ],
+  "@context": [
+    "https://www.w3.org/ns/did/v1"
+  ],
+  "alsoKnownAs": [],
+  "authentication": [
+    "did:web:vharsh.github.io:DID:echarsh#key-0"
+  ]
+}

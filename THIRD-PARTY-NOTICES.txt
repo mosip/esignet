@@ -6344,6 +6344,11 @@ Version: v5.0.3
 License: MIT
 Homepage: https://opensource.org/licenses/MIT
 
+Package: github.com/cayleygraph/quad
+Version: v1.3.0
+License: Apache-2.0
+Homepage: https://www.apache.org/licenses/LICENSE-2.0
+
 Package: github.com/cespare/xxhash/v2
 Version: v2.3.0
 License: MIT
@@ -6534,6 +6539,11 @@ Version: v1.6.1
 License: Apache-2.0 AND MIT
 Homepage: https://www.apache.org/licenses/LICENSE-2.0
 
+Package: github.com/mr-tron/base58
+Version: v1.2.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
 Package: github.com/munnerz/goautoneg
 Version: v0.0.0-20191010083416-a7dc8b61c822
 License: BSD-3-Clause
@@ -6549,10 +6559,20 @@ Version: v1.2.0
 License: MIT
 Homepage: https://opensource.org/licenses/MIT
 
+Package: github.com/piprate/json-gold
+Version: v0.9.1
+License: Apache-2.0
+Homepage: https://www.apache.org/licenses/LICENSE-2.0
+
 Package: github.com/pmezard/go-difflib
 Version: v1.0.1-0.20181226105442-5d4384ee4fb2
 License: BSD-3-Clause
 Homepage: https://opensource.org/licenses/BSD-3-Clause
+
+Package: github.com/pquerna/cachecontrol
+Version: v0.2.0
+License: Apache-2.0
+Homepage: https://www.apache.org/licenses/LICENSE-2.0
 
 Package: github.com/prometheus/client_golang
 Version: v1.24.1

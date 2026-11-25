@@ -1,0 +1,21 @@
+{
+  "@context": {
+    "@version": 1.1,
+    "@protected": true,
+    "type": "@type",
+    "schema": "https://schema.org/",
+    "InsuranceCredential": {
+      "@id": "https://holashchand.github.io/test_project/insurance-context.json#InsuranceCredential"
+    },
+    "dob": "schema:birthDate",
+    "email": "schema:email",
+    "gender": "schema:gender",
+    "mobile": "schema:telephone",
+    "benefits": "schema:benefits",
+    "fullName": "schema:name",
+    "policyExpiresOn": "schema:expires",
+    "policyIssuedOn": "schema:DateTime",
+    "policyName": "schema:Text",
+    "policyNumber": "schema:Text"
+  }
+}

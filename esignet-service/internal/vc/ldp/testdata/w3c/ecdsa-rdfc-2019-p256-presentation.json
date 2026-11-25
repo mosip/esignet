@@ -1,0 +1,48 @@
+{
+  "@context": [
+    "https://www.w3.org/ns/credentials/v2"
+  ],
+  "id": "urn:uuid:3a9e7c04-6d18-4b52-8f7d-1c0b5e93a26f",
+  "type": [
+    "VerifiablePresentation"
+  ],
+  "holder": "did:jwk:eyJrdHkiOiJFQyIsImNydiI6IlAtMjU2IiwieCI6IjF1clRKclpBQTk5cHdkaVlQVjN0dzV6bkdlQnBKaDVaM3ZzTV9IUlZLZm8iLCJ5IjoiLWxVVUhhejV3OXBhYVJZTnpmbXR3Y0Q5eU9BVmxFZElmMV9JY0ktd3NwdyJ9#0",
+  "verifiableCredential": [
+    {
+      "@context": [
+        "https://www.w3.org/ns/credentials/v2",
+        "https://www.w3.org/ns/credentials/examples/v2"
+      ],
+      "id": "urn:uuid:58172aac-d8ba-11ed-83dd-0b3aef56cc33",
+      "type": [
+        "VerifiableCredential",
+        "AlumniCredential"
+      ],
+      "name": "Alumni Credential",
+      "description": "A minimum viable example of an Alumni Credential.",
+      "issuer": "https://vc.example/issuers/5678",
+      "validFrom": "2023-01-01T00:00:00Z",
+      "credentialSubject": {
+        "id": "did:example:abcdefgh",
+        "alumniOf": "The School of Examples"
+      },
+      "proof": {
+        "type": "DataIntegrityProof",
+        "cryptosuite": "ecdsa-rdfc-2019",
+        "created": "2023-02-24T23:36:38Z",
+        "verificationMethod": "did:key:zDnaepBuvsQ8cpsWrVKw8fbpGpvPeNSjVPTWoq6cRqaYzBKVP#zDnaepBuvsQ8cpsWrVKw8fbpGpvPeNSjVPTWoq6cRqaYzBKVP",
+        "proofPurpose": "assertionMethod",
+        "proofValue": "zaHXrr7AQdydBk3ahpCDpWbxfLokDqmCToYm2dyWvpcFVyWooC2he63w1f7UNQoAMKdhaRtcnaE2KTo5o5vTCcfw"
+      }
+    }
+  ],
+  "proof": {
+    "type": "DataIntegrityProof",
+    "cryptosuite": "ecdsa-rdfc-2019",
+    "proofPurpose": "authentication",
+    "verificationMethod": "did:jwk:eyJrdHkiOiJFQyIsImNydiI6IlAtMjU2IiwieCI6IjF1clRKclpBQTk5cHdkaVlQVjN0dzV6bkdlQnBKaDVaM3ZzTV9IUlZLZm8iLCJ5IjoiLWxVVUhhejV3OXBhYVJZTnpmbXR3Y0Q5eU9BVmxFZElmMV9JY0ktd3NwdyJ9#0",
+    "challenge": "n-0S6_WzA2Mj",
+    "domain": "https://verifier.example/openid4vp",
+    "proofValue": "z5c4xMfNxgQWvWjmjrRifNgARmAHsogpMVqVzicQPpQPiczaz1BNUp7HrJa2dPd1pwZ7t4n7avMRGs2wC78RWychS"
+  }
+}

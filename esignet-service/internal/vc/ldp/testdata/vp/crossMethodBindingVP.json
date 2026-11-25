@@ -1,0 +1,116 @@
+{
+  "@context": [
+    "https://www.w3.org/ns/credentials/v2"
+  ],
+  "id": "urn:uuid:ee49a938-0956-49f1-a214-1533d31b79ae",
+  "type": [
+    "VerifiablePresentation"
+  ],
+  "verifiableCredential": [
+    {
+      "credentialSubject": {
+        "dateOfBirth": "1999/10/21",
+        "UIN": 123456,
+        "email": "siwer.km@gmail.com",
+        "postalCode": 45009,
+        "gender": [
+          {
+            "value": "female",
+            "language": "eng"
+          },
+          {
+            "value": "feMâle",
+            "language": "fra"
+          },
+          {
+            "language": "ara",
+            "value": "ذكر"
+          }
+        ],
+        "VID": 123456,
+        "region": [
+          {
+            "language": "fra",
+            "value": "yuān 3"
+          },
+          {
+            "language": "ara",
+            "value": "$لُنگᆑ"
+          },
+          {
+            "language": "eng",
+            "value": "yuan wee 3"
+          }
+        ],
+        "province": [
+          {
+            "value": "yuān 2",
+            "language": "fra"
+          },
+          {
+            "language": "ara",
+            "value": "يَُانꉛ⥍"
+          },
+          {
+            "language": "eng",
+            "value": "yuan wee"
+          }
+        ],
+        "id": "did:jwk:eyJrdHkiOiJPS1AiLCJjcnYiOiJFZDI1NTE5IiwieCI6Im1HLVBnQjRuaFBOdEt0YlkxbXdyUjQ4MERURE1WMFdaZGpVME5WWkNveFkifQ",
+        "phone": "+919427357934",
+        "fullName": [
+          {
+            "language": "fra",
+            "value": "Alheri Bobby"
+          },
+          {
+            "language": "ara",
+            "value": "تتگلدكنسَزقهِقِفل دسييسيكدكنوڤو"
+          },
+          {
+            "language": "eng",
+            "value": "Alheri Bobby"
+          }
+        ]
+      },
+      "type": [
+        "VerifiableCredential",
+        "MockVerifiableCredential"
+      ],
+      "validFrom": "2025-11-11T05:46:46.174Z",
+      "issuer": "did:web:mosip.github.io:inji-config:qa-inji1:mock",
+      "@context": [
+        "https://www.w3.org/ns/credentials/v2",
+        "https://mosip.github.io/inji-config/contexts/mock-identity-context.json",
+        "https://w3id.org/security/suites/jws-2020/v1"
+      ],
+      "proof": {
+        "verificationMethod": "did:web:mosip.github.io:inji-config:qa-inji1:mock#kMVyZTvx8G0h1YZnUW4OJtr2LRVZUuGl8pQuJl3ymXI",
+        "created": "2025-11-11T05:46:46Z",
+        "type": "Ed25519Signature2020",
+        "proofPurpose": "assertionMethod",
+        "proofValue": "z2fZQJJYWCcpb4nfVU9jzxaKgJAQnmEmijimqSLNcm6MXJx95HqHH2wUHDuvMYBAXXzeukQxLW42Uds8tXQoV3GLM"
+      },
+      "id": "https://mosip.io/credential/5aa07988-3607-43f3-b888-0d2d9452b12f",
+      "validUntil": "2027-11-11T05:46:46.174Z",
+      "credentialStatus": {
+        "type": "BitstringStatusListEntry",
+        "statusListCredential": "https://injicertify-mock.qa-inji1.mosip.net/v1/certify/credentials/status-list/56622ad1-c304-4d7a-baf0-08836d63c2bf",
+        "statusPurpose": "revocation",
+        "id": "https://injicertify-mock.qa-inji1.mosip.net/v1/certify/credentials/status-list/56622ad1-c304-4d7a-baf0-08836d63c2bf#104282",
+        "statusListIndex": "104282"
+      }
+    }
+  ],
+  "proof": {
+    "type": "Ed25519Signature2018",
+    "proofPurpose": "authentication",
+    "challenge": "17d579c1-31a5-11f0-b4ec-0a1628958560",
+    "verificationMethod": "did:key:z6MkpiJgQdNWUzyojaFuCzQ1MWvSSaxUfL1tvbcRfqWFoJRK#z6MkpiJgQdNWUzyojaFuCzQ1MWvSSaxUfL1tvbcRfqWFoJRK",
+    "created": "2025-05-15T15:55:49.216962Z",
+    "domain": "did:web:app.altme.io:issuer",
+    "jws": "eyJhbGciOiJFZERTQSIsImNyaXQiOlsiYjY0Il0sImI2NCI6ZmFsc2V9.hello.qd56QV3w8ggae1D3T2iLB6TXroZJKpE5LaDt6lecmxzV47InVEIU2EHRoK7bodtc3CFVe_awQdl_ZpoCw9GvBg"
+  },
+  "holder": "did:key:z6MkpiJgQdNWUzyojaFuCzQ1MWvSSaxUfL1tvbcRfqWFoJRK"
+}
+

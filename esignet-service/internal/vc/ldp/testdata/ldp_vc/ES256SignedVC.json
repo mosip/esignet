@@ -1,0 +1,39 @@
+{
+  "issuanceDate": "2026-03-12T17:37:52.332Z",
+  "credentialSubject": {
+    "gender": "Male",
+    "primaryCropType": "Maize",
+    "mobileNumber": "9876543210",
+    "postalCode": "453000",
+    "landArea": "3 hectares",
+    "fullName": "Gorge Cooper",
+    "secondaryCropType": "Rice",
+    "dateOfBirth": "25-05-1990",
+    "face": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABwAAAAFCAYAAABW1IzHAAAAHklEQVQokWNgGPaAkZHxPyMj439sYrSQo51PBgsAALa0ECF30JSdAAAAAElFTkSuQmCC",
+    "farmerID": "987654321",
+    "villageOrTown": "Koramangala",
+    "district": "Bangalore",
+    "id": "did:jwk:eyJrdHkiOiJSU0EiLCJlIjoiQVFBQiIsInVzZSI6InNpZyIsImtpZCI6IkRWcWxHZjZ3WmcxcHY0eWNzdFFtc2x0TU9EUXhEd1RNdWkzbUJGRVgtV2ciLCJhbGciOiJSUzI1NiIsIm4iOiJxeDlQZ0dyWnlIVndMUjRldXRDcHFmcllJWmZXZFdLQ1JiQWw2Uko0MDNoRzVBWTdPOXFFUFdsRVpIbzR5RDQwTGc0YXF4ZXJ1S3R4NW1PX0dlQUVaWlQtYVU2c1NRS0tySm5DVDREVFRCSGhoU3JvQVNLWUxWTjF3RjVndEpnWE9xNG5tWVhpZ1liNFY4QU5uZXNxSmpsRzBEV3hXMUFlUG42S01GR2lrRnlQeTJsbVBCTDM3b2hCd0ZtQTlyNU4yV0p1NHhHcENzM1FFOUVReHoxdy11VjBKbUNQRnY2X3UtUVd1VFJlcHduaWlZVEJSNGN6NGJtek1QbHQxcmdoRUpSakh3VXhpNUtTdVUwRWgydHYwc2FRTnBJUmcyZVMyWmNwTzNiTWRtY2RSSno1MDdpT3piYmlFQ2cwUUNGMEE2NmNyNTE0VmpyNFlhSFkycktZZHcifQ==",
+    "state": "Karnataka",
+    "landOwnershipType": "Owner"
+  },
+  "id": "https://mosip.io/credential/067fd7da-3459-4d0e-b919-b51fcaac1fc4",
+  "type": [
+    "VerifiableCredential",
+    "FarmerCredential"
+  ],
+  "@context": [
+    "https://www.w3.org/2018/credentials/v1",
+    "https://inji.github.io/inji-config/contexts/farmer.json",
+    "https://w3id.org/security/suites/ed25519-2020/v1"
+  ],
+  "issuer": "did:web:868c-2405-201-1029-3025-a153-97e5-f47f-3b16.ngrok-free.app",
+  "expirationDate": "2028-03-11T17:37:52.332Z",
+  "proof": {
+    "type": "EcdsaSecp256r1Signature2019",
+    "created": "2026-03-12T17:37:52Z",
+    "proofPurpose": "assertionMethod",
+    "verificationMethod": "did:web:868c-2405-201-1029-3025-a153-97e5-f47f-3b16.ngrok-free.app#-Htu28ZSg5Ov-KEcOIo_XRwu777juTuGCZn-IMx6MIU",
+    "proofValue": "z2QRWDr8bfpgoFUqa1qY4iq5Tc1NMfcy99244mQKeWE8a9vkRR24xdzDE35zgd3pkwQB4HiceNxf3s2ZYvshEYsgz"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "@context": {
+    "@version": 1.1,
+    "id": "@id",
+    "type": "@type",
+    "sec": "https://w3id.org/security#",
+    "dc": "http://purl.org/dc/terms/",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+    "Ed25519Signature2018": "sec:Ed25519Signature2018",
+    "RsaSignature2018": "sec:RsaSignature2018",
+    "EcdsaSecp256k1Signature2019": "sec:EcdsaSecp256k1Signature2019",
+    "EcdsaSecp256r1Signature2019": "sec:EcdsaSecp256r1Signature2019",
+    "assertionMethod": {"@id": "sec:assertionMethod", "@type": "@id", "@container": "@set"},
+    "authentication": {"@id": "sec:authenticationMethod", "@type": "@id", "@container": "@set"},
+    "challenge": "sec:challenge",
+    "created": {"@id": "dc:created", "@type": "xsd:dateTime"},
+    "domain": "sec:domain",
+    "expires": {"@id": "sec:expiration", "@type": "xsd:dateTime"},
+    "nonce": "sec:nonce",
+    "proofPurpose": {"@id": "sec:proofPurpose", "@type": "@vocab"},
+    "verificationMethod": {"@id": "sec:verificationMethod", "@type": "@id"}
+  }
+}

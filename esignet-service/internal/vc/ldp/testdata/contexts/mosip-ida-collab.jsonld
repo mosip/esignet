@@ -1,0 +1,104 @@
+{
+  "@context": [{
+    "@version": 1.1
+  },"https://www.w3.org/ns/odrl.jsonld", {
+    "mosip": "https://api.collab.mosip.net/mosip#",
+    "schema": "http://schema.org/",
+    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "vcVer": "mosip:vcVer",
+    "UIN": "mosip:UIN",
+    "VID": "mosip:VID",
+    "permanentAddress": {
+      "@id": "https://api.collab.mosip.net/mosip#permanentAddress",
+      "@context": {"value": "rdf:value", "lang": "@language"}
+    },
+    "addressLine1": {
+      "@id": "https://api.collab.mosip.net/mosip#addressLine1",
+      "@context": {"value": "rdf:value", "lang": "@language"}
+    },
+    "addressLine2": {
+      "@id": "https://api.collab.mosip.net/mosip#addressLine2",
+      "@context": {"value": "rdf:value", "lang": "@language"}
+    },
+    "addressLine3": {
+      "@id": "https://api.collab.mosip.net/mosip#addressLine3",
+      "@context": {"value": "rdf:value", "lang": "@language"}
+    },
+    "city": {
+      "@id": "https://api.collab.mosip.net/mosip#city",
+      "@context": {"value": "rdf:value", "lang": "@language"}
+    },
+    "gender": {
+      "@id": "https://api.collab.mosip.net/mosip#gender",
+      "@context": {"value": "rdf:value", "lang": "@language"}
+    },
+    "residenceStatus": {
+      "@id": "https://api.collab.mosip.net/mosip#residenceStatus",
+      "@context": {"value": "rdf:value", "lang": "@language"}
+    },
+
+    "dateOfBirth": "mosip:dateOfBirth",
+    "email": "mosip:email",
+    "fullName": {
+      "@id": "https://api.collab.mosip.net/mosip#fullName",
+      "@context": {"value": "rdf:value", "lang": "@language"}
+    },
+    "phone": "mosip:phone",
+    "postalCode": "mosip:postalCode",
+    "province": {
+      "@id": "https://api.collab.mosip.net/mosip#province",
+      "@context": {"value": "rdf:value", "lang": "@language"}
+    },
+    "region": {
+      "@id": "https://api.collab.mosip.net/mosip#region",
+      "@context": {"value": "rdf:value", "lang": "@language"}
+    },
+    "bestTwoFingers": {
+      "@id": "https://api.collab.mosip.net/mosip#bestTwoFingers",
+      "@context": {
+        "id": "@id",
+        "type": "@type",
+        "subType": "https://api.collab.mosip.net/mosip#subType",
+        "rank": "https://api.collab.mosip.net/mosip#rank"
+      }
+    },
+    "face": "mosip:face",
+    "dob": "mosip:dob",
+    "fln": {
+      "@id": "https://api.collab.mosip.net/mosip#fln",
+      "@context": {"value": "rdf:value", "lang": "@language"}
+    },
+    "ad1": {
+      "@id": "https://api.collab.mosip.net/mosip#ad1",
+      "@context": {"value": "rdf:value", "lang": "@language"}
+    },
+    "ad2": {
+      "@id": "https://api.collab.mosip.net/mosip#ad2",
+      "@context": {"value": "rdf:value", "lang": "@language"}
+    },
+    "ad3": {
+      "@id": "https://api.collab.mosip.net/mosip#ad3",
+      "@context": {"value": "rdf:value", "lang": "@language"}
+    },
+    "cit": {
+      "@id": "https://api.collab.mosip.net/mosip#cit",
+      "@context": {"value": "rdf:value", "lang": "@language"}
+    },
+    "gen": {
+      "@id": "https://api.collab.mosip.net/mosip#gen",
+      "@context": {"value": "rdf:value", "lang": "@language"}
+    },
+    "em": "mosip:em",
+    "ph": "mosip:ph",
+    "poc": "mosip:poc",
+    "pro": {
+      "@id": "https://api.collab.mosip.net/mosip#pro",
+      "@context": {"value": "rdf:value", "lang": "@language"}
+    },
+    "reg": {
+      "@id": "https://api.collab.mosip.net/mosip#reg",
+      "@context": {"value": "rdf:value", "lang": "@language"}
+    },
+    "cph": "mosip:cph"
+  }]
+}

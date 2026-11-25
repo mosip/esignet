@@ -1,0 +1,13 @@
+{
+  "verifiableCredential": [
+    {
+      "credentialSubject": {
+        "id": "did:jwk:invalid-base64"
+      }
+    }
+  ],
+  "holder": "did:jwk:invalid-base64",
+  "proof": {
+    "type": "Ed25519Signature2018"
+  }
+}

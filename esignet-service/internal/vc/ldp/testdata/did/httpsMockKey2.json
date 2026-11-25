@@ -1,0 +1,7 @@
+{
+  "@context": "https://w3id.org/security/v2",
+  "type": "Ed25519VerificationKey2018",
+  "id": "https://vharsh.github.io/DID/mock-public-key2.json",
+  "controller": "https://vharsh.github.io/DID/mock-controller2.json",
+  "publicKeyPem": "-----BEGIN PUBLIC KEY-----\r\nMCowBQYDK2VwAyEAgGNuYx6ZPUfYS79ANAsJ82BhQ8oXjRscGAyefsEMG5k=\r\n-----END PUBLIC KEY-----"
+}

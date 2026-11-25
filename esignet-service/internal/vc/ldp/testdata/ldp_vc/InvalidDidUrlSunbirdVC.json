@@ -1,0 +1,43 @@
+{
+    "@context": [
+      "https://www.w3.org/2018/credentials/v1",
+      "https://holashchand.github.io/test_project/insurance-context.json",
+      {
+        "LifeInsuranceCredential": {
+          "@id": "InsuranceCredential"
+        }
+      },
+      "https://w3id.org/security/suites/ed25519-2020/v1"
+    ],
+    "credentialSubject": {
+      "id": "did:jwk:eyJrdHkiOiJFQyIsInVzZSI6InNpZyIsImNydiI6IlAtMjU2Iiwia2lkIjoiSlpOUHlLOE1PajRnc0VidzJBR0JpQnpzc0xZaFF0Znl1aEpaVWJESjdZZyIsIngiOiJrTlZQOTZ3TlZRWTJ5MjUwOVpfWmNMOUVtX3lTVUh3MGRQRHJLNDJoc2RjIiwieSI6IjExZ0JPSVQydVd0SEhMOXRFM19XTEpySEFDUGdvcEQxbFhaTV80T0RHdDQiLCJhbGciOiJFUzI1NiJ9",
+      "dob": "2025-01-01",
+      "email": "abcd@gmail.com",
+      "gender": "Male",
+      "mobile": "0123456789",
+      "benefits": [
+        "Critical Surgery",
+        "Full body checkup"
+      ],
+      "fullName": "wallet",
+      "policyName": "wallet",
+      "policyNumber": "5555",
+      "policyIssuedOn": "2023-04-20",
+      "policyExpiresOn": "2033-04-20"
+    },
+    "expirationDate": "2025-03-19T07:53:17.673Z",
+    "id": "did:rcw:27f18401-5385-4a8b-8824-bd9bb21202bd",
+    "issuanceDate": "2025-02-17T07:53:17.685Z",
+    "issuer": "did:web:api.released.mosip.net:identity-service:02b073b8-aacd-472e-b63f-265bb7ccdd9f",
+    "proof": {
+      "created": "2025-02-17T07:53:17Z",
+      "proofPurpose": "assertionMethod",
+      "proofValue": "z24osdjZ44Yq3kRf6WGpKGGHFENzvNFG6gpoVWbsxugFyeU63haDDUn9AH62SX6YdCbrh1BwTcB8PTBCA7ramKLTA",
+      "type": "Ed25519Signature2020",
+      "verificationMethod": "did:web1:api.released.mosip.net:identity-service:02b073b8-aacd-472e-b63f-265bb7ccdd9f#key-0"
+    },
+    "type": [
+      "VerifiableCredential",
+      "LifeInsuranceCredential"
+    ]
+}

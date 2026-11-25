@@ -1,0 +1,19 @@
+{
+  "@context": {
+    "@version": 1.1,
+    "@protected": true,
+    "type": "@type",
+    "schema": "https://schema.org/",
+    "SchoolCredential": {
+      "@id": "https://vharsh.github.io/DID/SchoolCredential.json#SchoolCredential"
+    },
+    "foundingDate": "schema:foundingDate",
+    "city": "schema:City",
+    "amenities": "schema:benefits",
+    "principalName": "schema:Text",
+    "name": "schema:name",
+    "schoolType": "schema:Text",
+    "country": "schema:Country",
+    "schoolRegistrationNumber": "schema:Text"
+  }
+}

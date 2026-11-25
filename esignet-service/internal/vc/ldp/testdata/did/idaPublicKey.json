@@ -1,0 +1,7 @@
+{
+  "@context": "https://w3id.org/security/v2",
+  "type": "RsaVerificationKey2018",
+  "id": "https://api.collab.mosip.net/.well-known/ida-public-key.json",
+  "controller": "https://api.collab.mosip.net/.well-known/ida-controller.json",
+  "publicKeyPem": "-----BEGIN PUBLIC KEY-----\r\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEArj+ImGNIgS10RgdqSaQb\r\nswN1AfOGtJPU0upNGkWbm0jM1YQS2wxquVu8CxJA2fIpxF54mD6S9WlXwpChP3rs\r\nVbSRYgvmAu7WlVM/69HPDkzQ9DGaOpz316cPZ/XIa49nAE+MqUuiwM9YNFq/QTwd\r\nGPIEzmiokywq7/4WudEX1PAXblCTtMuhuUwv+Y4XahZWcqV7XYwL1AWoGRY7gqnO\r\nVicOVds7jGElG6z8xcA20hsDhGp/cCSM9yYIuJ8B6rEzVihfFfIDkF/tZwBcs14T\r\nk7DMKWupsj5VpqcMWhg4BF+nGUgFWFJ4OywLxUro3tr5r+48ZRwBOmmHZeAJrZ/k\r\nXwIDAQAB\r\n-----END PUBLIC KEY-----"
+}
