@@ -406,14 +406,26 @@ func (p *deviceSecretProvider) ResolveDerivedConsent(
 			record.PermittedScopes = union(existing.PermittedScopes, authorizationScopes)
 			record.ExpiresAt = existing.ExpiresAt
 		}
+		// The originating consent is checked again under the child row lock: if it expired while
+		// the lock was being taken, nothing is written (the error rolls the update back) and the
+		// exchange is refused.
+		if origin.IsExpired(p.now()) {
+			return nil, errOriginConsentExpired
+		}
 		return record, nil
 	})
+	if errors.Is(err, errOriginConsentExpired) {
+		p.logger.Debug(ctx, "the originating consent expired during the exchange; interaction required",
+			applog.String("originClientId", req.OriginClientID))
+		return interactionRequired(authorizationScopes, requiredClaims), nil
+	}
 	if err != nil {
 		p.logger.Error(ctx, "failed to record derived consent", applog.Error(err))
 		return nil, deviceSecretServerError("Failed to record consent")
 	}
-	// The originating consent is checked once more after the update: a consent that expired while
-	// the derived one was being looked up or recorded does not grant the exchange.
+	// The originating consent is checked once more after the update, for the window between the
+	// check under the lock and the commit: an exchange in that window is refused as well, though a
+	// widening committed in it stays stored.
 	if origin.IsExpired(p.now()) {
 		p.logger.Debug(ctx, "the originating consent expired during the exchange; interaction required",
 			applog.String("originClientId", req.OriginClientID))
@@ -633,6 +645,11 @@ func deviceSecretServerError(desc string) *common.ServiceError {
 }
 
 var _ providers.DeviceSSOConsentProvider = (*deviceSecretProvider)(nil)
+
+// errOriginConsentExpired aborts a derived-consent update when the originating consent expired
+// after the exchange was admitted; the update rolls back and the exchange answers
+// interaction_required.
+var errOriginConsentExpired = errors.New("originating consent expired during the exchange")
 
 // clientLookupError maps a client lookup failure: a missing or inactive client is the caller's
 // error (invalid_client); a database or decoding failure is a server error.

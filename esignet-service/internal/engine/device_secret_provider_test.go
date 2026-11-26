@@ -903,9 +903,31 @@ func (ts *DeviceSecretProviderTestSuite) TestResolveDerivedConsent_ChildExpiresD
 	ts.Require().Len(ts.consent.history, 1)
 }
 
+func (ts *DeviceSecretProviderTestSuite) TestResolveDerivedConsent_OriginExpiresDuringLookup() {
+	// The originating consent is valid when the exchange starts and expires while the child's
+	// row lock is being taken: the check under the lock rolls the update back, so the child's
+	// consent is not widened and the exchange is not granted.
+	start := time.Now().UTC().Truncate(time.Second)
+	clock := start
+	ts.seedSuperConsent([]string{"name", "email"}, nil, sql.NullTime{Time: start.Add(time.Second), Valid: true})
+	ts.seedConsent(dsChildClient, "consent-child", []string{"email"}, nil, sql.NullTime{})
+	ts.consent.beforeUpdate = func() { clock = start.Add(2 * time.Second) }
+	p := ts.clockedProvider(&clock)
+
+	res, svcErr := p.ResolveDerivedConsent(context.Background(), ts.derivedRequest("openid", "profile"))
+	ts.Require().Nil(svcErr)
+	ts.Require().False(res.Allowed, "a consent that expired while the lock was taken does not grant the exchange")
+	ts.Require().Equal([]string{"name"}, res.MissingClaims)
+
+	record, err := ts.consent.FetchRecord(context.Background(), dsChildClient, dsTestUser)
+	ts.Require().NoError(err)
+	ts.Require().Equal([]string{"email"}, record.AcceptedClaims, "the child's consent is left as it was")
+	ts.Require().Empty(ts.consent.history)
+}
+
 func (ts *DeviceSecretProviderTestSuite) TestResolveDerivedConsent_OriginExpiresDuringSave() {
-	// The originating consent is valid when the exchange starts and expires while the derived
-	// consent is being recorded: the record is written, but the exchange is not granted.
+	// The originating consent expires between the check under the lock and the commit, the window
+	// the lock cannot close: the record is written, but the exchange is still not granted.
 	start := time.Now().UTC().Truncate(time.Second)
 	clock := start
 	ts.seedSuperConsent([]string{"name", "email"}, nil, sql.NullTime{Time: start.Add(time.Second), Valid: true})

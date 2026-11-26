@@ -156,7 +156,8 @@ rotate. Revocation of the family (sign-out) is a follow-up; see §8.
   the child skips the prompt) with an audit row in `consent_history`; if not, the exchange answers
   `interaction_required`. A consent the child already holds is widened, never narrowed, and keeps
   its own lifetime; a record created by an exchange expires with the super app's consent, which is
-  re-checked after the write. The read, merge and write of the child's record run as one database
+  re-checked under the child's row lock before the write (an expiry there rolls the write back)
+  and once more after it. The read, merge and write of the child's record run as one database
   transaction under a row lock (`consentmgmt.Service.UpdateRecord`), so concurrent exchanges, also
   from different replicas, widen the record one after the other instead of overwriting each other.
 

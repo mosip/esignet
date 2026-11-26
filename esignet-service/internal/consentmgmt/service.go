@@ -213,7 +213,8 @@ func (s *Service) SaveRecord(ctx context.Context, c *ConsentRecord) error {
 
 // UpdateFunc computes the consent to store for a (client, user) pair from the one currently
 // stored, nil when there is none. A nil result leaves the stored consent as it is: nothing is
-// written, not even a history row.
+// written, not even a history row. An error aborts the update: the transaction rolls back and the
+// error is returned as it is, so callers can match it with errors.Is.
 type UpdateFunc func(existing *ConsentRecord) (*ConsentRecord, error)
 
 // UpdateRecord applies fn to the current consent of the (clientID, userID) pair and stores the
