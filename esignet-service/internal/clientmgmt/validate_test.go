@@ -7,7 +7,9 @@
 package clientmgmt
 
 import (
+	"database/sql"
 	"encoding/json"
+	"errors"
 	"slices"
 	"strings"
 	"testing"
@@ -16,6 +18,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/mosip/esignet/internal/clientmgmt/db"
 )
 
 func errCode(t *testing.T, err error) string {
@@ -366,9 +370,16 @@ func (ts *ValidateTestSuite) TestValidatePatch() {
 	t.Run("supplied names and status", func(t *testing.T) {
 		req, err := ValidatePatch(PatchClientRequest{
 			ClientName: "Updated", ClientNameLangMap: map[string]string{"eng": "Updated"}, Status: "inactive",
-		}, PatchFields{ClientName: true, ClientNameLangMap: true, Status: true}, nil, false, nil)
+		}, PatchFields{ClientName: true, ClientNameLangMap: true, Status: true}, db.ClientDetail{}, nil)
 		assert.NoError(t, err)
 		assert.Equal(t, "INACTIVE", req.Status)
+	})
+
+	t.Run("claims are de-duplicated after validation", func(t *testing.T) {
+		req, err := ValidatePatch(PatchClientRequest{Claims: []string{"name", "email", "name"}},
+			PatchFields{Claims: true}, db.ClientDetail{}, nil)
+		assert.NoError(t, err)
+		assert.Equal(t, []string{"name", "email"}, req.Claims)
 	})
 
 	for _, test := range []struct {
@@ -407,11 +418,11 @@ func (ts *ValidateTestSuite) TestValidatePatch() {
 		{"clear key retaining jwe", PatchClientRequest{EncPublicKey: NullableJWK{IsNull: true}}, PatchFields{EncPublicKey: true}, "invalid_additional_config"},
 	} {
 		t.Run(test.name, func(t *testing.T) {
-			var retained json.RawMessage
+			var existing db.ClientDetail
 			if test.name == "clear key retaining jwe" {
-				retained = json.RawMessage(`{"id_token_response_type":"JWE"}`)
+				existing.AdditionalConfig = sql.NullString{String: `{"id_token_response_type":"JWE"}`, Valid: true}
 			}
-			_, err := ValidatePatch(test.req, test.fields, nil, false, retained)
+			_, err := ValidatePatch(test.req, test.fields, existing, nil)
 			assert.Equal(t, test.code, errCode(t, err))
 		})
 	}
@@ -427,14 +438,14 @@ func (ts *ValidateTestSuite) TestValidatePatch() {
 			{PatchClientRequest{GrantTypes: []string{"authorization_code"}}, PatchFields{GrantTypes: true}},
 			{PatchClientRequest{AuthMethods: []string{"private_key_jwt"}}, PatchFields{AuthMethods: true}},
 		} {
-			_, err := ValidatePatch(test.req, test.fields, nil, false, nil)
+			_, err := ValidatePatch(test.req, test.fields, db.ClientDetail{}, nil)
 			assert.NoError(t, err)
 		}
 	})
 
 	t.Run("supported key algorithm", func(t *testing.T) {
 		_, err := ValidatePatch(PatchClientRequest{EncPublicKey: NullableJWK{Value: validJWK()}},
-			PatchFields{EncPublicKey: true}, []string{"RSA-OAEP"}, false, nil)
+			PatchFields{EncPublicKey: true}, db.ClientDetail{}, []string{"RSA-OAEP"})
 		assert.Equal(t, "invalid_public_key", errCode(t, err))
 	})
 
@@ -442,13 +453,13 @@ func (ts *ValidateTestSuite) TestValidatePatch() {
 		_, err := ValidatePatch(PatchClientRequest{
 			AdditionalConfig: json.RawMessage(`{"userinfo_response_type":"JWE"}`),
 			EncPublicKey:     NullableJWK{Value: validJWK()},
-		}, PatchFields{AdditionalConfig: true, EncPublicKey: true}, nil, false, nil)
+		}, PatchFields{AdditionalConfig: true, EncPublicKey: true}, db.ClientDetail{}, nil)
 		assert.NoError(t, err)
 	})
 
 	t.Run("jwe with stored key", func(t *testing.T) {
 		_, err := ValidatePatch(PatchClientRequest{AdditionalConfig: json.RawMessage(`{"userinfo_response_type":"JWE"}`)},
-			PatchFields{AdditionalConfig: true}, nil, true, nil)
+			PatchFields{AdditionalConfig: true}, db.ClientDetail{EncPublicKey: sql.NullString{String: "{}", Valid: true}}, nil)
 		assert.NoError(t, err)
 	})
 
@@ -456,20 +467,102 @@ func (ts *ValidateTestSuite) TestValidatePatch() {
 		_, err := ValidatePatch(PatchClientRequest{
 			AdditionalConfig: json.RawMessage(`{"userinfo_response_type":"JWS"}`),
 			EncPublicKey:     NullableJWK{IsNull: true},
-		}, PatchFields{AdditionalConfig: true, EncPublicKey: true}, nil, true,
-			json.RawMessage(`{"userinfo_response_type":"JWE"}`))
+		}, PatchFields{AdditionalConfig: true, EncPublicKey: true}, db.ClientDetail{
+			EncPublicKey:     sql.NullString{String: "{}", Valid: true},
+			AdditionalConfig: sql.NullString{String: `{"userinfo_response_type":"JWE"}`, Valid: true},
+		}, nil)
 		assert.NoError(t, err)
+	})
+
+	t.Run("clear key keeping stored jwe through a merge is rejected", func(t *testing.T) {
+		_, err := ValidatePatch(PatchClientRequest{
+			AdditionalConfig: json.RawMessage(`{"require_pkce":false}`),
+			EncPublicKey:     NullableJWK{IsNull: true},
+		}, PatchFields{AdditionalConfig: true, EncPublicKey: true}, db.ClientDetail{
+			EncPublicKey:     sql.NullString{String: "{}", Valid: true},
+			AdditionalConfig: sql.NullString{String: `{"userinfo_response_type":"JWE"}`, Valid: true},
+		}, nil)
+		assert.Equal(t, "invalid_additional_config", errCode(t, err))
 	})
 
 	t.Run("unrelated change ignores retained config", func(t *testing.T) {
 		_, err := ValidatePatch(PatchClientRequest{LogoURI: "https://example.com/new.png"},
-			PatchFields{LogoURI: true}, nil, false, json.RawMessage(`{"userinfo_response_type":"JWE"}`))
+			PatchFields{LogoURI: true}, db.ClientDetail{AdditionalConfig: sql.NullString{String: `{"userinfo_response_type":"JWE"}`, Valid: true}}, nil)
 		assert.NoError(t, err)
 	})
 
 	t.Run("key replacement ignores retained config", func(t *testing.T) {
 		_, err := ValidatePatch(PatchClientRequest{EncPublicKey: NullableJWK{Value: validJWK()}},
-			PatchFields{EncPublicKey: true}, nil, false, json.RawMessage(`{"userinfo_response_type":"JWE"}`))
+			PatchFields{EncPublicKey: true}, db.ClientDetail{AdditionalConfig: sql.NullString{String: `{"userinfo_response_type":"JWE"}`, Valid: true}}, nil)
+		assert.NoError(t, err)
+	})
+}
+
+func (ts *ValidateTestSuite) TestMergeAdditionalConfig() {
+	t := ts.T()
+	stored := sql.NullString{String: `{"userinfo_response_type":"JWS","require_pkce":true,"consent_expire_in_mins":60,"purpose":{"type":"verify","title":{"@none":"a"}}}`, Valid: true}
+
+	for _, test := range []struct {
+		name   string
+		stored sql.NullString
+		patch  string
+		want   string
+	}{
+		{"supplied key overwrites, others kept", stored, `{"consent_expire_in_mins":120}`,
+			`{"consent_expire_in_mins":120,"purpose":{"type":"verify","title":{"@none":"a"}},"require_pkce":true,"userinfo_response_type":"JWS"}`},
+		{"explicit false overwrites true", stored, `{"require_pkce":false}`,
+			`{"consent_expire_in_mins":60,"purpose":{"type":"verify","title":{"@none":"a"}},"require_pkce":false,"userinfo_response_type":"JWS"}`},
+		{"nested object replaced as a unit", stored, `{"purpose":{"type":"link"}}`,
+			`{"consent_expire_in_mins":60,"purpose":{"type":"link"},"require_pkce":true,"userinfo_response_type":"JWS"}`},
+		{"null property is stored as JSON null", stored, `{"require_pkce":null,"purpose":null}`,
+			`{"consent_expire_in_mins":60,"purpose":null,"require_pkce":null,"userinfo_response_type":"JWS"}`},
+		{"empty patch keeps stored", sql.NullString{String: `{"require_pkce":true}`, Valid: true}, `{}`, `{"require_pkce":true}`},
+		{"no stored config", sql.NullString{}, `{"require_pkce":true}`, `{"require_pkce":true}`},
+		{"stored null text", sql.NullString{String: "null", Valid: true}, `{"require_pkce":true}`, `{"require_pkce":true}`},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			got, err := mergeAdditionalConfig(test.stored, json.RawMessage(test.patch))
+			require.NoError(t, err)
+			assert.JSONEq(t, test.want, string(got))
+		})
+	}
+
+	t.Run("null patch clears configuration", func(t *testing.T) {
+		got, err := mergeAdditionalConfig(stored, json.RawMessage(`null`))
+		require.NoError(t, err)
+		assert.Nil(t, got)
+	})
+
+	for _, patch := range []string{`[1]`, `"x"`, `{"unknown":1}`, `{"unknown":null}`} {
+		t.Run("rejects "+patch, func(t *testing.T) {
+			_, err := mergeAdditionalConfig(stored, json.RawMessage(patch))
+			assert.Equal(t, "invalid_additional_config", errCode(t, err))
+		})
+	}
+
+	t.Run("malformed stored configuration is an internal error", func(t *testing.T) {
+		_, err := mergeAdditionalConfig(sql.NullString{String: `{bad`, Valid: true}, json.RawMessage(`{"require_pkce":true}`))
+		require.Error(t, err)
+		var ve *ValidationError
+		assert.False(t, errors.As(err, &ve))
+	})
+
+	t.Run("merged result is validated", func(t *testing.T) {
+		_, err := ValidatePatch(PatchClientRequest{AdditionalConfig: json.RawMessage(`{"consent_expire_in_mins":5}`)},
+			PatchFields{AdditionalConfig: true}, db.ClientDetail{AdditionalConfig: stored}, nil)
+		assert.Equal(t, "invalid_additional_config", errCode(t, err))
+	})
+
+	t.Run("null properties pass validation and are kept", func(t *testing.T) {
+		got, err := ValidatePatch(PatchClientRequest{AdditionalConfig: json.RawMessage(`{"userinfo_response_type":null,"consent_expire_in_mins":null,"purpose":null}`)},
+			PatchFields{AdditionalConfig: true}, db.ClientDetail{AdditionalConfig: stored}, nil)
+		require.NoError(t, err)
+		assert.JSONEq(t, `{"userinfo_response_type":null,"consent_expire_in_mins":null,"purpose":null,"require_pkce":true}`, string(got.AdditionalConfig))
+	})
+
+	t.Run("stored null properties pass when the key is cleared", func(t *testing.T) {
+		_, err := ValidatePatch(PatchClientRequest{EncPublicKey: NullableJWK{IsNull: true}},
+			PatchFields{EncPublicKey: true}, db.ClientDetail{AdditionalConfig: sql.NullString{String: `{"userinfo_response_type":null}`, Valid: true}}, nil)
 		assert.NoError(t, err)
 	})
 }

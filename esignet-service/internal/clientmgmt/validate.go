@@ -7,11 +7,16 @@
 package clientmgmt
 
 import (
+	"bytes"
+	"database/sql"
 	"encoding/json"
+	"fmt"
 	"net/url"
 	"strings"
 
 	"golang.org/x/text/language"
+
+	"github.com/mosip/esignet/internal/clientmgmt/db"
 )
 
 var allowedClaims = map[string]struct{}{
@@ -198,11 +203,13 @@ func ValidateUpdate(profile Profile, req UpdateClientRequest, hasEncPublicKey bo
 	return nil
 }
 
-// ValidatePatch validates supplied fields and configuration dependencies.
-// It returns a copy with any supplied status normalized for persistence.
-// retainedAdditionalConfig is checked only when the patch clears the key
-// without replacing the configuration.
-func ValidatePatch(req PatchClientRequest, fields PatchFields, supportedEncAlgs []string, hasEncPublicKey bool, retainedAdditionalConfig json.RawMessage) (PatchClientRequest, error) {
+// ValidatePatch validates supplied fields and their dependencies on the
+// existing (locked) client row. It returns a copy normalized for persistence:
+// status upper-cased, claims de-duplicated and additionalConfig merged onto the
+// stored configuration. Omitted fields are not revalidated, except that stored
+// configuration is checked when the patch clears the key without touching it.
+func ValidatePatch(req PatchClientRequest, fields PatchFields, existing db.ClientDetail, supportedEncAlgs []string) (PatchClientRequest, error) {
+	hasEncPublicKey := existing.EncPublicKey.Valid
 	if fields.ClientName {
 		if err := validateClientName(req.ClientName); err != nil {
 			return PatchClientRequest{}, err
@@ -234,6 +241,7 @@ func ValidatePatch(req PatchClientRequest, fields PatchFields, supportedEncAlgs 
 		if err := validateClaims(req.Claims, 1, 30); err != nil {
 			return PatchClientRequest{}, err
 		}
+		req.Claims = uniqueStrings(req.Claims)
 	}
 	if fields.AcrValues {
 		if err := validateACRs(req.AcrValues, allowedACRAll, 1, 30); err != nil {
@@ -261,17 +269,82 @@ func ValidatePatch(req PatchClientRequest, fields PatchFields, supportedEncAlgs 
 		}
 	}
 	if fields.AdditionalConfig {
-		if len(req.AdditionalConfig) > 0 {
-			if err := validateAdditionalConfig(req.AdditionalConfig, hasEncPublicKey); err != nil {
+		merged, err := mergeAdditionalConfig(existing.AdditionalConfig, req.AdditionalConfig)
+		if err != nil {
+			return PatchClientRequest{}, err
+		}
+		if len(merged) > 0 {
+			if err := validatePatchedAdditionalConfig(merged, hasEncPublicKey); err != nil {
 				return PatchClientRequest{}, err
 			}
 		}
-	} else if fields.EncPublicKey && req.EncPublicKey.IsNull && len(retainedAdditionalConfig) > 0 {
-		if err := validateAdditionalConfig(retainedAdditionalConfig, false); err != nil {
+		req.AdditionalConfig = merged
+	} else if fields.EncPublicKey && req.EncPublicKey.IsNull && existing.AdditionalConfig.Valid && existing.AdditionalConfig.String != "" {
+		if err := validatePatchedAdditionalConfig(json.RawMessage(existing.AdditionalConfig.String), false); err != nil {
 			return PatchClientRequest{}, err
 		}
 	}
 	return req, nil
+}
+
+// mergeAdditionalConfig applies a PATCH additionalConfig onto the stored one.
+// Only the supplied top-level properties change: a value replaces the stored
+// one as a unit (nested objects and arrays are not merged), including a null
+// value, which is stored as a JSON null. A null patch clears the whole
+// configuration, returned as nil. Unknown properties are rejected even when null.
+func mergeAdditionalConfig(stored sql.NullString, patch json.RawMessage) (json.RawMessage, error) {
+	if len(patch) == 0 || bytes.Equal(bytes.TrimSpace(patch), []byte("null")) {
+		return nil, nil
+	}
+	var changes map[string]json.RawMessage
+	if err := json.Unmarshal(patch, &changes); err != nil {
+		return nil, validationErr("invalid_additional_config")
+	}
+	for key := range changes {
+		if _, ok := allowedAdditionalConfigKeys[key]; !ok {
+			return nil, validationErr("invalid_additional_config")
+		}
+	}
+	merged := map[string]json.RawMessage{}
+	if stored.Valid && stored.String != "" {
+		if err := json.Unmarshal([]byte(stored.String), &merged); err != nil {
+			return nil, fmt.Errorf("unmarshal stored additional config: %w", err)
+		}
+		if merged == nil {
+			merged = map[string]json.RawMessage{}
+		}
+	}
+	for key, value := range changes {
+		merged[key] = value
+	}
+	out, err := json.Marshal(merged)
+	if err != nil {
+		return nil, fmt.Errorf("marshal additional config: %w", err)
+	}
+	return out, nil
+}
+
+// validatePatchedAdditionalConfig validates configuration that may hold null
+// properties set through PATCH. A null property counts as unset, matching how
+// the runtime reads the configuration; unknown properties are still rejected.
+func validatePatchedAdditionalConfig(raw json.RawMessage, hasEncPublicKey bool) error {
+	var cfg map[string]json.RawMessage
+	if err := json.Unmarshal(raw, &cfg); err != nil {
+		return validationErr("invalid_additional_config")
+	}
+	for key, value := range cfg {
+		if _, ok := allowedAdditionalConfigKeys[key]; !ok {
+			return validationErr("invalid_additional_config")
+		}
+		if bytes.Equal(bytes.TrimSpace(value), []byte("null")) {
+			delete(cfg, key)
+		}
+	}
+	set, err := json.Marshal(cfg)
+	if err != nil {
+		return fmt.Errorf("marshal additional config: %w", err)
+	}
+	return validateAdditionalConfig(set, hasEncPublicKey)
 }
 
 func validateClientID(id string) error {

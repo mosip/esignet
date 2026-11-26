@@ -302,18 +302,9 @@ func (s *Service) PatchClient(ctx context.Context, clientID string, req PatchCli
 	defer func() { _ = tx.Rollback() }()
 
 	// Validation stays inside the transaction, using the row locked above.
-	// If the request clears the key, does not replace configuration,
-	// and stored configuration exists, pass that retained configuration to validation.
-	var retainedConfig json.RawMessage
-	if fields.EncPublicKey && req.EncPublicKey.IsNull && !fields.AdditionalConfig && existing.AdditionalConfig.Valid {
-		retainedConfig = json.RawMessage(existing.AdditionalConfig.String)
-	}
-	req, err = ValidatePatch(req, fields, s.supportedEncAlgs, existing.EncPublicKey.Valid, retainedConfig)
+	req, err = ValidatePatch(req, fields, existing, s.supportedEncAlgs)
 	if err != nil {
 		return ClientResponse{}, err
-	}
-	if fields.Claims {
-		req.Claims = uniqueStrings(req.Claims)
 	}
 	params, err := preparePatchParams(clientID, req, fields, existing.Name)
 	if err != nil {
