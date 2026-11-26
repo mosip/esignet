@@ -34,6 +34,8 @@ func (ts *DBTestSuite) TestNew_RebindsPlaceholdersPerDriver() {
 	ts.Contains(pg.upsertConsent, "$10")
 	ts.Contains(pg.insertConsentHistory, "$10")
 	ts.NotContains(pg.upsertConsent, "?")
+	ts.Contains(pg.getConsentForUpdate, "$2")
+	ts.Contains(pg.insertConsentIfAbsent, "$10")
 	my := New(nil, "mysql")
 	ts.Contains(my.getConsent, "?")
 	ts.NotContains(my.getConsent, "$1")
@@ -50,6 +52,8 @@ func (ts *DBTestSuite) TestNew_PlaceholderCounts() {
 		{"deleteConsent", my.deleteConsent, 2},
 		{"insertConsentHistory", my.insertConsentHistory, 10},
 		{"upsertConsent", my.upsertConsent, 10},
+		{"getConsentForUpdate", my.getConsentForUpdate, 2},
+		{"insertConsentIfAbsent", my.insertConsentIfAbsent, 10},
 	}
 	for _, c := range cases {
 		ts.Equal(c.want, strings.Count(c.query, "?"), "%s: %q", c.name, c.query)
@@ -66,6 +70,22 @@ func (ts *DBTestSuite) TestNew_UpsertConsentIsDialectSpecific() {
 	for name, q := range map[string]string{"postgres": pg.upsertConsent, "mysql": my.upsertConsent} {
 		ts.NotContains(q, "id = ", "%s: the upsert must keep the existing row id", name)
 	}
+}
+
+func (ts *DBTestSuite) TestNew_GetConsentForUpdateLocksThePlainRead() {
+	for _, driver := range []string{"postgres", "mysql"} {
+		q := New(nil, driver)
+		ts.Equal(q.getConsent+" FOR UPDATE", q.getConsentForUpdate, driver)
+	}
+}
+
+func (ts *DBTestSuite) TestNew_InsertConsentIfAbsentIsDialectSpecific() {
+	pg := New(nil, "postgres")
+	ts.Contains(pg.insertConsentIfAbsent, "ON CONFLICT (client_id, psu_token) DO NOTHING")
+	ts.NotContains(pg.insertConsentIfAbsent, "DO UPDATE")
+	my := New(nil, "mysql")
+	ts.True(strings.HasPrefix(my.insertConsentIfAbsent, "INSERT IGNORE INTO consent_detail"), my.insertConsentIfAbsent)
+	ts.NotContains(my.insertConsentIfAbsent, "ON DUPLICATE KEY")
 }
 
 func (ts *DBTestSuite) TestWithTx_ReusesQueriesAndSwapsConnection() {

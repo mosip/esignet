@@ -109,6 +109,7 @@ func main() {
 	securityMiddleware := getSecurityMiddleware(appCfg, commonHTTPClient, logger)
 
 	clientSvc := clientmgmt.NewService(sqlxConn, runtimeStore, appCfg.ClientCacheTTLSecs, appCfg.SupportedEncAlgorithms)
+	consentSvc := consentmgmt.NewService(sqlxConn)
 	clientHandler := clientmgmt.NewHandler(clientSvc, logger)
 	clientHandler.RegisterRoutes(mux, securityMiddleware)
 	keyMgrSvc, sigSvc, cryptoSvc, ks, err := initializeKeyManager(sqlxConn)
@@ -161,7 +162,7 @@ func main() {
 		thunderidengine.WithActorProvider(engine.NewActorProvider(clientSvc, appCfg)),
 		thunderidengine.WithDefaultAuthnProvider(authnProvider),
 		thunderidengine.WithAuthorizationProvider(engine.NewAuthorizationProvider(appCfg)),
-		thunderidengine.WithConsentProvider(engine.NewConsentProvider(consentmgmt.NewService(sqlxConn), clientSvc, appCfg)),
+		thunderidengine.WithConsentProvider(engine.NewConsentProvider(consentSvc, clientSvc, appCfg)),
 		thunderidengine.WithDesignResolveProvider(engine.NewDesignProvider(appCfg, runtimeStore, appCfg.DesignCacheTTLSecs)),
 		thunderidengine.WithFlowProvider(engine.NewFlowProvider(appCfg, runtimeStore, appCfg.FlowCacheTTLSecs)),
 		thunderidengine.WithI18nProvider(engine.NewI18nProvider(appCfg, clientSvc)),
@@ -175,6 +176,7 @@ func main() {
 		thunderidengine.WithAttestationProvider(engine.NewAttestationProvider(appCfg)),
 		thunderidengine.WithCaptchaValidationProvider(engine.NewCaptchaProvider(&appCfg.CaptchaConfig, commonHTTPClient)),
 		thunderidengine.WithRuntimeCryptoProvider(engine.NewRuntimeCryptoProvider(appCfg, keyMgrSvc, sigSvc, cryptoSvc, authnProvider)),
+		thunderidengine.WithDeviceSecretProvider(engine.NewDeviceSecretProvider(appCfg, clientSvc, consentSvc, sigSvc, cryptoSvc)),
 		thunderidengine.WithOriginConfig(originConfig),
 	)
 
@@ -353,6 +355,20 @@ func provisionKeyHierarchy(svc *keymanager.Service) error {
 	}
 	if err := generateKey(svc, config.OIDCServiceAppID, keymanager.RefIDECSECP256R1Sign, ""); err != nil {
 		return fmt.Errorf("provision %s EC sign key: %w", config.OIDCServiceAppID, err)
+	}
+	// Native SSO device secrets are encrypted to this Component Encryption Key (signed by the
+	// OIDC_SERVICE component master key above). GetCertificate creates it on first request.
+	encCert, err := svc.GetCertificate(context.Background(), config.OIDCServiceAppID, engine.DeviceSecretEncryptionRefID)
+	if err != nil {
+		return fmt.Errorf("provision %s device secret encryption key: %w", config.OIDCServiceAppID, err)
+	}
+	// JWT encryption accepts only a 2048-bit RSA key while CRYPTOMANAGER_JWT_ENFORCE_2048 is on; a
+	// key of another size (for example one provisioned by an operator) fails here, not on the first
+	// device_sso login.
+	if cryptomanager.LoadConfig().EnforceJWTCertKeyLength {
+		if err := engine.CheckDeviceSecretEncryptionCertificate(encCert.Certificate); err != nil {
+			return fmt.Errorf("provision %s device secret encryption key: %w", config.OIDCServiceAppID, err)
+		}
 	}
 	if _, err := svc.GenerateSymmetricKey(context.Background(), keymanager.SymmetricKeyRequest{
 		ApplicationID: config.OIDCServiceAppID,

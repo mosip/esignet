@@ -11,11 +11,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"math"
 	"net/url"
 	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
+	"time"
 
 	engineconfig "github.com/thunder-id/thunderid/pkg/thunderidengine/config"
 	"gopkg.in/yaml.v3"
@@ -112,6 +114,7 @@ type AppConfig struct {
 	Observability              engineconfig.ObservabilityConfig `yaml:"observability"`
 	GateClient                 engineconfig.GateClientConfig    `yaml:"gate_client"`
 	SecurityConfig             SecurityConfig                   `yaml:"security_config"`
+	NativeSSO                  NativeSSOConfig                  `yaml:"native_sso"`
 	ClientCacheTTLSecs         int64                            `yaml:"client_cache_ttl_secs"`
 	DesignCacheTTLSecs         int64                            `yaml:"design_cache_ttl_secs"`
 	FlowCacheTTLSecs           int64                            `yaml:"flow_cache_ttl_secs"`
@@ -190,6 +193,25 @@ func (c *AppConfig) IsAuthorizationScope(name string) bool {
 		}
 	}
 	return false
+}
+
+// maxDeviceSecretValiditySeconds is the largest value DeviceSecretValidity can convert without
+// overflowing time.Duration (about 292 years).
+const maxDeviceSecretValiditySeconds = int64(math.MaxInt64 / int64(time.Second))
+
+// NativeSSOConfig tunes OpenID Connect Native SSO for Mobile Apps (device secrets).
+type NativeSSOConfig struct {
+	// DeviceSecretValiditySeconds bounds how long a device secret can be exchanged. Zero keeps the
+	// lifetime the engine asks for (30 days).
+	DeviceSecretValiditySeconds int64 `yaml:"device_secret_validity_seconds"`
+}
+
+// DeviceSecretValidity returns the configured device secret lifetime, or zero when unset.
+func (c NativeSSOConfig) DeviceSecretValidity() time.Duration {
+	if c.DeviceSecretValiditySeconds <= 0 {
+		return 0
+	}
+	return time.Duration(c.DeviceSecretValiditySeconds) * time.Second
 }
 
 // SecurityConfig defines application security configuration
@@ -617,6 +639,21 @@ func ApplyEnvOverrides(cfg *AppConfig) error {
 		if secs > 0 {
 			cfg.OAuth.AuthorizationCode.ValidityPeriod = secs
 		}
+	}
+	if v := os.Getenv("MOSIP_ESIGNET_DEVICE_SECRET_VALIDITY_SECONDS"); v != "" {
+		secs, err := strconv.ParseInt(v, 10, 64)
+		if err != nil {
+			return fmt.Errorf("invalid MOSIP_ESIGNET_DEVICE_SECRET_VALIDITY_SECONDS: %w", err)
+		}
+		if secs > 0 {
+			cfg.NativeSSO.DeviceSecretValiditySeconds = secs
+		}
+	}
+	// Validate the effective cap (YAML or env) once the override is applied: a value past the
+	// time.Duration range would silently wrap in DeviceSecretValidity.
+	if cfg.NativeSSO.DeviceSecretValiditySeconds > maxDeviceSecretValiditySeconds {
+		return fmt.Errorf("native_sso.device_secret_validity_seconds (or MOSIP_ESIGNET_DEVICE_SECRET_VALIDITY_SECONDS) %d exceeds the maximum %d",
+			cfg.NativeSSO.DeviceSecretValiditySeconds, maxDeviceSecretValiditySeconds)
 	}
 	if v := os.Getenv("MOSIP_ESIGNET_OAUTH_PAR_EXPIRY_SECONDS"); v != "" {
 		// Default: 90 s (RFC 9126 §2.2 short-lived; matches deployment.yaml and applyDefaults).

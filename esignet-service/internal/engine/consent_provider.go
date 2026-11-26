@@ -461,6 +461,12 @@ func requestHash(claimsRequest map[string]any, authorizeScopes []string) (string
 // claimsFromScopes flattens the claim names mapped to scopes by the registered client claims,
 // deduplicated.
 func (p *consentProvider) claimsFromScopes(scopes []string, registeredClaims []string) []string {
+	return claimsForScopes(p.config.ScopeClaims, scopes, registeredClaims)
+}
+
+// claimsForScopes flattens the claim names scopeClaims maps to scopes, keeping only claims the
+// client registered, deduplicated and in scope order.
+func claimsForScopes(scopeClaims map[string][]string, scopes []string, registeredClaims []string) []string {
 	registered := make(map[string]bool, len(registeredClaims))
 	for _, claim := range registeredClaims {
 		registered[claim] = true
@@ -469,7 +475,7 @@ func (p *consentProvider) claimsFromScopes(scopes []string, registeredClaims []s
 	seen := make(map[string]bool, len(registeredClaims))
 	var claims []string
 	for _, scope := range scopes {
-		for _, scopeClaim := range p.config.ScopeClaims[scope] {
+		for _, scopeClaim := range scopeClaims[scope] {
 			if !registered[scopeClaim] || seen[scopeClaim] {
 				continue
 			}

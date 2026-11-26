@@ -1,0 +1,1935 @@
+{
+  "info": {
+    "_postman_id": "6e781ac5-8a81-4868-ac47-401053f1c0bf",
+    "name": "MOSIP eSignet (Go) \u2014 Native SSO for Mobile Apps",
+    "description": "OpenID Connect Native SSO for Mobile Apps on eSignet (Go) + ThunderID: super app login with device_sso, child app silent sign-in by RFC 8693 token exchange, and the security/consent checks. Run top to bottom with the matching environment against a local eSignet (docker-compose + make.sh run). Keys (client assertions, DPoP Key A) are generated in pre-request scripts with WebCrypto.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "0. Setup",
+      "item": [
+        {
+          "name": "0.1 Discovery advertises token exchange and device_sso",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/.well-known/openid-configuration",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                ".well-known",
+                "openid-configuration"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const d = pm.response.json();",
+                  "pm.test('token exchange grant', () => pm.expect(d.grant_types_supported).to.include('urn:ietf:params:oauth:grant-type:token-exchange'));",
+                  "pm.test('device_sso scope', () => pm.expect(d.scopes_supported).to.include('device_sso'));"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "description": "Register the demo clients first: `python3 mobile-sample/scripts/register_clients.py` (keys in the environment match)."
+    },
+    {
+      "name": "1. Super app: login with device_sso",
+      "item": [
+        {
+          "name": "1.1 Super app: PAR with device_sso (PKCE, DPoP Key A, private_key_jwt)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// Dynamic PKCE (code_verifier/code_challenge), a fresh DPoP key (dpop_*), and a PS256",
+                  "// private_key_jwt (par_client_assertion) signed with client_private_key.",
+                  "// The PAR audience (DPoP htu AND assertion aud) comes from the par_audience env var.",
+                  "function b64url(bytes) {",
+                  "  const arr = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);",
+                  "  let s = ''; for (let i = 0; i < arr.length; i++) s += String.fromCharCode(arr[i]);",
+                  "  return btoa(s).replace(/\\+/g, '-').replace(/\\//g, '_').replace(/=+$/, '');",
+                  "}",
+                  "function b64urlStr(str) { return b64url(new TextEncoder().encode(str)); }",
+                  "async function sha256b64url(input) {",
+                  "  const data = typeof input === 'string' ? new TextEncoder().encode(input) : input;",
+                  "  return b64url(new Uint8Array(await crypto.subtle.digest('SHA-256', data)));",
+                  "}",
+                  "async function generateJKT(jwk) { return await sha256b64url(JSON.stringify({ e: jwk.e, kty: jwk.kty, n: jwk.n })); }",
+                  "const parAudience = pm.environment.get('par_audience') || `${pm.environment.get('baseUrl')}/oauth2/par`;",
+                  "",
+                  "const pkceBytes = new Uint8Array(32);",
+                  "crypto.getRandomValues(pkceBytes);",
+                  "const codeVerifier = b64url(pkceBytes);",
+                  "pm.environment.set('code_verifier', codeVerifier);",
+                  "pm.environment.set('code_challenge', await sha256b64url(codeVerifier));",
+                  "",
+                  "await (async () => {",
+                  "  const keyPair = await crypto.subtle.generateKey(",
+                  "    { name: 'RSA-PSS', modulusLength: 2048, publicExponent: new Uint8Array([0x01, 0x00, 0x01]), hash: 'SHA-256' },",
+                  "    true, ['sign', 'verify']);",
+                  "  const exportedPub = await crypto.subtle.exportKey('jwk', keyPair.publicKey);",
+                  "  const exportedPriv = await crypto.subtle.exportKey('jwk', keyPair.privateKey);",
+                  "  const publicJwk = { e: exportedPub.e, kty: exportedPub.kty, n: exportedPub.n };",
+                  "  const header = { typ: 'dpop+jwt', alg: 'PS256', jwk: publicJwk };",
+                  "  const payload = { jti: crypto.randomUUID(), htm: pm.request.method.toUpperCase(), htu: `${pm.environment.get('baseUrl')}/oauth2/par`, iat: Math.floor(Date.now() / 1000) };",
+                  "  const signingInput = `${b64urlStr(JSON.stringify(header))}.${b64urlStr(JSON.stringify(payload))}`;",
+                  "  const sig = await crypto.subtle.sign({ name: 'RSA-PSS', saltLength: 32 }, keyPair.privateKey, new TextEncoder().encode(signingInput));",
+                  "  pm.environment.set('dpop_jkt', await generateJKT(publicJwk));",
+                  "  pm.environment.set('dpop_private_key', JSON.stringify(exportedPriv));",
+                  "  pm.environment.set('dpop_public_key', JSON.stringify(exportedPub));",
+                  "  pm.request.headers.upsert({ key: 'DPoP', value: `${signingInput}.${b64url(new Uint8Array(sig))}` });",
+                  "})();",
+                  "",
+                  "async function buildClientAssertion() {",
+                  "  const privateJwk = JSON.parse(pm.environment.get('client_private_key'));",
+                  "  const clientId = pm.environment.get('client_id');",
+                  "  const audience = parAudience;",
+                  "  const privateKey = await crypto.subtle.importKey('jwk', privateJwk, { name: 'RSA-PSS', hash: 'SHA-256' }, false, ['sign']);",
+                  "  const kid = privateJwk.kid || await generateJKT(privateJwk);",
+                  "  const header = { alg: 'PS256', typ: 'JWT', kid };",
+                  "  const now = Math.floor(Date.now() / 1000);",
+                  "  const payload = { iss: clientId, sub: clientId, aud: audience, jti: crypto.randomUUID(), iat: now, exp: now + 60 };",
+                  "  const signingInput = `${b64urlStr(JSON.stringify(header))}.${b64urlStr(JSON.stringify(payload))}`;",
+                  "  const sig = await crypto.subtle.sign({ name: 'RSA-PSS', saltLength: 32 }, privateKey, new TextEncoder().encode(signingInput));",
+                  "  return `${signingInput}.${b64url(new Uint8Array(sig))}`;",
+                  "}",
+                  "pm.collectionVariables.set('par_client_assertion', await buildClientAssertion());"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "console.log('PAR status:', pm.response.code, '| body:', pm.response.text());",
+                  "pm.test('PAR 200/201', () => pm.expect(pm.response.code).to.be.oneOf([200, 201]));",
+                  "const r = pm.response.json();",
+                  "const ru = r.request_uri || r.requestUri;",
+                  "pm.test('request_uri present', () => pm.expect(ru).to.be.a('string').and.not.empty);",
+                  "pm.environment.set('request_uri', ru);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "client_id",
+                  "value": "{{client_id}}",
+                  "type": "text"
+                },
+                {
+                  "key": "redirect_uri",
+                  "value": "{{redirect_uri}}",
+                  "type": "text"
+                },
+                {
+                  "key": "response_type",
+                  "value": "code",
+                  "type": "text"
+                },
+                {
+                  "key": "state",
+                  "value": "esignet-fapi2-test",
+                  "type": "text"
+                },
+                {
+                  "key": "code_challenge",
+                  "value": "{{code_challenge}}",
+                  "type": "text"
+                },
+                {
+                  "key": "code_challenge_method",
+                  "value": "S256",
+                  "type": "text"
+                },
+                {
+                  "key": "scope",
+                  "value": "{{super_scope}}",
+                  "type": "text"
+                },
+                {
+                  "key": "client_assertion_type",
+                  "value": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+                  "type": "text"
+                },
+                {
+                  "key": "client_assertion",
+                  "value": "{{par_client_assertion}}",
+                  "type": "text"
+                },
+                {
+                  "key": "dpop_jkt",
+                  "value": "{{dpop_jkt}}",
+                  "type": "text"
+                },
+                {
+                  "key": "prompt",
+                  "value": "consent",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/oauth2/par",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "oauth2",
+                "par"
+              ]
+            },
+            "description": "The super app pushes its authorization request. `scope` includes `device_sso`; `dpop_jkt` binds the request to Key A, generated here and reused by every later request."
+          },
+          "response": []
+        },
+        {
+          "name": "1.2 Super app: authorize (redirects to the login UI)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const loc = pm.response.headers.get('Location');",
+                  "console.log('authorize status:', pm.response.code, '| Location:', loc);",
+                  "pm.test('authorize redirects', () => pm.expect(pm.response.code).to.be.oneOf([302, 303, 307]));",
+                  "if (loc) {",
+                  "  const url = new URL(loc, pm.environment.get('baseUrl'));",
+                  "  const err = url.searchParams.get('error');",
+                  "  if (err) console.log('OAuth ERROR:', err, '-', url.searchParams.get('error_description') || url.searchParams.get('errorMessage'));",
+                  "  pm.test('no error redirect', () => pm.expect(err, 'authorize returned an error redirect').to.be.null);",
+                  "  pm.environment.set('auth_id', url.searchParams.get('authId'));",
+                  "  pm.environment.set('execution_id', url.searchParams.get('executionId'));",
+                  "  console.log('auth_id:', url.searchParams.get('authId'), '| execution_id:', url.searchParams.get('executionId'));",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "followRedirects": false
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/oauth2/authorize?client_id={{client_id}}&request_uri={{request_uri}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "oauth2",
+                "authorize"
+              ],
+              "query": [
+                {
+                  "key": "client_id",
+                  "value": "{{client_id}}"
+                },
+                {
+                  "key": "request_uri",
+                  "value": "{{request_uri}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "1.3 Login flow: start",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('resume 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('challenge_token', () => pm.expect(j.challengeToken).to.be.a('string').and.not.empty);",
+                  "pm.environment.set('challenge_token', j.challengeToken);",
+                  "if (j.data && j.data.actions && j.data.actions[0]) {",
+                  "  pm.environment.set('action_ref', j.data.actions[0].ref);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"executionId\": \"{{execution_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/flow/execute",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "flow",
+                "execute"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "1.4 Login flow: choose OTP",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('select acr 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "if (j.challengeToken) pm.environment.set('challenge_token', j.challengeToken);",
+                  "if (j.data && j.data.actions && j.data.actions[0]) {",
+                  "  pm.environment.set('action_ref', j.data.actions[0].ref);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"executionId\": \"{{execution_id}}\",\n  \"challengeToken\": \"{{challenge_token}}\",\n  \"action\": \"{{action_ref}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/flow/execute",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "flow",
+                "execute"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "1.5 Login flow: enter UIN (mock identity 1774231323)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "if (!pm.environment.get('individual_id')) {",
+                  "  throw new Error('Set individual_id in the environment (MOSIP UIN) before running this folder.');",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('individual ID 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('INCOMPLETE', () => pm.expect(j.flowStatus).to.eql('INCOMPLETE'));",
+                  "pm.test('otp prompt', () => {",
+                  "  const ids = (j.data && j.data.inputs || []).map(i => i.identifier);",
+                  "  pm.expect(ids).to.include('otp');",
+                  "});",
+                  "if (j.challengeToken) pm.environment.set('challenge_token', j.challengeToken);",
+                  "if (j.data && j.data.actions && j.data.actions[0]) {",
+                  "  pm.environment.set('action_ref', j.data.actions[0].ref);",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"executionId\": \"{{execution_id}}\",\n  \"challengeToken\": \"{{challenge_token}}\",\n  \"action\": \"{{action_ref}}\",\n  \"inputs\": {\n    \"username\": \"{{individual_id}}\",\n    \"captcha_token\" : \"test-captcha-token\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/flow/execute",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "flow",
+                "execute"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "1.6 Login flow: enter OTP (111111)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "if (!pm.environment.get('otp')) {",
+                  "  throw new Error('Set otp in the environment after MOSIP sends the code.');",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('otp submit 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "if (j.challengeToken) pm.environment.set('challenge_token', j.challengeToken);",
+                  "if (j.flowStatus === 'COMPLETE') { pm.environment.set('assertion', j.assertion); pm.environment.set('consent_prompt', '[]'); }",
+                  "else {",
+                  "  if (j.data && j.data.actions && j.data.actions[0]) pm.environment.set('action_ref', j.data.actions[0].ref);",
+                  "  pm.environment.set('consent_prompt', (j.data && j.data.additionalData && j.data.additionalData.consentPrompt) || '[]');",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"executionId\": \"{{execution_id}}\",\n  \"challengeToken\": \"{{challenge_token}}\",\n  \"action\": \"{{action_ref}}\",\n  \"inputs\": {\n    \"otp\": \"{{otp}}\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/flow/execute",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "flow",
+                "execute"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "1.7 Login flow: consent (everything except email)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Approve every prompted claim except the optional `email`, so the child app's later",
+                  "// request for `openid email` (3.6) demonstrates interaction_required.",
+                  "const prompt = JSON.parse(pm.environment.get('consent_prompt') || '[]');",
+                  "const decisions = { approved: true, purposes: prompt.map(p => ({ purposeName: p.purposeName, approved: true,",
+                  "  elements: [...(p.essential || []), ...(p.optional || [])].map(e => ({ name: e.name, approved: e.name !== 'email' })) })) };",
+                  "pm.environment.set('consent_decisions', JSON.stringify(decisions));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('consent 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "if (j.challengeToken) pm.environment.set('challenge_token', j.challengeToken);",
+                  "pm.test('flow COMPLETE', () => pm.expect(j.flowStatus).to.eql('COMPLETE'));",
+                  "if (j.assertion) pm.environment.set('assertion', j.assertion);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"executionId\": \"{{execution_id}}\",\n  \"challengeToken\": \"{{challenge_token}}\",\n  \"action\": \"{{action_ref}}\",\n  \"inputs\": {\n    \"consent_decisions\": \"{{consent_decisions}}\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/flow/execute",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "flow",
+                "execute"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "1.8 Auth callback (authorization code)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('callback 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "const ru = j.redirect_uri || j.redirectUri;",
+                  "pm.test('redirect_uri present', () => pm.expect(ru).to.be.a('string').and.not.empty);",
+                  "const url = new URL(ru);",
+                  "pm.test('no OAuth error in redirect', () => pm.expect(url.searchParams.get('error')).to.be.null);",
+                  "pm.test('authorization code present', () => pm.expect(url.searchParams.get('code')).to.be.a('string').and.not.empty);",
+                  "pm.environment.set('code', url.searchParams.get('code'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"authId\": \"{{auth_id}}\",\n  \"assertion\": \"{{assertion}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/oauth2/auth/callback",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "oauth2",
+                "auth",
+                "callback"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "1.9 Super app: token (authorization_code) \u2192 access_token + id_token + device_secret",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// DPoP proof for the token endpoint (reuses the key from Initiate PAR) + PS256",
+                  "// private_key_jwt (client_assertion) signed with client_private_key.",
+                  "// The token audience (DPoP htu AND assertion aud) comes from the audience env var.",
+                  "function b64url(bytes) {",
+                  "  const arr = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);",
+                  "  let s = ''; for (let i = 0; i < arr.length; i++) s += String.fromCharCode(arr[i]);",
+                  "  return btoa(s).replace(/\\+/g, '-').replace(/\\//g, '_').replace(/=+$/, '');",
+                  "}",
+                  "function b64urlStr(str) { return b64url(new TextEncoder().encode(str)); }",
+                  "async function sha256b64url(input) {",
+                  "  const data = typeof input === 'string' ? new TextEncoder().encode(input) : input;",
+                  "  return b64url(new Uint8Array(await crypto.subtle.digest('SHA-256', data)));",
+                  "}",
+                  "async function generateJKT(jwk) { return await sha256b64url(JSON.stringify({ e: jwk.e, kty: jwk.kty, n: jwk.n })); }",
+                  "const tokenAudience = pm.environment.get('audience') || `${pm.environment.get('baseUrl')}/oauth2/token`;",
+                  "",
+                  "await (async () => {",
+                  "  const privateJwk = JSON.parse(pm.environment.get('dpop_private_key'));",
+                  "  const publicJwk = JSON.parse(pm.environment.get('dpop_public_key'));",
+                  "  const privateKey = await crypto.subtle.importKey('jwk', privateJwk, { name: 'RSA-PSS', hash: 'SHA-256' }, false, ['sign']);",
+                  "  const header = { typ: 'dpop+jwt', alg: 'PS256', jwk: { e: publicJwk.e, kty: publicJwk.kty, n: publicJwk.n } };",
+                  "  const payload = { jti: crypto.randomUUID(), htm: pm.request.method.toUpperCase(), htu: `${pm.environment.get('baseUrl')}/oauth2/token`, iat: Math.floor(Date.now() / 1000) };",
+                  "  const signingInput = `${b64urlStr(JSON.stringify(header))}.${b64urlStr(JSON.stringify(payload))}`;",
+                  "  const sig = await crypto.subtle.sign({ name: 'RSA-PSS', saltLength: 32 }, privateKey, new TextEncoder().encode(signingInput));",
+                  "  pm.request.headers.upsert({ key: 'DPoP', value: `${signingInput}.${b64url(new Uint8Array(sig))}` });",
+                  "})();",
+                  "",
+                  "async function buildClientAssertion() {",
+                  "  const privateJwk = JSON.parse(pm.environment.get('client_private_key'));",
+                  "  const clientId = pm.environment.get('client_id');",
+                  "  const audience = tokenAudience;",
+                  "  const privateKey = await crypto.subtle.importKey('jwk', privateJwk, { name: 'RSA-PSS', hash: 'SHA-256' }, false, ['sign']);",
+                  "  const kid = privateJwk.kid || await generateJKT(privateJwk);",
+                  "  const header = { alg: 'PS256', typ: 'JWT', kid };",
+                  "  const now = Math.floor(Date.now() / 1000);",
+                  "  const payload = { iss: clientId, sub: clientId, aud: audience, jti: crypto.randomUUID(), iat: now, exp: now + 60 };",
+                  "  const signingInput = `${b64urlStr(JSON.stringify(header))}.${b64urlStr(JSON.stringify(payload))}`;",
+                  "  const sig = await crypto.subtle.sign({ name: 'RSA-PSS', saltLength: 32 }, privateKey, new TextEncoder().encode(signingInput));",
+                  "  return `${signingInput}.${b64url(new Uint8Array(sig))}`;",
+                  "}",
+                  "pm.collectionVariables.set('client_assertion', await buildClientAssertion());"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('token 200', () => pm.response.to.have.status(200));",
+                  "const t = pm.response.json();",
+                  "pm.environment.set('access_token', t.access_token);",
+                  "pm.environment.set('id_token', t.id_token);",
+                  "pm.environment.set('device_secret', t.device_secret);",
+                  "pm.test('device_secret issued (JWE, 5 segments)', () => pm.expect(t.device_secret.split('.').length).to.eql(5));",
+                  "function payload(jwt) { return JSON.parse(atob(jwt.split('.')[1].replace(/-/g, '+').replace(/_/g, '/'))); }",
+                  "const id = payload(t.id_token);",
+                  "pm.test('id_token carries sid', () => pm.expect(id.sid).to.be.a('string').and.not.empty);",
+                  "pm.environment.set('sid', id.sid);",
+                  "crypto.subtle.digest('SHA-256', new TextEncoder().encode(t.device_secret)).then(h => {",
+                  "  const dsHash = btoa(String.fromCharCode(...new Uint8Array(h))).replace(/\\+/g, '-').replace(/\\//g, '_').replace(/=+$/, '');",
+                  "  pm.test('id_token ds_hash = SHA-256(device_secret)', () => pm.expect(id.ds_hash).to.eql(dsHash));",
+                  "});",
+                  "const at = payload(t.access_token);",
+                  "pm.test('access token bound to Key A (cnf.jkt)', () => pm.expect(at.cnf.jkt).to.eql(pm.environment.get('dpop_jkt')));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "grant_type",
+                  "value": "authorization_code",
+                  "type": "text"
+                },
+                {
+                  "key": "code",
+                  "value": "{{code}}",
+                  "type": "text"
+                },
+                {
+                  "key": "redirect_uri",
+                  "value": "{{redirect_uri}}",
+                  "type": "text"
+                },
+                {
+                  "key": "client_id",
+                  "value": "{{client_id}}",
+                  "type": "text"
+                },
+                {
+                  "key": "code_verifier",
+                  "value": "{{code_verifier}}",
+                  "type": "text"
+                },
+                {
+                  "key": "client_assertion_type",
+                  "value": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+                  "type": "text"
+                },
+                {
+                  "key": "client_assertion",
+                  "value": "{{client_assertion}}",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/oauth2/token",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "oauth2",
+                "token"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "1.10 Super app: userinfo",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// DPoP proof for userinfo (ath = SHA-256 of the access token).",
+                  "// The userinfo audience (DPoP htu) comes from the userinfo_audience env var.",
+                  "function b64url(bytes) {",
+                  "  const arr = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);",
+                  "  let s = ''; for (let i = 0; i < arr.length; i++) s += String.fromCharCode(arr[i]);",
+                  "  return btoa(s).replace(/\\+/g, '-').replace(/\\//g, '_').replace(/=+$/, '');",
+                  "}",
+                  "function b64urlStr(str) { return b64url(new TextEncoder().encode(str)); }",
+                  "async function sha256b64url(input) {",
+                  "  const data = typeof input === 'string' ? new TextEncoder().encode(input) : input;",
+                  "  return b64url(new Uint8Array(await crypto.subtle.digest('SHA-256', data)));",
+                  "}",
+                  "const userinfoAudience = pm.environment.get('userinfo_audience') || `${pm.environment.get('baseUrl')}/oauth2/userinfo`;",
+                  "await (async () => {",
+                  "  const privateJwk = JSON.parse(pm.environment.get('dpop_private_key'));",
+                  "  const publicJwk = JSON.parse(pm.environment.get('dpop_public_key'));",
+                  "  const accessToken = pm.environment.get('access_token');",
+                  "  const privateKey = await crypto.subtle.importKey('jwk', privateJwk, { name: 'RSA-PSS', hash: 'SHA-256' }, false, ['sign']);",
+                  "  const header = { typ: 'dpop+jwt', alg: 'PS256', jwk: { e: publicJwk.e, kty: publicJwk.kty, n: publicJwk.n } };",
+                  "  const payload = { jti: crypto.randomUUID(), htm: pm.request.method.toUpperCase(), htu: `${pm.environment.get('baseUrl')}/oauth2/userinfo`, iat: Math.floor(Date.now() / 1000), ath: await sha256b64url(accessToken) };",
+                  "  const signingInput = `${b64urlStr(JSON.stringify(header))}.${b64urlStr(JSON.stringify(payload))}`;",
+                  "  const sig = await crypto.subtle.sign({ name: 'RSA-PSS', saltLength: 32 }, privateKey, new TextEncoder().encode(signingInput));",
+                  "  pm.request.headers.upsert({ key: 'DPoP', value: `${signingInput}.${b64url(new Uint8Array(sig))}` });",
+                  "})();"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('userinfo 200', () => pm.response.to.have.status(200));",
+                  "console.log('userinfo body:', pm.response.text());"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "DPoP {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/oauth2/userinfo",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "oauth2",
+                "userinfo"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "2. Child app: silent sign-in via token exchange",
+      "item": [
+        {
+          "name": "2.1 Child app: token exchange (silent sign-in)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "grant_type",
+                  "value": "urn:ietf:params:oauth:grant-type:token-exchange",
+                  "type": "text"
+                },
+                {
+                  "key": "client_id",
+                  "value": "{{child_client_id}}",
+                  "type": "text"
+                },
+                {
+                  "key": "subject_token",
+                  "value": "{{id_token}}",
+                  "type": "text"
+                },
+                {
+                  "key": "subject_token_type",
+                  "value": "urn:ietf:params:oauth:token-type:id_token",
+                  "type": "text"
+                },
+                {
+                  "key": "actor_token",
+                  "value": "{{device_secret}}",
+                  "type": "text"
+                },
+                {
+                  "key": "actor_token_type",
+                  "value": "urn:openid:params:token-type:device-secret",
+                  "type": "text"
+                },
+                {
+                  "key": "audience",
+                  "value": "{{audience}}",
+                  "type": "text"
+                },
+                {
+                  "key": "scope",
+                  "value": "openid profile",
+                  "type": "text"
+                },
+                {
+                  "key": "client_assertion_type",
+                  "value": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+                  "type": "text"
+                },
+                {
+                  "key": "client_assertion",
+                  "value": "{{child_client_assertion}}",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/oauth2/token",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "oauth2",
+                "token"
+              ]
+            },
+            "description": "The child app presents the super app's id_token (subject) and device_secret (actor) with a DPoP proof signed by Key A, which the super app produced for it over IPC. The requested scope is a subset of the super app's grant and is covered by the user's consent, so no interaction is needed."
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "function b64url(bytes) { const a = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes); let s = ''; for (let i = 0; i < a.length; i++) s += String.fromCharCode(a[i]); return btoa(s).replace(/\\+/g, '-').replace(/\\//g, '_').replace(/=+$/, ''); }",
+                  "function b64urlStr(str) { return b64url(new TextEncoder().encode(str)); }",
+                  "async function sha256b64url(input) { const data = typeof input === 'string' ? new TextEncoder().encode(input) : input; return b64url(new Uint8Array(await crypto.subtle.digest('SHA-256', data))); }",
+                  "async function generateJKT(jwk) { return await sha256b64url(JSON.stringify({ e: jwk.e, kty: jwk.kty, n: jwk.n })); }",
+                  "async function dpopProof(privateJwkStr, publicJwkStr, htm, htu, ath) {",
+                  "  const privateJwk = JSON.parse(privateJwkStr), publicJwk = JSON.parse(publicJwkStr);",
+                  "  const key = await crypto.subtle.importKey('jwk', privateJwk, { name: 'RSA-PSS', hash: 'SHA-256' }, false, ['sign']);",
+                  "  const header = { typ: 'dpop+jwt', alg: 'PS256', jwk: { e: publicJwk.e, kty: publicJwk.kty, n: publicJwk.n } };",
+                  "  const payload = { jti: crypto.randomUUID(), htm, htu, iat: Math.floor(Date.now() / 1000) };",
+                  "  if (ath) payload.ath = await sha256b64url(ath);",
+                  "  const input = `${b64urlStr(JSON.stringify(header))}.${b64urlStr(JSON.stringify(payload))}`;",
+                  "  const sig = await crypto.subtle.sign({ name: 'RSA-PSS', saltLength: 32 }, key, new TextEncoder().encode(input));",
+                  "  return `${input}.${b64url(new Uint8Array(sig))}`;",
+                  "}",
+                  "async function clientAssertion(privateJwkStr, clientId) {",
+                  "  const privateJwk = JSON.parse(privateJwkStr);",
+                  "  const key = await crypto.subtle.importKey('jwk', privateJwk, { name: 'RSA-PSS', hash: 'SHA-256' }, false, ['sign']);",
+                  "  const kid = privateJwk.kid || await generateJKT(privateJwk);",
+                  "  const now = Math.floor(Date.now() / 1000);",
+                  "  const header = { alg: 'PS256', typ: 'JWT', kid };",
+                  "  // FAPI 2.0 \u00a75.3.2.1: the audience is the issuer.",
+                  "  const payload = { iss: clientId, sub: clientId, aud: pm.environment.get('baseUrl'), jti: crypto.randomUUID(), iat: now, exp: now + 120 };",
+                  "  const input = `${b64urlStr(JSON.stringify(header))}.${b64urlStr(JSON.stringify(payload))}`;",
+                  "  const sig = await crypto.subtle.sign({ name: 'RSA-PSS', saltLength: 32 }, key, new TextEncoder().encode(input));",
+                  "  return `${input}.${b64url(new Uint8Array(sig))}`;",
+                  "}",
+                  "await (async () => {",
+                  "  pm.request.headers.upsert({ key: 'DPoP', value: await dpopProof(pm.environment.get('dpop_private_key'), pm.environment.get('dpop_public_key'), 'POST', `${pm.environment.get('baseUrl')}/oauth2/token`) });",
+                  "  pm.collectionVariables.set('child_client_assertion', await clientAssertion(pm.environment.get('child_client_private_key'), pm.environment.get('child_client_id')));",
+                  "})();"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('exchange 200', () => pm.response.to.have.status(200));",
+                  "const t = pm.response.json();",
+                  "pm.environment.set('child_access_token', t.access_token);",
+                  "pm.test('DPoP-bound access token', () => pm.expect(t.token_type).to.eql('DPoP'));",
+                  "pm.test('no device_secret on an exchange', () => pm.expect(t.device_secret).to.be.undefined);",
+                  "const at = JSON.parse(atob(t.access_token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));",
+                  "pm.test('act.sub is the super app', () => pm.expect(at.act.sub).to.eql(pm.environment.get('client_id')));",
+                  "pm.test('bound to Key A', () => pm.expect(at.cnf.jkt).to.eql(pm.environment.get('dpop_jkt')));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "2.2 Child app: userinfo with the exchanged token",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "body": null,
+            "url": {
+              "raw": "{{baseUrl}}/oauth2/userinfo",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "oauth2",
+                "userinfo"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "function b64url(bytes) { const a = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes); let s = ''; for (let i = 0; i < a.length; i++) s += String.fromCharCode(a[i]); return btoa(s).replace(/\\+/g, '-').replace(/\\//g, '_').replace(/=+$/, ''); }",
+                  "function b64urlStr(str) { return b64url(new TextEncoder().encode(str)); }",
+                  "async function sha256b64url(input) { const data = typeof input === 'string' ? new TextEncoder().encode(input) : input; return b64url(new Uint8Array(await crypto.subtle.digest('SHA-256', data))); }",
+                  "async function generateJKT(jwk) { return await sha256b64url(JSON.stringify({ e: jwk.e, kty: jwk.kty, n: jwk.n })); }",
+                  "async function dpopProof(privateJwkStr, publicJwkStr, htm, htu, ath) {",
+                  "  const privateJwk = JSON.parse(privateJwkStr), publicJwk = JSON.parse(publicJwkStr);",
+                  "  const key = await crypto.subtle.importKey('jwk', privateJwk, { name: 'RSA-PSS', hash: 'SHA-256' }, false, ['sign']);",
+                  "  const header = { typ: 'dpop+jwt', alg: 'PS256', jwk: { e: publicJwk.e, kty: publicJwk.kty, n: publicJwk.n } };",
+                  "  const payload = { jti: crypto.randomUUID(), htm, htu, iat: Math.floor(Date.now() / 1000) };",
+                  "  if (ath) payload.ath = await sha256b64url(ath);",
+                  "  const input = `${b64urlStr(JSON.stringify(header))}.${b64urlStr(JSON.stringify(payload))}`;",
+                  "  const sig = await crypto.subtle.sign({ name: 'RSA-PSS', saltLength: 32 }, key, new TextEncoder().encode(input));",
+                  "  return `${input}.${b64url(new Uint8Array(sig))}`;",
+                  "}",
+                  "async function clientAssertion(privateJwkStr, clientId) {",
+                  "  const privateJwk = JSON.parse(privateJwkStr);",
+                  "  const key = await crypto.subtle.importKey('jwk', privateJwk, { name: 'RSA-PSS', hash: 'SHA-256' }, false, ['sign']);",
+                  "  const kid = privateJwk.kid || await generateJKT(privateJwk);",
+                  "  const now = Math.floor(Date.now() / 1000);",
+                  "  const header = { alg: 'PS256', typ: 'JWT', kid };",
+                  "  // FAPI 2.0 \u00a75.3.2.1: the audience is the issuer.",
+                  "  const payload = { iss: clientId, sub: clientId, aud: pm.environment.get('baseUrl'), jti: crypto.randomUUID(), iat: now, exp: now + 120 };",
+                  "  const input = `${b64urlStr(JSON.stringify(header))}.${b64urlStr(JSON.stringify(payload))}`;",
+                  "  const sig = await crypto.subtle.sign({ name: 'RSA-PSS', saltLength: 32 }, key, new TextEncoder().encode(input));",
+                  "  return `${input}.${b64url(new Uint8Array(sig))}`;",
+                  "}",
+                  "await (async () => {",
+                  "  pm.request.headers.upsert({ key: 'DPoP', value: await dpopProof(pm.environment.get('dpop_private_key'), pm.environment.get('dpop_public_key'), 'GET', `${pm.environment.get('baseUrl')}/oauth2/userinfo`, pm.environment.get('child_access_token')) });",
+                  "  pm.request.headers.upsert({ key: 'Authorization', value: `DPoP ${pm.environment.get('child_access_token')}` });",
+                  "})();"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('userinfo 200', () => pm.response.to.have.status(200));",
+                  "console.log('child userinfo:', pm.response.text());"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "2.3 Child app: a second exchange reuses the same device secret",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "grant_type",
+                  "value": "urn:ietf:params:oauth:grant-type:token-exchange",
+                  "type": "text"
+                },
+                {
+                  "key": "client_id",
+                  "value": "{{child_client_id}}",
+                  "type": "text"
+                },
+                {
+                  "key": "subject_token",
+                  "value": "{{id_token}}",
+                  "type": "text"
+                },
+                {
+                  "key": "subject_token_type",
+                  "value": "urn:ietf:params:oauth:token-type:id_token",
+                  "type": "text"
+                },
+                {
+                  "key": "actor_token",
+                  "value": "{{device_secret}}",
+                  "type": "text"
+                },
+                {
+                  "key": "actor_token_type",
+                  "value": "urn:openid:params:token-type:device-secret",
+                  "type": "text"
+                },
+                {
+                  "key": "audience",
+                  "value": "{{audience}}",
+                  "type": "text"
+                },
+                {
+                  "key": "scope",
+                  "value": "openid",
+                  "type": "text"
+                },
+                {
+                  "key": "client_assertion_type",
+                  "value": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+                  "type": "text"
+                },
+                {
+                  "key": "client_assertion",
+                  "value": "{{child_client_assertion}}",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/oauth2/token",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "oauth2",
+                "token"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "function b64url(bytes) { const a = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes); let s = ''; for (let i = 0; i < a.length; i++) s += String.fromCharCode(a[i]); return btoa(s).replace(/\\+/g, '-').replace(/\\//g, '_').replace(/=+$/, ''); }",
+                  "function b64urlStr(str) { return b64url(new TextEncoder().encode(str)); }",
+                  "async function sha256b64url(input) { const data = typeof input === 'string' ? new TextEncoder().encode(input) : input; return b64url(new Uint8Array(await crypto.subtle.digest('SHA-256', data))); }",
+                  "async function generateJKT(jwk) { return await sha256b64url(JSON.stringify({ e: jwk.e, kty: jwk.kty, n: jwk.n })); }",
+                  "async function dpopProof(privateJwkStr, publicJwkStr, htm, htu, ath) {",
+                  "  const privateJwk = JSON.parse(privateJwkStr), publicJwk = JSON.parse(publicJwkStr);",
+                  "  const key = await crypto.subtle.importKey('jwk', privateJwk, { name: 'RSA-PSS', hash: 'SHA-256' }, false, ['sign']);",
+                  "  const header = { typ: 'dpop+jwt', alg: 'PS256', jwk: { e: publicJwk.e, kty: publicJwk.kty, n: publicJwk.n } };",
+                  "  const payload = { jti: crypto.randomUUID(), htm, htu, iat: Math.floor(Date.now() / 1000) };",
+                  "  if (ath) payload.ath = await sha256b64url(ath);",
+                  "  const input = `${b64urlStr(JSON.stringify(header))}.${b64urlStr(JSON.stringify(payload))}`;",
+                  "  const sig = await crypto.subtle.sign({ name: 'RSA-PSS', saltLength: 32 }, key, new TextEncoder().encode(input));",
+                  "  return `${input}.${b64url(new Uint8Array(sig))}`;",
+                  "}",
+                  "async function clientAssertion(privateJwkStr, clientId) {",
+                  "  const privateJwk = JSON.parse(privateJwkStr);",
+                  "  const key = await crypto.subtle.importKey('jwk', privateJwk, { name: 'RSA-PSS', hash: 'SHA-256' }, false, ['sign']);",
+                  "  const kid = privateJwk.kid || await generateJKT(privateJwk);",
+                  "  const now = Math.floor(Date.now() / 1000);",
+                  "  const header = { alg: 'PS256', typ: 'JWT', kid };",
+                  "  // FAPI 2.0 \u00a75.3.2.1: the audience is the issuer.",
+                  "  const payload = { iss: clientId, sub: clientId, aud: pm.environment.get('baseUrl'), jti: crypto.randomUUID(), iat: now, exp: now + 120 };",
+                  "  const input = `${b64urlStr(JSON.stringify(header))}.${b64urlStr(JSON.stringify(payload))}`;",
+                  "  const sig = await crypto.subtle.sign({ name: 'RSA-PSS', saltLength: 32 }, key, new TextEncoder().encode(input));",
+                  "  return `${input}.${b64url(new Uint8Array(sig))}`;",
+                  "}",
+                  "await (async () => {",
+                  "  pm.request.headers.upsert({ key: 'DPoP', value: await dpopProof(pm.environment.get('dpop_private_key'), pm.environment.get('dpop_public_key'), 'POST', `${pm.environment.get('baseUrl')}/oauth2/token`) });",
+                  "  pm.collectionVariables.set('child_client_assertion', await clientAssertion(pm.environment.get('child_client_private_key'), pm.environment.get('child_client_id')));",
+                  "})();"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('exchange 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "3. Security and consent checks",
+      "item": [
+        {
+          "name": "3.1 Scope escalation: phone was never granted (task 10.a)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "grant_type",
+                  "value": "urn:ietf:params:oauth:grant-type:token-exchange",
+                  "type": "text"
+                },
+                {
+                  "key": "client_id",
+                  "value": "{{child_client_id}}",
+                  "type": "text"
+                },
+                {
+                  "key": "subject_token",
+                  "value": "{{id_token}}",
+                  "type": "text"
+                },
+                {
+                  "key": "subject_token_type",
+                  "value": "urn:ietf:params:oauth:token-type:id_token",
+                  "type": "text"
+                },
+                {
+                  "key": "actor_token",
+                  "value": "{{device_secret}}",
+                  "type": "text"
+                },
+                {
+                  "key": "actor_token_type",
+                  "value": "urn:openid:params:token-type:device-secret",
+                  "type": "text"
+                },
+                {
+                  "key": "audience",
+                  "value": "{{audience}}",
+                  "type": "text"
+                },
+                {
+                  "key": "scope",
+                  "value": "openid phone",
+                  "type": "text"
+                },
+                {
+                  "key": "client_assertion_type",
+                  "value": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+                  "type": "text"
+                },
+                {
+                  "key": "client_assertion",
+                  "value": "{{child_client_assertion}}",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/oauth2/token",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "oauth2",
+                "token"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "function b64url(bytes) { const a = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes); let s = ''; for (let i = 0; i < a.length; i++) s += String.fromCharCode(a[i]); return btoa(s).replace(/\\+/g, '-').replace(/\\//g, '_').replace(/=+$/, ''); }",
+                  "function b64urlStr(str) { return b64url(new TextEncoder().encode(str)); }",
+                  "async function sha256b64url(input) { const data = typeof input === 'string' ? new TextEncoder().encode(input) : input; return b64url(new Uint8Array(await crypto.subtle.digest('SHA-256', data))); }",
+                  "async function generateJKT(jwk) { return await sha256b64url(JSON.stringify({ e: jwk.e, kty: jwk.kty, n: jwk.n })); }",
+                  "async function dpopProof(privateJwkStr, publicJwkStr, htm, htu, ath) {",
+                  "  const privateJwk = JSON.parse(privateJwkStr), publicJwk = JSON.parse(publicJwkStr);",
+                  "  const key = await crypto.subtle.importKey('jwk', privateJwk, { name: 'RSA-PSS', hash: 'SHA-256' }, false, ['sign']);",
+                  "  const header = { typ: 'dpop+jwt', alg: 'PS256', jwk: { e: publicJwk.e, kty: publicJwk.kty, n: publicJwk.n } };",
+                  "  const payload = { jti: crypto.randomUUID(), htm, htu, iat: Math.floor(Date.now() / 1000) };",
+                  "  if (ath) payload.ath = await sha256b64url(ath);",
+                  "  const input = `${b64urlStr(JSON.stringify(header))}.${b64urlStr(JSON.stringify(payload))}`;",
+                  "  const sig = await crypto.subtle.sign({ name: 'RSA-PSS', saltLength: 32 }, key, new TextEncoder().encode(input));",
+                  "  return `${input}.${b64url(new Uint8Array(sig))}`;",
+                  "}",
+                  "async function clientAssertion(privateJwkStr, clientId) {",
+                  "  const privateJwk = JSON.parse(privateJwkStr);",
+                  "  const key = await crypto.subtle.importKey('jwk', privateJwk, { name: 'RSA-PSS', hash: 'SHA-256' }, false, ['sign']);",
+                  "  const kid = privateJwk.kid || await generateJKT(privateJwk);",
+                  "  const now = Math.floor(Date.now() / 1000);",
+                  "  const header = { alg: 'PS256', typ: 'JWT', kid };",
+                  "  // FAPI 2.0 \u00a75.3.2.1: the audience is the issuer.",
+                  "  const payload = { iss: clientId, sub: clientId, aud: pm.environment.get('baseUrl'), jti: crypto.randomUUID(), iat: now, exp: now + 120 };",
+                  "  const input = `${b64urlStr(JSON.stringify(header))}.${b64urlStr(JSON.stringify(payload))}`;",
+                  "  const sig = await crypto.subtle.sign({ name: 'RSA-PSS', saltLength: 32 }, key, new TextEncoder().encode(input));",
+                  "  return `${input}.${b64url(new Uint8Array(sig))}`;",
+                  "}",
+                  "await (async () => {",
+                  "  pm.request.headers.upsert({ key: 'DPoP', value: await dpopProof(pm.environment.get('dpop_private_key'), pm.environment.get('dpop_public_key'), 'POST', `${pm.environment.get('baseUrl')}/oauth2/token`) });",
+                  "  pm.collectionVariables.set('child_client_assertion', await clientAssertion(pm.environment.get('child_client_private_key'), pm.environment.get('child_client_id')));",
+                  "})();"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('rejected with invalid_scope', () => {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([400, 401]);",
+                  "  pm.expect(pm.response.json().error).to.eql('invalid_scope');",
+                  "});",
+                  "pm.test('reason mentions exceeds', () => pm.expect(pm.response.json().error_description || '').to.include('exceeds'));",
+                  "console.log('response:', pm.response.text());"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "3.2 device_sso on a token exchange (task 10.b)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "grant_type",
+                  "value": "urn:ietf:params:oauth:grant-type:token-exchange",
+                  "type": "text"
+                },
+                {
+                  "key": "client_id",
+                  "value": "{{child_client_id}}",
+                  "type": "text"
+                },
+                {
+                  "key": "subject_token",
+                  "value": "{{id_token}}",
+                  "type": "text"
+                },
+                {
+                  "key": "subject_token_type",
+                  "value": "urn:ietf:params:oauth:token-type:id_token",
+                  "type": "text"
+                },
+                {
+                  "key": "actor_token",
+                  "value": "{{device_secret}}",
+                  "type": "text"
+                },
+                {
+                  "key": "actor_token_type",
+                  "value": "urn:openid:params:token-type:device-secret",
+                  "type": "text"
+                },
+                {
+                  "key": "audience",
+                  "value": "{{audience}}",
+                  "type": "text"
+                },
+                {
+                  "key": "scope",
+                  "value": "openid device_sso",
+                  "type": "text"
+                },
+                {
+                  "key": "client_assertion_type",
+                  "value": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+                  "type": "text"
+                },
+                {
+                  "key": "client_assertion",
+                  "value": "{{child_client_assertion}}",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/oauth2/token",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "oauth2",
+                "token"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "function b64url(bytes) { const a = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes); let s = ''; for (let i = 0; i < a.length; i++) s += String.fromCharCode(a[i]); return btoa(s).replace(/\\+/g, '-').replace(/\\//g, '_').replace(/=+$/, ''); }",
+                  "function b64urlStr(str) { return b64url(new TextEncoder().encode(str)); }",
+                  "async function sha256b64url(input) { const data = typeof input === 'string' ? new TextEncoder().encode(input) : input; return b64url(new Uint8Array(await crypto.subtle.digest('SHA-256', data))); }",
+                  "async function generateJKT(jwk) { return await sha256b64url(JSON.stringify({ e: jwk.e, kty: jwk.kty, n: jwk.n })); }",
+                  "async function dpopProof(privateJwkStr, publicJwkStr, htm, htu, ath) {",
+                  "  const privateJwk = JSON.parse(privateJwkStr), publicJwk = JSON.parse(publicJwkStr);",
+                  "  const key = await crypto.subtle.importKey('jwk', privateJwk, { name: 'RSA-PSS', hash: 'SHA-256' }, false, ['sign']);",
+                  "  const header = { typ: 'dpop+jwt', alg: 'PS256', jwk: { e: publicJwk.e, kty: publicJwk.kty, n: publicJwk.n } };",
+                  "  const payload = { jti: crypto.randomUUID(), htm, htu, iat: Math.floor(Date.now() / 1000) };",
+                  "  if (ath) payload.ath = await sha256b64url(ath);",
+                  "  const input = `${b64urlStr(JSON.stringify(header))}.${b64urlStr(JSON.stringify(payload))}`;",
+                  "  const sig = await crypto.subtle.sign({ name: 'RSA-PSS', saltLength: 32 }, key, new TextEncoder().encode(input));",
+                  "  return `${input}.${b64url(new Uint8Array(sig))}`;",
+                  "}",
+                  "async function clientAssertion(privateJwkStr, clientId) {",
+                  "  const privateJwk = JSON.parse(privateJwkStr);",
+                  "  const key = await crypto.subtle.importKey('jwk', privateJwk, { name: 'RSA-PSS', hash: 'SHA-256' }, false, ['sign']);",
+                  "  const kid = privateJwk.kid || await generateJKT(privateJwk);",
+                  "  const now = Math.floor(Date.now() / 1000);",
+                  "  const header = { alg: 'PS256', typ: 'JWT', kid };",
+                  "  // FAPI 2.0 \u00a75.3.2.1: the audience is the issuer.",
+                  "  const payload = { iss: clientId, sub: clientId, aud: pm.environment.get('baseUrl'), jti: crypto.randomUUID(), iat: now, exp: now + 120 };",
+                  "  const input = `${b64urlStr(JSON.stringify(header))}.${b64urlStr(JSON.stringify(payload))}`;",
+                  "  const sig = await crypto.subtle.sign({ name: 'RSA-PSS', saltLength: 32 }, key, new TextEncoder().encode(input));",
+                  "  return `${input}.${b64url(new Uint8Array(sig))}`;",
+                  "}",
+                  "await (async () => {",
+                  "  pm.request.headers.upsert({ key: 'DPoP', value: await dpopProof(pm.environment.get('dpop_private_key'), pm.environment.get('dpop_public_key'), 'POST', `${pm.environment.get('baseUrl')}/oauth2/token`) });",
+                  "  pm.collectionVariables.set('child_client_assertion', await clientAssertion(pm.environment.get('child_client_private_key'), pm.environment.get('child_client_id')));",
+                  "})();"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('rejected with invalid_scope', () => {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([400, 401]);",
+                  "  pm.expect(pm.response.json().error).to.eql('invalid_scope');",
+                  "});",
+                  "pm.test('reason mentions device_sso', () => pm.expect(pm.response.json().error_description || '').to.include('device_sso'));",
+                  "console.log('response:', pm.response.text());"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "3.3 Another vendor cannot redeem the secret",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "grant_type",
+                  "value": "urn:ietf:params:oauth:grant-type:token-exchange",
+                  "type": "text"
+                },
+                {
+                  "key": "client_id",
+                  "value": "{{other_client_id}}",
+                  "type": "text"
+                },
+                {
+                  "key": "subject_token",
+                  "value": "{{id_token}}",
+                  "type": "text"
+                },
+                {
+                  "key": "subject_token_type",
+                  "value": "urn:ietf:params:oauth:token-type:id_token",
+                  "type": "text"
+                },
+                {
+                  "key": "actor_token",
+                  "value": "{{device_secret}}",
+                  "type": "text"
+                },
+                {
+                  "key": "actor_token_type",
+                  "value": "urn:openid:params:token-type:device-secret",
+                  "type": "text"
+                },
+                {
+                  "key": "audience",
+                  "value": "{{audience}}",
+                  "type": "text"
+                },
+                {
+                  "key": "scope",
+                  "value": "openid",
+                  "type": "text"
+                },
+                {
+                  "key": "client_assertion_type",
+                  "value": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+                  "type": "text"
+                },
+                {
+                  "key": "client_assertion",
+                  "value": "{{child_client_assertion}}",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/oauth2/token",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "oauth2",
+                "token"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "function b64url(bytes) { const a = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes); let s = ''; for (let i = 0; i < a.length; i++) s += String.fromCharCode(a[i]); return btoa(s).replace(/\\+/g, '-').replace(/\\//g, '_').replace(/=+$/, ''); }",
+                  "function b64urlStr(str) { return b64url(new TextEncoder().encode(str)); }",
+                  "async function sha256b64url(input) { const data = typeof input === 'string' ? new TextEncoder().encode(input) : input; return b64url(new Uint8Array(await crypto.subtle.digest('SHA-256', data))); }",
+                  "async function generateJKT(jwk) { return await sha256b64url(JSON.stringify({ e: jwk.e, kty: jwk.kty, n: jwk.n })); }",
+                  "async function dpopProof(privateJwkStr, publicJwkStr, htm, htu, ath) {",
+                  "  const privateJwk = JSON.parse(privateJwkStr), publicJwk = JSON.parse(publicJwkStr);",
+                  "  const key = await crypto.subtle.importKey('jwk', privateJwk, { name: 'RSA-PSS', hash: 'SHA-256' }, false, ['sign']);",
+                  "  const header = { typ: 'dpop+jwt', alg: 'PS256', jwk: { e: publicJwk.e, kty: publicJwk.kty, n: publicJwk.n } };",
+                  "  const payload = { jti: crypto.randomUUID(), htm, htu, iat: Math.floor(Date.now() / 1000) };",
+                  "  if (ath) payload.ath = await sha256b64url(ath);",
+                  "  const input = `${b64urlStr(JSON.stringify(header))}.${b64urlStr(JSON.stringify(payload))}`;",
+                  "  const sig = await crypto.subtle.sign({ name: 'RSA-PSS', saltLength: 32 }, key, new TextEncoder().encode(input));",
+                  "  return `${input}.${b64url(new Uint8Array(sig))}`;",
+                  "}",
+                  "async function clientAssertion(privateJwkStr, clientId) {",
+                  "  const privateJwk = JSON.parse(privateJwkStr);",
+                  "  const key = await crypto.subtle.importKey('jwk', privateJwk, { name: 'RSA-PSS', hash: 'SHA-256' }, false, ['sign']);",
+                  "  const kid = privateJwk.kid || await generateJKT(privateJwk);",
+                  "  const now = Math.floor(Date.now() / 1000);",
+                  "  const header = { alg: 'PS256', typ: 'JWT', kid };",
+                  "  // FAPI 2.0 \u00a75.3.2.1: the audience is the issuer.",
+                  "  const payload = { iss: clientId, sub: clientId, aud: pm.environment.get('baseUrl'), jti: crypto.randomUUID(), iat: now, exp: now + 120 };",
+                  "  const input = `${b64urlStr(JSON.stringify(header))}.${b64urlStr(JSON.stringify(payload))}`;",
+                  "  const sig = await crypto.subtle.sign({ name: 'RSA-PSS', saltLength: 32 }, key, new TextEncoder().encode(input));",
+                  "  return `${input}.${b64url(new Uint8Array(sig))}`;",
+                  "}",
+                  "await (async () => {",
+                  "  pm.request.headers.upsert({ key: 'DPoP', value: await dpopProof(pm.environment.get('dpop_private_key'), pm.environment.get('dpop_public_key'), 'POST', `${pm.environment.get('baseUrl')}/oauth2/token`) });",
+                  "  pm.collectionVariables.set('child_client_assertion', await clientAssertion(pm.environment.get('other_client_private_key'), pm.environment.get('other_client_id')));",
+                  "})();"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('rejected with invalid_grant', () => {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([400, 401]);",
+                  "  pm.expect(pm.response.json().error).to.eql('invalid_grant');",
+                  "});",
+                  "pm.test('reason mentions vendor', () => pm.expect(pm.response.json().error_description || '').to.include('vendor'));",
+                  "console.log('response:', pm.response.text());"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "3.4 DPoP proof from a different key than cnf.jkt",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "grant_type",
+                  "value": "urn:ietf:params:oauth:grant-type:token-exchange",
+                  "type": "text"
+                },
+                {
+                  "key": "client_id",
+                  "value": "{{child_client_id}}",
+                  "type": "text"
+                },
+                {
+                  "key": "subject_token",
+                  "value": "{{id_token}}",
+                  "type": "text"
+                },
+                {
+                  "key": "subject_token_type",
+                  "value": "urn:ietf:params:oauth:token-type:id_token",
+                  "type": "text"
+                },
+                {
+                  "key": "actor_token",
+                  "value": "{{device_secret}}",
+                  "type": "text"
+                },
+                {
+                  "key": "actor_token_type",
+                  "value": "urn:openid:params:token-type:device-secret",
+                  "type": "text"
+                },
+                {
+                  "key": "audience",
+                  "value": "{{audience}}",
+                  "type": "text"
+                },
+                {
+                  "key": "scope",
+                  "value": "openid",
+                  "type": "text"
+                },
+                {
+                  "key": "client_assertion_type",
+                  "value": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+                  "type": "text"
+                },
+                {
+                  "key": "client_assertion",
+                  "value": "{{child_client_assertion}}",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/oauth2/token",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "oauth2",
+                "token"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "function b64url(bytes) { const a = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes); let s = ''; for (let i = 0; i < a.length; i++) s += String.fromCharCode(a[i]); return btoa(s).replace(/\\+/g, '-').replace(/\\//g, '_').replace(/=+$/, ''); }",
+                  "function b64urlStr(str) { return b64url(new TextEncoder().encode(str)); }",
+                  "async function sha256b64url(input) { const data = typeof input === 'string' ? new TextEncoder().encode(input) : input; return b64url(new Uint8Array(await crypto.subtle.digest('SHA-256', data))); }",
+                  "async function generateJKT(jwk) { return await sha256b64url(JSON.stringify({ e: jwk.e, kty: jwk.kty, n: jwk.n })); }",
+                  "async function dpopProof(privateJwkStr, publicJwkStr, htm, htu, ath) {",
+                  "  const privateJwk = JSON.parse(privateJwkStr), publicJwk = JSON.parse(publicJwkStr);",
+                  "  const key = await crypto.subtle.importKey('jwk', privateJwk, { name: 'RSA-PSS', hash: 'SHA-256' }, false, ['sign']);",
+                  "  const header = { typ: 'dpop+jwt', alg: 'PS256', jwk: { e: publicJwk.e, kty: publicJwk.kty, n: publicJwk.n } };",
+                  "  const payload = { jti: crypto.randomUUID(), htm, htu, iat: Math.floor(Date.now() / 1000) };",
+                  "  if (ath) payload.ath = await sha256b64url(ath);",
+                  "  const input = `${b64urlStr(JSON.stringify(header))}.${b64urlStr(JSON.stringify(payload))}`;",
+                  "  const sig = await crypto.subtle.sign({ name: 'RSA-PSS', saltLength: 32 }, key, new TextEncoder().encode(input));",
+                  "  return `${input}.${b64url(new Uint8Array(sig))}`;",
+                  "}",
+                  "async function clientAssertion(privateJwkStr, clientId) {",
+                  "  const privateJwk = JSON.parse(privateJwkStr);",
+                  "  const key = await crypto.subtle.importKey('jwk', privateJwk, { name: 'RSA-PSS', hash: 'SHA-256' }, false, ['sign']);",
+                  "  const kid = privateJwk.kid || await generateJKT(privateJwk);",
+                  "  const now = Math.floor(Date.now() / 1000);",
+                  "  const header = { alg: 'PS256', typ: 'JWT', kid };",
+                  "  // FAPI 2.0 \u00a75.3.2.1: the audience is the issuer.",
+                  "  const payload = { iss: clientId, sub: clientId, aud: pm.environment.get('baseUrl'), jti: crypto.randomUUID(), iat: now, exp: now + 120 };",
+                  "  const input = `${b64urlStr(JSON.stringify(header))}.${b64urlStr(JSON.stringify(payload))}`;",
+                  "  const sig = await crypto.subtle.sign({ name: 'RSA-PSS', saltLength: 32 }, key, new TextEncoder().encode(input));",
+                  "  return `${input}.${b64url(new Uint8Array(sig))}`;",
+                  "}",
+                  "await (async () => {",
+                  "  const kp = await crypto.subtle.generateKey({ name: 'RSA-PSS', modulusLength: 2048, publicExponent: new Uint8Array([1, 0, 1]), hash: 'SHA-256' }, true, ['sign', 'verify']);",
+                  "  const priv = JSON.stringify(await crypto.subtle.exportKey('jwk', kp.privateKey)), pub = JSON.stringify(await crypto.subtle.exportKey('jwk', kp.publicKey));",
+                  "  pm.request.headers.upsert({ key: 'DPoP', value: await dpopProof(priv, pub, 'POST', `${pm.environment.get('baseUrl')}/oauth2/token`) });",
+                  "  pm.collectionVariables.set('child_client_assertion', await clientAssertion(pm.environment.get('child_client_private_key'), pm.environment.get('child_client_id')));",
+                  "})();"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('rejected with invalid_grant', () => {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([400, 401]);",
+                  "  pm.expect(pm.response.json().error).to.eql('invalid_grant');",
+                  "});",
+                  "pm.test('reason mentions thumbprint', () => pm.expect(pm.response.json().error_description || '').to.include('thumbprint'));",
+                  "console.log('response:', pm.response.text());"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "3.5 Tampered device secret",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "grant_type",
+                  "value": "urn:ietf:params:oauth:grant-type:token-exchange",
+                  "type": "text"
+                },
+                {
+                  "key": "client_id",
+                  "value": "{{child_client_id}}",
+                  "type": "text"
+                },
+                {
+                  "key": "subject_token",
+                  "value": "{{id_token}}",
+                  "type": "text"
+                },
+                {
+                  "key": "subject_token_type",
+                  "value": "urn:ietf:params:oauth:token-type:id_token",
+                  "type": "text"
+                },
+                {
+                  "key": "actor_token",
+                  "value": "{{tampered_device_secret}}",
+                  "type": "text"
+                },
+                {
+                  "key": "actor_token_type",
+                  "value": "urn:openid:params:token-type:device-secret",
+                  "type": "text"
+                },
+                {
+                  "key": "audience",
+                  "value": "{{audience}}",
+                  "type": "text"
+                },
+                {
+                  "key": "scope",
+                  "value": "openid",
+                  "type": "text"
+                },
+                {
+                  "key": "client_assertion_type",
+                  "value": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+                  "type": "text"
+                },
+                {
+                  "key": "client_assertion",
+                  "value": "{{child_client_assertion}}",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/oauth2/token",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "oauth2",
+                "token"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "function b64url(bytes) { const a = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes); let s = ''; for (let i = 0; i < a.length; i++) s += String.fromCharCode(a[i]); return btoa(s).replace(/\\+/g, '-').replace(/\\//g, '_').replace(/=+$/, ''); }",
+                  "function b64urlStr(str) { return b64url(new TextEncoder().encode(str)); }",
+                  "async function sha256b64url(input) { const data = typeof input === 'string' ? new TextEncoder().encode(input) : input; return b64url(new Uint8Array(await crypto.subtle.digest('SHA-256', data))); }",
+                  "async function generateJKT(jwk) { return await sha256b64url(JSON.stringify({ e: jwk.e, kty: jwk.kty, n: jwk.n })); }",
+                  "async function dpopProof(privateJwkStr, publicJwkStr, htm, htu, ath) {",
+                  "  const privateJwk = JSON.parse(privateJwkStr), publicJwk = JSON.parse(publicJwkStr);",
+                  "  const key = await crypto.subtle.importKey('jwk', privateJwk, { name: 'RSA-PSS', hash: 'SHA-256' }, false, ['sign']);",
+                  "  const header = { typ: 'dpop+jwt', alg: 'PS256', jwk: { e: publicJwk.e, kty: publicJwk.kty, n: publicJwk.n } };",
+                  "  const payload = { jti: crypto.randomUUID(), htm, htu, iat: Math.floor(Date.now() / 1000) };",
+                  "  if (ath) payload.ath = await sha256b64url(ath);",
+                  "  const input = `${b64urlStr(JSON.stringify(header))}.${b64urlStr(JSON.stringify(payload))}`;",
+                  "  const sig = await crypto.subtle.sign({ name: 'RSA-PSS', saltLength: 32 }, key, new TextEncoder().encode(input));",
+                  "  return `${input}.${b64url(new Uint8Array(sig))}`;",
+                  "}",
+                  "async function clientAssertion(privateJwkStr, clientId) {",
+                  "  const privateJwk = JSON.parse(privateJwkStr);",
+                  "  const key = await crypto.subtle.importKey('jwk', privateJwk, { name: 'RSA-PSS', hash: 'SHA-256' }, false, ['sign']);",
+                  "  const kid = privateJwk.kid || await generateJKT(privateJwk);",
+                  "  const now = Math.floor(Date.now() / 1000);",
+                  "  const header = { alg: 'PS256', typ: 'JWT', kid };",
+                  "  // FAPI 2.0 \u00a75.3.2.1: the audience is the issuer.",
+                  "  const payload = { iss: clientId, sub: clientId, aud: pm.environment.get('baseUrl'), jti: crypto.randomUUID(), iat: now, exp: now + 120 };",
+                  "  const input = `${b64urlStr(JSON.stringify(header))}.${b64urlStr(JSON.stringify(payload))}`;",
+                  "  const sig = await crypto.subtle.sign({ name: 'RSA-PSS', saltLength: 32 }, key, new TextEncoder().encode(input));",
+                  "  return `${input}.${b64url(new Uint8Array(sig))}`;",
+                  "}",
+                  "await (async () => {",
+                  "  pm.request.headers.upsert({ key: 'DPoP', value: await dpopProof(pm.environment.get('dpop_private_key'), pm.environment.get('dpop_public_key'), 'POST', `${pm.environment.get('baseUrl')}/oauth2/token`) });",
+                  "  pm.collectionVariables.set('child_client_assertion', await clientAssertion(pm.environment.get('child_client_private_key'), pm.environment.get('child_client_id')));",
+                  "})();",
+                  "const ds = pm.environment.get('device_secret'); pm.environment.set('tampered_device_secret', ds.slice(0, -2) + 'xx');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('rejected with invalid_grant', () => {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([400, 401]);",
+                  "  pm.expect(pm.response.json().error).to.eql('invalid_grant');",
+                  "});",
+                  "pm.test('reason mentions decrypt', () => pm.expect(pm.response.json().error_description || '').to.include('decrypt'));",
+                  "console.log('response:', pm.response.text());"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "3.6 Bonus: email was never consented to the super app \u2192 interaction_required",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "grant_type",
+                  "value": "urn:ietf:params:oauth:grant-type:token-exchange",
+                  "type": "text"
+                },
+                {
+                  "key": "client_id",
+                  "value": "{{child_client_id}}",
+                  "type": "text"
+                },
+                {
+                  "key": "subject_token",
+                  "value": "{{id_token}}",
+                  "type": "text"
+                },
+                {
+                  "key": "subject_token_type",
+                  "value": "urn:ietf:params:oauth:token-type:id_token",
+                  "type": "text"
+                },
+                {
+                  "key": "actor_token",
+                  "value": "{{device_secret}}",
+                  "type": "text"
+                },
+                {
+                  "key": "actor_token_type",
+                  "value": "urn:openid:params:token-type:device-secret",
+                  "type": "text"
+                },
+                {
+                  "key": "audience",
+                  "value": "{{audience}}",
+                  "type": "text"
+                },
+                {
+                  "key": "scope",
+                  "value": "openid email",
+                  "type": "text"
+                },
+                {
+                  "key": "client_assertion_type",
+                  "value": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+                  "type": "text"
+                },
+                {
+                  "key": "client_assertion",
+                  "value": "{{child_client_assertion}}",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/oauth2/token",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "oauth2",
+                "token"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "function b64url(bytes) { const a = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes); let s = ''; for (let i = 0; i < a.length; i++) s += String.fromCharCode(a[i]); return btoa(s).replace(/\\+/g, '-').replace(/\\//g, '_').replace(/=+$/, ''); }",
+                  "function b64urlStr(str) { return b64url(new TextEncoder().encode(str)); }",
+                  "async function sha256b64url(input) { const data = typeof input === 'string' ? new TextEncoder().encode(input) : input; return b64url(new Uint8Array(await crypto.subtle.digest('SHA-256', data))); }",
+                  "async function generateJKT(jwk) { return await sha256b64url(JSON.stringify({ e: jwk.e, kty: jwk.kty, n: jwk.n })); }",
+                  "async function dpopProof(privateJwkStr, publicJwkStr, htm, htu, ath) {",
+                  "  const privateJwk = JSON.parse(privateJwkStr), publicJwk = JSON.parse(publicJwkStr);",
+                  "  const key = await crypto.subtle.importKey('jwk', privateJwk, { name: 'RSA-PSS', hash: 'SHA-256' }, false, ['sign']);",
+                  "  const header = { typ: 'dpop+jwt', alg: 'PS256', jwk: { e: publicJwk.e, kty: publicJwk.kty, n: publicJwk.n } };",
+                  "  const payload = { jti: crypto.randomUUID(), htm, htu, iat: Math.floor(Date.now() / 1000) };",
+                  "  if (ath) payload.ath = await sha256b64url(ath);",
+                  "  const input = `${b64urlStr(JSON.stringify(header))}.${b64urlStr(JSON.stringify(payload))}`;",
+                  "  const sig = await crypto.subtle.sign({ name: 'RSA-PSS', saltLength: 32 }, key, new TextEncoder().encode(input));",
+                  "  return `${input}.${b64url(new Uint8Array(sig))}`;",
+                  "}",
+                  "async function clientAssertion(privateJwkStr, clientId) {",
+                  "  const privateJwk = JSON.parse(privateJwkStr);",
+                  "  const key = await crypto.subtle.importKey('jwk', privateJwk, { name: 'RSA-PSS', hash: 'SHA-256' }, false, ['sign']);",
+                  "  const kid = privateJwk.kid || await generateJKT(privateJwk);",
+                  "  const now = Math.floor(Date.now() / 1000);",
+                  "  const header = { alg: 'PS256', typ: 'JWT', kid };",
+                  "  // FAPI 2.0 \u00a75.3.2.1: the audience is the issuer.",
+                  "  const payload = { iss: clientId, sub: clientId, aud: pm.environment.get('baseUrl'), jti: crypto.randomUUID(), iat: now, exp: now + 120 };",
+                  "  const input = `${b64urlStr(JSON.stringify(header))}.${b64urlStr(JSON.stringify(payload))}`;",
+                  "  const sig = await crypto.subtle.sign({ name: 'RSA-PSS', saltLength: 32 }, key, new TextEncoder().encode(input));",
+                  "  return `${input}.${b64url(new Uint8Array(sig))}`;",
+                  "}",
+                  "await (async () => {",
+                  "  pm.request.headers.upsert({ key: 'DPoP', value: await dpopProof(pm.environment.get('dpop_private_key'), pm.environment.get('dpop_public_key'), 'POST', `${pm.environment.get('baseUrl')}/oauth2/token`) });",
+                  "  pm.collectionVariables.set('child_client_assertion', await clientAssertion(pm.environment.get('child_client_private_key'), pm.environment.get('child_client_id')));",
+                  "})();"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('rejected with interaction_required', () => {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([400, 401]);",
+                  "  pm.expect(pm.response.json().error).to.eql('interaction_required');",
+                  "});",
+                  "pm.test('reason mentions email', () => pm.expect(pm.response.json().error_description || '').to.include('email'));",
+                  "console.log('response:', pm.response.text());"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "par_client_assertion",
+      "value": ""
+    },
+    {
+      "key": "client_assertion",
+      "value": ""
+    },
+    {
+      "key": "child_client_assertion",
+      "value": ""
+    }
+  ]
+}

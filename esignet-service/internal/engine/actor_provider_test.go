@@ -12,6 +12,8 @@ import (
 	"encoding/json"
 	"errors"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 	"time"
 
 	"github.com/stretchr/testify/suite"
@@ -286,6 +288,11 @@ func (ts *ActorProviderTestSuite) TestActorProvider_GetInboundClientByID() {
 	if client.Properties["name"] != "Test App" {
 		t.Errorf("Properties[name] = %v, want Test App", client.Properties["name"])
 	}
+	// The pairwise subject is a mapped value, so the engine's refresh-token grant must not try to
+	// resolve it as an entity.
+	if client.SubjectAttribute["individual"] != "psu_token" {
+		t.Errorf("SubjectAttribute = %v, want individual -> psu_token", client.SubjectAttribute)
+	}
 
 	if _, svcErr := p.GetInboundClientByID(context.Background(), "no-such-client"); svcErr == nil {
 		t.Fatal("expected error for unknown client")
@@ -495,4 +502,16 @@ type ActorProviderTestSuite struct {
 
 func TestActorProviderTestSuite(t *testing.T) {
 	suite.Run(t, new(ActorProviderTestSuite))
+}
+
+func (ts *ActorProviderTestSuite) TestEngineGrantTypes() {
+	t := ts.T()
+	require.Equal(t, []providers.GrantType{providers.GrantTypeAuthorizationCode}, engineGrantTypes([]string{"authorization_code"}))
+	require.Equal(t, []providers.GrantType{providers.GrantTypeAuthorizationCode, providers.GrantTypeTokenExchange},
+		engineGrantTypes([]string{"authorization_code", "token_exchange"}))
+	require.Equal(t, []providers.GrantType{providers.GrantTypeTokenExchange},
+		engineGrantTypes([]string{"urn:ietf:params:oauth:grant-type:token-exchange"}))
+	require.Equal(t, []providers.GrantType{providers.GrantTypeAuthorizationCode}, engineGrantTypes([]string{"implicit"}),
+		"unrecognised grant types fall back to the authorization code grant")
+	require.Equal(t, []providers.GrantType{providers.GrantTypeAuthorizationCode}, engineGrantTypes(nil))
 }

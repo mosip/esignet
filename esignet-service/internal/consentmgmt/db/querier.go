@@ -15,7 +15,9 @@ import (
 type Querier interface {
 	DeleteConsent(ctx context.Context, arg DeleteConsentParams) error
 	GetConsent(ctx context.Context, arg GetConsentParams) (ConsentDetail, error)
+	GetConsentForUpdate(ctx context.Context, arg GetConsentParams) (ConsentDetail, error)
 	InsertConsentHistory(ctx context.Context, arg InsertConsentHistoryParams) error
+	InsertConsentIfAbsent(ctx context.Context, arg UpsertConsentParams) (bool, error)
 	UpsertConsent(ctx context.Context, arg UpsertConsentParams) error
 }
 

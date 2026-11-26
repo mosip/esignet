@@ -126,6 +126,10 @@ Minimum to start the service:
 | `MOSIP_ESIGNET_HOST` | `http://localhost:<PORT>` | OIDC issuer / discovery base |
 | `LOG_LEVEL` | `info` | `debug` for verbose tracing |
 
+Optional, Native SSO only: `MOSIP_ESIGNET_DEVICE_SECRET_VALIDITY_SECONDS` (or `native_sso.device_secret_validity_seconds` in `deployment.yaml`) is an upper bound, in seconds, on a
+device secret's lifetime. Unset or `0` keeps the lifetime the engine asks for (30 days), and an
+environment value of `0` leaves a YAML cap unchanged; see [`docs/native-sso.md`](../docs/native-sso.md).
+
 Copy `.env.example` to `.env` for copy-paste local values (including MOSIP/SunbirdRC overrides).
 
 JWT signing and session/cache encryption are handled by the keymanager module (auto-provisioned
