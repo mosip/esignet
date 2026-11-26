@@ -17,10 +17,8 @@ import (
 	"encoding/pem"
 	"errors"
 	"fmt"
-	"hash/fnv"
 	"slices"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/google/uuid"
@@ -93,19 +91,21 @@ type deviceSecretProvider struct {
 	cfg                *config.AppConfig
 	clientSvc          *clientmgmt.Service
 	consentSvc         consentStore
-	consentLocks       [consentLockStripes]sync.Mutex
 	sigSvc             *signature.Service
 	cryptoSvc          *cryptomanager.Service
 	signReferenceID    string
 	encryptReferenceID string
 	logger             *applog.Logger
+	// now reads the clock; tests substitute one they control.
+	now func() time.Time
 }
 
 // consentStore is the part of consentmgmt.Service the provider uses: the current consent of a
-// (client, user) pair and the audited save of a derived consent. Tests substitute an in-memory store.
+// (client, user) pair and the serialised, audited update of the child app's consent. Tests
+// substitute an in-memory store.
 type consentStore interface {
 	FetchRecord(ctx context.Context, clientID, userID string) (*consentmgmt.ConsentRecord, error)
-	SaveRecord(ctx context.Context, c *consentmgmt.ConsentRecord) error
+	UpdateRecord(ctx context.Context, clientID, userID string, fn consentmgmt.UpdateFunc) error
 }
 
 // NewDeviceSecretProvider creates the providers.DeviceSecretProvider (and
@@ -131,6 +131,7 @@ func NewDeviceSecretProvider(
 		signReferenceID:    refID,
 		encryptReferenceID: DeviceSecretEncryptionRefID,
 		logger:             applog.GetLogger().Named("device_secret_provider"),
+		now:                func() time.Time { return time.Now().UTC() },
 	}
 }
 
@@ -165,7 +166,7 @@ func (p *deviceSecretProvider) GenerateDeviceSecret(
 		return nil, deviceSecretClientError("invalid_scope", "The device_sso scope is not enabled for this client")
 	}
 
-	now := time.Now().UTC()
+	now := p.now()
 	expiry := p.deviceSecretValidity(params.ExpiryDuration)
 	payload := deviceSecretPayload{
 		Iss:       p.issuer(),
@@ -241,7 +242,7 @@ func (p *deviceSecretProvider) ValidateDeviceSecret(
 		return nil, svcErr
 	}
 
-	now := time.Now().UTC()
+	now := p.now()
 	if now.After(time.Unix(payload.Exp, 0).Add(deviceSecretClockSkew)) {
 		return nil, deviceSecretClientError("invalid_grant", "Device secret has expired")
 	}
@@ -333,10 +334,6 @@ func (p *deviceSecretProvider) ResolveDerivedConsent(
 	}
 	requiredClaims := claimsForScopes(p.cfg.ScopeClaims, standardScopes, childClient.Claims)
 
-	// One decision time for the expiry checks below; the originating consent is checked again
-	// against the clock right before each grant, so a consent that expires mid-exchange is not
-	// derived from.
-	now := time.Now().UTC()
 	interactionRequired := func(missingScopes, missingClaims []string) *providers.DerivedConsentResult {
 		return &providers.DerivedConsentResult{Allowed: false, MissingScopes: missingScopes, MissingClaims: missingClaims}
 	}
@@ -346,7 +343,7 @@ func (p *deviceSecretProvider) ResolveDerivedConsent(
 		p.logger.Error(ctx, "failed to read the originating consent record", applog.Error(err))
 		return nil, deviceSecretServerError("Failed to read consent record")
 	}
-	if origin == nil || origin.IsExpired(now) {
+	if origin == nil || origin.IsExpired(p.now()) {
 		p.logger.Debug(ctx, "no active consent for the originating client; interaction required",
 			applog.String("originClientId", req.OriginClientID))
 		return interactionRequired(authorizationScopes, requiredClaims), nil
@@ -362,67 +359,73 @@ func (p *deviceSecretProvider) ResolveDerivedConsent(
 		return interactionRequired(missingScopes, missingClaims), nil
 	}
 
-	// The read, coverage check, merge and audited save of the child app's consent run under a
-	// per-(client, user) lock, see lockConsent.
-	unlock := p.lockConsent(req.ClientID, req.Sub)
-	defer unlock()
-
-	// A consent the child app already holds that covers the derived one is left as it is: the
-	// exchange neither narrows it nor adds an audit row for a consent that did not change.
-	existing, err := p.consentSvc.FetchRecord(ctx, req.ClientID, req.Sub)
-	if err != nil {
-		p.logger.Error(ctx, "failed to read the child app's consent record", applog.Error(err))
-		return nil, deviceSecretServerError("Failed to read consent record")
-	}
-	if existing != nil && existing.IsExpired(now) {
-		existing = nil
-	}
-	if existing != nil && len(difference(requiredClaims, existing.AcceptedClaims)) == 0 &&
-		len(difference(authorizationScopes, existing.PermittedScopes)) == 0 {
-		if origin.IsExpired(time.Now().UTC()) {
-			return interactionRequired(authorizationScopes, requiredClaims), nil
+	// The read, coverage check, merge and audited save of the child app's consent run as one
+	// serialised database update (consentmgmt.Service.UpdateRecord), so concurrent exchanges of
+	// the same app, in this process or in another replica, see each other's result: a second
+	// identical exchange finds a covering consent and adds no audit row, and two different scope
+	// sets widen the record one after the other instead of overwriting each other.
+	covered := false
+	err = p.consentSvc.UpdateRecord(ctx, req.ClientID, req.Sub, func(existing *consentmgmt.ConsentRecord) (*consentmgmt.ConsentRecord, error) {
+		// The clock is read here, after the lookup, so a child consent that expired meanwhile is
+		// replaced rather than reused.
+		now := p.now()
+		if existing != nil && existing.IsExpired(now) {
+			existing = nil
 		}
-		p.logger.Debug(ctx, "the child app's consent already covers the exchange",
-			applog.String("clientId", req.ClientID))
-		return &providers.DerivedConsentResult{Allowed: true}, nil
-	}
-
-	// Record the derived consent for the child app: the claims request mirrors what an interactive
-	// authorization with the same scopes would hash to, so a later interactive login skips consent.
-	record := &consentmgmt.ConsentRecord{
-		ID:                  uuid.NewString(),
-		ClientID:            req.ClientID,
-		UserID:              req.Sub,
-		Claims:              mergeScopeClaims(map[string]any{}, requiredClaims),
-		AuthorizationScopes: authorizationScopes,
-		AcceptedClaims:      requiredClaims,
-		PermittedScopes:     authorizationScopes,
-		CreatedAt:           now,
-		ExpiresAt:           sql.NullTime{Time: origin.ExpiresAt.Time, Valid: origin.ExpiresAt.Valid},
-	}
-	// An existing consent that the derived one extends is widened, never narrowed: what the user
-	// already granted the child app is kept and the derived claims and scopes are added to it.
-	// The store keeps one expiry per (client, user) pair, so the merged consent expires at the
-	// earlier of the two: what the user granted the child app directly is never extended by an
-	// exchange, and the derived claims never outlive the originating consent.
-	if existing != nil {
-		record.ID = existing.ID
-		record.Claims = mergeScopeClaims(existing.Claims, requiredClaims)
-		record.AuthorizationScopes = union(existing.AuthorizationScopes, authorizationScopes)
-		record.AcceptedClaims = union(existing.AcceptedClaims, requiredClaims)
-		record.PermittedScopes = union(existing.PermittedScopes, authorizationScopes)
-		record.ExpiresAt = earliestExpiry(existing.ExpiresAt, origin.ExpiresAt)
-	}
-	if origin.IsExpired(time.Now().UTC()) {
-		return interactionRequired(authorizationScopes, requiredClaims), nil
-	}
-	if err := p.consentSvc.SaveRecord(ctx, record); err != nil {
+		// A consent the child app already holds that covers the derived one is left as it is: the
+		// exchange neither narrows it nor adds an audit row for a consent that did not change.
+		if existing != nil && len(difference(requiredClaims, existing.AcceptedClaims)) == 0 &&
+			len(difference(authorizationScopes, existing.PermittedScopes)) == 0 {
+			covered = true
+			return nil, nil
+		}
+		// Record the derived consent for the child app: the claims request mirrors what an
+		// interactive authorization with the same scopes would hash to, so a later interactive
+		// login skips consent. A new record lives as long as the originating consent it came from.
+		record := &consentmgmt.ConsentRecord{
+			ID:                  uuid.NewString(),
+			ClientID:            req.ClientID,
+			UserID:              req.Sub,
+			Claims:              mergeScopeClaims(map[string]any{}, requiredClaims),
+			AuthorizationScopes: authorizationScopes,
+			AcceptedClaims:      requiredClaims,
+			PermittedScopes:     authorizationScopes,
+			CreatedAt:           now,
+			ExpiresAt:           sql.NullTime{Time: origin.ExpiresAt.Time, Valid: origin.ExpiresAt.Valid},
+		}
+		// An existing consent that the derived one extends is widened, never narrowed, and keeps
+		// its own expiry: what the user granted the child app directly is neither extended nor cut
+		// short by an exchange, and the added claims and scopes share that grant's lifetime. The
+		// originating consent bounds each exchange at the time it is made, not the child app's
+		// stored consent.
+		if existing != nil {
+			record.ID = existing.ID
+			record.Claims = mergeScopeClaims(existing.Claims, requiredClaims)
+			record.AuthorizationScopes = union(existing.AuthorizationScopes, authorizationScopes)
+			record.AcceptedClaims = union(existing.AcceptedClaims, requiredClaims)
+			record.PermittedScopes = union(existing.PermittedScopes, authorizationScopes)
+			record.ExpiresAt = existing.ExpiresAt
+		}
+		return record, nil
+	})
+	if err != nil {
 		p.logger.Error(ctx, "failed to record derived consent", applog.Error(err))
 		return nil, deviceSecretServerError("Failed to record consent")
 	}
-	p.logger.Info(ctx, "consent derived from the originating application",
-		applog.String("clientId", req.ClientID), applog.String("originClientId", req.OriginClientID))
-
+	// The originating consent is checked once more after the update: a consent that expired while
+	// the derived one was being looked up or recorded does not grant the exchange.
+	if origin.IsExpired(p.now()) {
+		p.logger.Debug(ctx, "the originating consent expired during the exchange; interaction required",
+			applog.String("originClientId", req.OriginClientID))
+		return interactionRequired(authorizationScopes, requiredClaims), nil
+	}
+	if covered {
+		p.logger.Debug(ctx, "the child app's consent already covers the exchange",
+			applog.String("clientId", req.ClientID))
+	} else {
+		p.logger.Info(ctx, "consent derived from the originating application",
+			applog.String("clientId", req.ClientID), applog.String("originClientId", req.OriginClientID))
+	}
 	return &providers.DerivedConsentResult{Allowed: true}, nil
 }
 
@@ -631,25 +634,6 @@ func deviceSecretServerError(desc string) *common.ServiceError {
 
 var _ providers.DeviceSSOConsentProvider = (*deviceSecretProvider)(nil)
 
-// consentLockStripes bounds the mutexes that serialise derived-consent updates per (client, user).
-const consentLockStripes = 64
-
-// lockConsent serialises the read, merge and save of the derived consent for one (client, user)
-// pair within this process, so concurrent exchanges of the same app observe each other's result:
-// the second one finds a covering consent and skips the duplicate audit row, and two different
-// scope sets widen the record one after the other instead of overwriting each other. Replicas of
-// the service still race across processes; the merge is idempotent, so the record converges and
-// the only effect is an extra history row.
-func (p *deviceSecretProvider) lockConsent(clientID, userID string) func() {
-	h := fnv.New32a()
-	_, _ = h.Write([]byte(clientID))
-	_, _ = h.Write([]byte{0})
-	_, _ = h.Write([]byte(userID))
-	mu := &p.consentLocks[h.Sum32()%consentLockStripes]
-	mu.Lock()
-	return mu.Unlock
-}
-
 // clientLookupError maps a client lookup failure: a missing or inactive client is the caller's
 // error (invalid_client); a database or decoding failure is a server error.
 func (p *deviceSecretProvider) clientLookupError(ctx context.Context, err error, clientID, what, desc string) *common.ServiceError {
@@ -659,20 +643,6 @@ func (p *deviceSecretProvider) clientLookupError(ctx context.Context, err error,
 	}
 	p.logger.Error(ctx, what, applog.String("clientId", clientID), applog.Error(err))
 	return deviceSecretServerError("Failed to look up the client")
-}
-
-// earliestExpiry returns the earlier of two consent expiries; a null expiry never expires.
-func earliestExpiry(a, b sql.NullTime) sql.NullTime {
-	switch {
-	case !a.Valid:
-		return b
-	case !b.Valid:
-		return a
-	case b.Time.Before(a.Time):
-		return b
-	default:
-		return a
-	}
 }
 
 // CheckDeviceSecretEncryptionCertificate verifies at startup that the OIDC_SERVICE/DEVICE_SECRET_ENC

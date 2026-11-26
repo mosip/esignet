@@ -154,7 +154,11 @@ rotate. Revocation of the family (sign-out) is a follow-up; see §8.
   scopes) must all be among the claims the user accepted, and any authorization scope must have been
   permitted. If so, eSignet writes a consent record for the child app (so a later browser login of
   the child skips the prompt) with an audit row in `consent_history`; if not, the exchange answers
-  `interaction_required`.
+  `interaction_required`. A consent the child already holds is widened, never narrowed, and keeps
+  its own lifetime; a record created by an exchange expires with the super app's consent, which is
+  re-checked after the write. The read, merge and write of the child's record run as one database
+  transaction under a row lock (`consentmgmt.Service.UpdateRecord`), so concurrent exchanges, also
+  from different replicas, widen the record one after the other instead of overwriting each other.
 
 ## 6. API changes
 
@@ -303,7 +307,7 @@ rogue relying party, a network attacker.
 | Another app reads the device secret from storage | EncryptedSharedPreferences; the secret is opaque (JWE) and useless without Key A | a rooted device exposes storage; the secret is still key-bound |
 | A foreign app calls the Wallet's IPC | `signature`-level permission plus a certificate re-check on every call | the certificate is the trust anchor (see shortcuts) |
 | Stolen `id_token + device_secret` pair replayed from another device | `cnf.jkt` must equal the DPoP proof key; Key A is non-exportable | none for the exchange; a stolen bearer token of 120 s remains usable until it expires |
-| Child widens what the user consented to | scope ⊆ grant, derived consent, `interaction_required` | derived consent currently writes a consent row per child; it never narrows an existing richer consent |
+| Child widens what the user consented to | scope ⊆ grant, derived consent, `interaction_required` | the child's consent record is widened, never narrowed, and keeps its own lifetime; claims added by an exchange live as long as that record |
 | Rogue relying party redeems another vendor's secret | vendor family (`relyingPartyId` or `allowed_child_clients`) | cross-RP children share the pairwise subject of the super app's RP; restrict `allowed_child_clients` to one RP in deployments with pairwise subjects |
 | Stolen refresh token of the super app | the super app is a confidential client, so every refresh is authenticated with `private_key_jwt`; a presented device secret bound to another DPoP key is never kept, and a secret issued on refresh is bound to that request's proof key | refresh tokens of confidential clients are not DPoP-bound (RFC 9449 §5); the engine binds them for public clients |
 | Network attacker | TLS in deployment; DPoP binds tokens to Key A | the demo runs cleartext over `adb reverse` |

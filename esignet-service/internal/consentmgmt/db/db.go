@@ -7,8 +7,9 @@
 // Package db implements the consentmgmt persistence layer for the consent_detail
 // and consent_history tables using jmoiron/sqlx. Queries are written with "?"
 // placeholders and rebound once per driver in New (see persistence.Rebind), so
-// the same query text runs on PostgreSQL and MySQL. The consent_detail upsert is
-// the one dialect-specific statement and is selected by driver name in New.
+// the same query text runs on PostgreSQL and MySQL. The consent_detail upsert and
+// the conditional insert are the dialect-specific statements, selected by driver
+// name in New.
 package db
 
 import (
@@ -48,10 +49,12 @@ const (
 type Queries struct {
 	db TX
 
-	getConsent           string
-	insertConsentHistory string
-	deleteConsent        string
-	upsertConsent        string
+	getConsent            string
+	getConsentForUpdate   string
+	insertConsentHistory  string
+	deleteConsent         string
+	upsertConsent         string
+	insertConsentIfAbsent string
 }
 
 var _ Querier = (*Queries)(nil)
@@ -72,6 +75,11 @@ func New(conn TX, driverName string) *Queries {
 		`DELETE FROM consent_detail WHERE client_id = ? AND psu_token = ?`)
 
 	q.upsertConsent = persistence.Rebind(driverName, upsertConsentQuery(driverName))
+
+	// The locking read is the plain read plus FOR UPDATE, so the two can never drift apart.
+	q.getConsentForUpdate = q.getConsent + ` FOR UPDATE`
+
+	q.insertConsentIfAbsent = persistence.Rebind(driverName, insertConsentIfAbsentQuery(driverName))
 
 	return q
 }
@@ -101,6 +109,18 @@ func upsertConsentQuery(driverName string) string {
 		permitted_scopes = EXCLUDED.permitted_scopes,
 		cr_dtimes = EXCLUDED.cr_dtimes,
 		expire_dtimes = EXCLUDED.expire_dtimes`
+}
+
+// insertConsentIfAbsentQuery returns the insert that creates the consent_detail row
+// for a (client_id, psu_token) pair only when none exists yet. It affects no row
+// otherwise, so the caller can tell a created row from one a concurrent insert
+// created first.
+func insertConsentIfAbsentQuery(driverName string) string {
+	if driverName == persistence.DriverMySQL {
+		return `INSERT IGNORE INTO consent_detail (` + consentInsertColumns + `) VALUES (` + consentInsertValues + `)`
+	}
+	return `INSERT INTO consent_detail (` + consentInsertColumns + `) VALUES (` + consentInsertValues + `)
+		ON CONFLICT (client_id, psu_token) DO NOTHING`
 }
 
 // WithTx returns a Queries that runs against tx but reuses the already-rebound
@@ -149,6 +169,18 @@ func (q *Queries) GetConsent(ctx context.Context, arg GetConsentParams) (Consent
 	return i, nil
 }
 
+// GetConsentForUpdate implements Querier — it reads the current consent row like
+// GetConsent and keeps it locked until the surrounding transaction ends, so a
+// read-merge-write of the pair is serialised across connections and replicas. It
+// must run on a transaction.
+func (q *Queries) GetConsentForUpdate(ctx context.Context, arg GetConsentParams) (ConsentDetail, error) {
+	var i ConsentDetail
+	if err := q.db.GetContext(ctx, &i, q.getConsentForUpdate, arg.ClientID, arg.PsuToken); err != nil {
+		return ConsentDetail{}, err
+	}
+	return i, nil
+}
+
 // InsertConsentHistory implements Querier — it appends a snapshot of a consent to
 // the append-only consent_history audit trail.
 func (q *Queries) InsertConsentHistory(ctx context.Context, arg InsertConsentHistoryParams) error {
@@ -172,4 +204,21 @@ func (q *Queries) UpsertConsent(ctx context.Context, arg UpsertConsentParams) er
 		arg.ID, arg.ClientID, arg.PsuToken, arg.Claims, arg.AuthorizationScopes,
 		arg.Hash, arg.AcceptedClaims, arg.PermittedScopes, arg.CrDtimes, arg.ExpireDtimes)
 	return err
+}
+
+// InsertConsentIfAbsent implements Querier — it inserts the consent row unless one
+// already exists for the (client_id, psu_token) pair and reports whether it did.
+// A false result with a nil error means a concurrent insert created the row first.
+func (q *Queries) InsertConsentIfAbsent(ctx context.Context, arg UpsertConsentParams) (bool, error) {
+	res, err := q.db.ExecContext(ctx, q.insertConsentIfAbsent,
+		arg.ID, arg.ClientID, arg.PsuToken, arg.Claims, arg.AuthorizationScopes,
+		arg.Hash, arg.AcceptedClaims, arg.PermittedScopes, arg.CrDtimes, arg.ExpireDtimes)
+	if err != nil {
+		return false, err
+	}
+	n, err := res.RowsAffected()
+	if err != nil {
+		return false, err
+	}
+	return n > 0, nil
 }

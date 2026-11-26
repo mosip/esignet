@@ -76,6 +76,10 @@ type memConsentStore struct {
 	mu      sync.Mutex
 	records map[string]*consentmgmt.ConsentRecord
 	history []consentmgmt.ConsentRecord
+	// beforeUpdate and beforeSave run inside UpdateRecord, before the current record is read and
+	// before the result is stored: they stand in for time passing inside the database transaction.
+	beforeUpdate func()
+	beforeSave   func()
 }
 
 func newMemConsentStore() *memConsentStore {
@@ -98,6 +102,36 @@ func (s *memConsentStore) FetchRecord(_ context.Context, clientID, userID string
 // SaveRecord mirrors the real service: claims and scopes are stored normalized, slices are never
 // nil, and every save adds one history entry.
 func (s *memConsentStore) SaveRecord(_ context.Context, c *consentmgmt.ConsentRecord) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return s.save(c)
+}
+
+// UpdateRecord mirrors consentmgmt.Service.UpdateRecord: fn sees a copy of the current record
+// while the store's lock is held, and a non-nil result is stored like SaveRecord.
+func (s *memConsentStore) UpdateRecord(_ context.Context, clientID, userID string, fn consentmgmt.UpdateFunc) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if s.beforeUpdate != nil {
+		s.beforeUpdate()
+	}
+	var existing *consentmgmt.ConsentRecord
+	if rec, ok := s.records[consentKey(clientID, userID)]; ok {
+		cp := *rec
+		existing = &cp
+	}
+	record, err := fn(existing)
+	if err != nil || record == nil {
+		return err
+	}
+	if s.beforeSave != nil {
+		s.beforeSave()
+	}
+	return s.save(record)
+}
+
+// save stores c; the caller holds s.mu.
+func (s *memConsentStore) save(c *consentmgmt.ConsentRecord) error {
 	claims := consentmgmt.NormalizeClaims(c.Claims)
 	scopeMap := consentmgmt.NormalizeAuthorizationScopes(c.AuthorizationScopes)
 	hash, err := consentmgmt.HashRequestedConsent(claims, scopeMap)
@@ -120,8 +154,6 @@ func (s *memConsentStore) SaveRecord(_ context.Context, c *consentmgmt.ConsentRe
 		CreatedAt:           c.CreatedAt,
 		ExpiresAt:           c.ExpiresAt,
 	}
-	s.mu.Lock()
-	defer s.mu.Unlock()
 	s.history = append(s.history, rec)
 	s.records[consentKey(c.ClientID, c.UserID)] = &rec
 	return nil
@@ -801,7 +833,7 @@ func (ts *DeviceSecretProviderTestSuite) TestResolveDerivedConsent_ClientLookupF
 
 func (ts *DeviceSecretProviderTestSuite) TestResolveDerivedConsent_WidenedConsentKeepsChildExpiry() {
 	// The child app's own consent expires sooner than the originating one: widening keeps the
-	// earlier date, an exchange never extends what the user granted the child app directly.
+	// child's own date, an exchange never extends what the user granted the child app directly.
 	childExpiry := sql.NullTime{Time: time.Now().UTC().Add(time.Hour).Truncate(time.Second), Valid: true}
 	originExpiry := sql.NullTime{Time: time.Now().UTC().Add(48 * time.Hour).Truncate(time.Second), Valid: true}
 	ts.seedSuperConsent([]string{"name", "email"}, nil, originExpiry)
@@ -819,9 +851,10 @@ func (ts *DeviceSecretProviderTestSuite) TestResolveDerivedConsent_WidenedConsen
 	ts.Require().WithinDuration(childExpiry.Time, record.ExpiresAt.Time, time.Second)
 }
 
-func (ts *DeviceSecretProviderTestSuite) TestResolveDerivedConsent_WidenedConsentBoundedByOriginExpiry() {
-	// The child app's own consent never expires, the originating one does: the derived claims
-	// must not outlive the originating consent, so the merged record takes its expiry.
+func (ts *DeviceSecretProviderTestSuite) TestResolveDerivedConsent_WidenedConsentKeepsChildExpiryWhenOriginSooner() {
+	// The child app's own consent never expires, the originating one does: widening keeps the
+	// child's own lifetime, an exchange never cuts short what the user granted the child app
+	// directly. The originating consent bounds the exchange itself, not the stored consent.
 	originExpiry := sql.NullTime{Time: time.Now().UTC().Add(48 * time.Hour).Truncate(time.Second), Valid: true}
 	ts.seedSuperConsent([]string{"name", "email"}, nil, originExpiry)
 	ts.seedConsent(dsChildClient, "consent-child", []string{"email"}, nil, sql.NullTime{})
@@ -833,13 +866,67 @@ func (ts *DeviceSecretProviderTestSuite) TestResolveDerivedConsent_WidenedConsen
 
 	record, err := ts.consent.FetchRecord(context.Background(), dsChildClient, dsTestUser)
 	ts.Require().NoError(err)
-	ts.Require().True(record.ExpiresAt.Valid)
-	ts.Require().WithinDuration(originExpiry.Time, record.ExpiresAt.Time, time.Second)
+	ts.Require().ElementsMatch([]string{"email", "name"}, record.AcceptedClaims)
+	ts.Require().False(record.ExpiresAt.Valid, "the child app's consent keeps its own, unlimited lifetime")
 }
 
-func (ts *DeviceSecretProviderTestSuite) TestResolveDerivedConsent_ConcurrentExchangesRecordOnce() {
+// clockedProvider returns a provider that reads the clock from *clock, so a test can move time
+// while an exchange is in flight.
+func (ts *DeviceSecretProviderTestSuite) clockedProvider(clock *time.Time) providers.DeviceSSOConsentProvider {
+	p := ts.newProvider().(*deviceSecretProvider)
+	p.now = func() time.Time { return *clock }
+	return p
+}
+
+func (ts *DeviceSecretProviderTestSuite) TestResolveDerivedConsent_ChildExpiresDuringLookup() {
+	// The child app's consent is valid when the exchange starts and expires while its record is
+	// being read: the clock is read again inside the update, so the stale consent is replaced,
+	// not widened and reused.
+	start := time.Now().UTC().Truncate(time.Second)
+	clock := start
+	originExpiry := sql.NullTime{Time: start.Add(48 * time.Hour), Valid: true}
+	ts.seedSuperConsent([]string{"name", "email"}, nil, originExpiry)
+	ts.seedConsent(dsChildClient, "consent-child", []string{"email"}, nil,
+		sql.NullTime{Time: start.Add(time.Second), Valid: true})
+	ts.consent.beforeUpdate = func() { clock = start.Add(2 * time.Second) }
+	p := ts.clockedProvider(&clock)
+
+	res, svcErr := p.ResolveDerivedConsent(context.Background(), ts.derivedRequest("openid", "profile"))
+	ts.Require().Nil(svcErr)
+	ts.Require().True(res.Allowed)
+
+	record, err := ts.consent.FetchRecord(context.Background(), dsChildClient, dsTestUser)
+	ts.Require().NoError(err)
+	ts.Require().NotEqual("consent-child", record.ID, "the expired consent is replaced, not widened")
+	ts.Require().Equal([]string{"name"}, record.AcceptedClaims)
+	ts.Require().WithinDuration(originExpiry.Time, record.ExpiresAt.Time, time.Second)
+	ts.Require().Len(ts.consent.history, 1)
+}
+
+func (ts *DeviceSecretProviderTestSuite) TestResolveDerivedConsent_OriginExpiresDuringSave() {
+	// The originating consent is valid when the exchange starts and expires while the derived
+	// consent is being recorded: the record is written, but the exchange is not granted.
+	start := time.Now().UTC().Truncate(time.Second)
+	clock := start
+	ts.seedSuperConsent([]string{"name", "email"}, nil, sql.NullTime{Time: start.Add(time.Second), Valid: true})
+	ts.consent.beforeSave = func() { clock = start.Add(2 * time.Second) }
+	p := ts.clockedProvider(&clock)
+
+	res, svcErr := p.ResolveDerivedConsent(context.Background(), ts.derivedRequest("openid", "profile"))
+	ts.Require().Nil(svcErr)
+	ts.Require().False(res.Allowed, "a consent that expired during the save does not grant the exchange")
+	ts.Require().Equal([]string{"name"}, res.MissingClaims)
+	ts.Require().Len(ts.consent.history, 1)
+}
+
+func (ts *DeviceSecretProviderTestSuite) TestResolveDerivedConsent_ConcurrentDifferentScopesBothKept() {
+	// Two scope sets exchanged at the same time through two provider instances, as two replicas
+	// would run them: each widening sees the other's result, so the record ends up with both.
 	ts.seedSuperConsent([]string{"name", "email"}, nil, sql.NullTime{})
-	p := ts.newProvider().(providers.DeviceSSOConsentProvider)
+	ps := []providers.DeviceSSOConsentProvider{
+		ts.newProvider().(providers.DeviceSSOConsentProvider),
+		ts.newProvider().(providers.DeviceSSOConsentProvider),
+	}
 
 	const n = 8
 	var wg sync.WaitGroup
@@ -849,7 +936,11 @@ func (ts *DeviceSecretProviderTestSuite) TestResolveDerivedConsent_ConcurrentExc
 		wg.Add(1)
 		go func(i int) {
 			defer wg.Done()
-			res, svcErr := p.ResolveDerivedConsent(context.Background(), ts.derivedRequest("openid", "profile"))
+			scope := "profile"
+			if i%2 == 1 {
+				scope = "email"
+			}
+			res, svcErr := ps[i%2].ResolveDerivedConsent(context.Background(), ts.derivedRequest("openid", scope))
 			if svcErr != nil {
 				codes[i] = svcErr.Code
 				return
@@ -862,5 +953,40 @@ func (ts *DeviceSecretProviderTestSuite) TestResolveDerivedConsent_ConcurrentExc
 		ts.Require().Empty(codes[i])
 		ts.Require().True(allowed[i])
 	}
-	ts.Require().Len(ts.consent.history, 1, "concurrent identical exchanges record the derived consent once")
+	record, err := ts.consent.FetchRecord(context.Background(), dsChildClient, dsTestUser)
+	ts.Require().NoError(err)
+	ts.Require().ElementsMatch([]string{"email", "name"}, record.AcceptedClaims)
+	ts.Require().Len(ts.consent.history, 2, "one audit row per widening, none lost")
+}
+
+func (ts *DeviceSecretProviderTestSuite) TestResolveDerivedConsent_ConcurrentExchangesRecordOnce() {
+	// Eight identical exchanges at once through two provider instances, as two replicas would run them.
+	ts.seedSuperConsent([]string{"name", "email"}, nil, sql.NullTime{})
+	ps := []providers.DeviceSSOConsentProvider{
+		ts.newProvider().(providers.DeviceSSOConsentProvider),
+		ts.newProvider().(providers.DeviceSSOConsentProvider),
+	}
+
+	const n = 8
+	var wg sync.WaitGroup
+	allowed := make([]bool, n)
+	codes := make([]string, n)
+	for i := 0; i < n; i++ {
+		wg.Add(1)
+		go func(i int) {
+			defer wg.Done()
+			res, svcErr := ps[i%2].ResolveDerivedConsent(context.Background(), ts.derivedRequest("openid", "profile"))
+			if svcErr != nil {
+				codes[i] = svcErr.Code
+				return
+			}
+			allowed[i] = res.Allowed
+		}(i)
+	}
+	wg.Wait()
+	for i := 0; i < n; i++ {
+		ts.Require().Empty(codes[i])
+		ts.Require().True(allowed[i])
+	}
+	ts.Require().Len(ts.consent.history, 1, "concurrent identical exchanges through two provider instances record the derived consent once")
 }

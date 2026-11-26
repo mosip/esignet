@@ -358,3 +358,221 @@ func TestDeleteRecord_Error(t *testing.T) {
 		t.Fatal("expected an error when delete fails")
 	}
 }
+
+// storedConsentRow is a consent_detail row for client-1/user-1 with the email claim accepted.
+func storedConsentRow(id string) db.ConsentDetail {
+	return db.ConsentDetail{
+		ID:                  id,
+		ClientID:            "client-1",
+		PsuToken:            "user-1",
+		Claims:              `{"userinfo":{"email":null}}`,
+		AuthorizationScopes: `{}`,
+		CrDtimes:            time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC),
+		Hash:                sql.NullString{String: "hash-1", Valid: true},
+		AcceptedClaims:      sql.NullString{String: `["email"]`, Valid: true},
+		PermittedScopes:     sql.NullString{String: `[]`, Valid: true},
+	}
+}
+
+// expectGetConsentForUpdate scripts the locking consent_detail read issued by UpdateRecord.
+func expectGetConsentForUpdate(mock sqlmock.Sqlmock, clientID, userID string, row db.ConsentDetail) {
+	mock.ExpectQuery("FROM consent_detail WHERE .* FOR UPDATE").
+		WithArgs(clientID, userID).
+		WillReturnRows(sqlmock.NewRows(consentDetailColumns).AddRow(consentRowValues(row)...))
+}
+
+// widenWithName adds the name claim to the stored record.
+func widenWithName(existing *ConsentRecord) *ConsentRecord {
+	widened := *existing
+	widened.Claims = map[string]any{"userinfo": map[string]any{"email": nil, "name": nil}}
+	widened.AcceptedClaims = append(append([]string{}, existing.AcceptedClaims...), "name")
+	return &widened
+}
+
+func TestUpdateRecord_WidensExistingRowUnderLock(t *testing.T) {
+	// An existing row is re-read under FOR UPDATE, fn's result replaces it and a history row is
+	// appended, all before the commit releases the lock.
+	s, mock := newMockService(t)
+	row := storedConsentRow("consent-1")
+
+	mock.ExpectBegin()
+	expectGetConsent(mock, "client-1", "user-1", row)
+	expectGetConsentForUpdate(mock, "client-1", "user-1", row)
+	mock.ExpectExec("INSERT INTO consent_history").
+		WithArgs(sqlmock.AnyArg(), "client-1", "user-1", jsonArgHasKey{"userinfo"}, sqlmock.AnyArg(),
+			sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg()).
+		WillReturnResult(sqlmock.NewResult(0, 1))
+	mock.ExpectExec("DO UPDATE").
+		WithArgs("consent-1", "client-1", "user-1", jsonArgHasKey{"userinfo"}, sqlmock.AnyArg(),
+			sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg()).
+		WillReturnResult(sqlmock.NewResult(0, 1))
+	mock.ExpectCommit()
+
+	calls := 0
+	err := s.UpdateRecord(testContext(t), "client-1", "user-1", func(existing *ConsentRecord) (*ConsentRecord, error) {
+		calls++
+		if existing == nil || existing.ID != "consent-1" {
+			t.Fatalf("fn must see the locked row, got %#v", existing)
+		}
+		return widenWithName(existing), nil
+	})
+	if err != nil {
+		t.Fatalf("update: %v", err)
+	}
+	if calls != 1 {
+		t.Fatalf("fn calls = %d, want 1", calls)
+	}
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("unmet sqlmock expectations: %v", err)
+	}
+}
+
+func TestUpdateRecord_UnchangedWritesNothing(t *testing.T) {
+	// fn returning nil keeps the stored row: no history row, no upsert, the lock is released.
+	s, mock := newMockService(t)
+	row := storedConsentRow("consent-1")
+
+	mock.ExpectBegin()
+	expectGetConsent(mock, "client-1", "user-1", row)
+	expectGetConsentForUpdate(mock, "client-1", "user-1", row)
+	mock.ExpectCommit()
+
+	err := s.UpdateRecord(testContext(t), "client-1", "user-1", func(existing *ConsentRecord) (*ConsentRecord, error) {
+		return nil, nil
+	})
+	if err != nil {
+		t.Fatalf("update: %v", err)
+	}
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("unmet sqlmock expectations: %v", err)
+	}
+}
+
+func TestUpdateRecord_FirstInsertIsConditional(t *testing.T) {
+	// With no row stored, the new consent is inserted only if the pair is still absent, and the
+	// history row follows the successful insert.
+	s, mock := newMockService(t)
+
+	mock.ExpectBegin()
+	mock.ExpectQuery("FROM consent_detail WHERE").WithArgs("client-1", "user-1").WillReturnError(sql.ErrNoRows)
+	mock.ExpectExec("DO NOTHING").
+		WithArgs("consent-new", "client-1", "user-1", jsonArgHasKey{"userinfo"}, sqlmock.AnyArg(),
+			sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg()).
+		WillReturnResult(sqlmock.NewResult(0, 1))
+	mock.ExpectExec("INSERT INTO consent_history").
+		WithArgs(sqlmock.AnyArg(), "client-1", "user-1", jsonArgHasKey{"userinfo"}, sqlmock.AnyArg(),
+			sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg()).
+		WillReturnResult(sqlmock.NewResult(0, 1))
+	mock.ExpectCommit()
+
+	calls := 0
+	err := s.UpdateRecord(testContext(t), "client-1", "user-1", func(existing *ConsentRecord) (*ConsentRecord, error) {
+		calls++
+		if existing != nil {
+			t.Fatalf("fn must see no row, got %#v", existing)
+		}
+		return &ConsentRecord{
+			ID: "consent-new", ClientID: "client-1", UserID: "user-1",
+			Claims:         map[string]any{"userinfo": map[string]any{"name": nil}},
+			AcceptedClaims: []string{"name"},
+			CreatedAt:      time.Now().UTC(),
+		}, nil
+	})
+	if err != nil {
+		t.Fatalf("update: %v", err)
+	}
+	if calls != 1 {
+		t.Fatalf("fn calls = %d, want 1", calls)
+	}
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("unmet sqlmock expectations: %v", err)
+	}
+}
+
+func TestUpdateRecord_LostFirstInsertMergesOntoWinner(t *testing.T) {
+	// A concurrent first insert wins the race (the conditional insert affects no row): the
+	// committed row is read under the lock and fn runs again on it, so the winner's consent is
+	// kept and widened rather than overwritten.
+	s, mock := newMockService(t)
+	winner := storedConsentRow("consent-winner")
+
+	mock.ExpectBegin()
+	mock.ExpectQuery("FROM consent_detail WHERE").WithArgs("client-1", "user-1").WillReturnError(sql.ErrNoRows)
+	mock.ExpectExec("DO NOTHING").
+		WithArgs("consent-new", "client-1", "user-1", sqlmock.AnyArg(), sqlmock.AnyArg(),
+			sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg()).
+		WillReturnResult(sqlmock.NewResult(0, 0))
+	expectGetConsentForUpdate(mock, "client-1", "user-1", winner)
+	mock.ExpectExec("INSERT INTO consent_history").
+		WithArgs(sqlmock.AnyArg(), "client-1", "user-1", jsonArgHasKey{"userinfo"}, sqlmock.AnyArg(),
+			sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg()).
+		WillReturnResult(sqlmock.NewResult(0, 1))
+	mock.ExpectExec("DO UPDATE").
+		WithArgs("consent-winner", "client-1", "user-1", jsonArgHasKey{"userinfo"}, sqlmock.AnyArg(),
+			sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg()).
+		WillReturnResult(sqlmock.NewResult(0, 1))
+	mock.ExpectCommit()
+
+	var seen []*ConsentRecord
+	err := s.UpdateRecord(testContext(t), "client-1", "user-1", func(existing *ConsentRecord) (*ConsentRecord, error) {
+		seen = append(seen, existing)
+		if existing == nil {
+			return &ConsentRecord{
+				ID: "consent-new", ClientID: "client-1", UserID: "user-1",
+				Claims:         map[string]any{"userinfo": map[string]any{"name": nil}},
+				AcceptedClaims: []string{"name"},
+				CreatedAt:      time.Now().UTC(),
+			}, nil
+		}
+		return widenWithName(existing), nil
+	})
+	if err != nil {
+		t.Fatalf("update: %v", err)
+	}
+	if len(seen) != 2 || seen[0] != nil || seen[1] == nil || seen[1].ID != "consent-winner" {
+		t.Fatalf("fn must run on no row and then on the winner's row, saw %#v", seen)
+	}
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("unmet sqlmock expectations: %v", err)
+	}
+}
+
+func TestUpdateRecord_FnErrorRollsBack(t *testing.T) {
+	s, mock := newMockService(t)
+	row := storedConsentRow("consent-1")
+
+	mock.ExpectBegin()
+	expectGetConsent(mock, "client-1", "user-1", row)
+	expectGetConsentForUpdate(mock, "client-1", "user-1", row)
+	mock.ExpectRollback()
+
+	boom := errors.New("merge failed")
+	err := s.UpdateRecord(testContext(t), "client-1", "user-1", func(existing *ConsentRecord) (*ConsentRecord, error) {
+		return nil, boom
+	})
+	if !errors.Is(err, boom) {
+		t.Fatalf("expected fn's error, got %v", err)
+	}
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("unmet sqlmock expectations (rollback not performed?): %v", err)
+	}
+}
+
+func TestUpdateRecord_InsertErrorRollsBack(t *testing.T) {
+	s, mock := newMockService(t)
+
+	mock.ExpectBegin()
+	mock.ExpectQuery("FROM consent_detail WHERE").WithArgs("client-1", "user-1").WillReturnError(sql.ErrNoRows)
+	mock.ExpectExec("DO NOTHING").WillReturnError(errors.New("insert failed"))
+	mock.ExpectRollback()
+
+	err := s.UpdateRecord(testContext(t), "client-1", "user-1", func(existing *ConsentRecord) (*ConsentRecord, error) {
+		return &ConsentRecord{ID: "consent-new", ClientID: "client-1", UserID: "user-1", CreatedAt: time.Now().UTC()}, nil
+	})
+	if err == nil {
+		t.Fatal("expected an error when the conditional insert fails")
+	}
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("unmet sqlmock expectations (rollback not performed?): %v", err)
+	}
+}
