@@ -391,6 +391,71 @@ func (ts *HandlerTestSuite) TestPatchClientHandler() {
 		require.Nil(t, decoded["errors"])
 	})
 
+	t.Run("additional config properties are merged through the API", func(t *testing.T) {
+		stored := existingClientRow()
+		stored.AdditionalConfig = sql.NullString{
+			String: `{"userinfo_response_type":"JWS","require_pkce":true,"consent_expire_in_mins":60}`,
+			Valid:  true,
+		}
+		patched := stored
+		patched.AdditionalConfig = sql.NullString{
+			String: `{"userinfo_response_type":"JWS","require_pkce":true,"consent_expire_in_mins":120}`,
+			Valid:  true,
+		}
+		svc, mock := newSQLMockService(t, "postgres", nil, 0, nil)
+		expectLockedRead(mock, "postgres", stored.ID, stored, nil)
+		args := expectPatchWrite(mock, "postgres", stored.ID, db.PatchClientFields{AdditionalConfig: true}, patched, nil)
+		mock.ExpectCommit()
+		h := NewHandler(svc, applog.GetLogger().Named("clientmgmt-test"))
+		mux := http.NewServeMux()
+		h.RegisterRoutes(mux, nil)
+
+		body := []byte(`{"requestTime":"2026-07-27T00:00:00.000Z","request":{"additionalConfig":{"consent_expire_in_mins":120}}}`)
+		req := httptest.NewRequest(http.MethodPatch, "/client-mgmt/client/client-1", bytes.NewReader(body))
+		rec := httptest.NewRecorder()
+		mux.ServeHTTP(rec, req)
+
+		require.Equal(t, http.StatusOK, rec.Code)
+		decoded := decodeEnvelope(t, rec.Body.Bytes())
+		require.Nil(t, decoded["errors"])
+		require.JSONEq(t,
+			`{"userinfo_response_type":"JWS","require_pkce":true,"consent_expire_in_mins":120}`,
+			asNullString(args[0]).String,
+		)
+	})
+
+	for _, test := range []struct {
+		name             string
+		additionalConfig string
+	}{
+		{"unknown additional config property", `{"unknown_property":true}`},
+		{"invalid additional config value", `{"consent_expire_in_mins":5}`},
+	} {
+		t.Run(test.name+" is rejected atomically", func(t *testing.T) {
+			stored := existingClientRow()
+			stored.AdditionalConfig = sql.NullString{String: `{"require_pkce":true}`, Valid: true}
+			svc, mock := newSQLMockService(t, "postgres", nil, 0, nil)
+			expectLockedRead(mock, "postgres", stored.ID, stored, nil)
+			mock.ExpectRollback()
+			h := NewHandler(svc, applog.GetLogger().Named("clientmgmt-test"))
+			mux := http.NewServeMux()
+			h.RegisterRoutes(mux, nil)
+
+			body := []byte(`{"requestTime":"2026-07-27T00:00:00.000Z","request":{"additionalConfig":` + test.additionalConfig + `}}`)
+			req := httptest.NewRequest(http.MethodPatch, "/client-mgmt/client/client-1", bytes.NewReader(body))
+			rec := httptest.NewRecorder()
+			mux.ServeHTTP(rec, req)
+
+			require.Equal(t, http.StatusOK, rec.Code)
+			decoded := decodeEnvelope(t, rec.Body.Bytes())
+			errs := decoded["errors"].([]any)
+			require.Len(t, errs, 1)
+			errObj := errs[0].(map[string]any)
+			require.Equal(t, "invalid_additional_config", errObj["errorCode"])
+			require.Nil(t, decoded["response"])
+		})
+	}
+
 	t.Run("empty request is rejected", func(t *testing.T) {
 		q := &fakeQuerier{getRow: existingClientRow()}
 		h := newTestHandler(q)

@@ -857,7 +857,7 @@ func (ts *ServiceTestSuite) TestPatchClient() {
 		require.False(t, q.patchParams.EncPublicKeyCert.Valid)
 	})
 
-	t.Run("explicit null configuration keeps its replacement semantics", func(t *testing.T) {
+	t.Run("explicit null configuration clears it", func(t *testing.T) {
 		row := existingClientRow()
 		row.EncPublicKey = sql.NullString{String: `{"kty":"RSA"}`, Valid: true}
 		row.AdditionalConfig = sql.NullString{String: `{"userinfo_response_type":"JWE"}`, Valid: true}
@@ -868,8 +868,33 @@ func (ts *ServiceTestSuite) TestPatchClient() {
 			EncPublicKey:     NullableJWK{Defined: true, IsNull: true},
 		}, PatchFields{AdditionalConfig: true, EncPublicKey: true})
 		require.NoError(t, err)
-		require.Equal(t, sql.NullString{String: "null", Valid: true}, q.patchParams.AdditionalConfig)
+		require.Equal(t, db.PatchClientFields{AdditionalConfig: true, EncPublicKey: true}, q.patchParams.Fields)
+		require.Equal(t, sql.NullString{}, q.patchParams.AdditionalConfig)
 		require.False(t, q.patchParams.EncPublicKey.Valid)
+	})
+
+	t.Run("configuration is merged onto the stored one", func(t *testing.T) {
+		row := existingClientRow()
+		row.AdditionalConfig = sql.NullString{String: `{"userinfo_response_type":"JWS","require_pkce":true,"consent_expire_in_mins":60}`, Valid: true}
+		q := &fakeQuerier{getRow: row, patchRow: row}
+		s := newLockedTestService(t, q, nil, 0, nil)
+		_, err := s.PatchClient(context.Background(), row.ID, PatchClientRequest{
+			AdditionalConfig: json.RawMessage(`{"consent_expire_in_mins":120}`),
+		}, PatchFields{AdditionalConfig: true})
+		require.NoError(t, err)
+		require.JSONEq(t, `{"userinfo_response_type":"JWS","require_pkce":true,"consent_expire_in_mins":120}`, q.patchParams.AdditionalConfig.String)
+	})
+
+	t.Run("malformed stored configuration fails the patch", func(t *testing.T) {
+		row := existingClientRow()
+		row.AdditionalConfig = sql.NullString{String: `{bad`, Valid: true}
+		q := &fakeQuerier{getRow: row}
+		s := newLockedTestService(t, q, nil, 0, nil)
+		_, err := s.PatchClient(context.Background(), row.ID, PatchClientRequest{
+			AdditionalConfig: json.RawMessage(`{"require_pkce":true}`),
+		}, PatchFields{AdditionalConfig: true})
+		require.Error(t, err)
+		require.False(t, q.patchParams.Fields.AdditionalConfig)
 	})
 
 	t.Run("enc public key invalid new value", func(t *testing.T) {
