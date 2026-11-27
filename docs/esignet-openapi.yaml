@@ -1477,6 +1477,23 @@ paths:
         - Nested objects (for example "purpose") and arrays are replaced as a whole, not merged
         - A property set to null is stored as null and treated as unset; an empty object changes nothing; setting additionalConfig itself to null clears the whole configuration
         - The merged result is validated; unrecognized properties are rejected with "invalid_additional_config"
+
+        Example top-level property merge:
+
+        **Before**
+        ```json
+        {"additionalConfig":{"userinfo_response_type":"JWS","require_pkce":true,"consent_expire_in_mins":60}}
+        ```
+
+        **PATCH request**
+        ```json
+        {"request":{"additionalConfig":{"consent_expire_in_mins":120}}}
+        ```
+
+        **After**
+        ```json
+        {"additionalConfig":{"userinfo_response_type":"JWS","require_pkce":true,"consent_expire_in_mins":120}}
+        ```
         
         **Special handling for encPublicKey:**
         - When set/updated: validates format (including a mandatory non-empty "kid") and computes enc_public_key_hash
@@ -1602,45 +1619,49 @@ paths:
                         enum:
                           - private_key_jwt
                     additionalConfig:
-                      type: object
+                      type: [object, 'null']
                       description: 'This parameter allow us to configure the required values based on their specific authentication and integration needs, ensuring efficient implementation of eSignet for ID verification/authentication. Only the properties listed below are accepted; any unrecognized property results in an invalid_additional_config error.'
                       additionalProperties: false
                       properties:
                         userinfo_response_type:
-                          type: string
+                          type: [string, 'null']
                           enum:
                             - JWS
                             - JWE
+                            - null
                           description: The response type for the user info endpoint should be configurable to allow the Relying Party to choose between only signed tokens or signed tokens with encryption.
                         id_token_response_type:
-                          type: string
+                          type: [string, 'null']
                           enum:
                             - JWS
                             - JWE
+                            - null
                           description: The response type for the id token should be configurable to allow the Relying Party to choose between only signed tokens or signed tokens with encryption.
                         purpose:
-                          $ref: '#/components/schemas/Purpose'
+                          oneOf:
+                            - $ref: '#/components/schemas/Purpose'
+                            - type: 'null'
                         signup_banner_required:
-                          type: boolean
+                          type: [boolean, 'null']
                           description: Relying Parties should be able to specify whether they require eSignet sign-up. If no signup service is required UI should not have "Sign up with Unified login" option.
                         forgot_pwd_link_required:
-                          type: boolean
+                          type: [boolean, 'null']
                           description: Relying Parties should be able to specify whether they require eSignet forgot password feature. If it is not required UI should not have "Forgot password" option.
                         consent_expire_in_mins:
-                          type: number
+                          type: [number, 'null']
                           minimum: 10
                           description: The number of minutes after which a user's given consent will expire.
                         require_pushed_authorization_requests:
-                          type: boolean
+                          type: [boolean, 'null']
                           description: 'Boolean parameter indicating whether the only means of initiating an authorization request the client is allowed to use is PAR. If omitted, the default value is false.'
                         dpop_bound_access_tokens:
-                          type: boolean
+                          type: [boolean, 'null']
                           description: 'A boolean value specifying whether the client always uses DPoP for token requests. If omitted, the default value is false. If the value is true, the eSignet rejects token request from the client that do not contain the DPoP header.'
                         require_pkce:
-                          type: boolean
+                          type: [boolean, 'null']
                           description: 'A boolean value specifying whether the client is required to use PKCE for the authorization code flow. If omitted, the default value is false.'
                         allowed_authorization_scopes:
-                          type: array
+                          type: [array, 'null']
                           uniqueItems: true
                           items:
                             type: string

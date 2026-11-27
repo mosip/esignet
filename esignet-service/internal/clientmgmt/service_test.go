@@ -888,7 +888,7 @@ func (ts *ServiceTestSuite) TestPatchClient() {
 	t.Run("malformed stored configuration fails the patch", func(t *testing.T) {
 		row := existingClientRow()
 		row.AdditionalConfig = sql.NullString{String: `{bad`, Valid: true}
-		q := &fakeQuerier{getRow: row, patchRow: row}
+		q := &fakeQuerier{getRow: row}
 		s := newLockedTestService(t, q, nil, 0, nil)
 		_, err := s.PatchClient(context.Background(), row.ID, PatchClientRequest{
 			AdditionalConfig: json.RawMessage(`{"require_pkce":true}`),

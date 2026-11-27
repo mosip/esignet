@@ -500,7 +500,7 @@ func (ts *ValidateTestSuite) TestValidatePatch() {
 
 func (ts *ValidateTestSuite) TestMergeAdditionalConfig() {
 	t := ts.T()
-	stored := sql.NullString{String: `{"userinfo_response_type":"JWS","require_pkce":true,"consent_expire_in_mins":60,"purpose":{"type":"verify","title":{"@none":"a"}}}`, Valid: true}
+	stored := sql.NullString{String: `{"userinfo_response_type":"JWS","require_pkce":true,"consent_expire_in_mins":60,"purpose":{"type":"verify","title":{"@none":"a"}},"allowed_authorization_scopes":["openid","profile"]}`, Valid: true}
 
 	for _, test := range []struct {
 		name   string
@@ -509,13 +509,15 @@ func (ts *ValidateTestSuite) TestMergeAdditionalConfig() {
 		want   string
 	}{
 		{"supplied key overwrites, others kept", stored, `{"consent_expire_in_mins":120}`,
-			`{"consent_expire_in_mins":120,"purpose":{"type":"verify","title":{"@none":"a"}},"require_pkce":true,"userinfo_response_type":"JWS"}`},
+			`{"allowed_authorization_scopes":["openid","profile"],"consent_expire_in_mins":120,"purpose":{"type":"verify","title":{"@none":"a"}},"require_pkce":true,"userinfo_response_type":"JWS"}`},
 		{"explicit false overwrites true", stored, `{"require_pkce":false}`,
-			`{"consent_expire_in_mins":60,"purpose":{"type":"verify","title":{"@none":"a"}},"require_pkce":false,"userinfo_response_type":"JWS"}`},
+			`{"allowed_authorization_scopes":["openid","profile"],"consent_expire_in_mins":60,"purpose":{"type":"verify","title":{"@none":"a"}},"require_pkce":false,"userinfo_response_type":"JWS"}`},
 		{"nested object replaced as a unit", stored, `{"purpose":{"type":"link"}}`,
-			`{"consent_expire_in_mins":60,"purpose":{"type":"link"},"require_pkce":true,"userinfo_response_type":"JWS"}`},
+			`{"allowed_authorization_scopes":["openid","profile"],"consent_expire_in_mins":60,"purpose":{"type":"link"},"require_pkce":true,"userinfo_response_type":"JWS"}`},
+		{"array replaced as a unit", stored, `{"allowed_authorization_scopes":["email"]}`,
+			`{"allowed_authorization_scopes":["email"],"consent_expire_in_mins":60,"purpose":{"type":"verify","title":{"@none":"a"}},"require_pkce":true,"userinfo_response_type":"JWS"}`},
 		{"null property is stored as JSON null", stored, `{"require_pkce":null,"purpose":null}`,
-			`{"consent_expire_in_mins":60,"purpose":null,"require_pkce":null,"userinfo_response_type":"JWS"}`},
+			`{"allowed_authorization_scopes":["openid","profile"],"consent_expire_in_mins":60,"purpose":null,"require_pkce":null,"userinfo_response_type":"JWS"}`},
 		{"empty patch keeps stored", sql.NullString{String: `{"require_pkce":true}`, Valid: true}, `{}`, `{"require_pkce":true}`},
 		{"no stored config", sql.NullString{}, `{"require_pkce":true}`, `{"require_pkce":true}`},
 		{"stored null text", sql.NullString{String: "null", Valid: true}, `{"require_pkce":true}`, `{"require_pkce":true}`},
@@ -547,6 +549,25 @@ func (ts *ValidateTestSuite) TestMergeAdditionalConfig() {
 		assert.False(t, errors.As(err, &ve))
 	})
 
+	t.Run("null patch does not hide malformed stored configuration", func(t *testing.T) {
+		_, err := mergeAdditionalConfig(sql.NullString{String: `{bad`, Valid: true}, json.RawMessage(`null`))
+		require.Error(t, err)
+		var ve *ValidationError
+		assert.False(t, errors.As(err, &ve))
+	})
+
+	t.Run("empty stored configuration is an internal error", func(t *testing.T) {
+		_, err := mergeAdditionalConfig(sql.NullString{String: "", Valid: true}, json.RawMessage(`{"require_pkce":true}`))
+		require.Error(t, err)
+		var ve *ValidationError
+		assert.False(t, errors.As(err, &ve))
+	})
+
+	t.Run("empty supplied configuration is rejected", func(t *testing.T) {
+		_, err := mergeAdditionalConfig(stored, nil)
+		assert.Equal(t, "invalid_additional_config", errCode(t, err))
+	})
+
 	t.Run("merged result is validated", func(t *testing.T) {
 		_, err := ValidatePatch(PatchClientRequest{AdditionalConfig: json.RawMessage(`{"consent_expire_in_mins":5}`)},
 			PatchFields{AdditionalConfig: true}, db.ClientDetail{AdditionalConfig: stored}, nil)
@@ -557,7 +578,7 @@ func (ts *ValidateTestSuite) TestMergeAdditionalConfig() {
 		got, err := ValidatePatch(PatchClientRequest{AdditionalConfig: json.RawMessage(`{"userinfo_response_type":null,"consent_expire_in_mins":null,"purpose":null}`)},
 			PatchFields{AdditionalConfig: true}, db.ClientDetail{AdditionalConfig: stored}, nil)
 		require.NoError(t, err)
-		assert.JSONEq(t, `{"userinfo_response_type":null,"consent_expire_in_mins":null,"purpose":null,"require_pkce":true}`, string(got.AdditionalConfig))
+		assert.JSONEq(t, `{"userinfo_response_type":null,"consent_expire_in_mins":null,"purpose":null,"require_pkce":true,"allowed_authorization_scopes":["openid","profile"]}`, string(got.AdditionalConfig))
 	})
 
 	t.Run("stored null properties pass when the key is cleared", func(t *testing.T) {
